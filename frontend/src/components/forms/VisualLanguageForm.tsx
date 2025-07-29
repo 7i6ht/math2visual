@@ -7,7 +7,7 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { GearLoading } from "@/components/ui/gear-loading";
 import type { UseFormReturn } from "react-hook-form";
 import type { ResubmitData } from "@/schemas/validation";
 
@@ -43,18 +43,17 @@ export const VisualLanguageForm = ({ form, onSubmit, loading }: VisualLanguageFo
             />
 
             <div className="flex justify-center">
-              <Button
-                type="submit"
-                disabled={loading}
-                variant="secondary"
-                className="min-w-[200px]"
-              >
-                {loading ? (
-                  <LoadingSpinner message="Updating…" />
-                ) : (
-                  "Resubmit Visualization"
-                )}
-              </Button>
+              {loading ? (
+                <GearLoading message="Updating" />
+              ) : (
+                <Button
+                  type="submit"
+                  variant="secondary"
+                  className="min-w-[200px]"
+                >
+                  Resubmit Visualization
+                </Button>
+              )}
             </div>
           </form>
         </Form>

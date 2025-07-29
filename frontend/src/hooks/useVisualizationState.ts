@@ -50,12 +50,14 @@ export const useVisualizationState = () => {
     }));
   };
 
-  const resetErrors = () => {
+  const reset = () => {
     setState(prev => ({
       ...prev,
-      error: null,
+      svgFormal: null,
+      svgIntuitive: null,
       formalError: null,
       intuitiveError: null,
+      error: null,
     }));
   };
 
@@ -65,6 +67,6 @@ export const useVisualizationState = () => {
     setError,
     setResults,
     resetResults,
-    resetErrors,
+    reset,
   };
 }; 

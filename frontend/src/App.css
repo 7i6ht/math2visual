@@ -119,6 +119,16 @@
   100% { transform: rotate(360deg); }
 }
 
+@keyframes spin-reverse {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(-360deg); }
+}
+
+@keyframes spin-reverse-offset {
+  0% { transform: rotate(15deg); }
+  100% { transform: rotate(-345deg); }
+}
+
 .loading-spinner {
   display: inline-block;
   width: 16px;
@@ -128,4 +138,15 @@
   border-top-color: transparent;
   animation: spin 1s linear infinite;
   opacity: 0.8;
+}
+
+/* Gear animations - synchronized for meshing */
+.gear-1 {
+  animation: spin 3s linear infinite;
+  transform-origin: center;
+}
+
+.gear-2 {
+  animation: spin-reverse-offset 1.8s linear infinite;
+  transform-origin: center;
 }

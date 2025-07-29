@@ -47,6 +47,4 @@ export interface ErrorDisplayProps {
   error: string;
 }
 
-export interface LoadingSpinnerProps {
-  message?: string;
-} 
+ 

@@ -20,7 +20,7 @@ function App() {
     setError,
     setResults,
     resetResults,
-    resetErrors,
+    reset,
   } = useVisualizationState();
 
   const { form: mainForm, handleSubmit } = useVisualizationForm({
@@ -35,7 +35,7 @@ function App() {
     onSuccess: setResults,
     onError: setError,
     onLoadingChange: setLoading,
-    onReset: resetErrors,
+    onReset: reset,
   });
 
   return (
