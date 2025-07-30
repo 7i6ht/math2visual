@@ -50,7 +50,14 @@ function App() {
     <>
       <div className="min-h-screen w-full p-8 max-w-6xl mx-auto">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold mb-4">Math2Visual</h1>
+          <div className="flex items-center justify-center gap-4 mb-4">
+            <img 
+              src="/math2visual-logo.svg" 
+              alt="Math2Visual Logo" 
+              className="w-10 h-10"
+            />
+            <h1 className="text-4xl font-bold">Math2Visual</h1>
+          </div>
           <p className="text-muted-foreground">Enter your math word problem to generate visual representations</p>
         </div>
 
