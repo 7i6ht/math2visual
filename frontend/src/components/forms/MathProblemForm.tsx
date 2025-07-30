@@ -31,6 +31,7 @@ export const MathProblemForm = ({ form, onSubmit, loading }: MathProblemFormProp
                   className="w-full"
                   placeholder="Enter your math word problem…"
                   rows={4}
+                  spellCheck={false}
                   {...field}
                 />
               </FormControl>
@@ -48,6 +49,7 @@ export const MathProblemForm = ({ form, onSubmit, loading }: MathProblemFormProp
                 <Input
                   className="w-full"
                   placeholder="Optional formula (e.g. 9 + 7 = 16)"
+                  spellCheck={false}
                   {...field}
                 />
               </FormControl>
