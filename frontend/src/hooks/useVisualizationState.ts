@@ -5,15 +5,20 @@ export const useVisualizationState = () => {
   const [state, setState] = useState<VisualizationState>({
     vl: null,
     error: null,
-    loading: false,
+    mainFormLoading: false,
+    resubmitLoading: false,
     svgFormal: null,
     svgIntuitive: null,
     formalError: null,
     intuitiveError: null,
   });
 
-  const setLoading = (loading: boolean) => {
-    setState(prev => ({ ...prev, loading }));
+  const setMainFormLoading = (mainFormLoading: boolean) => {
+    setState(prev => ({ ...prev, mainFormLoading }));
+  };
+
+  const setResubmitLoading = (resubmitLoading: boolean) => {
+    setState(prev => ({ ...prev, resubmitLoading }));
   };
 
   const setError = (error: string | null) => {
@@ -50,7 +55,7 @@ export const useVisualizationState = () => {
     }));
   };
 
-  const reset = () => {
+  const resetVisuals = () => {
     setState(prev => ({
       ...prev,
       svgFormal: null,
@@ -63,10 +68,11 @@ export const useVisualizationState = () => {
 
   return {
     ...state,
-    setLoading,
+    setMainFormLoading,
+    setResubmitLoading,
     setError,
     setResults,
     resetResults,
-    reset,
+    resetVisuals,
   };
 }; 

@@ -3,6 +3,7 @@ import { MathProblemForm } from "@/components/forms/MathProblemForm";
 import { VisualLanguageForm } from "@/components/forms/VisualLanguageForm";
 import { VisualizationResults } from "@/components/visualization/VisualizationResults";
 import { ErrorDisplay } from "@/components/ui/error-display";
+import { GearLoading } from "@/components/ui/gear-loading";
 import { useVisualizationState } from "@/hooks/useVisualizationState";
 import { useVisualizationForm } from "@/hooks/useVisualizationForm";
 import { useResubmitForm } from "@/hooks/useResubmitForm";
@@ -11,22 +12,24 @@ function App() {
   const {
     vl,
     error,
-    loading,
+    resubmitLoading,
+    mainFormLoading,
     svgFormal,
     svgIntuitive,
     formalError,
     intuitiveError,
-    setLoading,
+    setMainFormLoading,
+    setResubmitLoading,
     setError,
     setResults,
     resetResults,
-    reset,
+    resetVisuals,
   } = useVisualizationState();
 
   const { form: mainForm, handleSubmit } = useVisualizationForm({
     onSuccess: setResults,
     onError: setError,
-    onLoadingChange: setLoading,
+    onLoadingChange: setMainFormLoading,
     onReset: resetResults,
   });
 
@@ -34,9 +37,13 @@ function App() {
     vl,
     onSuccess: setResults,
     onError: setError,
-    onLoadingChange: setLoading,
-    onReset: reset,
+    onLoadingChange: setResubmitLoading,
+    onReset: resetVisuals,
   });
+
+  // Determine if any loading is happening and what message to show
+  const isLoading = mainFormLoading || resubmitLoading;
+  const loadingMessage = mainFormLoading ? "Generating..." : "Updating...";
 
   return (
     <div className="min-h-screen w-full p-8 max-w-6xl mx-auto">
@@ -49,7 +56,7 @@ function App() {
         <MathProblemForm 
           form={mainForm}
           onSubmit={handleSubmit}
-          loading={loading}
+          loading={mainFormLoading}
         />
 
         {error && <ErrorDisplay error={error} />}
@@ -58,8 +65,14 @@ function App() {
           <VisualLanguageForm
             form={resubmitForm}
             onSubmit={handleResubmit}
-            loading={loading}
+            loading={resubmitLoading}
           />
+        )}
+
+        {isLoading && (
+          <div className="mt-8">
+            <GearLoading message={loadingMessage} />
+          </div>
         )}
       </div>
 

@@ -7,7 +7,6 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { GearLoading } from "@/components/ui/gear-loading";
 import type { UseFormReturn } from "react-hook-form";
 import type { ResubmitData } from "@/schemas/validation";
 
@@ -43,9 +42,7 @@ export const VisualLanguageForm = ({ form, onSubmit, loading }: VisualLanguageFo
             />
 
             <div className="flex justify-center">
-              {loading ? (
-                <GearLoading message="Updating" />
-              ) : (
+              {!loading && (
                 <Button
                   type="submit"
                   variant="secondary"

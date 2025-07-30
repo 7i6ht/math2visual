@@ -8,7 +8,6 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { GearLoading } from "@/components/ui/gear-loading";
 import type { UseFormReturn } from "react-hook-form";
 import type { FormData } from "@/schemas/validation";
 
@@ -58,9 +57,7 @@ export const MathProblemForm = ({ form, onSubmit, loading }: MathProblemFormProp
         />
 
         <div className="flex justify-center mt-6">
-          {loading ? (
-            <GearLoading />
-          ) : (
+          {!loading && (
             <Button
               type="submit"
               size="lg"

@@ -28,7 +28,8 @@ export interface ApiResponse {
 export interface VisualizationState {
   vl: string | null;
   error: string | null;
-  loading: boolean;
+  mainFormLoading: boolean;
+  resubmitLoading: boolean;
   svgFormal: string | null;
   svgIntuitive: string | null;
   formalError: string | null;
