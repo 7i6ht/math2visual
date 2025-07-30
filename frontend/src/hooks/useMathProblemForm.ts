@@ -4,19 +4,19 @@ import { formSchema } from "@/schemas/validation";
 import { apiService } from "@/services/api";
 import type { FormData } from "@/schemas/validation";
 
-interface UseVisualizationFormProps {
+interface UseMathProblemFormProps {
   onSuccess: (vl: string, svgFormal: string | null, svgIntuitive: string | null, formalError?: string, intuitiveError?: string) => void;
   onError: (error: string) => void;
   onLoadingChange: (loading: boolean) => void;
   onReset: () => void;
 }
 
-export const useVisualizationForm = ({
+export const useMathProblemForm = ({
   onSuccess,
   onError,
   onLoadingChange,
   onReset,
-}: UseVisualizationFormProps) => {
+}: UseMathProblemFormProps) => {
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {

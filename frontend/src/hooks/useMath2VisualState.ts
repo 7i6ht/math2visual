@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { VisualizationState } from "@/types";
 
-export const useVisualizationState = () => {
+export const useMath2VisualState = () => {
   const [state, setState] = useState<VisualizationState>({
     vl: null,
     error: null,

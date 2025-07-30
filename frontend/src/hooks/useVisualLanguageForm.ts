@@ -5,7 +5,7 @@ import { resubmitSchema } from "@/schemas/validation";
 import { apiService } from "@/services/api";
 import type { ResubmitData } from "@/schemas/validation";
 
-interface UseResubmitFormProps {
+interface UseVisualLanguageFormProps {
   vl: string | null;
   onSuccess: (vl: string, svgFormal: string | null, svgIntuitive: string | null, formalError?: string, intuitiveError?: string) => void;
   onError: (error: string) => void;
@@ -13,13 +13,13 @@ interface UseResubmitFormProps {
   onReset: () => void;
 }
 
-export const useResubmitForm = ({
+export const useVisualLanguageForm = ({
   vl,
   onSuccess,
   onError,
   onLoadingChange,
   onReset,
-}: UseResubmitFormProps) => {
+}: UseVisualLanguageFormProps) => {
   const form = useForm<ResubmitData>({
     resolver: zodResolver(resubmitSchema),
     defaultValues: {

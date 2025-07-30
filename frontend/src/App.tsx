@@ -4,9 +4,9 @@ import { VisualLanguageForm } from "@/components/forms/VisualLanguageForm";
 import { VisualizationResults } from "@/components/visualization/VisualizationResults";
 import { ErrorDisplay } from "@/components/ui/error-display";
 import { GearLoading } from "@/components/ui/gear-loading";
-import { useVisualizationState } from "@/hooks/useVisualizationState";
-import { useVisualizationForm } from "@/hooks/useVisualizationForm";
-import { useResubmitForm } from "@/hooks/useResubmitForm";
+import { useMath2VisualState } from "@/hooks/useMath2VisualState";
+import { useMathProblemForm } from "@/hooks/useMathProblemForm";
+import { useVisualLanguageForm } from "@/hooks/useVisualLanguageForm";
 
 function App() {
   const {
@@ -24,16 +24,16 @@ function App() {
     setResults,
     resetResults,
     resetVisuals,
-  } = useVisualizationState();
+  } = useMath2VisualState();
 
-  const { form: mainForm, handleSubmit } = useVisualizationForm({
+  const { form: mathProblemForm, handleSubmit: handleMathProblemSubmit } = useMathProblemForm({
     onSuccess: setResults,
     onError: setError,
     onLoadingChange: setMainFormLoading,
     onReset: resetResults,
   });
 
-  const { form: resubmitForm, handleResubmit } = useResubmitForm({
+  const { form: visualLanguageForm, handleResubmit: handleVisualLanguageSubmit } = useVisualLanguageForm({
     vl,
     onSuccess: setResults,
     onError: setError,
@@ -54,8 +54,8 @@ function App() {
 
       <div className="max-w-2xl mx-auto">
         <MathProblemForm 
-          form={mainForm}
-          onSubmit={handleSubmit}
+          form={mathProblemForm}
+          onSubmit={handleMathProblemSubmit}
           loading={mainFormLoading}
         />
 
@@ -63,8 +63,8 @@ function App() {
 
         {vl && (
           <VisualLanguageForm
-            form={resubmitForm}
-            onSubmit={handleResubmit}
+            form={visualLanguageForm}
+            onSubmit={handleVisualLanguageSubmit}
             loading={resubmitLoading}
           />
         )}
