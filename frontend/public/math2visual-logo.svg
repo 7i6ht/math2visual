@@ -1,14 +1,30 @@
-<svg width="120" height="40" viewBox="0 0 120 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Math symbol (Sigma) -->
-  <text x="10" y="28" font-family="Arial, Helvetica, sans-serif" font-size="28" fill="black">Σ</text>
-  <!-- Arrow -->
-  <line x1="35" y1="20" x2="75" y2="20" stroke="black" stroke-width="2" marker-end="url(#arrowhead)" />
-  <defs>
-    <marker id="arrowhead" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto" markerUnits="strokeWidth">
-      <path d="M0,0 L6,3 L0,6" fill="black" />
-    </marker>
-  </defs>
-  <!-- Eye (visual) -->
-  <ellipse cx="100" cy="20" rx="12" ry="8" stroke="black" stroke-width="2" fill="none" />
-  <circle cx="100" cy="20" r="3" fill="black" />
-</svg> 
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect x="0" y="0" width="200" height="200" fill="#f0f0f0" stroke="#000" stroke-width="4" rx="25"/>
+  
+  <!-- Top-left quadrant (Addition - Green) -->
+  <rect x="4" y="4" width="92" height="92" fill="#4CAF50"/>
+  <rect x="40" y="46" width="20" height="8" fill="#000"/>
+  <rect x="46" y="40" width="8" height="20" fill="#000"/>
+  
+  <!-- Top-right quadrant (Multiplication - Blue) -->
+  <rect x="100" y="4" width="96" height="92" fill="#2196F3"/>
+  <line x1="130" y1="30" x2="170" y2="70" stroke="#000" stroke-width="4"/>
+  <line x1="170" y1="30" x2="130" y2="70" stroke="#000" stroke-width="4"/>
+  
+  <!-- Bottom-left quadrant (Subtraction - Yellow) -->
+  <rect x="4" y="100" width="92" height="96" fill="#FFEB3B"/>
+  <rect x="40" y="146" width="20" height="8" fill="#000"/>
+  
+  <!-- Bottom-right quadrant (Division - Red) -->
+  <rect x="100" y="100" width="96" height="96" fill="#F44336"/>
+  <circle cx="148" cy="135" r="4" fill="#000"/>
+  <rect x="138" y="146" width="20" height="4" fill="#000"/>
+  <circle cx="148" cy="165" r="4" fill="#000"/>
+  
+  <!-- Central equals sign (Orange circle) -->
+  <circle cx="100" cy="100" r="35" fill="#FF9800" stroke="#000" stroke-width="3"/>
+  <rect x="85" y="92" width="30" height="4" fill="#000"/>
+  <rect x="85" y="104" width="30" height="4" fill="#000"/>
+</svg>
