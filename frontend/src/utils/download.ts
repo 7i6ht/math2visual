@@ -15,9 +15,46 @@ export const downloadSvg = (svgContent: string, filename: string): void => {
 };
 
 /**
+ * Parses SVG content to extract dimensions from viewBox or width/height attributes
+ */
+const parseSvgDimensions = (svgContent: string): { width: number; height: number } => {
+  const parser = new DOMParser();
+  const svgDoc = parser.parseFromString(svgContent, 'image/svg+xml');
+  const svgElement = svgDoc.querySelector('svg');
+  
+  if (!svgElement) {
+    return { width: 1200, height: 900 }; // High-res defaults
+  }
+  
+  // Try to get width and height attributes first
+  const widthAttr = svgElement.getAttribute('width');
+  const heightAttr = svgElement.getAttribute('height');
+  
+  if (widthAttr && heightAttr) {
+    const width = parseFloat(widthAttr.replace(/[^0-9.]/g, ''));
+    const height = parseFloat(heightAttr.replace(/[^0-9.]/g, ''));
+    if (!isNaN(width) && !isNaN(height)) {
+      return { width, height };
+    }
+  }
+  
+  // Try to parse viewBox if width/height not available
+  const viewBox = svgElement.getAttribute('viewBox');
+  if (viewBox) {
+    const [, , width, height] = viewBox.split(/\s+/).map(parseFloat);
+    if (!isNaN(width) && !isNaN(height)) {
+      return { width, height };
+    }
+  }
+  
+  // Fallback to high-res defaults
+  return { width: 1200, height: 900 };
+};
+
+/**
  * Converts SVG to PNG and downloads it
  */
-export const downloadPng = (svgContent: string, filename: string): void => {
+export const downloadPng = (svgContent: string, filename: string, scaleFactor: number = 3): void => {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
   const img = new Image();
@@ -26,12 +63,23 @@ export const downloadPng = (svgContent: string, filename: string): void => {
     // Clean up the SVG URL
     URL.revokeObjectURL(svgUrl);
     
-    // Set canvas size to match image
-    canvas.width = img.width || 800;
-    canvas.height = img.height || 600;
+    // Get SVG dimensions or use parsed dimensions
+    const svgDimensions = parseSvgDimensions(svgContent);
+    const finalWidth = (img.naturalWidth || svgDimensions.width) * scaleFactor;
+    const finalHeight = (img.naturalHeight || svgDimensions.height) * scaleFactor;
     
-    // Draw the image onto the canvas
-    ctx?.drawImage(img, 0, 0);
+    // Set high-resolution canvas size
+    canvas.width = finalWidth;
+    canvas.height = finalHeight;
+    
+    // Enable high-quality rendering
+    if (ctx) {
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      
+      // Draw the image onto the canvas at high resolution
+      ctx.drawImage(img, 0, 0, finalWidth, finalHeight);
+    }
     
     // Convert canvas to PNG blob and download
     canvas.toBlob((blob) => {
@@ -43,7 +91,7 @@ export const downloadPng = (svgContent: string, filename: string): void => {
         anchor.click();
         URL.revokeObjectURL(url);
       }
-    }, 'image/png');
+    }, 'image/png', 1.0); // Maximum quality
   };
   
   // Convert SVG to data URL and load into image
@@ -55,7 +103,7 @@ export const downloadPng = (svgContent: string, filename: string): void => {
 /**
  * Converts SVG to PDF and downloads it
  */
-export const downloadPdf = async (svgContent: string, filename: string): Promise<void> => {
+export const downloadPdf = async (svgContent: string, filename: string, scaleFactor: number = 3): Promise<void> => {
   try {
     // Dynamic import of jsPDF to avoid bundling if not used
     const jsPDF = (await import('jspdf')).default;
@@ -70,25 +118,39 @@ export const downloadPdf = async (svgContent: string, filename: string): Promise
           // Clean up the SVG URL
           URL.revokeObjectURL(svgUrl);
           
-          // Set canvas size
-          canvas.width = img.width || 800;
-          canvas.height = img.height || 600;
+          // Get SVG dimensions or use parsed dimensions
+          const svgDimensions = parseSvgDimensions(svgContent);
+          const finalWidth = (img.naturalWidth || svgDimensions.width) * scaleFactor;
+          const finalHeight = (img.naturalHeight || svgDimensions.height) * scaleFactor;
           
-          // Draw the image onto the canvas
-          ctx?.drawImage(img, 0, 0);
+          // Set high-resolution canvas size
+          canvas.width = finalWidth;
+          canvas.height = finalHeight;
           
-          // Convert canvas to data URL
-          const imgData = canvas.toDataURL('image/png');
+          // Enable high-quality rendering
+          if (ctx) {
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            
+            // Draw the image onto the canvas at high resolution
+            ctx.drawImage(img, 0, 0, finalWidth, finalHeight);
+          }
           
-          // Create PDF
+          // Convert canvas to data URL with maximum quality
+          const imgData = canvas.toDataURL('image/png', 1.0);
+          
+          // Create PDF with proper dimensions (convert px to mm for better sizing)
+          const mmWidth = finalWidth * 0.264583; // px to mm conversion
+          const mmHeight = finalHeight * 0.264583;
+          
           const pdf = new jsPDF({
-            orientation: canvas.width > canvas.height ? 'landscape' : 'portrait',
-            unit: 'px',
-            format: [canvas.width, canvas.height]
+            orientation: finalWidth > finalHeight ? 'landscape' : 'portrait',
+            unit: 'mm',
+            format: [mmWidth, mmHeight]
           });
           
-          // Add image to PDF
-          pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+          // Add image to PDF at full size
+          pdf.addImage(imgData, 'PNG', 0, 0, mmWidth, mmHeight, undefined, 'FAST');
           
           // Download PDF
           pdf.save(filename);
@@ -126,10 +188,10 @@ export const downloadVisualization = async (
       downloadSvg(svgContent, filename);
       break;
     case 'png':
-      downloadPng(svgContent, filename);
+      downloadPng(svgContent, filename); // Using 3x scale factor by default
       break;
     case 'pdf':
-      await downloadPdf(svgContent, filename);
+      await downloadPdf(svgContent, filename); // Using 3x scale factor by default
       break;
     default:
       throw new Error(`Unsupported format: ${format}`);

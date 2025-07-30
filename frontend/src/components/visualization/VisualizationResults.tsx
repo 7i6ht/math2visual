@@ -1,5 +1,4 @@
 import { VisualizationCard } from "./VisualizationCard";
-import { generateVisualizationFilename } from "@/utils/download";
 
 interface VisualizationResultsProps {
   svgFormal: string | null;
@@ -28,14 +27,14 @@ export const VisualizationResults = ({
           svgContent={svgFormal}
           error={formalError}
           title="Formal Representation"
-          filename={generateVisualizationFilename('formal')}
+          type="formal"
         />
         
         <VisualizationCard
           svgContent={svgIntuitive}
           error={intuitiveError}
           title="Intuitive Representation"
-          filename={generateVisualizationFilename('intuitive')}
+          type="intuitive"
         />
       </div>
     </div>

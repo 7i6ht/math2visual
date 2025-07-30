@@ -36,12 +36,22 @@ export interface VisualizationState {
   intuitiveError: string | null;
 }
 
+// Download types
+export type DownloadFormat = 'svg' | 'png' | 'pdf';
+export type VisualizationType = 'formal' | 'intuitive';
+
+export interface DownloadOption {
+  format: DownloadFormat;
+  label: string;
+  icon: string;
+}
+
 // Component props types
 export interface VisualizationCardProps {
   svgContent?: string | null;
   error?: string | null;
   title: string;
-  filename: string;
+  type: VisualizationType;
 }
 
 export interface ErrorDisplayProps {
