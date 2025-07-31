@@ -11,6 +11,7 @@ interface UseVisualLanguageFormProps {
   onError: (error: string) => void;
   onLoadingChange: (loading: boolean) => void;
   onReset: () => void;
+  onAbortControllerChange: (controller: AbortController) => void;
 }
 
 export const useVisualLanguageForm = ({
@@ -19,6 +20,7 @@ export const useVisualLanguageForm = ({
   onError,
   onLoadingChange,
   onReset,
+  onAbortControllerChange,
 }: UseVisualLanguageFormProps) => {
   const form = useForm<ResubmitData>({
     resolver: zodResolver(resubmitSchema),
@@ -39,8 +41,12 @@ export const useVisualLanguageForm = ({
     onLoadingChange(true);
     onReset();
 
+    // Create abort controller for this request
+    const abortController = new AbortController();
+    onAbortControllerChange(abortController);
+
     try {
-      const result = await apiService.generateFromDSL(data.dsl);
+      const result = await apiService.generateFromDSL(data.dsl, abortController.signal);
       onSuccess(
         result.visual_language,
         result.svg_formal,

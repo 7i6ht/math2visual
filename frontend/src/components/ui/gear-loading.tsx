@@ -1,8 +1,17 @@
+import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
+
 interface GearLoadingProps {
   message?: string;
+  onAbort?: () => void;
+  showAbortButton?: boolean;
 }
 
-export const GearLoading = ({ message = "Generating ..." }: GearLoadingProps) => {
+export const GearLoading = ({ 
+  message = "Generating ...", 
+  onAbort,
+  showAbortButton = true 
+}: GearLoadingProps) => {
   return (
     <div className="flex flex-col items-center justify-center space-y-4 py-8">
       <div className="relative flex items-center justify-center w-14 h-10">
@@ -29,7 +38,21 @@ export const GearLoading = ({ message = "Generating ..." }: GearLoadingProps) =>
         </div>
       </div>
       
-      <span className="text-muted-foreground text-sm">{message}</span>
+      <div className="flex flex-col items-center space-y-3">
+        <span className="text-muted-foreground text-sm">{message}</span>
+        
+        {showAbortButton && onAbort && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onAbort}
+            className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10 transition-colors"
+            title="Cancel generation"
+          >
+            <X className="w-4 h-4" />
+          </Button>
+        )}
+      </div>
     </div>
   );
 }; 

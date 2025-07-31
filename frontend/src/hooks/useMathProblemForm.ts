@@ -9,6 +9,7 @@ interface UseMathProblemFormProps {
   onError: (error: string) => void;
   onLoadingChange: (loading: boolean) => void;
   onReset: () => void;
+  onAbortControllerChange: (controller: AbortController) => void;
 }
 
 export const useMathProblemForm = ({
@@ -16,6 +17,7 @@ export const useMathProblemForm = ({
   onError,
   onLoadingChange,
   onReset,
+  onAbortControllerChange,
 }: UseMathProblemFormProps) => {
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -30,8 +32,16 @@ export const useMathProblemForm = ({
     onLoadingChange(true);
     onReset();
 
+    // Create abort controller for this request
+    const abortController = new AbortController();
+    onAbortControllerChange(abortController);
+
     try {
-      const result = await apiService.generateFromMathProblem(data.mwp, data.formula);
+      const result = await apiService.generateFromMathProblem(
+        data.mwp, 
+        data.formula, 
+        abortController.signal
+      );
       onSuccess(
         result.visual_language,
         result.svg_formal,

@@ -25,6 +25,10 @@ function App() {
     setResults,
     resetResults,
     resetVisuals,
+    abortMainRequest,
+    abortResubmitRequest,
+    setMainAbortController,
+    setResubmitAbortController,
   } = useMath2VisualState();
 
   const { form: mathProblemForm, handleSubmit: handleMathProblemSubmit } = useMathProblemForm({
@@ -32,6 +36,7 @@ function App() {
     onError: setError,
     onLoadingChange: setMainFormLoading,
     onReset: resetResults,
+    onAbortControllerChange: setMainAbortController,
   });
 
   const { form: visualLanguageForm, handleResubmit: handleVisualLanguageSubmit } = useVisualLanguageForm({
@@ -40,11 +45,13 @@ function App() {
     onError: setError,
     onLoadingChange: setResubmitLoading,
     onReset: resetVisuals,
+    onAbortControllerChange: setResubmitAbortController,
   });
 
   // Determine if any loading is happening and what message to show
   const isLoading = mainFormLoading || resubmitLoading;
   const loadingMessage = mainFormLoading ? "Generating..." : "Updating...";
+  const abortHandler = mainFormLoading ? abortMainRequest : abortResubmitRequest;
 
   return (
     <>
@@ -80,7 +87,11 @@ function App() {
 
           {isLoading && (
             <div className="mt-8">
-              <GearLoading message={loadingMessage} />
+              <GearLoading 
+                message={loadingMessage} 
+                onAbort={abortHandler}
+                showAbortButton={true}
+              />
             </div>
           )}
         </div>
