@@ -96,7 +96,7 @@ export const VisualizationCard = ({
               <Button
                 variant="secondary"
                 size="sm"
-                className="shadow-lg"
+                className="shadow-lg hover:bg-secondary hover:border-2 hover:border-primary/50 border-2 border-transparent transition-all"
                 disabled={isDownloading}
               >
                 <Download className="w-4 h-4 mr-2" />
