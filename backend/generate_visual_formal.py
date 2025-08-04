@@ -853,59 +853,64 @@ def render_svgs_from_data(output_file, resources_path, data):
             global error_message, _svg_directory_cache
             if not os.path.exists(file_path):
                 print("SVG file not found:", file_path)
-                # Get the directory and base name from the file_path
-                dir_path = os.path.dirname(file_path)
-                base_name = os.path.splitext(os.path.basename(file_path))[0]
-                
-                # Use cached candidate list if available
-                if dir_path in _svg_directory_cache:
-                    candidate_files = _svg_directory_cache[dir_path]
-                else:
-                    candidate_files = [f for f in os.listdir(dir_path) if f.lower().endswith(".svg")]
-                    _svg_directory_cache[dir_path] = candidate_files
-
-                # Build candidate paths
-                candidate_paths = [os.path.join(dir_path, f) for f in candidate_files]
-                
                 found_path = None
                 
-                # Helper: Try a candidate name against all files (case-insensitive)
-                def try_candidate(name):
-                    for candidate in candidate_paths:
-                        candidate_base = os.path.splitext(os.path.basename(candidate))[0]
-                        if candidate_base.lower() == name.lower():
-                            return candidate
-                    return None
+                try:
+                    # Get the directory and base name from the file_path
+                    dir_path = os.path.dirname(file_path)
+                    base_name = os.path.splitext(os.path.basename(file_path))[0]
+                    
+                    # Use cached candidate list if available
+                    if dir_path in _svg_directory_cache:
+                        candidate_files = _svg_directory_cache[dir_path]
+                    else:
+                        candidate_files = [f for f in os.listdir(dir_path) if f.lower().endswith(".svg")]
+                        _svg_directory_cache[dir_path] = candidate_files
 
-                # 1. Try exact match using the given base_name
-                found_path = try_candidate(base_name)
-                
-                # 2. Try using singular and plural forms using inflect
-                if not found_path:
-                    singular_form = p.singular_noun(base_name) or base_name
-                    plural_form = p.plural_noun(base_name) or base_name
-                    for mod_name in (plural_form, singular_form):
-                        found_path = try_candidate(mod_name)
-                        if found_path:
-                            break
+                    # Build candidate paths
+                    candidate_paths = [os.path.join(dir_path, f) for f in candidate_files]
+                    
+                    # Helper: Try a candidate name against all files (case-insensitive)
+                    def try_candidate(name):
+                        for candidate in candidate_paths:
+                            candidate_base = os.path.splitext(os.path.basename(candidate))[0]
+                            if candidate_base.lower() == name.lower():
+                                return candidate
+                        return None
 
-                # 3. If a hyphen exists, try matching only the part after the hyphen (and its variants)
-                if not found_path and "-" in base_name:
-                    after_hyphen = base_name.split("-")[-1]
-                    singular_after = p.singular_noun(after_hyphen) or after_hyphen
-                    plural_after = p.plural_noun(after_hyphen) or after_hyphen
-                    for mod_name in (after_hyphen, plural_after, singular_after):
-                        found_path = try_candidate(mod_name)
-                        if found_path:
-                            break
+                    # 1. Try exact match using the given base_name
+                    found_path = try_candidate(base_name)
+                    
+                    # 2. Try using singular and plural forms using inflect
+                    if not found_path:
+                        singular_form = p.singular_noun(base_name) or base_name
+                        plural_form = p.plural_noun(base_name) or base_name
+                        for mod_name in (plural_form, singular_form):
+                            found_path = try_candidate(mod_name)
+                            if found_path:
+                                break
 
-                # 4. As a last resort, use fuzzy matching to select the best candidate.
-                if not found_path:
-                    candidate_bases = [os.path.splitext(f)[0] for f in candidate_files]
-                    close_matches = difflib.get_close_matches(base_name, candidate_bases, n=1, cutoff=0.6)
-                    if close_matches:
-                        match = close_matches[0]
-                        found_path = try_candidate(match)
+                    # 3. If a hyphen exists, try matching only the part after the hyphen (and its variants)
+                    if not found_path and "-" in base_name:
+                        after_hyphen = base_name.split("-")[-1]
+                        singular_after = p.singular_noun(after_hyphen) or after_hyphen
+                        plural_after = p.plural_noun(after_hyphen) or after_hyphen
+                        for mod_name in (after_hyphen, plural_after, singular_after):
+                            found_path = try_candidate(mod_name)
+                            if found_path:
+                                break
+
+                    # 4. As a last resort, use fuzzy matching to select the best candidate.
+                    if not found_path:
+                        candidate_bases = [os.path.splitext(f)[0] for f in candidate_files]
+                        close_matches = difflib.get_close_matches(base_name, candidate_bases, n=1, cutoff=0.6)
+                        if close_matches:
+                            match = close_matches[0]
+                            found_path = try_candidate(match)
+                    
+                except Exception as search_error:
+                    print(f"Error during alternative search: {search_error}")
+                    # Continue to the error assignment below
                 
                 if found_path:
                     file_path = found_path

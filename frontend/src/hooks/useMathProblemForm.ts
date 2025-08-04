@@ -6,7 +6,7 @@ import { apiService } from "@/services/api";
 import type { FormData } from "@/schemas/validation";
 
 interface UseMathProblemFormProps {
-  onSuccess: (vl: string, svgFormal: string | null, svgIntuitive: string | null, formalError?: string, intuitiveError?: string) => void;
+  onSuccess: (vl: string, svgFormal: string | null, svgIntuitive: string | null, formalError?: string, intuitiveError?: string, isSvgMissing?: boolean, missingSvgName?: string) => void;
   onLoadingChange: (loading: boolean, abortFn?: () => void) => void;
   onReset: () => void;
 }
@@ -52,8 +52,10 @@ export const useMathProblemForm = ({
         result.visual_language,
         result.svg_formal,
         result.svg_intuitive,
-        result.formal_error,
-        result.intuitive_error
+        result.formal_error || undefined,
+        result.intuitive_error || undefined,
+        result.is_svg_missing,
+        result.missing_svg_name
       );
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";

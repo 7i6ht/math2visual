@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { PageState } from "@/types";
+import type { PageState, SVGMissingError } from "@/types";
 
 export const usePageState = () => {
   const [state, setState] = useState<PageState>({
@@ -11,6 +11,8 @@ export const usePageState = () => {
     formalError: null,
     intuitiveError: null,
     currentAbortFunction: undefined,
+    missingSvgError: null,
+    uploadLoading: false,
   });
 
   const setMpFormLoading = (mpFormLoading: boolean, abortFn?: () => void) => {
@@ -34,8 +36,20 @@ export const usePageState = () => {
     svgFormal: string | null,
     svgIntuitive: string | null,
     formalError?: string | null,
-    intuitiveError?: string | null
+    intuitiveError?: string | null,
+    isSvgMissing?: boolean,
+    missingSvgName?: string
   ) => {
+    // Determine if we have a missing SVG error
+    let missingSvgError: SVGMissingError | null = null;
+    if (isSvgMissing && missingSvgName) {
+      const bothFailed = !svgFormal && !svgIntuitive;
+      missingSvgError = {
+        missing_svg_name: missingSvgName,
+        both_failed: bothFailed
+      };
+    }
+
     setState(prev => ({
       ...prev,
       vl,
@@ -43,6 +57,7 @@ export const usePageState = () => {
       svgIntuitive,
       formalError: formalError || null,
       intuitiveError: intuitiveError || null,
+      missingSvgError,
     }));
   };
 
@@ -54,6 +69,7 @@ export const usePageState = () => {
       svgIntuitive: null,
       formalError: null,
       intuitiveError: null,
+      missingSvgError: null,
     }));
   };
 
@@ -64,7 +80,16 @@ export const usePageState = () => {
       svgIntuitive: null,
       formalError: null,
       intuitiveError: null,
+      missingSvgError: null,
     }));
+  };
+
+  const setUploadLoading = (uploadLoading: boolean) => {
+    setState(prev => ({ ...prev, uploadLoading }));
+  };
+
+  const clearMissingSvgError = () => {
+    setState(prev => ({ ...prev, missingSvgError: null }));
   };
 
   return {
@@ -74,5 +99,7 @@ export const usePageState = () => {
     setResults,
     resetResults,
     resetVisuals,
+    setUploadLoading,
+    clearMissingSvgError,
   };
 }; 

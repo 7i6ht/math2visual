@@ -12,7 +12,7 @@ export class ApiError extends Error {
   }
 }
 
-export const apiService = {
+const apiService = {
   async generateVisualization(request: ApiRequest, abortSignal?: AbortSignal): Promise<ApiResponse> {
     try {
       const response = await fetch(`${API_BASE_URL}/generate`, {
@@ -59,4 +59,7 @@ export const apiService = {
   async generateFromDSL(dsl: string, abortSignal?: AbortSignal): Promise<ApiResponse> {
     return this.generateVisualization({ dsl }, abortSignal);
   }
-}; 
+};
+
+export { apiService };
+export default apiService; 

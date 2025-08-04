@@ -15,19 +15,23 @@ function App() {
     svgIntuitive,
     formalError,
     intuitiveError,
+    missingSvgError,
+    uploadLoading,
     currentAbortFunction,
     setMpFormLoading,
     setVLFormLoading,
     setResults,
     resetResults,
     resetVisuals,
+    setUploadLoading,
+    clearMissingSvgError,
   } = usePageState();
 
 
 
   // Determine if any loading is happening and what message to show
-  const isLoading = mpFormLoading || vlFormLoading;
-  const loadingMessage = mpFormLoading ? "Generating..." : "Updating...";
+  const isLoading = mpFormLoading || vlFormLoading || uploadLoading;
+  const loadingMessage = uploadLoading ? "Uploading & Regenerating..." : mpFormLoading ? "Generating..." : "Updating...";
 
   return (
     <>
@@ -80,6 +84,12 @@ function App() {
           formalError={formalError}
           svgIntuitive={svgIntuitive}
           intuitiveError={intuitiveError}
+          missingSvgError={missingSvgError}
+          vl={vl}
+          uploadLoading={uploadLoading}
+          setResults={setResults}
+          setUploadLoading={setUploadLoading}
+          clearMissingSvgError={clearMissingSvgError}
         />
       </div>
       <Toaster />
