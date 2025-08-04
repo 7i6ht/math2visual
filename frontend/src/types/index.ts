@@ -25,15 +25,15 @@ export interface ApiResponse {
 }
 
 // Application state types
-export interface VisualizationState {
+export interface PageState {
   vl: string | null;
-  error: string | null;
   mainFormLoading: boolean;
   resubmitLoading: boolean;
   svgFormal: string | null;
   svgIntuitive: string | null;
   formalError: string | null;
   intuitiveError: string | null;
+  currentAbortFunction: (() => void) | undefined;
 }
 
 // Download types

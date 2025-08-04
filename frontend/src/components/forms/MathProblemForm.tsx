@@ -8,19 +8,36 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import type { UseFormReturn } from "react-hook-form";
-import type { FormData } from "@/schemas/validation";
+import { ErrorDisplay } from "@/components/ui/error-display";
+import { useMathProblemForm } from "@/hooks/useMathProblemForm";
 
 interface MathProblemFormProps {
-  form: UseFormReturn<FormData>;
-  onSubmit: () => void;
-  loading: boolean;
+  onSuccess: (vl: string, svgFormal: string | null, svgIntuitive: string | null, formalError?: string, intuitiveError?: string) => void;
+  onLoadingChange: (loading: boolean, abortFn?: () => void) => void;
+  onReset: () => void;
 }
 
-export const MathProblemForm = ({ form, onSubmit, loading }: MathProblemFormProps) => {
+export const MathProblemForm = ({ 
+  onSuccess, 
+  onLoadingChange, 
+  onReset
+}: MathProblemFormProps) => {
+  const { 
+    form, 
+    error,
+    loading,
+    handleSubmit,
+  } = useMathProblemForm({
+    onSuccess,
+    onLoadingChange,
+    onReset,
+  });
+
+
+
   return (
     <Form {...form}>
-      <form onSubmit={onSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-6">
         <FormField
           control={form.control}
           name="mwp"
@@ -70,6 +87,8 @@ export const MathProblemForm = ({ form, onSubmit, loading }: MathProblemFormProp
           )}
         </div>
       </form>
+
+      {error && <ErrorDisplay error={error} />}
     </Form>
   );
 }; 

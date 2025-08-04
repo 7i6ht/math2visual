@@ -2,56 +2,32 @@ import './App.css';
 import { MathProblemForm } from "@/components/forms/MathProblemForm";
 import { VisualLanguageForm } from "@/components/forms/VisualLanguageForm";
 import { VisualizationResults } from "@/components/visualization/VisualizationResults";
-import { ErrorDisplay } from "@/components/ui/error-display";
 import { GearLoading } from "@/components/ui/gear-loading";
 import { Toaster } from "@/components/ui/sonner";
-import { useMath2VisualState } from "@/hooks/useMath2VisualState";
-import { useMathProblemForm } from "@/hooks/useMathProblemForm";
-import { useVisualLanguageForm } from "@/hooks/useVisualLanguageForm";
+import { usePageState } from "@/hooks/usePageState";
 
 function App() {
   const {
     vl,
-    error,
     resubmitLoading,
     mainFormLoading,
     svgFormal,
     svgIntuitive,
     formalError,
     intuitiveError,
+    currentAbortFunction,
     setMainFormLoading,
     setResubmitLoading,
-    setError,
     setResults,
     resetResults,
     resetVisuals,
-    abortMainRequest,
-    abortResubmitRequest,
-    setMainAbortController,
-    setResubmitAbortController,
-  } = useMath2VisualState();
+  } = usePageState();
 
-  const { form: mathProblemForm, handleSubmit: handleMathProblemSubmit } = useMathProblemForm({
-    onSuccess: setResults,
-    onError: setError,
-    onLoadingChange: setMainFormLoading,
-    onReset: resetResults,
-    onAbortControllerChange: setMainAbortController,
-  });
 
-  const { form: visualLanguageForm, handleResubmit: handleVisualLanguageSubmit } = useVisualLanguageForm({
-    vl,
-    onSuccess: setResults,
-    onError: setError,
-    onLoadingChange: setResubmitLoading,
-    onReset: resetVisuals,
-    onAbortControllerChange: setResubmitAbortController,
-  });
 
   // Determine if any loading is happening and what message to show
   const isLoading = mainFormLoading || resubmitLoading;
   const loadingMessage = mainFormLoading ? "Generating..." : "Updating...";
-  const abortHandler = mainFormLoading ? abortMainRequest : abortResubmitRequest;
 
   return (
     <>
@@ -70,18 +46,21 @@ function App() {
 
         <div className="max-w-2xl mx-auto">
           <MathProblemForm 
-            form={mathProblemForm}
-            onSubmit={handleMathProblemSubmit}
-            loading={mainFormLoading}
+            onSuccess={setResults}
+            onLoadingChange={(loading, abortFn) => {
+              setMainFormLoading(loading, abortFn);
+            }}
+            onReset={resetResults}
           />
-
-          {error && <ErrorDisplay error={error} />}
 
           {vl && (
             <VisualLanguageForm
-              form={visualLanguageForm}
-              onSubmit={handleVisualLanguageSubmit}
-              loading={resubmitLoading}
+              vl={vl}
+              onSuccess={setResults}
+              onLoadingChange={(loading, abortFn) => {
+                setResubmitLoading(loading, abortFn);
+              }}
+              onReset={resetVisuals}
             />
           )}
 
@@ -89,7 +68,7 @@ function App() {
             <div className="mt-8">
               <GearLoading 
                 message={loadingMessage} 
-                onAbort={abortHandler}
+                onAbort={currentAbortFunction || (() => {})}
                 showAbortButton={true}
               />
             </div>

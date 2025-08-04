@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { resubmitSchema } from "@/schemas/validation";
 import { apiService } from "@/services/api";
 import type { ResubmitData } from "@/schemas/validation";
@@ -8,20 +8,19 @@ import type { ResubmitData } from "@/schemas/validation";
 interface UseVisualLanguageFormProps {
   vl: string | null;
   onSuccess: (vl: string, svgFormal: string | null, svgIntuitive: string | null, formalError?: string, intuitiveError?: string) => void;
-  onError: (error: string) => void;
-  onLoadingChange: (loading: boolean) => void;
+  onLoadingChange: (loading: boolean, abortFn?: () => void) => void;
   onReset: () => void;
-  onAbortControllerChange: (controller: AbortController) => void;
 }
 
 export const useVisualLanguageForm = ({
   vl,
   onSuccess,
-  onError,
   onLoadingChange,
   onReset,
-  onAbortControllerChange,
 }: UseVisualLanguageFormProps) => {
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
   const form = useForm<ResubmitData>({
     resolver: zodResolver(resubmitSchema),
     defaultValues: {
@@ -37,16 +36,22 @@ export const useVisualLanguageForm = ({
   }, [vl, form]);
 
   const handleResubmit = async (data: ResubmitData) => {
-    onError("");
-    onLoadingChange(true);
+    setError(null);
+    setLoading(true);
     onReset();
 
     // Create abort controller for this request
-    const abortController = new AbortController();
-    onAbortControllerChange(abortController);
+    const controller = new AbortController();
+    const abort = () => {
+      controller.abort();
+      setLoading(false);
+      setError("Update cancelled");
+    };
+    
+    onLoadingChange(true, abort);
 
     try {
-      const result = await apiService.generateFromDSL(data.dsl, abortController.signal);
+      const result = await apiService.generateFromDSL(data.dsl, controller.signal);
       onSuccess(
         result.visual_language,
         result.svg_formal,
@@ -56,14 +61,19 @@ export const useVisualLanguageForm = ({
       );
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-      onError(errorMessage);
+      setError(errorMessage);
     } finally {
+      setLoading(false);
       onLoadingChange(false);
     }
   };
 
+
+
   return {
     form,
+    error,
+    loading,
     handleResubmit: form.handleSubmit(handleResubmit),
   };
 }; 

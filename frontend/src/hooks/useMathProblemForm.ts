@@ -1,24 +1,24 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
 import { formSchema } from "@/schemas/validation";
 import { apiService } from "@/services/api";
 import type { FormData } from "@/schemas/validation";
 
 interface UseMathProblemFormProps {
   onSuccess: (vl: string, svgFormal: string | null, svgIntuitive: string | null, formalError?: string, intuitiveError?: string) => void;
-  onError: (error: string) => void;
-  onLoadingChange: (loading: boolean) => void;
+  onLoadingChange: (loading: boolean, abortFn?: () => void) => void;
   onReset: () => void;
-  onAbortControllerChange: (controller: AbortController) => void;
 }
 
 export const useMathProblemForm = ({
   onSuccess,
-  onError,
   onLoadingChange,
   onReset,
-  onAbortControllerChange,
 }: UseMathProblemFormProps) => {
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -28,19 +28,25 @@ export const useMathProblemForm = ({
   });
 
   const handleSubmit = async (data: FormData) => {
-    onError("");
-    onLoadingChange(true);
+    setError(null);
+    setLoading(true);
     onReset();
 
     // Create abort controller for this request
-    const abortController = new AbortController();
-    onAbortControllerChange(abortController);
+    const controller = new AbortController();
+    const abort = () => {
+      controller.abort();
+      setLoading(false);
+      setError("Generation cancelled");
+    };
+    
+    onLoadingChange(true, abort);
 
     try {
       const result = await apiService.generateFromMathProblem(
         data.mwp, 
         data.formula, 
-        abortController.signal
+        controller.signal
       );
       onSuccess(
         result.visual_language,
@@ -51,14 +57,19 @@ export const useMathProblemForm = ({
       );
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-      onError(errorMessage);
+      setError(errorMessage);
     } finally {
+      setLoading(false);
       onLoadingChange(false);
     }
   };
 
+
+
   return {
     form,
+    error,
+    loading,
     handleSubmit: form.handleSubmit(handleSubmit),
   };
 }; 

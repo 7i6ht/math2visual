@@ -7,23 +7,43 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import type { UseFormReturn } from "react-hook-form";
-import type { ResubmitData } from "@/schemas/validation";
+import { ErrorDisplay } from "@/components/ui/error-display";
+import { useVisualLanguageForm } from "@/hooks/useVisualLanguageForm";
 
 interface VisualLanguageFormProps {
-  form: UseFormReturn<ResubmitData>;
-  onSubmit: () => void;
-  loading: boolean;
+  vl: string | null;
+  onSuccess: (vl: string, svgFormal: string | null, svgIntuitive: string | null, formalError?: string, intuitiveError?: string) => void;
+  onLoadingChange: (loading: boolean, abortFn?: () => void) => void;
+  onReset: () => void;
 }
 
-export const VisualLanguageForm = ({ form, onSubmit, loading }: VisualLanguageFormProps) => {
+export const VisualLanguageForm = ({ 
+  vl,
+  onSuccess,
+  onLoadingChange,
+  onReset
+}: VisualLanguageFormProps) => {
+  const { 
+    form, 
+    error,
+    loading,
+    handleResubmit,
+  } = useVisualLanguageForm({
+    vl,
+    onSuccess,
+    onLoadingChange,
+    onReset,
+  });
+
+
+
   return (
     <div className="mt-8 space-y-6">
       <div>
         <h2 className="text-2xl font-semibold mb-4">Visual Language</h2>
         
         <Form {...form}>
-          <form onSubmit={onSubmit} className="space-y-4">
+          <form onSubmit={handleResubmit} className="space-y-4">
             <FormField
               control={form.control}
               name="dsl"
@@ -54,6 +74,8 @@ export const VisualLanguageForm = ({ form, onSubmit, loading }: VisualLanguageFo
             </div>
           </form>
         </Form>
+
+        {error && <ErrorDisplay error={error} />}
       </div>
     </div>
   );
