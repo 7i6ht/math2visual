@@ -4,8 +4,8 @@ import type { PageState } from "@/types";
 export const usePageState = () => {
   const [state, setState] = useState<PageState>({
     vl: null,
-    mainFormLoading: false,
-    resubmitLoading: false,
+    mpFormLoading: false,
+    vlFormLoading: false,
     svgFormal: null,
     svgIntuitive: null,
     formalError: null,
@@ -13,19 +13,19 @@ export const usePageState = () => {
     currentAbortFunction: undefined,
   });
 
-  const setMainFormLoading = (mainFormLoading: boolean, abortFn?: () => void) => {
+  const setMpFormLoading = (mpFormLoading: boolean, abortFn?: () => void) => {
     setState(prev => ({ 
       ...prev, 
-      mainFormLoading,
-      currentAbortFunction: mainFormLoading ? abortFn : undefined
+      mpFormLoading,
+      currentAbortFunction: mpFormLoading ? abortFn : undefined
     }));
   };
 
-  const setResubmitLoading = (resubmitLoading: boolean, abortFn?: () => void) => {
+  const setVLFormLoading = (vlFormLoading: boolean, abortFn?: () => void) => {
     setState(prev => ({ 
       ...prev, 
-      resubmitLoading,
-      currentAbortFunction: resubmitLoading ? abortFn : undefined
+      vlFormLoading,
+      currentAbortFunction: vlFormLoading ? abortFn : undefined
     }));
   };
 
@@ -69,8 +69,8 @@ export const usePageState = () => {
 
   return {
     ...state,
-    setMainFormLoading,
-    setResubmitLoading,
+    setMpFormLoading,
+    setVLFormLoading,
     setResults,
     resetResults,
     resetVisuals,

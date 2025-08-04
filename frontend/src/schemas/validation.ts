@@ -6,10 +6,10 @@ export const formSchema = z.object({
   formula: z.string().optional(),
 });
 
-export const resubmitSchema = z.object({
+export const vlFormSchema = z.object({
   dsl: z.string().min(1, "Visual language cannot be empty"),
 });
 
 // Export inferred types for convenience
 export type FormData = z.infer<typeof formSchema>;
-export type ResubmitData = z.infer<typeof resubmitSchema>; 
+export type VLFormData = z.infer<typeof vlFormSchema>; 

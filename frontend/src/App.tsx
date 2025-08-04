@@ -9,15 +9,15 @@ import { usePageState } from "@/hooks/usePageState";
 function App() {
   const {
     vl,
-    resubmitLoading,
-    mainFormLoading,
+    vlFormLoading,
+    mpFormLoading,
     svgFormal,
     svgIntuitive,
     formalError,
     intuitiveError,
     currentAbortFunction,
-    setMainFormLoading,
-    setResubmitLoading,
+    setMpFormLoading,
+    setVLFormLoading,
     setResults,
     resetResults,
     resetVisuals,
@@ -26,8 +26,8 @@ function App() {
 
 
   // Determine if any loading is happening and what message to show
-  const isLoading = mainFormLoading || resubmitLoading;
-  const loadingMessage = mainFormLoading ? "Generating..." : "Updating...";
+  const isLoading = mpFormLoading || vlFormLoading;
+  const loadingMessage = mpFormLoading ? "Generating..." : "Updating...";
 
   return (
     <>
@@ -48,7 +48,7 @@ function App() {
           <MathProblemForm 
             onSuccess={setResults}
             onLoadingChange={(loading, abortFn) => {
-              setMainFormLoading(loading, abortFn);
+              setMpFormLoading(loading, abortFn);
             }}
             onReset={resetResults}
           />
@@ -58,7 +58,7 @@ function App() {
               vl={vl}
               onSuccess={setResults}
               onLoadingChange={(loading, abortFn) => {
-                setResubmitLoading(loading, abortFn);
+                setVLFormLoading(loading, abortFn);
               }}
               onReset={resetVisuals}
             />

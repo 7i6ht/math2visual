@@ -27,7 +27,7 @@ export const VisualLanguageForm = ({
     form, 
     error,
     loading,
-    handleResubmit,
+    handleVLForm,
   } = useVisualLanguageForm({
     vl,
     onSuccess,
@@ -43,7 +43,7 @@ export const VisualLanguageForm = ({
         <h2 className="text-2xl font-semibold mb-4">Visual Language</h2>
         
         <Form {...form}>
-          <form onSubmit={handleResubmit} className="space-y-4">
+          <form onSubmit={handleVLForm} className="space-y-4">
             <FormField
               control={form.control}
               name="dsl"

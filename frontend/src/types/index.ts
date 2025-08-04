@@ -4,7 +4,7 @@ export interface FormData {
   formula?: string;
 }
 
-export interface ResubmitData {
+export interface VLFormData {
   dsl: string;
 }
 
@@ -27,8 +27,8 @@ export interface ApiResponse {
 // Application state types
 export interface PageState {
   vl: string | null;
-  mainFormLoading: boolean;
-  resubmitLoading: boolean;
+  mpFormLoading: boolean;
+  vlFormLoading: boolean;
   svgFormal: string | null;
   svgIntuitive: string | null;
   formalError: string | null;

@@ -1,9 +1,9 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
-import { resubmitSchema } from "@/schemas/validation";
+import { vlFormSchema } from "@/schemas/validation";
 import { apiService } from "@/services/api";
-import type { ResubmitData } from "@/schemas/validation";
+import type { VLFormData } from "@/schemas/validation";
 
 interface UseVisualLanguageFormProps {
   vl: string | null;
@@ -21,8 +21,8 @@ export const useVisualLanguageForm = ({
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const form = useForm<ResubmitData>({
-    resolver: zodResolver(resubmitSchema),
+  const form = useForm<VLFormData>({
+    resolver: zodResolver(vlFormSchema),
     defaultValues: {
       dsl: "",
     },
@@ -35,7 +35,7 @@ export const useVisualLanguageForm = ({
     }
   }, [vl, form]);
 
-  const handleResubmit = async (data: ResubmitData) => {
+  const handleVLForm = async (data: VLFormData) => {
     setError(null);
     setLoading(true);
     onReset();
@@ -74,6 +74,6 @@ export const useVisualLanguageForm = ({
     form,
     error,
     loading,
-    handleResubmit: form.handleSubmit(handleResubmit),
+    handleVLForm: form.handleSubmit(handleVLForm),
   };
 }; 
