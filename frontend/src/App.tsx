@@ -41,7 +41,7 @@ function App() {
             />
             <h1 className="text-4xl font-bold">Math2Visual</h1>
           </div>
-          <p className="text-muted-foreground">Enter your math word problem to generate visual representations</p>
+          <p className="text-muted-foreground">Generating Pedagogically Meaningful Visuals for Math Word Problems</p>
         </div>
 
         <div className="max-w-2xl mx-auto">
