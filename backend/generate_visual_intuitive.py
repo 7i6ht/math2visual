@@ -120,7 +120,7 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
             raise ValidationError("Comparison operations should be handled separately")
 
         # Handle regular operations
-        child_ents = node.get("containers", [])
+        child_ents = node.get("entities", [])
         my_result = node.get("result_container")
 
         if len(child_ents) < 2:
@@ -168,7 +168,7 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
     
     def _handle_unittrans(self, node: Dict[str, Any], containers: List[Dict[str, Any]]) -> None:
         """Handle unit transformation operations."""
-        sub_ents = node.get("containers", [])
+        sub_ents = node.get("entities", [])
         if len(sub_ents) == 2:
             main_entity = sub_ents[0]
             unit_entity = sub_ents[1]
@@ -194,11 +194,11 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
     
     def _extract_operations_and_containers_for_comparison(self, data: Dict[str, Any]) -> Tuple:
         """Extract operations and containers for comparison operations."""
-        if "containers" not in data or len(data["containers"]) < 2:
+        if "entities" not in data or len(data["entities"]) < 2:
             return [], [], [], [], [], []
 
-        compare1_data = data["containers"][0]
-        compare2_data = data["containers"][1]
+        compare1_data = data["entities"][0]
+        compare2_data = data["entities"][1]
 
         def safe_extract(data_piece):
             ret = self._extract_operations_and_containers(data_piece)
