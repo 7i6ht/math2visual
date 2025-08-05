@@ -6,18 +6,9 @@ from datetime import datetime
 from svg_validator import SVGValidator, validate_file_comprehensive, generate_file_hash
 # import your two existing modules
 from generate_visual_language_with_gpt import generate_visual_language
-from generate_visual_intuitive import (
-    extract_visual_language as extract_intuitive,
-    parse_dsl            as parse_intuitive,
-    render_svgs_from_data as render_intuitive,
-)
-from generate_visual_formal import (
-    extract_visual_language,
-    parse_dsl,
-    render_svgs_from_data,
-)
-import generate_visual_formal
-import generate_visual_intuitive
+from generate_visual_formal import FormalVisualGenerator
+from generate_visual_intuitive import IntuitiveVisualGenerator
+from visual_generator_utils import ValidationError, VisualGenerationError
 
 app = Flask(__name__)
 CORS(app)
@@ -86,76 +77,88 @@ def generate():
 
         # 1) Generate via GPT and extract
         vl_response = generate_visual_language(mwp, formula)
-        raw = extract_visual_language(vl_response)
+        # Use the formal generator for extraction (both have the same method)
+        temp_generator = FormalVisualGenerator("")
+        raw = temp_generator.extract_visual_language(vl_response)
         if not raw:
             return jsonify({"error": "Could not find `visual_language:` in GPT response."}), 500
         dsl = raw.split(":", 1)[1].strip() if raw.lower().startswith("visual_language:") else raw.strip()
+    # Initialize generators
+    resources = os.path.join(os.path.dirname(__file__), "svg_dataset")
+    formal_generator = FormalVisualGenerator(resources)
+    intuitive_generator = IntuitiveVisualGenerator(resources)
+    
     # parse once for formal…
     try:
-        data_formal = parse_dsl(dsl)
-    except ValueError as e:
+        data_formal = formal_generator.parse_dsl(dsl)
+    except (ValueError, ValidationError) as e:
         return jsonify({"error": f"Formal-DSL parse error: {e}"}), 500
 
     # …and once for intuitive
     try:
-        data_intuitive = parse_intuitive(dsl)
-    except ValueError as e:
+        data_intuitive = intuitive_generator.parse_dsl(dsl)
+    except (ValueError, ValidationError) as e:
         return jsonify({"error": f"Intuitive-DSL parse error: {e}"}), 500
 
-        # 3) Render the SVGs into your “latest” files
+        # 3) Render the SVGs into your "latest" files
     output_dir    = os.path.join(os.path.dirname(__file__), "output")
     os.makedirs(output_dir, exist_ok=True)
     output_file      = os.path.join(output_dir, "output.svg")
     intuitive_file   = os.path.join(output_dir, "intuitive.svg")
-    resources        = os.path.join(os.path.dirname(__file__), "svg_dataset")
 
-    # formal
+    # 3a) Render Formal
     if os.path.exists(output_file):
         os.remove(output_file)
-    
-    # Clear error message before generation
-    generate_visual_formal.error_message = ""
-    ok_formal = render_svgs_from_data(output_file, resources, data_formal)
     
     formal_error = None
     formal_is_svg_missing = False
     formal_missing_svg = None
+    svg_formal = None
+    ok_formal = False
     
-    if ok_formal:
-        with open(output_file, "r") as f1:
-            svg_formal = f1.read()
-    else:
-        svg_formal = None
-        # Check if it's a missing SVG error
-        formal_is_svg_missing, formal_missing_svg = parse_svg_error(generate_visual_formal.error_message)
+    try:
+        ok_formal = formal_generator.render_svgs_from_data(output_file, data_formal)
+        if ok_formal and os.path.exists(output_file):
+            with open(output_file, "r") as f1:
+                svg_formal = f1.read()
+        else:
+            formal_error = "Could not generate formal visualization."
+    except VisualGenerationError as e:
+        error_msg = str(e)
+        formal_is_svg_missing, formal_missing_svg = parse_svg_error(error_msg)
         if formal_is_svg_missing:
             formal_error = f"Missing SVG file: {formal_missing_svg}"
         else:
-            formal_error = "Could not generate formal visualization."
+            formal_error = f"Formal generation error: {error_msg}"
+    except Exception as e:
+        formal_error = f"Unexpected formal generation error: {str(e)}"
     
-    # 3b) Render Intuitive (non-fatal)
+    # 3b) Render Intuitive
     if os.path.exists(intuitive_file):
         os.remove(intuitive_file)
-    
-    # Clear error message before generation
-    generate_visual_intuitive.error_message = ""
-    ok_intu = render_intuitive(intuitive_file, resources, data_intuitive)
     
     intuitive_error = None
     intuitive_is_svg_missing = False
     intuitive_missing_svg = None
+    svg_intuitive = None
+    ok_intu = False
     
-    if ok_intu:
-        with open(intuitive_file, "r") as f2:
-            svg_intuitive = f2.read()
-    else:
-        svg_intuitive = None
-        # Check if it's a missing SVG error
-        intuitive_is_svg_missing, intuitive_missing_svg = parse_svg_error(generate_visual_intuitive.error_message)
+    try:
+        ok_intu = intuitive_generator.render_svgs_from_data(intuitive_file, data_intuitive)
+        if ok_intu and os.path.exists(intuitive_file):
+            with open(intuitive_file, "r") as f2:
+                svg_intuitive = f2.read()
+        else:
+            intuitive_error = "Could not generate intuitive visualization."
+    except VisualGenerationError as e:
+        error_msg = str(e)
+        intuitive_is_svg_missing, intuitive_missing_svg = parse_svg_error(error_msg)
         if intuitive_is_svg_missing:
             intuitive_error = f"Missing SVG file: {intuitive_missing_svg}"
         else:
-            intuitive_error = "Could not generate intuitive visualization."
+            intuitive_error = f"Intuitive generation error: {error_msg}"
+    except Exception as e:
+        intuitive_error = f"Unexpected intuitive generation error: {str(e)}"
 
     # 4) Archive timestamped copies
     ts = datetime.now().strftime("%Y%m%d%H%M%S")
