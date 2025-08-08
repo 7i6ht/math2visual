@@ -53,6 +53,7 @@ export const VisualLanguageForm = ({
                     <Textarea
                       className="w-full font-mono text-sm"
                       rows={6}
+                      spellCheck={false}
                       {...field}
                     />
                   </FormControl>
