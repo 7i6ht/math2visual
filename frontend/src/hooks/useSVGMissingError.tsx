@@ -95,6 +95,10 @@ export const useSVGMissingError = ({
       return [uploadToastId, false];
     } finally {
       setUploadLoading(false);
+      // Clear the file input after each upload attempt (success or failure)
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     }
   };
 
@@ -146,6 +150,8 @@ export const useSVGMissingError = ({
     if (!files || files.length === 0) return;
     const file = files[0];
     handleFileSelect(file);
+    // Clear the input to allow selecting the same file again
+    e.currentTarget.value = "";
   };
 
   const openFileDialog = () => {
