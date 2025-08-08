@@ -30,7 +30,7 @@ function App() {
 
   // Determine if any loading is happening and what message to show
   const isLoading = mpFormLoading || vlFormLoading || uploadGenerating;
-  const loadingMessage = uploadGenerating ? "Uploading & Regenerating..." : mpFormLoading ? "Generating..." : "Updating...";
+  const loadingMessage = mpFormLoading ? "Generating..." : "Regenerating...";
 
   return (
     <>
