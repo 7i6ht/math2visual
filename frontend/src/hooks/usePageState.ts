@@ -2,7 +2,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import type { PageState } from "@/types";
 
-export const usePageState = () => {
+export const useAppState = () => {
   const [state, setState] = useState<PageState>({
     vl: null,
     mpFormLoading: false,

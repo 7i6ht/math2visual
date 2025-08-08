@@ -5,7 +5,7 @@ import { VisualizationResults } from "@/components/visualization/VisualizationRe
 import { SVGMissingError } from "@/components/errors/SVGMissingError";
 import { GearLoading } from "@/components/ui/gear-loading";
 import { Toaster } from "@/components/ui/sonner";
-import { usePageState } from "@/hooks/usePageState";
+import { useAppState } from "@/hooks/usePageState";
 
 function App() {
   const {
@@ -26,7 +26,7 @@ function App() {
     resetVisuals,
     clearMissingSVGEntities,
     handleRegenerateAfterUpload,
-  } = usePageState();
+  } = useAppState();
 
   // Determine if any loading is happening and what message to show
   const isLoading = mpFormLoading || vlFormLoading || uploadGenerating;
