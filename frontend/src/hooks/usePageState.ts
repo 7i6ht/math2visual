@@ -93,6 +93,7 @@ export const useAppState = () => {
     
     try {
       setUploadGenerating(true);
+      resetVisuals();
       toast.loading('Regenerating visualizations...', { id: generateToastId });
       
       const { default: apiService } = await import('@/services/api');
