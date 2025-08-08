@@ -1,10 +1,5 @@
 import type { ApiRequest, ApiResponse } from "@/types";
-import pkg from "../../package.json";
-
-// Read base URL from frontend/package.json (fallback to same-origin)
-const PACKAGE_PROXY = (pkg as any)?.proxy as string | undefined;
-const BASE_URL = PACKAGE_PROXY && PACKAGE_PROXY.trim().replace(/\/$/, "") || window.location.origin;
-const API_BASE_URL = `${BASE_URL}/api`;
+import { BACKEND_API_URL as API_BASE_URL } from "@/config/api";
 
 export class ApiError extends Error {
   public status?: number;
