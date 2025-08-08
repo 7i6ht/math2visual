@@ -2,6 +2,7 @@ import './App.css';
 import { MathProblemForm } from "@/components/forms/MathProblemForm";
 import { VisualLanguageForm } from "@/components/forms/VisualLanguageForm";
 import { VisualizationResults } from "@/components/visualization/VisualizationResults";
+import { SVGMissingError } from "@/components/errors/SVGMissingError";
 import { GearLoading } from "@/components/ui/gear-loading";
 import { Toaster } from "@/components/ui/sonner";
 import { usePageState } from "@/hooks/usePageState";
@@ -15,23 +16,21 @@ function App() {
     svgIntuitive,
     formalError,
     intuitiveError,
-    missingSvgError,
-    uploadLoading,
+    missingSVGEntities,
+    uploadGenerating,
     currentAbortFunction,
     setMpFormLoading,
     setVLFormLoading,
     setResults,
     resetResults,
     resetVisuals,
-    setUploadLoading,
-    clearMissingSvgError,
+    clearMissingSVGEntities,
+    handleRegenerateAfterUpload,
   } = usePageState();
 
-
-
   // Determine if any loading is happening and what message to show
-  const isLoading = mpFormLoading || vlFormLoading || uploadLoading;
-  const loadingMessage = uploadLoading ? "Uploading & Regenerating..." : mpFormLoading ? "Generating..." : "Updating...";
+  const isLoading = mpFormLoading || vlFormLoading || uploadGenerating;
+  const loadingMessage = uploadGenerating ? "Uploading & Regenerating..." : mpFormLoading ? "Generating..." : "Updating...";
 
   return (
     <>
@@ -79,20 +78,24 @@ function App() {
           )}
         </div>
 
+        {(svgFormal || svgIntuitive  || ( missingSVGEntities.length === 0 && (formalError || intuitiveError))) && (
         <VisualizationResults
           svgFormal={svgFormal}
           formalError={formalError}
           svgIntuitive={svgIntuitive}
           intuitiveError={intuitiveError}
-          missingSvgError={missingSvgError}
-          vl={vl}
-          uploadLoading={uploadLoading}
-          setResults={setResults}
-          setUploadLoading={setUploadLoading}
-          clearMissingSvgError={clearMissingSvgError}
-        />
+          />
+        )}
+
+        {missingSVGEntities.length > 0 && (
+          <SVGMissingError
+            missingSVGEntities={missingSVGEntities}
+            onGenerate={handleRegenerateAfterUpload}
+            onAllFilesUploaded={clearMissingSVGEntities}
+          />
+        )}
       </div>
-      <Toaster />
+      <Toaster/>
     </>
   );
 }

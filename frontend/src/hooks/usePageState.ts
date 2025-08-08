@@ -1,5 +1,6 @@
 import { useState } from "react";
-import type { PageState, SVGMissingError } from "@/types";
+import { toast } from "sonner";
+import type { PageState } from "@/types";
 
 export const usePageState = () => {
   const [state, setState] = useState<PageState>({
@@ -11,8 +12,9 @@ export const usePageState = () => {
     formalError: null,
     intuitiveError: null,
     currentAbortFunction: undefined,
-    missingSvgError: null,
-    uploadLoading: false,
+    missingSVGEntities: [],
+    uploadGenerating: false,
+    uploadedEntities: [],
   });
 
   const setMpFormLoading = (mpFormLoading: boolean, abortFn?: () => void) => {
@@ -37,19 +39,8 @@ export const usePageState = () => {
     svgIntuitive: string | null,
     formalError?: string | null,
     intuitiveError?: string | null,
-    isSvgMissing?: boolean,
-    missingSvgName?: string
+    missingSvgEntities?: string[]
   ) => {
-    // Determine if we have a missing SVG error
-    let missingSvgError: SVGMissingError | null = null;
-    if (isSvgMissing && missingSvgName) {
-      const bothFailed = !svgFormal && !svgIntuitive;
-      missingSvgError = {
-        missing_svg_name: missingSvgName,
-        both_failed: bothFailed
-      };
-    }
-
     setState(prev => ({
       ...prev,
       vl,
@@ -57,7 +48,7 @@ export const usePageState = () => {
       svgIntuitive,
       formalError: formalError || null,
       intuitiveError: intuitiveError || null,
-      missingSvgError,
+      missingSVGEntities: missingSvgEntities|| [],
     }));
   };
 
@@ -69,7 +60,7 @@ export const usePageState = () => {
       svgIntuitive: null,
       formalError: null,
       intuitiveError: null,
-      missingSvgError: null,
+      missingSVGEntities: [],
     }));
   };
 
@@ -80,16 +71,67 @@ export const usePageState = () => {
       svgIntuitive: null,
       formalError: null,
       intuitiveError: null,
-      missingSvgError: null,
+      missingSVGEntities: [],
     }));
   };
 
-  const setUploadLoading = (uploadLoading: boolean) => {
-    setState(prev => ({ ...prev, uploadLoading }));
+  const setUploadGenerating = (uploadGenerating: boolean) => {
+    setState(prev => ({ ...prev, uploadGenerating }));
   };
 
-  const clearMissingSvgError = () => {
-    setState(prev => ({ ...prev, missingSvgError: null }));
+  const clearMissingSVGEntities = () => {
+    setState(prev => ({ ...prev, missingSVGEntities: [] }));
+  };
+
+  const handleRegenerateAfterUpload = async (toastId: string | undefined) => {
+    const generateToastId = toastId || `generate-${Date.now()}`;
+
+    if (!state.vl) {
+      toast.warning('No visual language available for regeneration');
+      return;
+    }
+    
+    try {
+      setUploadGenerating(true);
+      toast.loading('Regenerating visualizations...', { id: generateToastId });
+      
+      const { default: apiService } = await import('@/services/api');
+      const result = await apiService.generateFromDSL(state.vl);
+      
+      setResults(
+        result.visual_language,
+        result.svg_formal,
+        result.svg_intuitive,
+        result.formal_error,
+        result.intuitive_error,
+        result.missing_svg_entities
+      );
+      
+      // Check if regeneration was successful
+      if (result.svg_formal || result.svg_intuitive) {
+        toast.success('Visualizations generated successfully', { id: generateToastId });
+      } else if (result.missing_svg_entities && result.missing_svg_entities.length > 0) {
+        toast.warning('Another SVG file is still missing', { 
+          id: generateToastId,
+          description: `Missing: ${result.missing_svg_entities[0]}` 
+        });
+      } else {
+        toast.error('Generation failed', { 
+          id: generateToastId,
+          description: 'Unable to generate visualizations' 
+        });
+      }
+      
+    } catch (error) {
+      console.error('Generation failed:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Generation failed';
+      toast.error(errorMessage, { 
+        id: generateToastId,
+        description: 'Failed to regenerate visualizations'
+      });
+    } finally {
+      setUploadGenerating(false);
+    }
   };
 
   return {
@@ -99,7 +141,7 @@ export const usePageState = () => {
     setResults,
     resetResults,
     resetVisuals,
-    setUploadLoading,
-    clearMissingSvgError,
+    clearMissingSVGEntities,
+    handleRegenerateAfterUpload,
   };
 }; 

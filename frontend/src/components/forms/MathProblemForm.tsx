@@ -12,7 +12,7 @@ import { ErrorDisplay } from "@/components/ui/error-display";
 import { useMathProblemForm } from "@/hooks/useMathProblemForm";
 
 interface MathProblemFormProps {
-  onSuccess: (vl: string, svgFormal: string | null, svgIntuitive: string | null, formalError?: string, intuitiveError?: string, isSvgMissing?: boolean, missingSvgName?: string) => void;
+  onSuccess: (vl: string, svgFormal: string | null, svgIntuitive: string | null, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[]) => void;
   onLoadingChange: (loading: boolean, abortFn?: () => void) => void;
   onReset: () => void;
 }

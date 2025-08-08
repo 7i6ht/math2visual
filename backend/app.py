@@ -13,25 +13,6 @@ from visual_generator_utils import ValidationError, VisualGenerationError
 app = Flask(__name__)
 CORS(app)
 
-def parse_svg_error(error_msg):
-    """
-    Parse error message to extract missing SVG filename.
-    Returns tuple: (is_svg_missing, missing_svg_name)
-    """
-    if not error_msg:
-        return False, None
-    
-    # Look for the specific missing SVG error pattern
-    if "SVG file not found using alternative search:" in error_msg:
-        # Extract the file path from the error message
-        file_path = error_msg.split("SVG file not found using alternative search:")[1].strip()
-        # Extract just the filename from the full path
-        missing_svg_name = os.path.basename(file_path)
-        return True, missing_svg_name
-    
-    return False, None
-
-
 
 @app.route("/api/generate", methods=["POST"])
 def generate():
@@ -49,8 +30,8 @@ def generate():
     # if not raw:
     #     return jsonify({"error": "Could not find `visual_language:` in GPT response."}), 500
 
-    # # 3) Strip off the “visual_language:” prefix
-    # #    => we want just “subtraction(container1[…],…)”
+    # # 3) Strip off the "visual_language:" prefix
+    # #    => we want just "subtraction(container1[…],…)"
     # if raw.lower().startswith("visual_language:"):
     #     dsl = raw.split(":", 1)[1].strip()
     # else:
@@ -111,10 +92,11 @@ def generate():
         os.remove(output_file)
     
     formal_error = None
-    formal_is_svg_missing = False
-    formal_missing_svg = None
     svg_formal = None
     ok_formal = False
+    
+    # Reset missing entities tracking
+    formal_generator.reset_missing_entities()
     
     try:
         ok_formal = formal_generator.render_svgs_from_data(output_file, data_formal)
@@ -123,13 +105,8 @@ def generate():
                 svg_formal = f1.read()
         else:
             formal_error = "Could not generate formal visualization."
-    except VisualGenerationError as e:
-        error_msg = str(e)
-        formal_is_svg_missing, formal_missing_svg = parse_svg_error(error_msg)
-        if formal_is_svg_missing:
-            formal_error = f"Missing SVG file: {formal_missing_svg}"
-        else:
-            formal_error = f"Formal generation error: {error_msg}"
+    except (VisualGenerationError, FileNotFoundError) as e:
+        formal_error = f"Formal generation error: {str(e)}"
     except Exception as e:
         formal_error = f"Unexpected formal generation error: {str(e)}"
     
@@ -138,10 +115,11 @@ def generate():
         os.remove(intuitive_file)
     
     intuitive_error = None
-    intuitive_is_svg_missing = False
-    intuitive_missing_svg = None
     svg_intuitive = None
     ok_intu = False
+    
+    # Reset missing entities tracking
+    intuitive_generator.reset_missing_entities()
     
     try:
         ok_intu = intuitive_generator.render_svgs_from_data(intuitive_file, data_intuitive)
@@ -150,13 +128,8 @@ def generate():
                 svg_intuitive = f2.read()
         else:
             intuitive_error = "Could not generate intuitive visualization."
-    except VisualGenerationError as e:
-        error_msg = str(e)
-        intuitive_is_svg_missing, intuitive_missing_svg = parse_svg_error(error_msg)
-        if intuitive_is_svg_missing:
-            intuitive_error = f"Missing SVG file: {intuitive_missing_svg}"
-        else:
-            intuitive_error = f"Intuitive generation error: {error_msg}"
+    except (VisualGenerationError, FileNotFoundError) as e:
+        intuitive_error = f"Intuitive generation error: {str(e)}"
     except Exception as e:
         intuitive_error = f"Unexpected intuitive generation error: {str(e)}"
 
@@ -167,22 +140,12 @@ def generate():
     if ok_intu and os.path.exists(intuitive_file):
         shutil.copy(intuitive_file, os.path.join(output_dir, f"intuitive_{ts}.svg"))
 
-    # 5) Determine if both failed due to missing SVG
-    is_svg_missing = False
-    missing_svg_name = None
+    # 5) Collect missing entities from both generators
+    formal_missing_entities = formal_generator.get_missing_entities()
+    intuitive_missing_entities = intuitive_generator.get_missing_entities()
     
-    # Check if both failed due to the same missing SVG
-    if (formal_is_svg_missing and intuitive_is_svg_missing and 
-        formal_missing_svg == intuitive_missing_svg):
-        is_svg_missing = True
-        missing_svg_name = formal_missing_svg
-    # Or if one failed due to missing SVG and the other succeeded
-    elif formal_is_svg_missing and not intuitive_is_svg_missing:
-        is_svg_missing = True
-        missing_svg_name = formal_missing_svg
-    elif intuitive_is_svg_missing and not formal_is_svg_missing:
-        is_svg_missing = True
-        missing_svg_name = intuitive_missing_svg
+    # Combine missing entities and remove duplicates while preserving order
+    all_missing_entities = list(dict.fromkeys(formal_missing_entities + intuitive_missing_entities))
     
     # 6) Return the DSL and SVG XML with enhanced error information
     return jsonify({
@@ -191,8 +154,7 @@ def generate():
         "svg_intuitive": svg_intuitive,
         "formal_error": formal_error,
         "intuitive_error": intuitive_error,
-        "is_svg_missing": is_svg_missing,
-        "missing_svg_name": missing_svg_name
+        "missing_svg_entities": all_missing_entities
     })
 
 @app.route("/api/upload-svg", methods=["POST"])

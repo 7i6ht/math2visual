@@ -15,6 +15,7 @@ class SVGCache:
     def __init__(self):
         self._directory_cache: Dict[str, List[str]] = {}
         self._inflect_engine = inflect.engine()
+        self.missing_entities = []  # Track missing entities
     
     def find_svg_file(self, file_path: str) -> str:
         """
@@ -36,13 +37,21 @@ class SVGCache:
 
         candidate_paths = [os.path.join(dir_path, f) for f in candidate_files]
         
+        
         # Try different matching strategies
+        exact_match = self._try_exact_match(base_name, candidate_paths)       
         found_path = (
-            self._try_exact_match(base_name, candidate_paths) or
+            exact_match or
             self._try_inflect_variations(base_name, candidate_paths) or
             self._try_hyphen_variations(base_name, candidate_paths) or
             self._try_fuzzy_match(base_name, candidate_files, dir_path)
         )
+
+        # Track missing entity
+        if (exact_match is None):
+            entity_name = f"{base_name}.svg"
+            if entity_name not in self.missing_entities:
+                self.missing_entities.append(entity_name)
         
         if found_path:
             return found_path
@@ -100,6 +109,14 @@ class SVGEmbedder:
     def __init__(self, svg_cache: SVGCache):
         self.svg_cache = svg_cache
         self.max_dimensions = [0, 0]  # [max_x, max_y]
+    
+    def get_missing_entities(self) -> List[str]:
+        """Get list of missing entities from the cache."""
+        return self.svg_cache.missing_entities.copy()
+    
+    def reset_missing_entities(self) -> None:
+        """Reset the missing entities tracking."""
+        self.svg_cache.missing_entities = []
     
     def embed_svg(self, file_path: str, x: float, y: float, width: float, height: float) -> etree.Element:
         """

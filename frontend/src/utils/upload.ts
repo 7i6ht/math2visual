@@ -1,6 +1,10 @@
 import type { SVGUploadResponse } from "@/types";
+import pkg from "../../package.json";
 
-const API_BASE_URL = "http://localhost:5001";
+// Read base URL from frontend/package.json (fallback to same-origin)
+const PACKAGE_PROXY = (pkg as any)?.proxy as string | undefined;
+const BASE_URL = PACKAGE_PROXY && PACKAGE_PROXY.trim().replace(/\/$/, "") || window.location.origin;
+const API_BASE_URL = BASE_URL;
 
 export class UploadService {
   /**
@@ -9,7 +13,7 @@ export class UploadService {
   static async uploadSVG(file: File, expectedFilename: string): Promise<SVGUploadResponse> {
     try {
       // Pre-validate on client side
-      const validation = this.validateFile(file, expectedFilename);
+      const validation = this.validateFile(file);
       if (!validation.valid) {
         throw new Error(validation.error);
       }
@@ -68,16 +72,13 @@ export class UploadService {
       // Enhanced error categorization
       if (error instanceof Error) {
         // Provide more user-friendly error messages
-        if (error.message.includes('Filename mismatch')) {
-          throw new Error(`File name doesn't match requirement. Please rename your file to: ${expectedFilename}`);
-        }
         if (error.message.includes('File too large')) {
           throw new Error('File is too large. Maximum size is 5MB.');
         }
         if (error.message.includes('Invalid SVG content')) {
           throw new Error('File appears to be corrupted or is not a valid SVG file.');
         }
-        if (error.message.includes('malicious content')) {
+        if (error.message.includes('Malicious content')) {
           throw new Error('File contains potentially unsafe content and cannot be uploaded.');
         }
       }
@@ -89,23 +90,11 @@ export class UploadService {
   /**
    * Validate file before upload
    */
-  static validateFile(file: File, expectedFilename: string): { valid: boolean; error?: string } {
-    // Check file type
-    if (!file.name.toLowerCase().endsWith('.svg')) {
-      return { valid: false, error: 'File must be an SVG' };
-    }
+  static validateFile(file: File): { valid: boolean; error?: string } {
 
     // Check file size (5MB limit)
     if (file.size > 5 * 1024 * 1024) {
       return { valid: false, error: 'File too large (maximum 5MB)' };
-    }
-
-    // Check filename matches expected
-    if (file.name !== expectedFilename) {
-      return { 
-        valid: false, 
-        error: `Filename mismatch. Expected: ${expectedFilename}, Got: ${file.name}` 
-      };
     }
 
     // Basic content validation (check if it looks like SVG)

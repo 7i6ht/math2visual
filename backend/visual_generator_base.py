@@ -266,6 +266,14 @@ class BaseVisualGenerator(ABC):
         """Abstract method for rendering SVGs from data. Must be implemented by subclasses."""
         pass
     
+    def get_missing_entities(self) -> List[str]:
+        """Get list of missing SVG entities."""
+        return self.svg_embedder.get_missing_entities()
+    
+    def reset_missing_entities(self) -> None:
+        """Reset missing entities tracking."""
+        self.svg_embedder.reset_missing_entities()
+    
     def save_svg(self, svg_root: etree.Element, output_file: str) -> None:
         """Save SVG to file."""
         with open(output_file, "wb") as f:

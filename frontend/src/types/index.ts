@@ -22,8 +22,7 @@ export interface ApiResponse {
   formal_error?: string;
   intuitive_error?: string;
   error?: string;
-  is_svg_missing?: boolean;
-  missing_svg_name?: string;
+  missing_svg_entities?: string[];
 }
 
 // Application state types
@@ -35,11 +34,6 @@ export interface SVGUploadResponse {
   file_hash?: string;
 }
 
-export interface SVGMissingError {
-  missing_svg_name: string;
-  both_failed: boolean;
-}
-
 export interface PageState {
   vl: string | null;
   mpFormLoading: boolean;
@@ -49,8 +43,9 @@ export interface PageState {
   formalError: string | null;
   intuitiveError: string | null;
   currentAbortFunction: (() => void) | undefined;
-  missingSvgError: SVGMissingError | null;
-  uploadLoading: boolean;
+  missingSVGEntities: string[];
+  uploadGenerating: boolean;
+  uploadedEntities: string[];
 }
 
 // Download types
