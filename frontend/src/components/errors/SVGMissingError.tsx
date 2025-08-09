@@ -1,6 +1,33 @@
-import { FileUp, AlertCircle } from "lucide-react";
+import { FileUp, AlertCircle, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSVGMissingError } from "@/hooks/useSVGMissingError";
+
+const PROVIDERS: Array<{
+  key: string;
+  label: string;
+  url: (q: string) => string;
+}> = [
+  {
+    key: "svgrepoRepoFree",
+    label: "SVG Repo",
+    url: (q: string) => `https://www.svgrepo.com/vectors/${encodeURIComponent(q)}`,
+  },
+  {
+    key: "iconfont",
+    label: "Iconfont",
+    url: (q: string) => `https://www.iconfont.cn/search/index?searchType=icon&q=${encodeURIComponent(q)}`,
+  },
+  {
+    key: "pexels",
+    label: "Pexels",
+    url: (q: string) => `https://www.pexels.com/search/${encodeURIComponent(q)}/`,
+  },
+  {
+    key: "svgfind",
+    label: "svgfind",
+    url: (q: string) => `https://www.svgfind.com/vectors/${encodeURIComponent(q)}`,
+  },
+];
 
 interface SVGMissingErrorProps {
   missingSVGEntities: string[];
@@ -90,7 +117,7 @@ export const SVGMissingError = ({
           >
             <FileUp className="w-8 h-8 mx-auto mb-3 text-muted-foreground" />
             <p className="text-sm text-muted-foreground mb-4">
-              Drag and drop your SVG file here, or click to browse
+              Drag and drop your SVG file here
             </p>
 
             <div className="flex gap-3 justify-center">
@@ -122,6 +149,26 @@ export const SVGMissingError = ({
               onChange={handleFileInputChange}
               className="hidden"
             />
+          </div>
+
+          {/* External Links Section */}
+          <div className="mt-4">
+            <div className="flex flex-wrap gap-3">
+            <p className="text-xs text-muted-foreground/70">
+              Find SVGs online:
+            </p>
+              {PROVIDERS.map((p) => (
+                <button
+                  key={p.key}
+                  type="button"
+                  onClick={() => window.open(p.url(missingSvgName))}
+                  className="inline-flex items-center gap-1.5 text-xs text-muted-foreground/70 hover:text-muted-foreground transition-colors underline-offset-4 hover:underline"
+                >
+                  <ExternalLink className="w-3 h-3" />
+                  {p.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
