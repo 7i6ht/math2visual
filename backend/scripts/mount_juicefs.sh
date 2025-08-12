@@ -47,7 +47,7 @@ fi
 # Check if filesystem exists
 echo ""
 echo "🔍 Checking filesystem status..."
-if ! juicefs status "$JUICEFS_FILESYSTEM_NAME" &> /dev/null; then
+if ! juicefs status "$JUICEFS_METADATA_URL" &> /dev/null; then
     echo "❌ Filesystem '$JUICEFS_FILESYSTEM_NAME' not found"
     echo "   Please run: ./scripts/format_juicefs.sh"
     exit 1
