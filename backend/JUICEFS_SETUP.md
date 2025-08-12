@@ -89,7 +89,7 @@ JuiceFS filesystem mounting and operational at `/mnt/juicefs`:
 
 ```bash
 # Mount JuiceFS
-sudo ./scripts/mount_juicefs.sh
+./scripts/mount_juicefs.sh
 
 # Verify mount
 ./scripts/verify_juicefs.sh
@@ -97,15 +97,11 @@ sudo ./scripts/mount_juicefs.sh
 
 ### Step 6: Setup Automatic Mounting
 
-Configure systemd service for automatic JuiceFS mounting on boot:
+Configure systemd service for automatic JuiceFS mounting on boot using the generic installation script:
 
 ```bash
-# Install the systemd service
-sudo cp scripts/juicefs-math2visual.service /etc/systemd/system/
-sudo systemctl daemon-reload
-
-# Enable automatic startup
-sudo systemctl enable juicefs-math2visual.service
+# Install the systemd service (automatically detects your environment)
+./scripts/install_systemd_service.sh
 
 # Test the service (unmount first if currently mounted)
 sudo fusermount -u /mnt/juicefs 2>/dev/null || true
@@ -116,11 +112,16 @@ systemctl status juicefs-math2visual.service
 mountpoint /mnt/juicefs
 ```
 
-**What this provides:**
-- ✅ **Automatic mounting** on every system restart
-- ✅ **Dependency management** (waits for PostgreSQL)
-- ✅ **Failure recovery** with automatic retries
-- ✅ **No manual intervention** required after setup
+**Service Management:**
+```bash
+# Uninstall the service cleanly
+./scripts/uninstall_systemd_service.sh
+
+# Reinstall if needed
+./scripts/install_systemd_service.sh
+```
+
+
 
 ### Step 7: Migrate SVG Files
 
@@ -148,13 +149,15 @@ backend/config/storage_config.py
 
 ## 🔧 Scripts Reference
 
-| Script | Purpose | Run By |
-|--------|---------|--------|
-| `install_juicefs.sh` | Install JuiceFS and dependencies | YOU |
-| `verify_juicefs.sh` | Verify installation and setup | BOTH |
-| `format_juicefs.sh` | Format filesystem with PostgreSQL | ME |
-| `mount_juicefs.sh` | Mount JuiceFS filesystem | ME |
-| `juicefs-math2visual.service` | Systemd service for auto-mounting | SETUP |
+| Script | Purpose |
+|--------|---------|
+| `install_juicefs.sh` | Install JuiceFS and dependencies |
+| `verify_juicefs.sh` | Verify installation and setup |
+| `format_juicefs.sh` | Format filesystem with PostgreSQL |
+| `mount_juicefs.sh` | Mount JuiceFS filesystem |
+| `install_systemd_service.sh` | Install generic systemd service |
+| `uninstall_systemd_service.sh` | Remove systemd service cleanly |
+| `juicefs-math2visual.service.template` | Generic service template |
 
 ## 📁 Directory Structure After Migration
 
@@ -202,6 +205,7 @@ After migration, only minimal changes needed:
 4. **Cache issues**: Clear cache: `rm -rf /var/cache/juicefs/*`
 5. **Service won't start**: Check directory permissions and PostgreSQL status
 6. **Auto-mount fails**: Verify systemd service is enabled and dependencies are met
+7. **Service installation fails**: Try uninstalling first: `./scripts/uninstall_systemd_service.sh`
 
 **Get Help:**
 ```bash
