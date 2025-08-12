@@ -7,3 +7,4 @@ fine-tuning/
 model/*
 output/*
 .cursor/*
+*.safetensors
