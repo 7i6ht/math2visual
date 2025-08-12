@@ -63,10 +63,10 @@ Environment configuration completed with JuiceFS mode:
 
 ```bash
 # Copy template to .env
-cp config_templates/env_juicefs_template .env
+cat config_templates/env_juicefs_template >> .env
 
 # Edit with your PostgreSQL credentials
-nano .env
+vim .env
 ```
 
 **Important**: Update these values in `.env`:
