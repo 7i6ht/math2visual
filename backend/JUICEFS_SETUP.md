@@ -1,15 +1,5 @@
 # JuiceFS Setup (Migration)
 
-## 🎯 Migration Results
-
-We've successfully migrated your SVG dataset (1,548 files, 118MB) from `backend/svg_dataset/` to JuiceFS and achieved:
-- **✅ Scalability**: Distributed filesystem that grows with your needs
-- **✅ Performance**: Built-in caching and optimization for file access  
-- **✅ Reliability**: PostgreSQL metadata with ACID compliance
-- **✅ Space Savings**: 118MB → 115MB (3MB saved with LZ4 compression!)
-- **✅ Migration Time**: 3m50s for complete dataset transfer
-- **✅ Zero Code Changes**: POSIX interface means existing code works unchanged
-
 ## 📋 Prerequisites
 
 - PostgreSQL installed and running
