@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { UploadService } from "@/utils/upload";
+import { ValidationError } from "@/types";
 import { Upload as UploadIcon } from "lucide-react";
 
 interface UseSVGMissingErrorArgs {
@@ -75,7 +76,15 @@ export const useSVGMissingError = ({
           ? uploadError.message
           : "An unexpected error occurred";
 
-      if (uploadError instanceof Error) {
+      // Check if this is a ValidationError with validation details
+      if (ValidationError.isValidationError(uploadError)) {
+        errorTitle = uploadError.title;
+        errorDescription = uploadError.message;
+        
+        // Log validation details for debugging
+        // console.log("Validation details:", uploadError.validationDetails);
+      } else if (uploadError instanceof Error) {
+        // Fallback to basic string matching for legacy errors
         if (uploadError.message.includes("Network error")) {
           errorTitle = "Connection error";
         } else if (uploadError.message.includes("timed out")) {

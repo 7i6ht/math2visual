@@ -27,11 +27,44 @@ export interface ApiResponse {
 
 // Application state types
 // Upload functionality types
+export interface ValidationDetails {
+  filename_valid: boolean;
+  size_valid: boolean;
+  type_valid: boolean;
+  content_valid: boolean;
+  antivirus_scan?: string | null;
+  file_hash: string;
+}
+
 export interface SVGUploadResponse {
   success: boolean;
   error?: string;
   message?: string;
   file_hash?: string;
+  validation_details?: ValidationDetails;
+}
+
+// Custom error class for validation failures
+export class ValidationError extends Error {
+  public readonly title: string;
+  public readonly validationDetails: ValidationDetails;
+
+  constructor(message: string, title: string, validationDetails: ValidationDetails) {
+    super(message);
+    this.name = 'ValidationError';
+    this.title = title;
+    this.validationDetails = validationDetails;
+    
+    // Maintains proper stack trace for where our error was thrown (only available on V8)
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, ValidationError);
+    }
+  }
+
+  // Helper method to check if an error is a ValidationError
+  static isValidationError(error: unknown): error is ValidationError {
+    return error instanceof ValidationError;
+  }
 }
 
 export interface PageState {
