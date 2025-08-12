@@ -2,14 +2,27 @@
 SVG File Validation and Security Module
 
 This module provides comprehensive validation and security checking for SVG files,
-including content analysis, filename validation, and file integrity verification.
+including content analysis, filename validation, file integrity verification,
+and optional ClamAV antivirus scanning with graceful fallback.
 """
 
 import re
 import hashlib
 import magic
-from typing import Optional, Tuple
+import logging
+from typing import Optional, Tuple, Dict, Any
 from werkzeug.utils import secure_filename
+
+# Import ClamAV scanner with graceful handling
+try:
+    from clamav_scanner import scan_file_content, is_clamav_available, get_clamav_status, ScanResult
+    CLAMAV_SCANNER_AVAILABLE = True
+except ImportError as e:
+    print(f"ClamAV scanner not available: {e}")
+    CLAMAV_SCANNER_AVAILABLE = False
+    ScanResult = None
+
+logger = logging.getLogger(__name__)
 
 
 class SVGValidationError(Exception):
@@ -209,6 +222,62 @@ class SVGValidator:
             return False, f"Content validation error: {str(e)}"
     
     @classmethod
+    def scan_for_viruses(cls, content: bytes, filename: str = "unknown") -> Tuple[bool, Optional[str], Dict[str, Any]]:
+        """
+        Scan file content for viruses using ClamAV with graceful fallback.
+        
+        Args:
+            content: File content as bytes
+            filename: Filename for logging purposes
+            
+        Returns:
+            Tuple of (is_clean, error_message, scan_info)
+            scan_info contains details about the scan result
+        """
+        scan_info = {
+            'antivirus_available': False,
+            'scan_performed': False,
+            'threat_found': None,
+            'scanner_error': None
+        }
+        
+        if not CLAMAV_SCANNER_AVAILABLE:
+            scan_info['scanner_error'] = 'ClamAV scanner module not available'
+            logger.debug("ClamAV scanner not available, skipping antivirus scan")
+            return True, None, scan_info  # Assume clean if scanner not available
+        
+        try:
+            scan_result = scan_file_content(content, filename)
+            
+            scan_info.update({
+                'antivirus_available': scan_result.scanner_available,
+                'scan_performed': scan_result.scan_performed,
+                'threat_found': scan_result.threat_found,
+                'scanner_error': scan_result.error_message
+            })
+            
+            if not scan_result.scanner_available:
+                logger.debug("ClamAV daemon not available, skipping antivirus scan")
+                return True, None, scan_info  # Assume clean if daemon not available
+            
+            if not scan_result.scan_performed:
+                logger.warning(f"Antivirus scan failed for {filename}: {scan_result.error_message}")
+                return True, None, scan_info  # Assume clean if scan failed
+            
+            if not scan_result.is_clean:
+                error_msg = f"Virus detected: {scan_result.threat_found}"
+                logger.warning(f"Virus detected in {filename}: {scan_result.threat_found}")
+                return False, error_msg, scan_info
+            
+            logger.debug(f"File {filename} passed antivirus scan")
+            return True, None, scan_info
+            
+        except Exception as e:
+            scan_info['scanner_error'] = str(e)
+            logger.error(f"Unexpected error during antivirus scan of {filename}: {str(e)}")
+            return True, None, scan_info  # Assume clean on unexpected error
+
+    @classmethod
     def generate_file_hash(cls, content: bytes) -> str:
         """
         Generate SHA-256 hash of file content for integrity checking.
@@ -235,38 +304,60 @@ class SVGValidator:
         return secure_filename(filename)
     
     @classmethod
-    def validate_file_comprehensive(cls, content: bytes, expected_filename: str) -> Tuple[bool, Optional[str]]:
+    def validate_file(cls, content: bytes, expected_filename: str, 
+                                          include_antivirus: bool = True) -> Tuple[bool, Optional[str], Dict[str, Any]]:
         """
-        Perform comprehensive file validation including filename, size, type, and content.
+        Perform comprehensive file validation with detailed results including antivirus scan information.
         
         Args:
             content: File content as bytes
             expected_filename: Expected filename
+            include_antivirus: Whether to include antivirus scanning
             
         Returns:
-            Tuple of (is_valid, error_message)
+            Tuple of (is_valid, error_message, validation_details)
         """
+        validation_details = {
+            'filename_valid': False,
+            'size_valid': False,
+            'type_valid': False,
+            'content_valid': False,
+            'antivirus_scan': None,
+            'file_hash': cls.generate_file_hash(content)
+        }
+        
         # Validate filename
         is_valid, error = cls.validate_filename(expected_filename)
+        validation_details['filename_valid'] = is_valid
         if not is_valid:
-            return False, f"Filename validation failed: {error}"
+            return False, f"Filename validation failed: {error}", validation_details
         
         # Validate file size
         is_valid, error = cls.validate_file_size(content)
+        validation_details['size_valid'] = is_valid
         if not is_valid:
-            return False, f"File size validation failed: {error}"
+            return False, f"File size validation failed: {error}", validation_details
         
         # Validate file type
         is_valid, error = cls.validate_file_type(content)
+        validation_details['type_valid'] = is_valid
         if not is_valid:
-            return False, f"File type validation failed: {error}"
+            return False, f"File type validation failed: {error}", validation_details
         
         # Validate SVG content
         is_valid, error = cls.validate_svg_content(content)
+        validation_details['content_valid'] = is_valid
         if not is_valid:
-            return False, f"Content validation failed: {error}"
+            return False, f"Content validation failed: {error}", validation_details
         
-        return True, None
+        # Antivirus scan (if enabled)
+        if include_antivirus:
+            is_clean, error, scan_info = cls.scan_for_viruses(content, expected_filename)
+            validation_details['antivirus_scan'] = scan_info
+            if not is_clean:
+                return False, f"Antivirus scan failed: {error}", validation_details
+        
+        return True, None, validation_details
 
 
 # Convenience functions for backward compatibility and ease of use
@@ -286,6 +377,35 @@ def is_safe_filename(filename: str) -> bool:
     return is_valid
 
 
-def validate_file_comprehensive(content: bytes, expected_filename: str) -> Tuple[bool, Optional[str]]:
-    """Convenience function for comprehensive file validation."""
-    return SVGValidator.validate_file_comprehensive(content, expected_filename)
+def validate_file(content: bytes, expected_filename: str, include_antivirus: bool = True) -> Tuple[bool, Optional[str], Dict[str, Any]]:
+    """Convenience function for comprehensive file validation with detailed results."""
+    return SVGValidator.validate_file(content, expected_filename, include_antivirus)
+
+
+def scan_for_viruses(content: bytes, filename: str = "unknown") -> Tuple[bool, Optional[str], Dict[str, Any]]:
+    """Convenience function for antivirus scanning."""
+    return SVGValidator.scan_for_viruses(content, filename)
+
+
+def get_antivirus_status() -> Dict[str, Any]:
+    """
+    Get antivirus scanner status information.
+    
+    Returns:
+        Status dictionary with scanner availability and configuration
+    """
+    if not CLAMAV_SCANNER_AVAILABLE:
+        return {
+            'scanner_module_available': False,
+            'error': 'ClamAV scanner module not available'
+        }
+    
+    try:
+        status = get_clamav_status()
+        status['scanner_module_available'] = True
+        return status
+    except Exception as e:
+        return {
+            'scanner_module_available': True,
+            'error': f'Error getting scanner status: {str(e)}'
+        }

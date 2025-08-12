@@ -1,9 +1,10 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, current_app, abort
 from flask_cors import CORS
 import os
 import shutil
+from functools import wraps
 from datetime import datetime
-from svg_validator import SVGValidator, validate_file_comprehensive, generate_file_hash
+from svg_validator import SVGValidator, validate_file, generate_file_hash, get_antivirus_status
 # import your two existing modules
 from generate_visual_language_with_gpt import generate_visual_language
 from generate_visual_formal import FormalVisualGenerator
@@ -23,6 +24,15 @@ else:
     print(f"✅ Storage configured: {storage_config.storage_mode} mode")
     print(f"📁 SVG dataset path: {storage_config.svg_dataset_path}")
 
+def debug_only(f):
+    @wraps(f)
+    def wrapped(**kwargs):
+        if not current_app.debug:
+            abort(404)
+
+        return f(**kwargs)
+
+    return wrapped
 
 @app.route("/api/generate", methods=["POST"])
 def generate():
@@ -196,10 +206,16 @@ def upload_svg():
         file_content = file.read()
         file.seek(0)  # Reset file pointer
         
-        # Comprehensive validation using the SVG validator
-        is_valid, validation_error = validate_file_comprehensive(file_content, expected_filename)
+        # Comprehensive validation using the SVG validator with antivirus scanning
+        is_valid, validation_error, validation_details = validate_file(
+            file_content, expected_filename, include_antivirus=True
+        )
         if not is_valid:
-            return jsonify({"success": False, "error": validation_error}), 400
+            return jsonify({
+                "success": False, 
+                "error": validation_error,
+                "validation_details": validation_details
+            }), 400
         
         # Generate file hash for integrity
         file_hash = generate_file_hash(file_content)
@@ -246,13 +262,15 @@ def upload_svg():
         return jsonify({
             "success": True, 
             "message": f"SVG file '{secure_name}' uploaded successfully",
-            "file_hash": file_hash[:16]  # Return truncated hash for verification
+            "file_hash": file_hash[:16],  # Return truncated hash for verification
+            "validation_details": validation_details
         })
         
     except Exception as e:
         return jsonify({"success": False, "error": f"Upload failed: {str(e)}"}), 500
 
 @app.route("/api/storage/status", methods=["GET"])
+@debug_only
 def storage_status():
     """
     Get storage configuration and status information.
@@ -287,6 +305,27 @@ def storage_status():
         return jsonify({
             "success": False, 
             "error": f"Failed to get storage status: {str(e)}"
+        }), 500
+
+@app.route("/api/antivirus/status", methods=["GET"])
+@debug_only
+def antivirus_status():
+    """
+    Get antivirus scanner status and configuration information.
+    Useful for monitoring ClamAV availability and troubleshooting scan issues.
+    """
+    try:
+        antivirus_info = get_antivirus_status()
+        
+        return jsonify({
+            "success": True,
+            "antivirus": antivirus_info
+        })
+        
+    except Exception as e:
+        return jsonify({
+            "success": False, 
+            "error": f"Failed to get antivirus status: {str(e)}"
         }), 500
 
 if __name__=="__main__":

@@ -114,15 +114,15 @@ class TestSVGValidator(unittest.TestCase):
     def test_comprehensive_validation(self):
         """Test comprehensive file validation."""
         # Valid case
-        is_valid, error = SVGValidator.validate_file_comprehensive(self.valid_svg, "test.svg")
+        is_valid, error, _ = SVGValidator.validate_file(self.valid_svg, "test.svg")
         self.assertTrue(is_valid, f"Valid SVG and filename should pass but got: {error}")
         
         # Invalid filename
-        is_valid, error = SVGValidator.validate_file_comprehensive(self.valid_svg, "test.txt")
+        is_valid, error, _ = SVGValidator.validate_file(self.valid_svg, "test.txt")
         self.assertFalse(is_valid, "Invalid filename should fail validation")
         
         # Invalid content
-        is_valid, error = SVGValidator.validate_file_comprehensive(self.malicious_svg, "test.svg")
+        is_valid, error, _ = SVGValidator.validate_file(self.malicious_svg, "test.svg")
         self.assertFalse(is_valid, "Malicious content should fail validation")
     
     def test_dangerous_patterns(self):
@@ -167,16 +167,16 @@ def run_basic_functionality_test():
     
     # Test valid SVG
     valid_svg = b'<svg xmlns="http://www.w3.org/2000/svg"><circle r="10"/></svg>'
-    is_valid, error = SVGValidator.validate_file_comprehensive(valid_svg, "test.svg")
+    is_valid, error, _ = SVGValidator.validate_file(valid_svg, "test.svg")
     print(f"Valid SVG test: {'PASS' if is_valid else 'FAIL'} - {error or 'No error'}")
     
     # Test malicious SVG
     malicious_svg = b'<svg><script>alert("xss")</script></svg>'
-    is_valid, error = SVGValidator.validate_file_comprehensive(malicious_svg, "malicious.svg")
+    is_valid, error, _ = SVGValidator.validate_file(malicious_svg, "malicious.svg")
     print(f"Malicious SVG test: {'PASS' if not is_valid else 'FAIL'} - {error or 'Should have been rejected'}")
     
     # Test invalid filename
-    is_valid, error = SVGValidator.validate_file_comprehensive(valid_svg, "test.txt")
+    is_valid, error, _ = SVGValidator.validate_file(valid_svg, "test.txt")
     print(f"Invalid filename test: {'PASS' if not is_valid else 'FAIL'} - {error or 'Should have been rejected'}")
     
     print("Basic functionality test completed!")
