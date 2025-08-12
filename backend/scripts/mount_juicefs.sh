@@ -23,6 +23,7 @@ source "$ENV_FILE"
 JUICEFS_FILESYSTEM_NAME=${JUICEFS_FILESYSTEM_NAME:-"math2visual-fs"}
 JUICEFS_MOUNT_POINT=${JUICEFS_MOUNT_POINT:-"/mnt/juicefs"}
 JUICEFS_CACHE_DIR=${JUICEFS_CACHE_DIR:-"/var/cache/juicefs"}
+JUICEFS_LOG_DIR=${JUICEFS_LOG_DIR:-"/var/log/juicefs"}
 
 echo "📋 Mount Configuration:"
 echo "   Filesystem: $JUICEFS_FILESYSTEM_NAME"
@@ -61,6 +62,11 @@ fi
 
 # Ensure user owns the mount point
 sudo chown -R "$USER:$USER" "$JUICEFS_MOUNT_POINT"
+
+# Create log directory
+echo "📁 Setting up log directory: $JUICEFS_LOG_DIR"
+sudo mkdir -p "$JUICEFS_LOG_DIR"
+sudo chown -R "$USER:$USER" "$JUICEFS_LOG_DIR"
 
 # Create cache directory
 echo "📁 Setting up cache directory: $JUICEFS_CACHE_DIR"
