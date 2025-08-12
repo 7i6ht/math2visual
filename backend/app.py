@@ -9,9 +9,19 @@ from generate_visual_language_with_gpt import generate_visual_language
 from generate_visual_formal import FormalVisualGenerator
 from generate_visual_intuitive import IntuitiveVisualGenerator
 from visual_generator_utils import ValidationError, VisualGenerationError
+from config.storage_config import get_svg_dataset_path, get_upload_path, validate_storage_config, storage_config
 
 app = Flask(__name__)
 CORS(app)
+
+# Validate storage configuration on startup
+is_valid, error = validate_storage_config()
+if not is_valid:
+    print(f"⚠️  Storage configuration issue: {error}")
+    print(f"📍 Current storage info: {storage_config.get_storage_info()}")
+else:
+    print(f"✅ Storage configured: {storage_config.storage_mode} mode")
+    print(f"📁 SVG dataset path: {storage_config.svg_dataset_path}")
 
 
 @app.route("/api/generate", methods=["POST"])
@@ -64,8 +74,8 @@ def generate():
         if not raw:
             return jsonify({"error": "Could not find `visual_language:` in GPT response."}), 500
         dsl = raw.split(":", 1)[1].strip() if raw.lower().startswith("visual_language:") else raw.strip()
-    # Initialize generators
-    resources = os.path.join(os.path.dirname(__file__), "svg_dataset")
+    # Initialize generators with configurable SVG path
+    resources = get_svg_dataset_path()
     formal_generator = FormalVisualGenerator(resources)
     intuitive_generator = IntuitiveVisualGenerator(resources)
     
@@ -196,7 +206,7 @@ def upload_svg():
         
         # Secure the filename and prepare directory
         secure_name = SVGValidator.get_secure_filename(expected_filename)
-        svg_dataset_dir = os.path.join(os.path.dirname(__file__), "svg_dataset")
+        svg_dataset_dir = get_upload_path()
         os.makedirs(svg_dataset_dir, exist_ok=True)
         
         file_path = os.path.join(svg_dataset_dir, secure_name)
@@ -241,6 +251,43 @@ def upload_svg():
         
     except Exception as e:
         return jsonify({"success": False, "error": f"Upload failed: {str(e)}"}), 500
+
+@app.route("/api/storage/status", methods=["GET"])
+def storage_status():
+    """
+    Get storage configuration and status information.
+    Useful for monitoring and debugging storage setup.
+    """
+    try:
+        storage_info = storage_config.get_storage_info()
+        
+        # Add file count if storage is valid
+        if storage_info['is_valid']:
+            try:
+                svg_path = storage_info['svg_dataset_path']
+                svg_files = [f for f in os.listdir(svg_path) if f.lower().endswith('.svg')]
+                storage_info['svg_file_count'] = len(svg_files)
+                
+                # Check if a sample file is accessible
+                if svg_files:
+                    sample_file = os.path.join(svg_path, svg_files[0])
+                    storage_info['sample_file_accessible'] = os.access(sample_file, os.R_OK)
+                else:
+                    storage_info['sample_file_accessible'] = None
+                    
+            except Exception as e:
+                storage_info['file_check_error'] = str(e)
+        
+        return jsonify({
+            "success": True,
+            "storage": storage_info
+        })
+        
+    except Exception as e:
+        return jsonify({
+            "success": False, 
+            "error": f"Failed to get storage status: {str(e)}"
+        }), 500
 
 if __name__=="__main__":
     app.run(host="0.0.0.0", port=5001, debug=True)
