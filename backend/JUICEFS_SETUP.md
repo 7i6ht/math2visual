@@ -85,7 +85,7 @@ JuiceFS filesystem formatted with PostgreSQL metadata backend:
 
 ### Step 5: Mount JuiceFS
 
-JuiceFS filesystem mounted and operational at `/mnt/juicefs`:
+JuiceFS filesystem mounting and operational at `/mnt/juicefs`:
 
 ```bash
 # Mount JuiceFS
@@ -96,8 +96,6 @@ JuiceFS filesystem mounted and operational at `/mnt/juicefs`:
 ```
 
 ### Step 6: Migrate SVG Files
-
-All 1,548 SVG files successfully migrated in 3m50s:
 
 ```bash
 # Created SVG directory in JuiceFS
