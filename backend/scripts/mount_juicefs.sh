@@ -40,7 +40,7 @@ if mountpoint -q "$JUICEFS_MOUNT_POINT" 2>/dev/null; then
         exit 0
     else
         echo "❌ Mount exists but is not writable, attempting remount..."
-        sudo umount "$JUICEFS_MOUNT_POINT" || true
+        fusermount -u "$JUICEFS_MOUNT_POINT" 2>/dev/null || sudo umount "$JUICEFS_MOUNT_POINT" || true
     fi
 fi
 
@@ -57,21 +57,52 @@ echo "✅ Filesystem '$JUICEFS_FILESYSTEM_NAME' is ready"
 # Create mount point if it doesn't exist
 if [ ! -d "$JUICEFS_MOUNT_POINT" ]; then
     echo "📁 Creating mount point: $JUICEFS_MOUNT_POINT"
-    sudo mkdir -p "$JUICEFS_MOUNT_POINT"
+    if [ -w "$(dirname "$JUICEFS_MOUNT_POINT")" ]; then
+        mkdir -p "$JUICEFS_MOUNT_POINT"
+    else
+        echo "⚠️  Need sudo to create mount point in $(dirname "$JUICEFS_MOUNT_POINT")"
+        sudo mkdir -p "$JUICEFS_MOUNT_POINT"
+        sudo chown -R "$USER:$USER" "$JUICEFS_MOUNT_POINT"
+    fi
+else
+    echo "📁 Mount point already exists: $JUICEFS_MOUNT_POINT"
 fi
 
-# Ensure user owns the mount point
-sudo chown -R "$USER:$USER" "$JUICEFS_MOUNT_POINT"
+# Ensure user owns the mount point (only if needed)
+if [ ! -w "$JUICEFS_MOUNT_POINT" ]; then
+    echo "📁 Fixing mount point permissions..."
+    sudo chown -R "$USER:$USER" "$JUICEFS_MOUNT_POINT"
+else
+    echo "✅ Mount point permissions are correct"
+fi
 
 # Create log directory
-echo "📁 Setting up log directory: $JUICEFS_LOG_DIR"
-sudo mkdir -p "$JUICEFS_LOG_DIR"
-sudo chown -R "$USER:$USER" "$JUICEFS_LOG_DIR"
+if [ ! -d "$JUICEFS_LOG_DIR" ]; then
+    echo "📁 Creating log directory: $JUICEFS_LOG_DIR"
+    if [ -w "$(dirname "$JUICEFS_LOG_DIR")" ]; then
+        mkdir -p "$JUICEFS_LOG_DIR"
+    else
+        echo "⚠️  Need sudo to create log directory in $(dirname "$JUICEFS_LOG_DIR")"
+        sudo mkdir -p "$JUICEFS_LOG_DIR"
+        sudo chown -R "$USER:$USER" "$JUICEFS_LOG_DIR"
+    fi
+else
+    echo "📁 Log directory already exists: $JUICEFS_LOG_DIR"
+fi
 
 # Create cache directory
-echo "📁 Setting up cache directory: $JUICEFS_CACHE_DIR"
-sudo mkdir -p "$JUICEFS_CACHE_DIR"
-sudo chown -R "$USER:$USER" "$JUICEFS_CACHE_DIR"
+if [ ! -d "$JUICEFS_CACHE_DIR" ]; then
+    echo "📁 Creating cache directory: $JUICEFS_CACHE_DIR"
+    if [ -w "$(dirname "$JUICEFS_CACHE_DIR")" ]; then
+        mkdir -p "$JUICEFS_CACHE_DIR"
+    else
+        echo "⚠️  Need sudo to create cache directory in $(dirname "$JUICEFS_CACHE_DIR")"
+        sudo mkdir -p "$JUICEFS_CACHE_DIR"
+        sudo chown -R "$USER:$USER" "$JUICEFS_CACHE_DIR"
+    fi
+else
+    echo "📁 Cache directory already exists: $JUICEFS_CACHE_DIR"
+fi
 
 # Mount with optimized settings for SVG files
 echo ""

@@ -2,11 +2,13 @@ import os
 from openai import OpenAI
 from dotenv import load_dotenv
 import time
+
 # Load environment variables from .env file
 load_dotenv(override=True)
 client = OpenAI(
     api_key=os.environ.get("OPENAI_API_KEY"),  # This is the default and can be omitted
 )
+
 def generate_response(prompt, model):
     while True:
         try:
@@ -206,4 +208,3 @@ if __name__ == "__main__":
     with open(output_path, 'w') as f:
         f.write(visual_language)
     print(visual_language)
-

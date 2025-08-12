@@ -6,7 +6,7 @@ Run with: python3 test_svg_validator.py
 """
 
 import unittest
-from svg_validator import SVGValidator
+from app.services.validation.svg_validator import SVGValidator
 
 
 class TestSVGValidator(unittest.TestCase):

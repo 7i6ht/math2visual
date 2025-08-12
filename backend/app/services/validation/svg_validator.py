@@ -15,7 +15,7 @@ from werkzeug.utils import secure_filename
 
 # Import ClamAV scanner with graceful handling
 try:
-    from clamav_scanner import scan_file_content, is_clamav_available, get_clamav_status, ScanResult
+    from .security_scanner import scan_file_content, is_clamav_available, get_clamav_status, ScanResult
     CLAMAV_SCANNER_AVAILABLE = True
 except ImportError as e:
     print(f"ClamAV scanner not available: {e}")

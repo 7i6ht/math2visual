@@ -8,8 +8,8 @@ import random
 from typing import Dict, List, Tuple, Any, Optional
 from lxml import etree
 
-from visual_generator_base import BaseVisualGenerator
-from visual_generator_utils import ValidationError, VisualGenerationError
+from .base_generator import BaseVisualGenerator
+from .utils import ValidationError, VisualGenerationError
 
 
 class IntuitiveVisualGenerator(BaseVisualGenerator):

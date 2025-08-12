@@ -10,7 +10,7 @@ from typing import Dict, List, Tuple, Any, Optional
 from lxml import etree
 from collections import defaultdict
 
-from visual_generator_utils import (
+from .utils import (
     SVGCache, SVGEmbedder, MathParser, LayoutCalculator, 
     ValidationError, VisualGenerationError
 )
