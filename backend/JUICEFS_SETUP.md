@@ -89,13 +89,40 @@ JuiceFS filesystem mounting and operational at `/mnt/juicefs`:
 
 ```bash
 # Mount JuiceFS
-./scripts/mount_juicefs.sh
+sudo ./scripts/mount_juicefs.sh
 
 # Verify mount
 ./scripts/verify_juicefs.sh
 ```
 
-### Step 6: Migrate SVG Files
+### Step 6: Setup Automatic Mounting
+
+Configure systemd service for automatic JuiceFS mounting on boot:
+
+```bash
+# Install the systemd service
+sudo cp scripts/juicefs-math2visual.service /etc/systemd/system/
+sudo systemctl daemon-reload
+
+# Enable automatic startup
+sudo systemctl enable juicefs-math2visual.service
+
+# Test the service (unmount first if currently mounted)
+sudo fusermount -u /mnt/juicefs 2>/dev/null || true
+sudo systemctl start juicefs-math2visual.service
+
+# Verify service is running
+systemctl status juicefs-math2visual.service
+mountpoint /mnt/juicefs
+```
+
+**What this provides:**
+- ✅ **Automatic mounting** on every system restart
+- ✅ **Dependency management** (waits for PostgreSQL)
+- ✅ **Failure recovery** with automatic retries
+- ✅ **No manual intervention** required after setup
+
+### Step 7: Migrate SVG Files
 
 ```bash
 # Created SVG directory in JuiceFS
@@ -106,7 +133,7 @@ cp -r svg_dataset/* /mnt/juicefs/svg_dataset/
 # Result: 118MB → 115MB (3MB space saved!)
 ```
 
-### Step 7: Backend Integration
+### Step 8: Backend Integration
 
 Created configurable storage system and updated backend:
 
@@ -127,6 +154,7 @@ backend/config/storage_config.py
 | `verify_juicefs.sh` | Verify installation and setup | BOTH |
 | `format_juicefs.sh` | Format filesystem with PostgreSQL | ME |
 | `mount_juicefs.sh` | Mount JuiceFS filesystem | ME |
+| `juicefs-math2visual.service` | Systemd service for auto-mounting | SETUP |
 
 ## 📁 Directory Structure After Migration
 
@@ -158,6 +186,8 @@ After migration, only minimal changes needed:
 - [x] `.env` file configured with credentials
 - [x] Filesystem `math2visual-fs` formatted with PostgreSQL metadata
 - [x] Filesystem mounted at `/mnt/juicefs` with optimized caching
+- [x] Systemd service `juicefs-math2visual.service` installed and enabled
+- [x] Automatic mounting works (`systemctl status juicefs-math2visual.service`)
 - [x] All 1,548 SVG files migrated successfully (118MB → 115MB)
 - [x] Backend updated with configurable storage system
 - [x] Storage status endpoint added: `GET /api/storage/status`
@@ -170,17 +200,25 @@ After migration, only minimal changes needed:
 2. **Permission denied**: Ensure user owns mount point
 3. **PostgreSQL connection**: Verify credentials in `.env`
 4. **Cache issues**: Clear cache: `rm -rf /var/cache/juicefs/*`
+5. **Service won't start**: Check directory permissions and PostgreSQL status
+6. **Auto-mount fails**: Verify systemd service is enabled and dependencies are met
 
 **Get Help:**
 ```bash
-# Check JuiceFS status
-juicefs status math2visual-fs
+# Check JuiceFS filesystem status
+juicefs status "$JUICEFS_METADATA_URL"
+
+# Check systemd service status
+systemctl status juicefs-math2visual.service
+
+# View service logs
+journalctl -u juicefs-math2visual.service
 
 # Check mount health
 ./scripts/verify_juicefs.sh
 
-# View logs
-journalctl -u juicefs
+# Test manual mount
+./scripts/mount_juicefs.sh
 ```
 
 ## 📊 Performance Benefits
