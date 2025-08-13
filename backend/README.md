@@ -120,13 +120,72 @@ Generate visual representations from math word problems.
 }
 ```
 
+### SVG Upload API
+
+#### `POST /api/upload-svg`
+Upload SVG file to the svg_dataset directory with enhanced validation and security.
+
+**Request Body (multipart/form-data):**
+```
+file: SVG file (required)
+expected_filename: string (required) - Expected filename for validation
+```
+
+**Example using curl:**
+```bash
+curl -X POST http://localhost:5001/api/upload-svg \
+  -F "file=@apple.svg" \
+  -F "expected_filename=apple.svg"
+```
+
+**Response (Success - New file):**
+```json
+{
+  "success": true,
+  "message": "SVG file 'apple.svg' uploaded successfully",
+  "file_hash": "a1b2c3d4e5f6g7h8",
+  "validation_details": {
+    "file_size": 2048,
+    "svg_validation": "passed",
+    "antivirus_scan": "clean",
+    "file_hash": "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6"
+  }
+}
+```
+
+**Response (Success - Duplicate file):**
+```json
+{
+  "success": true,
+  "message": "SVG file 'apple.svg' already exists with identical content"
+}
+```
+
+**Response (Error):**
+```json
+{
+  "success": false,
+  "error": "No file uploaded"
+}
+```
+
+**Response (Validation Error):**
+```json
+{
+  "success": false,
+  "error": "Content validation failed: File contains potentially malicious content: <script[^>]*>",
+  "validation_details": {
+    "file_size": 2048,
+    "content_valid": false,
+    "file_hash": "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6"
+  }
+}
+```
+
 ### System Management (debug mode)
 
 #### `GET /api/storage/status`
 Get storage system status and configuration.
-
-#### `POST /api/upload/svg`
-Upload new SVG entities to the dataset.
 
 ## 🎨 Visual Generation
 
@@ -245,7 +304,7 @@ python -m pytest --cov=app tests/
 
 ### Adding New SVG Entities
 1. Create SVG file following naming conventions
-2. Upload via `/api/upload/svg` endpoint
+2. Upload via `/api/upload-svg` endpoint
 3. SVG will be validated and added to dataset
 
 ### Extending Visual Language
