@@ -1,4 +1,4 @@
-# <img src="./frontend/public/math2visual-logo-400x200.png" width="60" height="30"> Math2Visual Interactive System
+# <img src="./images/icon.png" width="30" height="30"> Math2Visual Interactive System
 
 An interactive educational platform that transforms math word problems (MWPs) into pedagogically meaningful visual representations for enhanced learning and teaching.
 
@@ -27,6 +27,30 @@ This interactive system builds upon the Math2Visual research framework:
 diverse narrative structures found in MWPs.
    2. Automation of time-consuming manual process.
 - **Pedagogically Meaningful Design**: Design of visuals validated with teachers.
+
+## 🧮 User Interface
+
+![app](./images/app.png){:width=100%}
+
+## 📚 Usage Workflow
+
+1. **Enter Problem**: Type your math word problem in the main text area
+   ```
+   "Janet has 9 oranges and Sharon has 7 oranges. How many oranges do they have together?"
+   ```
+
+2. **Add Formula** (Optional): Include the mathematical formula
+   ```
+   "9 + 7 = 16"
+   ```
+
+3. **Generate**: Click "Generate Visualization" and watch the AI processing
+
+4. **Review Results**: Examine both formal and intuitive visual representations
+
+5. **Refine if Needed**: Edit the generated Visual Language (DSL) and regenerate
+
+6. **Export**: Download visualizations in your preferred format
 
 ## 🏛️ System Overview
 
@@ -141,26 +165,6 @@ flowchart TD
 4. **Access the Application**
    
    Open your browser to `http://localhost:5173` and start generating visualizations!
-
-## 📚 Usage Workflow
-
-1. **Enter Problem**: Type your math word problem in the main text area
-   ```
-   "Janet has 9 oranges and Sharon has 7 oranges. How many oranges do they have together?"
-   ```
-
-2. **Add Formula** (Optional): Include the mathematical formula
-   ```
-   "9 + 7 = 16"
-   ```
-
-3. **Generate**: Click "Generate Visualization" and watch the AI processing
-
-4. **Review Results**: Examine both formal and intuitive visual representations
-
-5. **Refine if Needed**: Edit the generated Visual Language (DSL) and regenerate
-
-6. **Export**: Download visualizations in your preferred format
 
 ## 📖 Documentation
 
