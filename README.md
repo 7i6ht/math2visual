@@ -30,7 +30,7 @@ diverse narrative structures found in MWPs.
 
 ## 🧮 User Interface
 
-![app](./images/app.png){:width=100%}
+![app](./images/app.png)
 
 ## 📚 Usage Workflow
 
