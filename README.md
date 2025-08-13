@@ -1,4 +1,4 @@
-# <img src="./frontend/public/math2visual-base-logo.png" width="24" height="24"> Math2Visual Interactive System
+# <img src="./frontend/public/math2visual-logo-400x200.png" width="60" height="30"> Math2Visual Interactive System
 
 An interactive educational platform that transforms math word problems (MWPs) into pedagogically meaningful visual representations for enhanced learning and teaching.
 
@@ -28,9 +28,7 @@ diverse narrative structures found in MWPs.
    2. Automation of time-consuming manual process.
 - **Pedagogically Meaningful Design**: Design of visuals validated with teachers.
 
-## 🏛️ System Architecture
-
-The platform consists of two integrated components:
+## 🏛️ System Overview
 
 ```mermaid
 flowchart TD
@@ -176,6 +174,13 @@ flowchart TD
 
 This project builds upon the Math2Visual research framework. Please refer to the [original repository](https://github.com/eth-lre/math2visual) for licensing information and academic use guidelines.
 
+## 🙏 Credits
+
+This code base was developed with the assistance of:
+
+- **[Cursor AI](https://cursor.sh/)**: AI-powered code editor that enhanced development productivity and code quality (using various available models)
+- **[Claude (Anthropic)](https://www.anthropic.com/claude)**: AI assistant that provided intelligent code generation, debugging support, architectural guidance, in addition to generation of documentation
+
 ---
 
-*Transform mathematical learning through the power of AI-generated visualizations.* 🧮✨
+*Transform mathematical learning through the power of AI-generated visualizations.* ✨
