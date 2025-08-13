@@ -238,13 +238,14 @@ The system generates two types of visual representations:
 
 ### 1. Formal Representation
 - Mathematical precision with exact quantities
+- Explicit mathematical operations
+- Accentuates underlying relationships in a clear mathematical way
 - Grid-based layouts for structured display
-- Explicit mathematical operations visualization
 
 ### 2. Intuitive Representation  
-- Natural, intuitive visual arrangements
-- Contextual groupings and relationships
-- User-friendly visual metaphors
+- Detailed, example-driven illustration of mathematical relationships to reflect authentic real-world situations and narrative contexts
+- Contextual groupings / arrangements
+- Designed to improve engagement & reduce the cognitive load
 
 Both generators support:
 - **Dynamic SVG composition** from 1,548+ entity library
