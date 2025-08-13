@@ -185,7 +185,54 @@ curl -X POST http://localhost:5001/api/upload-svg \
 ### System Management (debug mode)
 
 #### `GET /api/storage/status`
-Get storage system status and configuration.
+Get storage configuration and status information.
+
+**Response (Success):**
+```json
+{
+  "success": true,
+  "storage": {
+    "storage_mode": "local",
+    "svg_dataset_path": "/path/to/svg_dataset",
+    "is_valid": true,
+    "svg_file_count": 1548,
+    "sample_file_accessible": true
+  }
+}
+```
+
+**Response (Error):**
+```json
+{
+  "success": false,
+  "error": "Failed to get storage status: Permission denied"
+}
+```
+
+#### `GET /api/antivirus/status`
+Get antivirus scanner status and configuration information.
+
+**Response (Success):**
+```json
+{
+  "success": true,
+  "antivirus": {
+    "available": true,
+    "daemon_running": true,
+    "version": "ClamAV 0.103.8",
+    "database_version": "26580",
+    "last_update": "2024-01-15T10:30:00Z"
+  }
+}
+```
+
+**Response (Error):**
+```json
+{
+  "success": false,
+  "error": "Failed to get antivirus status: ClamAV daemon not running"
+}
+```
 
 ## 🎨 Visual Generation
 
