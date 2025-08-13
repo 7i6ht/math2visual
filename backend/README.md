@@ -60,18 +60,13 @@ pip install -r requirements.txt
 ```
 
 2. **Configure environment variables:**
-```bash
-cp config_templates/env_juicefs_template .env
-# Edit .env with your settings
-```
-
-Required environment variables:
+Update `.env` file with required environment variables.
 ```bash
 # OpenAI Configuration
 OPENAI_API_KEY=your_openai_api_key
 
 # Storage Configuration
-SVG_STORAGE_MODE=local  # or 'juicefs'
+SVG_STORAGE_MODE=juicefs  # or 'local'
 SVG_DATASET_PATH=/path/to/svg/dataset
 SVG_CACHE_SIZE=100
 
@@ -79,7 +74,10 @@ SVG_CACHE_SIZE=100
 JUICEFS_METADATA_URL=postgres://user:pass@localhost:5432/juicefs_metadata
 ```
 
-3. **Run the application:**
+3. **Set up JuiceFS:**
+See [`docs/JUICEFS_SETUP.md`](docs/JUICEFS_SETUP.md) (or just add `SVG_STORAGE_MODE=local` to `.env` and continue).
+
+4. **Run the application:**
 ```bash
 python app.py
 ```
@@ -282,15 +280,10 @@ operation(
 
 ## 💾 Storage Configuration
 
-### Local Storage (Default)
-```bash
-SVG_STORAGE_MODE=local
-```
-- Uses `backend/storage/datasets/svg_dataset/` directory
-- Simple filesystem access
-- Suitable for development and single-node deployment
+### JuiceFS Distributed Storage (Default)
+**Setup JuiceFS:**
+See [`docs/JUICEFS_SETUP.md`](docs/JUICEFS_SETUP.md) for setup instructions.
 
-### JuiceFS Distributed Storage
 ```bash
 SVG_STORAGE_MODE=juicefs
 SVG_DATASET_PATH=/mnt/juicefs/svg_dataset
@@ -298,25 +291,16 @@ JUICEFS_METADATA_URL=postgres://user:pass@host:port/database
 ```
 
 **Benefits:**
-- Distributed storage across multiple nodes
-- PostgreSQL metadata backend for reliability
-- Built-in compression and caching
-- Automatic redundancy and backup
+- Avoid file corruption in case two users upload SVG with same name at the same time
 
-**Setup JuiceFS:**
+### Local Storage
+Change mode to local in .env file:
 ```bash
-# Install and format JuiceFS
-./scripts/install_juicefs.sh
-./scripts/format_juicefs.sh
-
-# Mount filesystem
-./scripts/mount_juicefs.sh
-
-# Setup automatic mounting
-./scripts/install_systemd_service.sh
+SVG_STORAGE_MODE=local
 ```
-
-See [`docs/JUICEFS_SETUP.md`](docs/JUICEFS_SETUP.md) for detailed setup instructions.
+- Uses `backend/storage/datasets/svg_dataset/` directory
+- Simple filesystem access
+- Suitable for development and single-node deployment
 
 ## 🔒 Security Features
 
