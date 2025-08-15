@@ -271,14 +271,19 @@ Get storage configuration and status information.
 **Response (Success):**
 ```json
 {
-  "success": true,
   "storage": {
-    "storage_mode": "local",
-    "svg_dataset_path": "/path/to/svg_dataset",
+    "cache_size": 100,
+    "error": null,
+    "is_juicefs_enabled": true,
     "is_valid": true,
-    "svg_file_count": 1548,
-    "sample_file_accessible": true
-  }
+    "juicefs_mounted": true,
+    "sample_file_accessible": true,
+    "storage_mode": "juicefs",
+    "svg_dataset_path": "/mnt/juicefs/svg_dataset",
+    "svg_file_count": 1550,
+    "upload_path": "/mnt/juicefs/svg_dataset"
+  },
+  "success": true
 }
 ```
 
@@ -295,14 +300,16 @@ Get antivirus scanner status and configuration information.
 
 **Response (Success):**
 ```json
-{
-  "success": true,
-  "antivirus": {
-    "available": true,
-    "daemon_running": true,
-    "version": "ClamAV 0.103.8",
-    "database_version": "26580",
-    "last_update": "2024-01-15T10:30:00Z"
+  {
+    "antivirus": {
+      "clamav_version": "ClamAV 1.0.7/27730/Tue Aug 12 10:33:28 2025",
+      "connection_method": "socket",
+      "connection_target": "/var/run/clamav/clamd.ctl",
+      "pyclamd_installed": true,
+      "scanner_available": true,
+      "scanner_module_available": true
+    },
+    "success": true
   }
 }
 ```
