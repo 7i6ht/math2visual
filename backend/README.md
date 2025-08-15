@@ -66,18 +66,14 @@ Update `.env` file with required environment variables.
 OPENAI_API_KEY=your_openai_api_key
 
 # Storage Configuration
-SVG_STORAGE_MODE=juicefs  # or 'local'
+SVG_STORAGE_MODE=local  # or 'juicefs'
 SVG_DATASET_PATH=/path/to/svg/dataset
 SVG_CACHE_SIZE=100
 
-# JuiceFS Configuration (if using JuiceFS)
-JUICEFS_METADATA_URL=postgres://user:pass@localhost:5432/juicefs_metadata
-```
+# JuiceFS Configuration (only if using JuiceFS)
+See [`docs/JUICEFS_SETUP.md`](docs/JUICEFS_SETUP.md)
 
-3. **Set up JuiceFS:**
-See [`docs/JUICEFS_SETUP.md`](docs/JUICEFS_SETUP.md) (or just add `SVG_STORAGE_MODE=local` to `.env` and continue).
-
-4. **Run the application:**
+3. **Run the application:**
 ```bash
 python app.py
 ```
@@ -371,7 +367,16 @@ operation(
 
 ## 💾 Storage Configuration
 
-### JuiceFS Distributed Storage (Default)
+### Local Storage (Default)
+Change mode to local in .env file:
+```bash
+SVG_STORAGE_MODE=local
+```
+- Uses `backend/storage/datasets/svg_dataset/` directory
+- Simple filesystem access
+- Suitable for development and single-node deployment
+
+### JuiceFS Distributed Storage
 **Setup JuiceFS:**
 See [`docs/JUICEFS_SETUP.md`](docs/JUICEFS_SETUP.md) for setup instructions.
 
@@ -382,16 +387,8 @@ JUICEFS_METADATA_URL=postgres://user:pass@host:port/database
 ```
 
 **Benefits:**
-- Avoid file corruption in case two users upload SVG with same name at the same time
-
-### Local Storage
-Change mode to local in .env file:
-```bash
-SVG_STORAGE_MODE=local
-```
-- Uses `backend/storage/datasets/svg_dataset/` directory
-- Simple filesystem access
-- Suitable for development and single-node deployment
+- **Scalability**: Easy to add distributed storage later
+- **Backup**: PostgreSQL metadata can be backed up normally
 
 ## 🔒 Security Features
 

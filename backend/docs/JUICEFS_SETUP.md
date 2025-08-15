@@ -69,7 +69,7 @@ cat config_templates/env_juicefs_template >> .env
 vim .env
 ```
 
-**Important**: Update these values in `.env`:
+**Important**: Update this value in `.env`:
 ```bash
 JUICEFS_METADATA_URL=postgres://juicefs_user:your_actual_password@localhost:5432/juicefs_metadata
 ```
@@ -292,7 +292,6 @@ journalctl -u juicefs-math2visual.service
 ## 📊 Benefits
 
 Expected improvements after migration:
-- **Consistency**: For the case when multiple users upload file with same name
 - **Scalability**: Easy to add distributed storage later
 - **Backup**: PostgreSQL metadata can be backed up normally
 

@@ -102,7 +102,7 @@ flowchart TD
 ### Backend (Flask + Python)
 - **AI-Powered Processing**: OpenAI GPT integration for natural language to visual language conversion
 - **Dual Generation Engines**: Separate formal and intuitive visualization algorithms
-- **Scalable Storage**: Distributed JuiceFS with PostgreSQL metadata or local filesystem
+- **Scalable Storage**: Local filesystem or distributed JuiceFS with PostgreSQL metadata
 - **SVG Uploading Security & Validation**: SVG content validation, and optional ClamAV integration
 - **Extensive SVG Entity Library**: 1,548+ pre-validated SVG assets for comprehensive visual coverage
 
@@ -136,14 +136,12 @@ flowchart TD
    OPENAI_API_KEY=your_openai_api_key
 
    # Storage Configuration
-   SVG_STORAGE_MODE=juicefs  # or 'local'
+   SVG_STORAGE_MODE=local  # or 'juicefs'
    SVG_DATASET_PATH=/path/to/svg/dataset
    SVG_CACHE_SIZE=100
 
-   # JuiceFS Configuration (if using JuiceFS)
-   JUICEFS_METADATA_URL=postgres://user:pass@localhost:5432/juicefs_metadata
-   ```
-   Set up JuiceFS ([`docs/JUICEFS_SETUP.md`](docs/JUICEFS_SETUP.md)) or just add `SVG_STORAGE_MODE=local` to `.env` and continue)
+   # JuiceFS Configuration (only if using JuiceFS)
+   See ([`docs/JUICEFS_SETUP.md`](docs/JUICEFS_SETUP.md))
    
    Start backend server
    ```bash
@@ -168,10 +166,10 @@ flowchart TD
 
 ## 📖 Documentation
 
+- **[Frontend Documentation](frontend/README.md)**: React application structure, component usage, and development workflows
 - **[Backend Documentation](backend/README.md)**: Comprehensive Flask API reference, storage configuration, and deployment guides
 - **[JuiceFS Setup Guide](backend/docs/JUICEFS_SETUP.md)**: Distributed storage configuration
 - **[Security Setup Guide](backend/docs/CLAMAV_SETUP.md)**: ClamAV antivirus integration
-- **[Frontend Documentation](frontend/README.md)**: React application structure, component usage, and development workflows
 
 
 ## 📄 License
