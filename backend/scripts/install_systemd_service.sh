@@ -39,6 +39,23 @@ JUICEFS_MOUNT_POINT=${JUICEFS_MOUNT_POINT:-"/mnt/juicefs"}
 
 echo "   Mount Point: $JUICEFS_MOUNT_POINT"
 
+# Pre-create mount point to avoid sudo issues during service startup
+echo ""
+echo "📁 Pre-creating mount point..."
+if [ ! -d "$JUICEFS_MOUNT_POINT" ]; then
+    echo "   Creating: $JUICEFS_MOUNT_POINT"
+    if [ -w "$(dirname "$JUICEFS_MOUNT_POINT")" ]; then
+        mkdir -p "$JUICEFS_MOUNT_POINT"
+    else
+        echo "   (Requires sudo for /mnt directory)"
+        sudo mkdir -p "$JUICEFS_MOUNT_POINT"
+        sudo chown "$CURRENT_USER:$CURRENT_GROUP" "$JUICEFS_MOUNT_POINT"
+    fi
+    echo "✅ Mount point created with proper permissions"
+else
+    echo "✅ Mount point already exists: $JUICEFS_MOUNT_POINT"
+fi
+
 # Check if template exists
 TEMPLATE_FILE="$SCRIPT_DIR/juicefs-math2visual.service.template"
 if [ ! -f "$TEMPLATE_FILE" ]; then

@@ -206,6 +206,70 @@ After migration, only minimal changes needed:
 5. **Service won't start**: Check directory permissions and PostgreSQL status
 6. **Auto-mount fails**: Verify systemd service is enabled and dependencies are met
 7. **Service installation fails**: Try uninstalling first: `./scripts/uninstall_systemd_service.sh`
+8. **"Socket is not connected" error**: See detailed solution below
+
+### 🔧 Socket Connection Error (Detailed Fix)
+
+**Symptoms:**
+
+- `ls /mnt/` shows: `ls: Cannot access '/mnt/juicefs': The socket is not connected.`
+- Directory listing shows: `d?????????  ? ?    ?       ?             ? juicefs`
+- Service stuck in "activating (start-pre)" state
+- Service logs show sudo password errors
+
+**Root Cause:**
+The systemd service tries to create the mount point but requires sudo permissions. Since systemd services don't have interactive terminals, the sudo command fails, leaving the mount point in a broken/stale FUSE state.
+
+**Solution Steps:**
+
+```bash
+# 1. Stop the problematic service
+sudo systemctl stop juicefs-math2visual.service
+
+# 2. Clear the broken mount state
+sudo fusermount -u /mnt/juicefs
+
+# 3. Verify mount point is accessible
+ls -la /mnt/
+# Should show: drwxr-xr-x  2 stephanie stephanie 4096 ... juicefs
+
+# 4. Restart the service
+sudo systemctl start juicefs-math2visual.service
+
+# 5. Verify everything is working
+systemctl status juicefs-math2visual.service
+mountpoint /mnt/juicefs
+ls /mnt/juicefs/svg_dataset/ | head -5
+```
+
+**Prevention:**
+This issue typically occurs when the mount point gets into a stale state. The mount scripts are designed to handle directory creation properly, but sometimes manual intervention is needed to clear broken FUSE mounts.
+
+### 🔧 Root Cause Solutions (Prevent Future Issues)
+
+To prevent this problem from happening again, choose one of these approaches:
+
+**Method 1: Use User-Owned Mount Point (No Sudo Required)**
+Configure JuiceFS to use a user-owned directory instead of `/mnt`:
+```bash
+# In your .env file, change:
+JUICEFS_MOUNT_POINT=$HOME/juicefs
+SVG_DATASET_PATH=$HOME/juicefs/svg_dataset
+
+# Then reinstall the service
+./scripts/install_systemd_service.sh
+```
+
+**Method 2: Manual Pre-Creation**
+Create the mount point manually before service installation:
+```bash
+# For system mount point
+sudo mkdir -p /mnt/juicefs
+sudo chown $USER:$USER /mnt/juicefs
+
+# For user mount point
+mkdir -p ~/juicefs
+```
 
 **Get Help:**
 ```bash
@@ -225,11 +289,10 @@ journalctl -u juicefs-math2visual.service
 ./scripts/mount_juicefs.sh
 ```
 
-## 📊 Performance Benefits
+## 📊 Benefits
 
 Expected improvements after migration:
-- **Faster Access**: Local cache for frequently used SVGs
-- **Compression**: Built-in LZ4 compression reduces storage
+- **Consistency**: For the case when multiple users upload file with same name
 - **Scalability**: Easy to add distributed storage later
 - **Backup**: PostgreSQL metadata can be backed up normally
 

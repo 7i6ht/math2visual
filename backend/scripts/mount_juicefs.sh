@@ -61,6 +61,13 @@ if [ ! -d "$JUICEFS_MOUNT_POINT" ]; then
         mkdir -p "$JUICEFS_MOUNT_POINT"
     else
         echo "⚠️  Need sudo to create mount point in $(dirname "$JUICEFS_MOUNT_POINT")"
+        # Check if we're running in a non-interactive environment (like systemd)
+        if [ -z "$PS1" ] && [ ! -t 0 ]; then
+            echo "❌ Cannot create mount point in non-interactive environment"
+            echo "   Please run: sudo mkdir -p '$JUICEFS_MOUNT_POINT' && sudo chown '$USER:$USER' '$JUICEFS_MOUNT_POINT'"
+            echo "   Or reinstall the service: ./scripts/install_systemd_service.sh"
+            exit 1
+        fi
         sudo mkdir -p "$JUICEFS_MOUNT_POINT"
         sudo chown -R "$USER:$USER" "$JUICEFS_MOUNT_POINT"
     fi
