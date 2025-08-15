@@ -96,8 +96,8 @@ export const useAppState = () => {
       resetVisuals();
       toast.loading('Regenerating visualizations...', { id: generateToastId });
       
-      const { default: apiService } = await import('@/services/api');
-      const result = await apiService.generateFromDSL(state.vl);
+      const { default: service } = await import('@/api_services/generation');
+      const result = await service.generateFromDSL(state.vl);
       
       setResults(
         result.visual_language,

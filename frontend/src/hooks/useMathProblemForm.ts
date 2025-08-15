@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { formSchema } from "@/schemas/validation";
-import { apiService } from "@/services/api";
+import { generationService as service } from "@/api_services/generation";
 import type { FormData } from "@/schemas/validation";
 
 interface UseMathProblemFormProps {
@@ -43,7 +43,7 @@ export const useMathProblemForm = ({
     onLoadingChange(true, abort);
 
     try {
-      const result = await apiService.generateFromMathProblem(
+      const result = await service.generateFromMathProblem(
         data.mwp, 
         data.formula, 
         controller.signal

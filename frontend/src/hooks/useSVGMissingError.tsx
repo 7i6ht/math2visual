@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { toast } from "sonner";
-import { UploadService } from "@/utils/upload";
+import { UploadService } from "@/api_services/upload";
 import { ValidationError } from "@/types";
 import { Upload as UploadIcon } from "lucide-react";
 

@@ -18,6 +18,9 @@ A modern, interactive React application that enables teachers to generate pedago
 
 ```
 src/
+├── api_services/
+│   ├── generation.ts        # Generation API
+│   └── upload.ts            # Upload SVG API
 ├── components/
 │   ├── errors/              # Error handling components
 │   │   └── SVGMissingError.tsx
@@ -44,13 +47,10 @@ src/
 │   └── utils.ts            # Utility functions
 ├── schemas/
 │   └── validation.ts       # Zod validation schemas
-├── services/
-│   └── api.ts             # API service layer
 ├── types/
-│   └── index.ts           # TypeScript type definitions
+│   └── index.ts            # TypeScript type definitions
 └── utils/
-    ├── download.ts        # Download functionality
-    └── upload.ts          # Upload functionality
+    └── download.ts         # Download functionality
 ```
 
 ## 🚀 Getting Started

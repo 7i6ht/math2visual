@@ -11,7 +11,7 @@ export class ApiError extends Error {
   }
 }
 
-const apiService = {
+const generationService = {
   async generateVisualization(request: ApiRequest, abortSignal?: AbortSignal): Promise<ApiResponse> {
     try {
       const response = await fetch(`${API_BASE_URL}/generate`, {
@@ -60,5 +60,5 @@ const apiService = {
   }
 };
 
-export { apiService };
-export default apiService; 
+export { generationService as generationService };
+export default generationService; 

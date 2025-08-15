@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { vlFormSchema } from "@/schemas/validation";
-import { apiService } from "@/services/api";
+import { generationService as service } from "@/api_services/generation";
 import type { VLFormData } from "@/schemas/validation";
 
 interface UseVisualLanguageFormProps {
@@ -51,7 +51,7 @@ export const useVisualLanguageForm = ({
     onLoadingChange(true, abort);
 
     try {
-      const result = await apiService.generateFromDSL(data.dsl, controller.signal);
+      const result = await service.generateFromDSL(data.dsl, controller.signal);
       onSuccess(
         result.visual_language,
         result.svg_formal,
