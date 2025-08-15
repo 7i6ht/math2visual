@@ -22,7 +22,7 @@ This interactive system builds upon the Math2Visual research framework:
 
 ### Key Innovations
 
-- **Framework for visual generation drom MWPs**:
+- **Framework for automated visual generation from MWPs**:
    1. Scalable for
 diverse narrative structures found in MWPs.
    2. Automation of time-consuming manual process.
