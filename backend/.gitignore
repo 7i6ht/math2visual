@@ -1,10 +1,6 @@
 .env
 __pycache__/
-evaluation/
-model_fine-tuning_inference/
-vl_dataset/
-fine-tuning/
-output/*
+storage/output/*
 .cursor/*
 storage/models/*
 *.safetensors
