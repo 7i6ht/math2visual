@@ -36,8 +36,6 @@ export const VisualizationCard = ({
   title, 
   type
 }: VisualizationCardProps) => {
-  const [isHovered, setIsHovered] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
 
   const handleDownload = async (format: DownloadFormat) => {
@@ -79,31 +77,26 @@ export const VisualizationCard = ({
     <div className="space-y-4">
       <div 
         className="relative group cursor-pointer rounded-lg overflow-hidden border border-border/50 hover:border-border transition-colors"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
       >
         {/* SVG Content */}
         <div className="p-4 bg-background">
           <div dangerouslySetInnerHTML={{ __html: svgContent }} />
         </div>
         
-        {/* Download Overlay */}
-        <div className={`absolute inset-0 bg-black/20 backdrop-blur-[2px] flex items-center justify-center transition-opacity duration-200 ${
-          isHovered || isDropdownOpen ? 'opacity-100' : 'opacity-0'
-        }`}>
-          <DropdownMenu onOpenChange={setIsDropdownOpen}>
+        {/* Download Button */}
+        <div className="absolute bottom-2 right-2">
+          <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
-                variant="secondary"
+                variant="ghost"
                 size="sm"
-                className="shadow-lg hover:bg-secondary hover:border-2 hover:border-primary/50 border-2 border-transparent transition-all"
+                className="bg-transparent border-0 shadow-none hover:bg-gray-100/50 p-2 h-8 w-8"
                 disabled={isDownloading}
               >
-                <Download className="w-4 h-4 mr-2" />
-                {isDownloading ? 'Downloading...' : 'Download'}
+                <Download className="w-4 h-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="center" className="w-48">
+            <DropdownMenuContent align="end" className="w-48">
               {downloadOptions.map((option) => (
                 <DropdownMenuItem
                   key={option.format}
