@@ -121,7 +121,7 @@ Generate visual representations from math word problems.
 ### SVG Upload API
 
 #### `POST /api/upload-svg`
-Upload SVG file to the svg_dataset directory with enhanced validation and security.
+Upload SVG file to the svg_dataset directory with validation and security scanning.
 
 **Request Body (multipart/form-data):**
 ```
@@ -141,12 +141,17 @@ curl -X POST http://localhost:5001/api/upload-svg \
 {
   "success": true,
   "message": "SVG file 'apple.svg' uploaded successfully",
-  "file_hash": "a1b2c3d4e5f6g7h8",
   "validation_details": {
-    "file_size": 2048,
-    "svg_validation": "passed",
-    "antivirus_scan": "clean",
-    "file_hash": "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6"
+    "filename_valid": true,
+    "size_valid": true,
+    "type_valid": true,
+    "content_valid": true,
+    "antivirus_scan": {
+      "antivirus_available": true,
+      "scan_performed": true,
+      "scanner_error": null,
+      "threat_found": null
+    }
   }
 }
 ```
@@ -167,16 +172,94 @@ curl -X POST http://localhost:5001/api/upload-svg \
 }
 ```
 
-**Response (Validation Error):**
+### Validation Error Responses
+
+**Response (Content validation error - Malicious content detected):**
 ```json
 {
   "success": false,
   "error": "Content validation failed: File contains potentially malicious content: <script[^>]*>",
   "validation_details": {
-    "file_size": 2048,
+    "filename_valid": true,
+    "size_valid": true,
+    "type_valid": true,
     "content_valid": false,
-    "file_hash": "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6"
+    "antivirus_scan": null
   }
+}
+```
+
+**Response (Filename validation error):**
+```json
+{
+  "success": false,
+  "error": "Filename validation failed: File must have .svg extension",
+  "validation_details": {
+    "filename_valid": false,
+    "size_valid": false,
+    "type_valid": false,
+    "content_valid": false,
+    "antivirus_scan": null
+  }
+}
+```
+
+**Response (File size validation error):**
+```json
+{
+  "success": false,
+  "error": "File too large (max 5MB)",
+  "validation_details": {
+    "filename_valid": true,
+    "size_valid": false,
+    "type_valid": false,
+    "content_valid": false,
+    "antivirus_scan": null
+  }
+}
+```
+
+#### Validation Details Fields
+
+- **`filename_valid`**: Checks for `.svg` extension and safe filename characters
+- **`size_valid`**: Verifies file size is under the 5MB limit
+- **`type_valid`**: Validates SVG MIME type and basic structure  
+- **`content_valid`**: Scans for malicious patterns (scripts, external references, etc.)
+- **`antivirus_scan`**: ClamAV scanning results when antivirus is available:
+  - `antivirus_available`: Whether ClamAV daemon is running
+  - `scan_performed`: Whether the scan was successfully executed  
+  - `scanner_error`: Any error message from the scanner
+  - `threat_found`: Specific threat name if malware detected
+
+#### Antivirus Scanning Scenarios
+
+**ClamAV Available and Clean:**
+```json
+"antivirus_scan": {
+  "antivirus_available": true,
+  "scan_performed": true,
+  "scanner_error": null,
+  "threat_found": null
+}
+```
+
+**ClamAV Not Available:**
+```json
+"antivirus_scan": {
+  "antivirus_available": false,
+  "scan_performed": false,
+  "scanner_error": "ClamAV daemon not running",
+  "threat_found": null
+}
+```
+
+**Threat Detected:**
+```json
+"antivirus_scan": {
+  "antivirus_available": true,
+  "scan_performed": true,
+  "scanner_error": null,
+  "threat_found": "Trojan.SVG.Malware"
 }
 ```
 

@@ -33,14 +33,12 @@ export interface ValidationDetails {
   type_valid: boolean;
   content_valid: boolean;
   antivirus_scan?: string | null;
-  file_hash: string;
 }
 
 export interface SVGUploadResponse {
   success: boolean;
   error?: string;
   message?: string;
-  file_hash?: string;
   validation_details?: ValidationDetails;
 }
 

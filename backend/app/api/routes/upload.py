@@ -100,7 +100,6 @@ def upload_svg():
         return jsonify({
             "success": True, 
             "message": f"SVG file '{secure_name}' uploaded successfully",
-            "file_hash": file_hash[:16],  # Return truncated hash for verification
             "validation_details": validation_details
         })
         

@@ -322,8 +322,7 @@ class SVGValidator:
             'size_valid': False,
             'type_valid': False,
             'content_valid': False,
-            'antivirus_scan': None,
-            'file_hash': cls.generate_file_hash(content)
+            'antivirus_scan': None
         }
         
         # Validate filename
