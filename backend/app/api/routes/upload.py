@@ -4,7 +4,7 @@ Upload API routes for SVG file management.
 from flask import Blueprint, request, jsonify
 import os
 
-from app.services.validation.svg_validator import SVGValidator, validate_file, generate_file_hash
+from app.services.validation.svg_validator import SVGValidator, validate_file
 from app.config.storage_config import get_upload_path
 
 upload_bp = Blueprint('upload', __name__)
@@ -55,9 +55,6 @@ def upload_svg():
                 "validation_details": validation_details
             }), 400
         
-        # Generate file hash for integrity
-        file_hash = generate_file_hash(file_content)
-        
         # Secure the filename and prepare directory
         secure_name = SVGValidator.get_secure_filename(expected_filename)
         svg_dataset_dir = get_upload_path()
@@ -65,20 +62,12 @@ def upload_svg():
         
         file_path = os.path.join(svg_dataset_dir, secure_name)
         
-        # Check if file already exists and compare hashes
+        # Check if file already exists
         if os.path.exists(file_path):
-            try:
-                with open(file_path, 'rb') as existing_file:
-                    existing_content = existing_file.read()
-                    existing_hash = generate_file_hash(existing_content)
-                    if existing_hash == file_hash:
-                        return jsonify({
-                            "success": True, 
-                            "message": f"SVG file '{secure_name}' already exists with identical content"
-                        })
-            except Exception:
-                # If we can't read existing file, proceed with overwrite
-                pass
+            return jsonify({
+                "success": False, 
+                "error": f"File '{secure_name}' already exists or has been added by another user in the meantime"
+            }), 409
         
         # Save the file with atomic write (write to temp file then rename)
         temp_path = file_path + '.tmp'

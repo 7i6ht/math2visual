@@ -7,7 +7,6 @@ and optional ClamAV antivirus scanning with graceful fallback.
 """
 
 import re
-import hashlib
 import magic
 import logging
 from typing import Optional, Tuple, Dict, Any
@@ -277,19 +276,7 @@ class SVGValidator:
             logger.error(f"Unexpected error during antivirus scan of {filename}: {str(e)}")
             return True, None, scan_info  # Assume clean on unexpected error
 
-    @classmethod
-    def generate_file_hash(cls, content: bytes) -> str:
-        """
-        Generate SHA-256 hash of file content for integrity checking.
-        
-        Args:
-            content: File content as bytes
-            
-        Returns:
-            SHA-256 hash as hexadecimal string
-        """
-        return hashlib.sha256(content).hexdigest()
-    
+
     @classmethod
     def get_secure_filename(cls, filename: str) -> str:
         """
@@ -363,11 +350,6 @@ class SVGValidator:
 def validate_svg_content(content: bytes) -> Tuple[bool, Optional[str]]:
     """Convenience function for SVG content validation."""
     return SVGValidator.validate_svg_content(content)
-
-
-def generate_file_hash(content: bytes) -> str:
-    """Convenience function for generating file hash."""
-    return SVGValidator.generate_file_hash(content)
 
 
 def is_safe_filename(filename: str) -> bool:

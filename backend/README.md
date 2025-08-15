@@ -156,11 +156,11 @@ curl -X POST http://localhost:5001/api/upload-svg \
 }
 ```
 
-**Response (Success - Duplicate file):**
+**Response (Error - File already exists):**
 ```json
 {
-  "success": true,
-  "message": "SVG file 'apple.svg' already exists with identical content"
+  "success": false,
+  "error": "File 'apple.svg' already exists or has been added by another user in the meantime"
 }
 ```
 

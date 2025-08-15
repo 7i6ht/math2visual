@@ -95,22 +95,7 @@ class TestSVGValidator(unittest.TestCase):
         self.assertIsNotNone(error)
         self.assertIn("empty", error.lower())
     
-    def test_file_hash_generation(self):
-        """Test file hash generation."""
-        hash1 = SVGValidator.generate_file_hash(self.valid_svg)
-        hash2 = SVGValidator.generate_file_hash(self.valid_svg)
-        hash3 = SVGValidator.generate_file_hash(self.malicious_svg)
-        
-        # Same content should produce same hash
-        self.assertEqual(hash1, hash2)
-        
-        # Different content should produce different hash
-        self.assertNotEqual(hash1, hash3)
-        
-        # Hash should be hex string of expected length (SHA-256 = 64 chars)
-        self.assertEqual(len(hash1), 64)
-        self.assertRegex(hash1, r'^[a-f0-9]+$')
-    
+
     def test_comprehensive_validation(self):
         """Test comprehensive file validation."""
         # Valid case
