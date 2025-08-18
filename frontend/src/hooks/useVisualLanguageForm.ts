@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { vlFormSchema } from "@/schemas/validation";
 import { generationService as service } from "@/api_services/generation";
 import type { VLFormData } from "@/schemas/validation";
+import { DSLFormatter } from "@/utils/dsl-formatter";
 
 interface UseVisualLanguageFormProps {
   vl: string | null;
@@ -51,7 +52,9 @@ export const useVisualLanguageForm = ({
     onLoadingChange(true, abort);
 
     try {
-      const result = await service.generateFromDSL(data.dsl, controller.signal);
+      // Minify the DSL for backend compatibility (single line format)
+      const minifiedDsl = DSLFormatter.minify(data.dsl);
+      const result = await service.generateFromDSL(minifiedDsl, controller.signal);
       onSuccess(
         result.visual_language,
         result.svg_formal,

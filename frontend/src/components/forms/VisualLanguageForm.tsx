@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import { SyntaxEditor } from "@/components/ui/syntax-editor";
 import {
   Form,
   FormControl,
@@ -50,11 +50,11 @@ export const VisualLanguageForm = ({
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Textarea
-                      className="w-full font-mono text-sm"
-                      rows={6}
-                      spellCheck={false}
-                      {...field}
+                    <SyntaxEditor
+                      value={field.value}
+                      onChange={field.onChange}
+                      className="w-full"
+                      rows={15}
                     />
                   </FormControl>
                   <FormMessage />
