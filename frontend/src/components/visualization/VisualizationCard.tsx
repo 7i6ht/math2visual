@@ -90,7 +90,7 @@ export const VisualizationCard = ({
               <Button
                 variant="ghost"
                 size="sm"
-                className="bg-transparent border-0 shadow-none hover:bg-gray-100/50 p-2 h-8 w-8"
+                className="bg-white border-0 shadow-none hover:bg-gray-50 p-2 h-8 w-8"
                 disabled={isDownloading}
               >
                 <Download className="w-4 h-4" />
