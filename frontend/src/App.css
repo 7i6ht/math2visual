@@ -1,31 +1,35 @@
 #root {
-  max-width: 1280px;
+  max-width: 1600px;
   margin: 0 auto;
-  padding: 2rem;
+  height: 100vh;
 }
 
-/* SVG Display Styles */
-.svg-row {
-  display: flex;
-  gap: 2rem;
-  margin-top: 2rem;
-  justify-content: center;
-  align-items: flex-start;
-  flex-wrap: wrap;
-}
-
-/* Responsive design for SVG display */
-@media (max-width: 1024px) {
-  .svg-row {
-    flex-direction: column;
-    align-items: center;
-    gap: 1.5rem;
+/* Layout optimizations for side-by-side design */
+@media (max-width: 1279px) {
+  /* Stack layout on smaller screens */
+  .grid-cols-1.xl\\:grid-cols-2 {
+    grid-template-columns: 1fr !important;
   }
 }
 
+/* Ensure proper spacing and heights for the new layout */
+@media (min-width: 1280px) {
+  /* Side-by-side layout optimizations */
+  .visualization-panel {
+    height: 100%;
+    overflow-y: auto;
+  }
+  
+  .input-panel {
+    height: 100%;
+    overflow-y: auto;
+  }
+}
+
+/* Responsive design for mobile devices */
 @media (max-width: 768px) {
-  .svg-row {
-    gap: 1rem;
+  #root {
+    padding: 0;
   }
 }
 

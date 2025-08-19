@@ -8,6 +8,7 @@ interface SyntaxEditorProps {
   onChange: (value: string) => void;
   className?: string;
   rows?: number;
+  height?: string;
 }
 
 // Define the Visual Language DSL grammar and syntax highlighting
@@ -150,6 +151,7 @@ export const SyntaxEditor: React.FC<SyntaxEditorProps> = ({
   onChange,
   className,
   rows = 6,
+  height,
 }) => {
   const isLanguageSetup = useRef(false);
   const [formattedValue, setFormattedValue] = useState(value);
@@ -186,9 +188,9 @@ export const SyntaxEditor: React.FC<SyntaxEditorProps> = ({
   };
 
   return (
-    <div className={cn("border rounded-md overflow-hidden", className)}>
+    <div className={cn("border rounded-md overflow-hidden h-full", className)}>
       <Editor
-        height={`${rows * 24}px`}
+        height={height || `${rows * 24}px`}
         language="vl-dsl"
         value={formattedValue}
         onChange={(newValue) => {

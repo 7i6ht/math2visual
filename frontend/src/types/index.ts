@@ -90,13 +90,6 @@ export interface DownloadOption {
 }
 
 // Component props types
-export interface VisualizationCardProps {
-  svgContent?: string | null;
-  error?: string | null;
-  title: string;
-  type: VisualizationType;
-}
-
 export interface ErrorDisplayProps {
   error: string;
 }
