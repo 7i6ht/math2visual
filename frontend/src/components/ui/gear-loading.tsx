@@ -5,20 +5,43 @@ interface GearLoadingProps {
   message?: string;
   onAbort?: () => void;
   showAbortButton?: boolean;
+  size?: "default" | "large";
 }
+
+const sizeConfig = {
+  default: {
+    container: "space-y-4 py-8",
+    gearContainer: "w-14 h-10",
+    gear1: "w-10 h-10",
+    gear2: "w-8 h-8",
+    gear2Position: "left-[26px]",
+    message: "text-sm"
+  },
+  large: {
+    container: "space-y-6 py-12",
+    gearContainer: "w-28 h-20",
+    gear1: "w-20 h-20",
+    gear2: "w-16 h-16",
+    gear2Position: "left-[52px]",
+    message: "text-base"
+  }
+} as const;
 
 export const GearLoading = ({ 
   message = "Generating ...", 
   onAbort,
-  showAbortButton = true 
+  showAbortButton = true,
+  size = "default"
 }: GearLoadingProps) => {
+  const config = sizeConfig[size];
+
   return (
-    <div className="flex flex-col items-center justify-center space-y-4 py-8">
-      <div className="relative flex items-center justify-center w-14 h-10">
+    <div className={`flex flex-col items-center justify-center ${config.container}`}>
+      <div className={`relative flex items-center justify-center ${config.gearContainer}`}>
         {/* First gear - larger */}
         <div className="absolute left-0 top-1/2 transform -translate-y-1/2">
           <svg
-            className="gear-1 w-10 h-10 text-primary"
+            className={`gear-1 ${config.gear1} text-primary`}
             viewBox="0 0 24 24"
             fill="currentColor"
           >
@@ -26,10 +49,10 @@ export const GearLoading = ({
           </svg>
         </div>
         
-        {/* Second gear - smaller, moved 6px closer */}
-        <div className="absolute left-[26px] top-1/2 transform -translate-y-1/2 translate-y-px">
+        {/* Second gear - smaller, moved accordingly */}
+        <div className={`absolute ${config.gear2Position} top-1/2 transform -translate-y-1/2 translate-y-px`}>
           <svg
-            className="gear-2 w-8 h-8 text-muted-foreground"
+            className={`gear-2 ${config.gear2} text-muted-foreground`}
             viewBox="0 0 24 24"
             fill="currentColor"
           >
@@ -39,7 +62,7 @@ export const GearLoading = ({
       </div>
       
       <div className="flex flex-col items-center space-y-3">
-        <span className="text-muted-foreground text-sm">{message}</span>
+        <span className={`text-muted-foreground ${config.message}`}>{message}</span>
         
         {showAbortButton && onAbort && (
           <Button

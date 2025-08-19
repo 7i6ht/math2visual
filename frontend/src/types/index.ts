@@ -65,7 +65,7 @@ export class ValidationError extends Error {
   }
 }
 
-export interface PageState {
+export interface AppState {
   vl: string | null;
   mpFormLoading: boolean;
   vlFormLoading: boolean;
@@ -77,6 +77,9 @@ export interface PageState {
   missingSVGEntities: string[];
   uploadGenerating: boolean;
   uploadedEntities: string[];
+  hasCompletedGeneration: boolean;
+  initialMWP: string;
+  initialFormula: string;
 }
 
 // Download types

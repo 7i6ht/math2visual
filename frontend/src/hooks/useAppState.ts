@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import type { PageState } from "@/types";
+import type { AppState as AppState } from "@/types";
 
 export const useAppState = () => {
-  const [state, setState] = useState<PageState>({
+  const [state, setState] = useState<AppState>({
     vl: null,
     mpFormLoading: false,
     vlFormLoading: false,
@@ -15,9 +15,9 @@ export const useAppState = () => {
     missingSVGEntities: [],
     uploadGenerating: false,
     uploadedEntities: [],
-    hasCompletedFirstGeneration: false,
-    submittedMwp: "",
-    submittedFormula: "",
+    hasCompletedGeneration: false,
+    initialMWP: "",
+    initialFormula: "",
   });
 
   const setMpFormLoading = (mpFormLoading: boolean, abortFn?: () => void) => {
@@ -43,8 +43,8 @@ export const useAppState = () => {
     formalError?: string | null,
     intuitiveError?: string | null,
     missingSvgEntities?: string[],
-    submittedMwp?: string,
-    submittedFormula?: string
+    initialMWP?: string,
+    initialFormula?: string
   ) => {
     setState(prev => ({
       ...prev,
@@ -54,9 +54,9 @@ export const useAppState = () => {
       formalError: formalError || null,
       intuitiveError: intuitiveError || null,
       missingSVGEntities: missingSvgEntities|| [],
-      hasCompletedFirstGeneration: true,
-      ...(submittedMwp !== undefined && { submittedMwp }),
-      ...(submittedFormula !== undefined && { submittedFormula }),
+      hasCompletedGeneration: true,
+      ...(initialMWP !== undefined && { initialMWP }),
+      ...(initialFormula !== undefined && { initialFormula }),
     }));
   };
 
@@ -69,8 +69,6 @@ export const useAppState = () => {
       formalError: null,
       intuitiveError: null,
       missingSVGEntities: [],
-      submittedMwp: "",
-      submittedFormula: "",
     }));
   };
 
@@ -145,6 +143,33 @@ export const useAppState = () => {
     }
   };
 
+  const saveInitialValues = (mwp: string, formula: string) => {
+    setState(prev => ({
+      ...prev,
+      initialMWP: mwp,
+      initialFormula: formula,
+    }));
+  };
+
+  const handleAbort = () => {
+    // Call the current abort function if it exists
+    if (state.currentAbortFunction) {
+      state.currentAbortFunction();
+    }
+    
+    // Reset to initial layout while preserving MWP and formula values
+    setState(prev => ({
+      ...prev,
+      hasCompletedGeneration: false,
+      mpFormLoading: false,
+      vlFormLoading: false,
+      currentAbortFunction: undefined,
+      // Keep initialMWP and initialFormula values intact
+    }));
+
+    toast.info('Generation cancelled');
+  };
+
   return {
     ...state,
     setMpFormLoading,
@@ -154,5 +179,7 @@ export const useAppState = () => {
     resetVisuals,
     clearMissingSVGEntities,
     handleRegenerateAfterUpload,
+    handleAbort,
+    saveInitialValues,
   };
 }; 

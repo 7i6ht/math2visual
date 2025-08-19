@@ -40,7 +40,7 @@ src/
 │   └── api.ts              # API configuration
 ├── hooks/                  # Custom React hooks
 │   ├── useMathProblemForm.ts
-│   ├── usePageState.ts
+│   ├── useAppState.ts
 │   ├── useSVGMissingError.tsx
 │   └── useVisualLanguageForm.ts
 ├── lib/

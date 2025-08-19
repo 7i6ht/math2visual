@@ -12,15 +12,23 @@ import { ErrorDisplay } from "@/components/ui/error-display";
 import { useMathProblemForm } from "@/hooks/useMathProblemForm";
 
 interface MathProblemFormProps {
-  onSuccess: (vl: string, svgFormal: string | null, svgIntuitive: string | null, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[]) => void;
+  onSuccess: (vl: string, svgFormal: string | null, svgIntuitive: string | null, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], initialMWP?: string, initialFormula?: string) => void;
   onLoadingChange: (loading: boolean, abortFn?: () => void) => void;
   onReset: () => void;
+  initialMwp?: string;
+  initialFormula?: string;
+  saveInitialValues: (mwp: string, formula: string) => void;
+  rows?: number;
 }
 
 export const MathProblemForm = ({ 
   onSuccess, 
   onLoadingChange, 
-  onReset
+  onReset,
+  initialMwp = "",
+  initialFormula = "",
+  saveInitialValues,
+  rows = 8
 }: MathProblemFormProps) => {
   const { 
     form, 
@@ -31,6 +39,9 @@ export const MathProblemForm = ({
     onSuccess,
     onLoadingChange,
     onReset,
+    initialMwp,
+    initialFormula,
+    saveInitialValues,
   });
 
 
@@ -47,7 +58,7 @@ export const MathProblemForm = ({
                 <Textarea
                   className="w-full"
                   placeholder="Enter your math word problem…"
-                  rows={4}
+                  rows={rows}
                   spellCheck={false}
                   {...field}
                 />
