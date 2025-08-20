@@ -12,17 +12,21 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Download, FileImage, File, FileText } from "lucide-react";
+import { Download, FileImage, File, FileText, AlertCircle } from "lucide-react";
 import { downloadVisualization } from "@/utils/download";
 import { toast } from "sonner";
 import { useEffect, useRef, useState } from "react";
 import type { DownloadFormat } from "@/types";
+import { SVGMissingError } from "@/components/errors/SVGMissingError";
 
 interface VisualizationResultsProps {
   svgFormal: string | null;
   formalError: string | null;
   svgIntuitive: string | null;
   intuitiveError: string | null;
+  missingSVGEntities?: string[];
+  onRegenerateAfterUpload?: (toastId: string | undefined) => Promise<void>;
+  onAllFilesUploaded?: () => void;
 }
 
 const downloadOptions = [
@@ -103,6 +107,9 @@ export const VisualizationResults = ({
   formalError,
   svgIntuitive,
   intuitiveError,
+  missingSVGEntities = [],
+  onRegenerateAfterUpload,
+  onAllFilesUploaded,
 }: VisualizationResultsProps) => {
   const formalRef = useRef<HTMLDivElement | null>(null);
   const intuitiveRef = useRef<HTMLDivElement | null>(null);
@@ -203,7 +210,7 @@ export const VisualizationResults = ({
     return () => window.removeEventListener('resize', onResize);
   }, []);
   // Only show the results container if there's something to display
-  if (!svgFormal && !formalError && !svgIntuitive && !intuitiveError) {
+  if (!svgFormal && !formalError && !svgIntuitive && !intuitiveError && missingSVGEntities.length === 0) {
     return null;
   }
 
@@ -274,6 +281,25 @@ export const VisualizationResults = ({
             ) : null}
           </AccordionContent>
         </AccordionItem>
+
+        {/* Missing SVG Error - Show if there are missing entities */}
+        {missingSVGEntities.length > 0 && (
+          <AccordionItem value="missing-svg" className="border rounded-lg !border-b bg-destructive/5 border-destructive/20">
+            <AccordionTrigger className="px-4 hover:no-underline">
+              <div className="flex items-center gap-3">
+                <AlertCircle className="w-5 h-5 text-destructive" />
+                <span className="font-normal text-destructive">Missing SVG File</span>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="px-4">
+              <SVGMissingError
+                missingSVGEntities={missingSVGEntities}
+                onGenerate={onRegenerateAfterUpload}
+                onAllFilesUploaded={onAllFilesUploaded}
+              />
+            </AccordionContent>
+          </AccordionItem>
+        )}
       </Accordion>
     </div>
   );

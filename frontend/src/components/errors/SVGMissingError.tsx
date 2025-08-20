@@ -1,4 +1,4 @@
-import { FileUp, AlertCircle, ExternalLink } from "lucide-react";
+import { FileUp, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSVGMissingError } from "@/hooks/useSVGMissingError";
 
@@ -63,19 +63,13 @@ export const SVGMissingError = ({
   const isLastEntity = currentEntityIndex === missingSVGEntities.length - 1;
 
   return (
-    <div className="mt-12">
-      <div className="max-w-2xl mx-auto">
-        <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-6">
-          {/* Error Message */}
-          <div className="flex items-center gap-3 mb-4">
-            <AlertCircle className="w-5 h-5 text-destructive" />
-            <div>
-              <h3 className="font-semibold text-destructive">Missing SVG File</h3>
-              <p className="text-sm text-muted-foreground mt-1">
-                SVG file required for visual generation is missing from the dataset. Attempted to find and pick the closest matching representation in dataset instead. 
-              </p>
-            </div>
-          </div>
+    <div>
+      <div className="w-full">
+        <div className="space-y-4">
+          {/* Description */}
+          <p className="text-sm text-muted-foreground">
+            SVG file required for visual generation is missing from the dataset. Attempted to find and pick the closest matching representation in dataset instead. 
+          </p>
 
           {/* Missing File Info */}
           <div className="bg-background/50 rounded-md p-3 mb-4">

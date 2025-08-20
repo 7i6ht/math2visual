@@ -2,7 +2,7 @@ import './App.css';
 import { MathProblemForm } from "@/components/forms/MathProblemForm";
 import { VisualLanguageForm } from "@/components/forms/VisualLanguageForm";
 import { VisualizationResults } from "@/components/visualization/VisualizationResults";
-import { SVGMissingError } from "@/components/errors/SVGMissingError";
+
 import { GearLoading } from "@/components/ui/gear-loading";
 import { Toaster } from "@/components/ui/sonner";
 import { useAppState } from "@/hooks/useAppState";
@@ -139,27 +139,20 @@ function App() {
                   </div>
                 </div>
 
-                {missingSVGEntities.length > 0 && (
-                  <div className="flex-shrink-0">
-                    <SVGMissingError
-                      missingSVGEntities={missingSVGEntities}
-                      onGenerate={handleRegenerateAfterUpload}
-                      onAllFilesUploaded={clearMissingSVGEntities}
-                    />
-                  </div>
-                )}
+
               </div>
 
               {/* Right Panel - Visualizations */}
               <div className="flex flex-col w-full">
-                {(svgFormal || svgIntuitive || (missingSVGEntities.length === 0 && (formalError || intuitiveError))) && (
-                  <VisualizationResults
-                    svgFormal={svgFormal}
-                    formalError={formalError}
-                    svgIntuitive={svgIntuitive}
-                    intuitiveError={intuitiveError}
-                  />
-                )}
+                <VisualizationResults
+                  svgFormal={svgFormal}
+                  formalError={formalError}
+                  svgIntuitive={svgIntuitive}
+                  intuitiveError={intuitiveError}
+                  missingSVGEntities={missingSVGEntities}
+                  onRegenerateAfterUpload={handleRegenerateAfterUpload}
+                  onAllFilesUploaded={clearMissingSVGEntities}
+                />
               </div>
             </div>
           )
