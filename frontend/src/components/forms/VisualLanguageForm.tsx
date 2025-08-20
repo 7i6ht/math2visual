@@ -12,16 +12,18 @@ import { useVisualLanguageForm } from "@/hooks/useVisualLanguageForm";
 
 interface VisualLanguageFormProps {
   vl: string | null;
-  onSuccess: (vl: string, svgFormal: string | null, svgIntuitive: string | null, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[]) => void;
+  onSuccess: (vl: string, svgFormal: string | null, svgIntuitive: string | null, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], initialMWP?: string, initialFormula?: string, componentMappings?: any) => void;
   onLoadingChange: (loading: boolean, abortFn?: () => void) => void;
   onReset: () => void;
+  highlightRanges?: Array<[number, number]>;
 }
 
 export const VisualLanguageForm = ({ 
   vl,
   onSuccess,
   onLoadingChange,
-  onReset
+  onReset,
+  highlightRanges = []
 }: VisualLanguageFormProps) => {
   const { 
     form, 
@@ -52,6 +54,7 @@ export const VisualLanguageForm = ({
                     onChange={field.onChange}
                     className="w-full"
                     height="100%"
+                    highlightRanges={highlightRanges}
                   />
                 </FormControl>
                 <FormMessage />

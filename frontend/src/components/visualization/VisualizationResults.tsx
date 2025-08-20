@@ -6,9 +6,12 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { AlertCircle } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SVGMissingError } from "@/components/errors/SVGMissingError";
 import { DownloadButton } from "@/components/visualization/DownloadButton";
+import { useVisualInteraction } from "@/hooks/useVisualInteraction";
+import { ComponentEditPanel } from "@/components/editing/ComponentEditPanel";
+import { useEditableComponents } from "@/hooks/useEditableComponents";
 
 interface VisualizationResultsProps {
   svgFormal: string | null;
@@ -16,6 +19,15 @@ interface VisualizationResultsProps {
   svgIntuitive: string | null;
   intuitiveError: string | null;
   missingSVGEntities?: string[];
+  componentMappings?: {
+    formal: Record<string, any>;
+    intuitive: Record<string, any>;
+  };
+  dslValue?: string;
+  mwpValue?: string;
+  onDSLRangeHighlight?: (range: [number, number]) => void;
+  onMWPRangeHighlight?: (range: [number, number]) => void;
+  onComponentUpdate?: (dsl: string, mwp: string) => void;
   onRegenerateAfterUpload?: (toastId: string | undefined) => Promise<void>;
   onAllFilesUploaded?: () => void;
 }
@@ -28,11 +40,89 @@ export const VisualizationResults = ({
   svgIntuitive,
   intuitiveError,
   missingSVGEntities = [],
+  componentMappings,
+  dslValue = '',
+  mwpValue = '',
+  onDSLRangeHighlight,
+  onMWPRangeHighlight,
+  onComponentUpdate,
   onRegenerateAfterUpload,
   onAllFilesUploaded,
 }: VisualizationResultsProps) => {
   const formalRef = useRef<HTMLDivElement | null>(null);
   const intuitiveRef = useRef<HTMLDivElement | null>(null);
+  const [activeVisualizationType, setActiveVisualizationType] = useState<'formal' | 'intuitive'>('formal');
+  
+  // Setup editable components
+  const {
+    editingComponent,
+    editPosition,
+    componentProperties,
+    handleComponentUpdate,
+    closeEditPanel,
+    getDSLHighlightRanges,
+    getMWPHighlightRanges,
+  } = useEditableComponents({
+    initialDSL: dslValue,
+    initialMWP: mwpValue,
+    componentMappings: activeVisualizationType === 'formal' 
+      ? (componentMappings?.formal || {})
+      : (componentMappings?.intuitive || {}),
+    onUpdate: onComponentUpdate || (() => {}),
+  });
+  
+  // Setup visual interaction for formal visualization
+  const {
+    hoveredComponent: hoveredFormal,
+    setComponentMappings: setFormalMappings,
+  } = useVisualInteraction({
+    svgRef: formalRef,
+    dslValue,
+    mwpValue,
+    onDSLRangeHighlight: (range) => {
+      if (onDSLRangeHighlight) {
+        const ranges = hoveredFormal ? getDSLHighlightRanges(hoveredFormal) : [];
+        onDSLRangeHighlight(ranges[0] || range);
+      }
+    },
+    onMWPRangeHighlight: (range) => {
+      if (onMWPRangeHighlight) {
+        const ranges = hoveredFormal ? getMWPHighlightRanges(hoveredFormal) : [];
+        onMWPRangeHighlight(ranges[0] || range);
+      }
+    },
+  });
+  
+  // Setup visual interaction for intuitive visualization
+  const {
+    hoveredComponent: hoveredIntuitive,
+    setComponentMappings: setIntuitiveMappings,
+  } = useVisualInteraction({
+    svgRef: intuitiveRef,
+    dslValue,
+    mwpValue,
+    onDSLRangeHighlight: (range) => {
+      if (onDSLRangeHighlight) {
+        const ranges = hoveredIntuitive ? getDSLHighlightRanges(hoveredIntuitive) : [];
+        onDSLRangeHighlight(ranges[0] || range);
+      }
+    },
+    onMWPRangeHighlight: (range) => {
+      if (onMWPRangeHighlight) {
+        const ranges = hoveredIntuitive ? getMWPHighlightRanges(hoveredIntuitive) : [];
+        onMWPRangeHighlight(ranges[0] || range);
+      }
+    },
+  });
+  
+  // Track which visualization is being edited
+  useEffect(() => {
+    if (hoveredFormal) {
+      setActiveVisualizationType('formal');
+    } else if (hoveredIntuitive) {
+      setActiveVisualizationType('intuitive');
+    }
+  }, [hoveredFormal, hoveredIntuitive]);
 
   const toNumber = (value: string | null) => {
     if (!value) return null;
@@ -129,6 +219,16 @@ export const VisualizationResults = ({
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
   }, []);
+  
+  // Update component mappings when they change
+  useEffect(() => {
+    if (componentMappings?.formal) {
+      setFormalMappings(componentMappings.formal);
+    }
+    if (componentMappings?.intuitive) {
+      setIntuitiveMappings(componentMappings.intuitive);
+    }
+  }, [componentMappings, setFormalMappings, setIntuitiveMappings]);
   // Only show the results container if there's something to display
   if (!svgFormal && !formalError && !svgIntuitive && !intuitiveError && missingSVGEntities.length === 0) {
     return null;
@@ -221,6 +321,17 @@ export const VisualizationResults = ({
           </AccordionItem>
         )}
       </Accordion>
+      
+      {/* Edit Panel */}
+      {editingComponent && componentProperties && (
+        <ComponentEditPanel
+          componentId={editingComponent}
+          properties={componentProperties}
+          position={editPosition}
+          onUpdate={handleComponentUpdate}
+          onClose={closeEditPanel}
+        />
+      )}
     </div>
   );
 }; 

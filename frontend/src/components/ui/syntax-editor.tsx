@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import Editor, { type Monaco } from '@monaco-editor/react';
 import { cn } from '@/lib/utils';
 import { DSLFormatter } from '@/utils/dsl-formatter';
+import './syntax-editor.css';
 
 interface SyntaxEditorProps {
   value: string;
@@ -9,6 +10,8 @@ interface SyntaxEditorProps {
   className?: string;
   rows?: number;
   height?: string;
+  highlightRanges?: Array<[number, number]>;
+  onRangeClick?: (range: [number, number]) => void;
 }
 
 // Define the Visual Language DSL grammar and syntax highlighting
@@ -152,10 +155,14 @@ export const SyntaxEditor: React.FC<SyntaxEditorProps> = ({
   className,
   rows = 6,
   height,
+  highlightRanges = [],
+  onRangeClick,
 }) => {
   const isLanguageSetup = useRef(false);
   const [formattedValue, setFormattedValue] = useState(value);
   const isFormattingRef = useRef(false);
+  const editorRef = useRef<any>(null);
+  const decorationsRef = useRef<string[]>([]);
 
   // Auto-format when value changes externally (e.g., from API)
   useEffect(() => {
@@ -176,7 +183,9 @@ export const SyntaxEditor: React.FC<SyntaxEditorProps> = ({
     }
   }, [value, formattedValue, onChange]);
 
-  const handleEditorDidMount = (_editor: any, monaco: Monaco) => {
+  const handleEditorDidMount = (editor: any, monaco: Monaco) => {
+    editorRef.current = editor;
+    
     if (!isLanguageSetup.current) {
       setupVLLanguage(monaco);
       isLanguageSetup.current = true;
@@ -185,7 +194,75 @@ export const SyntaxEditor: React.FC<SyntaxEditorProps> = ({
     // Set the theme based on system preference or default to light
     const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
     monaco.editor.setTheme(isDark ? 'vl-theme-dark' : 'vl-theme');
+    
+    // Handle range clicks if callback provided
+    if (onRangeClick) {
+      editor.onMouseDown((e: any) => {
+        if (e.target.type === monaco.editor.MouseTargetType.CONTENT_TEXT) {
+          const position = e.target.position;
+          const model = editor.getModel();
+          if (model && position) {
+            const offset = model.getOffsetAt(position);
+            // Find which highlight range was clicked
+            for (const range of highlightRanges) {
+              if (offset >= range[0] && offset <= range[1]) {
+                onRangeClick(range);
+                break;
+              }
+            }
+          }
+        }
+      });
+    }
   };
+  
+  // Add highlighting functionality
+  useEffect(() => {
+    if (editorRef.current && highlightRanges.length > 0) {
+      const monaco = (window as any).monaco;
+      if (!monaco) return;
+      
+      const model = editorRef.current.getModel();
+      if (!model) return;
+      
+      // Clear previous decorations
+      decorationsRef.current = editorRef.current.deltaDecorations(
+        decorationsRef.current,
+        []
+      );
+      
+      // Add new decorations
+      const newDecorations = highlightRanges.map(([start, end]) => {
+        const startPos = model.getPositionAt(start);
+        const endPos = model.getPositionAt(end);
+        
+        return {
+          range: new monaco.Range(
+            startPos.lineNumber,
+            startPos.column,
+            endPos.lineNumber,
+            endPos.column
+          ),
+          options: {
+            className: 'highlighted-dsl-range',
+            inlineClassName: 'highlighted-dsl-inline',
+            hoverMessage: { value: 'Component is highlighted in visual' },
+          },
+        };
+      });
+      
+      decorationsRef.current = editorRef.current.deltaDecorations(
+        [],
+        newDecorations
+      );
+    } else if (editorRef.current && highlightRanges.length === 0) {
+      // Clear all decorations when no ranges to highlight
+      decorationsRef.current = editorRef.current.deltaDecorations(
+        decorationsRef.current,
+        []
+      );
+    }
+  }, [highlightRanges]);
 
   return (
     <div className={cn("border rounded-md overflow-hidden h-full", className)}>

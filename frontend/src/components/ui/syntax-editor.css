@@ -1,0 +1,40 @@
+/* Highlighting styles for DSL editor */
+.highlighted-dsl-range {
+  background-color: rgba(59, 130, 246, 0.1) !important;
+  border: 1px solid rgba(59, 130, 246, 0.3) !important;
+  border-radius: 3px;
+}
+
+.highlighted-dsl-inline {
+  background-color: rgba(59, 130, 246, 0.15) !important;
+  font-weight: 600;
+}
+
+/* Dark mode styles */
+@media (prefers-color-scheme: dark) {
+  .highlighted-dsl-range {
+    background-color: rgba(96, 165, 250, 0.2) !important;
+    border: 1px solid rgba(96, 165, 250, 0.4) !important;
+  }
+  
+  .highlighted-dsl-inline {
+    background-color: rgba(96, 165, 250, 0.25) !important;
+  }
+}
+
+/* Animation for highlighting */
+.highlighted-dsl-range {
+  animation: highlight-pulse 1.5s ease-in-out;
+}
+
+@keyframes highlight-pulse {
+  0% {
+    background-color: rgba(59, 130, 246, 0.1);
+  }
+  50% {
+    background-color: rgba(59, 130, 246, 0.25);
+  }
+  100% {
+    background-color: rgba(59, 130, 246, 0.1);
+  }
+}

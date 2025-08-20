@@ -18,6 +18,7 @@ export const useAppState = () => {
     hasCompletedGeneration: false,
     initialMWP: "",
     initialFormula: "",
+    componentMappings: undefined,
   });
 
   const setMpFormLoading = (mpFormLoading: boolean, abortFn?: () => void) => {
@@ -44,7 +45,8 @@ export const useAppState = () => {
     intuitiveError?: string | null,
     missingSvgEntities?: string[],
     initialMWP?: string,
-    initialFormula?: string
+    initialFormula?: string,
+    componentMappings?: { formal: Record<string, any>; intuitive: Record<string, any> }
   ) => {
     setState(prev => ({
       ...prev,
@@ -57,6 +59,7 @@ export const useAppState = () => {
       hasCompletedGeneration: true,
       ...(initialMWP !== undefined && { initialMWP }),
       ...(initialFormula !== undefined && { initialFormula }),
+      ...(componentMappings !== undefined && { componentMappings }),
     }));
   };
 

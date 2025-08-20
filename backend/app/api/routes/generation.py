@@ -60,14 +60,14 @@ def generate():
     formal_generator = FormalVisualGenerator(resources)
     intuitive_generator = IntuitiveVisualGenerator(resources)
     
-    # Parse DSL for both generators
+    # Parse DSL for both generators with range tracking
     try:
-        data_formal = formal_generator.parse_dsl(dsl)
+        data_formal = formal_generator.parse_dsl_with_ranges(dsl)
     except (ValueError, ValidationError) as e:
         return jsonify({"error": f"Formal-DSL parse error: {e}"}), 500
 
     try:
-        data_intuitive = intuitive_generator.parse_dsl(dsl)
+        data_intuitive = intuitive_generator.parse_dsl_with_ranges(dsl)
     except (ValueError, ValidationError) as e:
         return jsonify({"error": f"Intuitive-DSL parse error: {e}"}), 500
 
@@ -137,12 +137,16 @@ def generate():
     # Combine missing entities and remove duplicates while preserving order
     all_missing_entities = list(dict.fromkeys(formal_missing_entities + intuitive_missing_entities))
     
-    # Return results
+    # Return results with component mappings
     return jsonify({
         "visual_language": dsl,
         "svg_formal": svg_formal,
         "svg_intuitive": svg_intuitive,
         "formal_error": formal_error,
         "intuitive_error": intuitive_error,
-        "missing_svg_entities": all_missing_entities
+        "missing_svg_entities": all_missing_entities,
+        "component_mappings": {
+            "formal": formal_generator.component_registry,
+            "intuitive": intuitive_generator.component_registry
+        }
     })

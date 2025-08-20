@@ -6,7 +6,7 @@ import { generationService as service } from "@/api_services/generation";
 import type { FormData } from "@/schemas/validation";
 
 interface UseMathProblemFormProps {
-  onSuccess: (vl: string, svgFormal: string | null, svgIntuitive: string | null, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], initialMWP?: string, initialFormula?: string) => void;
+  onSuccess: (vl: string, svgFormal: string | null, svgIntuitive: string | null, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], initialMWP?: string, initialFormula?: string, componentMappings?: any) => void;
   onLoadingChange: (loading: boolean, abortFn?: () => void) => void;
   onReset: () => void;
   initialMwp?: string;
@@ -74,7 +74,8 @@ export const useMathProblemForm = ({
         result.intuitive_error || undefined,
         result.missing_svg_entities,
         data.mwp,
-        data.formula || ""
+        data.formula || "",
+        result.component_mappings
       );
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";

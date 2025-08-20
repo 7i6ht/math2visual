@@ -38,6 +38,10 @@ class BaseVisualGenerator(ABC):
         self.constants["ITEM_SIZE"] = int(self.constants["UNIT_SIZE"] * self.constants["APPLE_SCALE"])
         
         self.layout_calculator = LayoutCalculator(self.constants)
+        
+        # Component tracking for interactive editing
+        self.component_registry = {}  # Track component mappings
+        self.dsl_node_counter = 0
     
     def extract_visual_language(self, text: str) -> Optional[str]:
         """Extract the visual_language expression from text."""
@@ -47,6 +51,23 @@ class BaseVisualGenerator(ABC):
         if last_index != -1:
             return text[last_index:].strip()
         return None
+    
+    def generate_component_id(self, dsl_path: str, component_type: str) -> str:
+        """Generate unique component ID from DSL path."""
+        import hashlib
+        path_hash = hashlib.md5(dsl_path.encode()).hexdigest()[:8]
+        self.dsl_node_counter += 1
+        return f"{component_type}_{path_hash}_{self.dsl_node_counter}"
+    
+    def track_component(self, component_id: str, dsl_path: str, 
+                       dsl_range: tuple, properties: dict) -> None:
+        """Track component metadata for frontend mapping."""
+        self.component_registry[component_id] = {
+            'dsl_path': dsl_path,
+            'dsl_range': dsl_range,  # (start_char, end_char) in DSL text
+            'properties': properties,
+            'type': properties.get('entity_type', 'unknown')
+        }
     
     def parse_dsl(self, dsl_str: str) -> Dict[str, Any]:
         """Parse DSL string into structured data."""
@@ -111,6 +132,89 @@ class BaseVisualGenerator(ABC):
             return result
         
         return recursive_parse(dsl_str)
+    
+    def parse_dsl_with_ranges(self, dsl_str: str) -> Dict[str, Any]:
+        """Enhanced DSL parser that tracks character ranges."""
+        operations_list = ["addition", "subtraction", "multiplication", "division", "surplus", "unittrans", "area", "comparison"]
+        self.dsl_node_counter = 0  # Reset counter
+        
+        def split_entities(inside_str: str) -> List[str]:
+            """Split the entities inside an operation."""
+            entities = []
+            current = ""
+            bracket_count = 0
+            paren_count = 0
+            
+            for char in inside_str:
+                if char == '[':
+                    bracket_count += 1
+                elif char == ']':
+                    bracket_count -= 1
+                elif char == '(':
+                    paren_count += 1
+                elif char == ')':
+                    paren_count -= 1
+                elif char == ',' and bracket_count == 0 and paren_count == 0:
+                    entities.append(current.strip())
+                    current = ""
+                    continue
+                current += char
+
+            if current.strip():
+                entities.append(current.strip())
+
+            return entities
+        
+        def recursive_parse_with_ranges(input_str: str, offset: int = 0) -> Dict[str, Any]:
+            """Recursively parse operations and entities with range tracking."""
+            input_str = " ".join(input_str.strip().split())
+            func_pattern = r"(\w+)\s*\((.*)\)"
+            match = re.match(func_pattern, input_str)
+
+            if not match:
+                raise ValidationError(f"DSL does not match the expected pattern: {input_str}")
+
+            operation, inside = match.groups()
+            start_pos = offset
+            end_pos = offset + len(input_str)
+            
+            parsed_entities = []
+            result_container = None
+            current_pos = offset + len(operation) + 1  # +1 for '('
+
+            # Process entities
+            for entity in split_entities(inside):
+                entity_start = dsl_str.find(entity, current_pos)
+                entity_end = entity_start + len(entity)
+                
+                if any(entity.startswith(op) for op in operations_list):
+                    parsed_entity = recursive_parse_with_ranges(entity, entity_start)
+                    parsed_entities.append(parsed_entity)
+                else:
+                    entity_dict = self._parse_entity(entity)
+                    entity_dict['_dsl_range'] = (entity_start, entity_end)
+                    entity_dict['_dsl_path'] = f"entities[{len(parsed_entities)}]"
+                    
+                    if entity_dict["name"] == "result_container":
+                        result_container = entity_dict
+                    else:
+                        parsed_entities.append(entity_dict)
+                
+                current_pos = entity_end
+
+            result = {
+                "operation": operation, 
+                "entities": parsed_entities,
+                "_dsl_range": (start_pos, end_pos),
+                "_dsl_path": f"operation_{self.dsl_node_counter}"
+            }
+            if result_container:
+                result["result_container"] = result_container
+            
+            self.dsl_node_counter += 1
+            return result
+        
+        return recursive_parse_with_ranges(dsl_str)
     
     def _parse_entity(self, entity: str) -> Dict[str, Any]:
         """Parse a single entity string into structured data."""

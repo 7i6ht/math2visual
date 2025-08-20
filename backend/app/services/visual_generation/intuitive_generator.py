@@ -427,9 +427,10 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
         # Position containers
         self._position_containers(containers, start_x, start_y)
         
-        # Draw containers
-        for container in containers:
-            self._draw_container(container, svg_root)
+        # Draw containers with path tracking
+        for i, container in enumerate(containers):
+            container_path = container.get('_dsl_path', f'containers[{i}]')
+            self._draw_container(container, svg_root, container_path)
         
         # Draw enclosing box if multiple containers
         if len(containers) > 1 and result_containers:
@@ -578,8 +579,8 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
             bottom_edge = y_pos + e["planned_height"]
             self.svg_embedder.update_max_dimensions(right_edge, bottom_edge)
     
-    def _draw_container(self, container: Dict[str, Any], svg_root: etree.Element) -> None:
-        """Draw a single container."""
+    def _draw_container(self, container: Dict[str, Any], svg_root: etree.Element, dsl_path: str = "") -> None:
+        """Draw a single container with metadata."""
         q = container["item"].get("entity_quantity", 0)
         t = container["item"].get("entity_type", "apple")
         container_name = container.get("container_name", "").strip()
@@ -605,9 +606,19 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
             self._draw_multiplier_text(container, svg_root, x, y, w, q)
             return
         
-        # Draw container box
-        etree.SubElement(svg_root, "rect", x=str(x), y=str(box_y),
+        # Generate component ID and track component
+        component_id = self.generate_component_id(dsl_path, container.get('name', 'container'))
+        self.track_component(component_id, dsl_path, 
+                            container.get('_dsl_range', (0, 0)),
+                            container)
+        
+        # Draw container box with metadata
+        rect_elem = etree.SubElement(svg_root, "rect", x=str(x), y=str(box_y),
                         width=str(w), height=str(h), stroke="black", fill="none")
+        rect_elem.set('data-component-id', component_id)
+        rect_elem.set('data-dsl-path', dsl_path)
+        rect_elem.set('data-entity-type', t)
+        rect_elem.set('class', 'interactive-component')
         
         # Update max dimensions
         self.svg_embedder.update_max_dimensions(x + w, y + h)

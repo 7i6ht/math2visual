@@ -278,9 +278,10 @@ class FormalVisualGenerator(BaseVisualGenerator):
         # Position entities and operators
         self._position_elements(entities, operations, start_x, start_y)
         
-        # Draw entities
-        for entity in entities:
-            self._draw_entity(entity, svg_root)
+        # Draw entities with path tracking
+        for i, entity in enumerate(entities):
+            entity_path = entity.get('_dsl_path', f'entities[{i}]')
+            self._draw_entity(entity, svg_root, entity_path)
         
         # Draw operators
         if operations:
@@ -428,8 +429,8 @@ class FormalVisualGenerator(BaseVisualGenerator):
             else:
                 current_x = e_right + e_gap
     
-    def _draw_entity(self, entity: Dict[str, Any], svg_root: etree.Element) -> None:
-        """Draw a single entity."""
+    def _draw_entity(self, entity: Dict[str, Any], svg_root: etree.Element, dsl_path: str = "") -> None:
+        """Draw a single entity with metadata."""
         q = entity["item"].get("entity_quantity", 0)
         t = entity["item"].get("entity_type", "apple")
         container_name = entity.get("container_name", "").strip()
@@ -455,9 +456,19 @@ class FormalVisualGenerator(BaseVisualGenerator):
             self._draw_multiplier_text(entity, svg_root, x, w, q)
             return
         
-        # Draw entity box
-        etree.SubElement(svg_root, "rect", x=str(x), y=str(box_y),
+        # Generate component ID and track component
+        component_id = self.generate_component_id(dsl_path, entity.get('name', 'entity'))
+        self.track_component(component_id, dsl_path, 
+                            entity.get('_dsl_range', (0, 0)),
+                            entity)
+        
+        # Draw entity box with metadata
+        rect_elem = etree.SubElement(svg_root, "rect", x=str(x), y=str(box_y),
                         width=str(w), height=str(h), stroke="black", fill="none")
+        rect_elem.set('data-component-id', component_id)
+        rect_elem.set('data-dsl-path', dsl_path)
+        rect_elem.set('data-entity-type', t)
+        rect_elem.set('class', 'interactive-component')
         
         # Draw brackets if needed
         self._draw_brackets(entity, svg_root, x, w, box_y, h)

@@ -1,4 +1,5 @@
 import './App.css';
+import { useState } from 'react';
 import { MathProblemForm } from "@/components/forms/MathProblemForm";
 import { VisualLanguageForm } from "@/components/forms/VisualLanguageForm";
 import { VisualizationResults } from "@/components/visualization/VisualizationResults";
@@ -21,6 +22,7 @@ function App() {
     hasCompletedGeneration,
     initialMWP,
     initialFormula,
+    componentMappings,
     setMpFormLoading,
     setVLFormLoading,
     setResults,
@@ -31,10 +33,34 @@ function App() {
     handleAbort,
     saveInitialValues,
   } = useAppState();
+  
+  // State for highlighting
+  const [dslHighlightRanges, setDslHighlightRanges] = useState<Array<[number, number]>>([]);
 
   // Determine if any loading is happening and what message to show
   const isLoading = mpFormLoading || vlFormLoading || uploadGenerating;
   const loadingMessage = mpFormLoading ? "Generating..." : "Regenerating...";
+  
+  // Handle component updates from edit panel
+  const handleComponentUpdate = (updatedDSL: string, updatedMWP: string) => {
+    // Update the visual language and initial MWP
+    saveInitialValues(updatedMWP, initialFormula);
+    // Trigger regeneration with updated DSL
+    setVLFormLoading(true);
+    setResults(
+      updatedDSL,
+      null,  // Clear visuals to trigger regeneration
+      null,
+      undefined,
+      undefined,
+      undefined,
+      updatedMWP,
+      initialFormula,
+      componentMappings
+    );
+    // Note: The actual regeneration would be triggered by the VisualLanguageForm
+    // when it detects the DSL change
+  };
   
 
   return (
@@ -134,6 +160,7 @@ function App() {
                           setVLFormLoading(loading, abortFn);
                         }}
                         onReset={resetVisuals}
+                        highlightRanges={dslHighlightRanges}
                       />
                     )}
                   </div>
@@ -150,6 +177,12 @@ function App() {
                   svgIntuitive={svgIntuitive}
                   intuitiveError={intuitiveError}
                   missingSVGEntities={missingSVGEntities}
+                  componentMappings={componentMappings}
+                  dslValue={vl || ''}
+                  mwpValue={initialMWP}
+                  onDSLRangeHighlight={(range) => setDslHighlightRanges([range])}
+                  onMWPRangeHighlight={(range) => setDslHighlightRanges([range])}
+                  onComponentUpdate={handleComponentUpdate}
                   onRegenerateAfterUpload={handleRegenerateAfterUpload}
                   onAllFilesUploaded={clearMissingSVGEntities}
                 />

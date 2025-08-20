@@ -8,7 +8,7 @@ import { DSLFormatter } from "@/utils/dsl-formatter";
 
 interface UseVisualLanguageFormProps {
   vl: string | null;
-  onSuccess: (vl: string, svgFormal: string | null, svgIntuitive: string | null, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[]) => void;
+  onSuccess: (vl: string, svgFormal: string | null, svgIntuitive: string | null, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], initialMWP?: string, initialFormula?: string, componentMappings?: any) => void;
   onLoadingChange: (loading: boolean, abortFn?: () => void) => void;
   onReset: () => void;
 }
@@ -61,7 +61,10 @@ export const useVisualLanguageForm = ({
         result.svg_intuitive,
         result.formal_error || undefined,
         result.intuitive_error || undefined,
-        result.missing_svg_entities
+        result.missing_svg_entities,
+        undefined, // initialMWP - not changing
+        undefined, // initialFormula - not changing
+        result.component_mappings
       );
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
