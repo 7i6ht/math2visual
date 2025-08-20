@@ -93,7 +93,7 @@ function App() {
           ) : (
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 min-h-[calc(100vh-200px)] items-start">
               {/* Left Panel - Title / Input Forms */}
-              <div className="flex flex-col space-y-6 sticky top-6 h-[calc(100vh-3rem)]">
+              <div className="flex flex-col space-y-6 xl:sticky xl:top-6 xl:h-[calc(100vh-3rem)] xl:z-10">
                  {/* Two-column input layout */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1 min-h-0">
                   {/* Math Problem Input Column */}
@@ -125,7 +125,7 @@ function App() {
                   </div>
 
                   {/* Visual Language Column */}
-                  <div className="flex flex-col min-h-0">
+                  <div className="flex flex-col min-h-0 md:min-h-[400px] xl:min-h-0">
                     {vl && (
                       <VisualLanguageForm
                         vl={vl}
