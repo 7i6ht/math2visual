@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import { HighlightableTextarea } from "@/components/ui/highlightable-textarea";
 import { Input } from "@/components/ui/input";
 import {
   Form,
@@ -19,6 +19,7 @@ interface MathProblemFormProps {
   initialFormula?: string;
   saveInitialValues: (mwp: string, formula: string) => void;
   rows?: number;
+  highlightRanges?: Array<[number, number]>;
 }
 
 export const MathProblemForm = ({ 
@@ -28,7 +29,8 @@ export const MathProblemForm = ({
   initialMwp = "",
   initialFormula = "",
   saveInitialValues,
-  rows = 8
+  rows = 8,
+  highlightRanges = []
 }: MathProblemFormProps) => {
   const { 
     form, 
@@ -55,11 +57,12 @@ export const MathProblemForm = ({
           render={({ field }) => (
             <FormItem>
               <FormControl>
-                <Textarea
+                <HighlightableTextarea
                   className="w-full"
                   placeholder="Enter your math word problem…"
                   rows={rows}
                   spellCheck={false}
+                  highlightRanges={highlightRanges}
                   {...field}
                 />
               </FormControl>

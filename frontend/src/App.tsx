@@ -36,6 +36,7 @@ function App() {
   
   // State for highlighting
   const [dslHighlightRanges, setDslHighlightRanges] = useState<Array<[number, number]>>([]);
+  const [mwpHighlightRanges, setMwpHighlightRanges] = useState<Array<[number, number]>>([]);
 
   // Determine if any loading is happening and what message to show
   const isLoading = mpFormLoading || vlFormLoading || uploadGenerating;
@@ -147,6 +148,7 @@ function App() {
                       initialFormula={initialFormula}
                       saveInitialValues={saveInitialValues}
                       rows={8}
+                      highlightRanges={mwpHighlightRanges}
                     />
                   </div>
 
@@ -171,6 +173,7 @@ function App() {
 
               {/* Right Panel - Visualizations */}
               <div className="flex flex-col w-full">
+
                 <VisualizationResults
                   svgFormal={svgFormal}
                   formalError={formalError}
@@ -181,7 +184,7 @@ function App() {
                   dslValue={vl || ''}
                   mwpValue={initialMWP}
                   onDSLRangeHighlight={(range) => setDslHighlightRanges([range])}
-                  onMWPRangeHighlight={(range) => setDslHighlightRanges([range])}
+                  onMWPRangeHighlight={(range) => setMwpHighlightRanges([range])}
                   onComponentUpdate={handleComponentUpdate}
                   onRegenerateAfterUpload={handleRegenerateAfterUpload}
                   onAllFilesUploaded={clearMissingSVGEntities}

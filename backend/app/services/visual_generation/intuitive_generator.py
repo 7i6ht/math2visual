@@ -641,7 +641,7 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
         text_y = y + 100  # Simplified positioning
         
         text_element = etree.SubElement(svg_root, "text", x=str(text_x), y=str(text_y),
-                                       style="font-size: 50px;", dominant_baseline="middle")
+                                       style="font-size: 50px; pointer-events: none;", dominant_baseline="middle")
         text_element.text = q_str
         self.svg_embedder.update_max_dimensions(text_x + len(q_str)*30, text_y + 50)
     
@@ -669,7 +669,7 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
         # Add quantity text
         font_size = "100px" if unittrans_unit and unittrans_value else "45px"
         text_element = etree.SubElement(svg_root, "text", x=str(text_x), y=str(text_y),
-                                       style=f"font-size: {font_size}; fill: white; font-weight: bold; stroke: black; stroke-width: 2px;",
+                                       style=f"font-size: {font_size}; fill: white; font-weight: bold; stroke: black; stroke-width: 2px; pointer-events: none;",
                                        dominant_baseline="middle")
         text_element.text = q_str
         
@@ -767,7 +767,7 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
         unittrans_text = f"{unittrans_value}"
         text_element = etree.SubElement(svg_root, "text",
                                        x=str(circle_center_x-15), y=str(circle_center_y + 5),
-                                       style="font-size: 15px;", text_anchor="middle",
+                                       style="font-size: 15px; pointer-events: none;", text_anchor="middle",
                                        dominant_baseline="middle")
         text_element.text = unittrans_text
     
@@ -803,7 +803,7 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
         
         text_element = etree.SubElement(svg_root, "text", 
                                        x=str(circle_center_x-6), y=str(circle_center_y+6),
-                                       style="font-size: 30px;", text_anchor="middle", 
+                                       style="font-size: 30px; pointer-events: none;", text_anchor="middle", 
                                        fill="red", dominant_baseline="central")
         text_element.text = "?"
         
@@ -829,7 +829,7 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
         
         text_element = etree.SubElement(svg_root, "text", 
                                        x=str(circle_center_x-6), y=str(circle_center_y+6),
-                                       style="font-size: 30px;", text_anchor="middle", 
+                                       style="font-size: 30px; pointer-events: none;", text_anchor="middle", 
                                        fill="red", dominant_baseline="central")
         text_element.text = "?"
     

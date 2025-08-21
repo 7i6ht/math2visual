@@ -59,9 +59,10 @@ export const VisualizationResults = ({
     editPosition,
     componentProperties,
     handleComponentUpdate,
+    openEditPanel,
     closeEditPanel,
-    getDSLHighlightRanges,
-    getMWPHighlightRanges,
+    getDSLHighlightRanges: _getDSLHighlightRanges,
+    getMWPHighlightRanges: _getMWPHighlightRanges,
   } = useEditableComponents({
     initialDSL: dslValue,
     initialMWP: mwpValue,
@@ -79,18 +80,9 @@ export const VisualizationResults = ({
     svgRef: formalRef,
     dslValue,
     mwpValue,
-    onDSLRangeHighlight: (range) => {
-      if (onDSLRangeHighlight) {
-        const ranges = hoveredFormal ? getDSLHighlightRanges(hoveredFormal) : [];
-        onDSLRangeHighlight(ranges[0] || range);
-      }
-    },
-    onMWPRangeHighlight: (range) => {
-      if (onMWPRangeHighlight) {
-        const ranges = hoveredFormal ? getMWPHighlightRanges(hoveredFormal) : [];
-        onMWPRangeHighlight(ranges[0] || range);
-      }
-    },
+    onDSLRangeHighlight,
+    onMWPRangeHighlight,
+    onComponentClick: openEditPanel,
   });
   
   // Setup visual interaction for intuitive visualization
@@ -101,18 +93,9 @@ export const VisualizationResults = ({
     svgRef: intuitiveRef,
     dslValue,
     mwpValue,
-    onDSLRangeHighlight: (range) => {
-      if (onDSLRangeHighlight) {
-        const ranges = hoveredIntuitive ? getDSLHighlightRanges(hoveredIntuitive) : [];
-        onDSLRangeHighlight(ranges[0] || range);
-      }
-    },
-    onMWPRangeHighlight: (range) => {
-      if (onMWPRangeHighlight) {
-        const ranges = hoveredIntuitive ? getMWPHighlightRanges(hoveredIntuitive) : [];
-        onMWPRangeHighlight(ranges[0] || range);
-      }
-    },
+    onDSLRangeHighlight,
+    onMWPRangeHighlight,
+    onComponentClick: openEditPanel,
   });
   
   // Track which visualization is being edited

@@ -495,7 +495,7 @@ class FormalVisualGenerator(BaseVisualGenerator):
         text_y = 200  # Placeholder - would need proper calculation
         
         text_element = etree.SubElement(svg_root, "text", x=str(text_x), y=str(text_y),
-                                       style="font-size: 50px;", dominant_baseline="middle")
+                                       style="font-size: 50px; pointer-events: none;", dominant_baseline="middle")
         text_element.text = q_str
         self.svg_embedder.update_max_dimensions(text_x + len(q_str)*30, text_y + 50)
     
@@ -507,13 +507,13 @@ class FormalVisualGenerator(BaseVisualGenerator):
         if entity.get("bracket") == "left":
             text_element = etree.SubElement(svg_root, "text",
                                            x=str(x-20), y=str(bracket_y),
-                                           style="font-size: 60px;",
+                                           style="font-size: 60px; pointer-events: none;",
                                            text_anchor="middle", dominant_baseline="middle")
             text_element.text = "("
         elif entity.get("bracket") == "right":
             text_element = etree.SubElement(svg_root, "text",
                                            x=str(x+w), y=str(bracket_y),
-                                           style="font-size: 60px;",
+                                           style="font-size: 60px; pointer-events: none;",
                                            text_anchor="middle", dominant_baseline="middle")
             text_element.text = ")"
     
@@ -539,7 +539,7 @@ class FormalVisualGenerator(BaseVisualGenerator):
         # Add quantity text
         font_size = "100px" if unittrans_unit and unittrans_value is not None else "45px"
         text_element = etree.SubElement(svg_root, "text", x=str(text_x), y=str(text_y),
-                                       style=f"font-size: {font_size}; fill: white; font-weight: bold; stroke: black; stroke-width: 2px;",
+                                       style=f"font-size: {font_size}; fill: white; font-weight: bold; stroke: black; stroke-width: 2px; pointer-events: none;",
                                        dominant_baseline="middle")
         text_element.text = q_str
         
@@ -585,7 +585,7 @@ class FormalVisualGenerator(BaseVisualGenerator):
         unittrans_text = f"{unittrans_value}"
         text_element = etree.SubElement(svg_root, "text",
                                        x=str(circle_center_x-15), y=str(circle_center_y + 5),
-                                       style="font-size: 15px;", text_anchor="middle",
+                                       style="font-size: 15px; pointer-events: none;", text_anchor="middle",
                                        dominant_baseline="middle")
         text_element.text = unittrans_text
     
@@ -643,7 +643,7 @@ class FormalVisualGenerator(BaseVisualGenerator):
                 text_x = qmark_x + 70
                 text_y = qmark_y + 35
                 text_element = etree.SubElement(svg_root, "text", x=str(text_x), y=str(text_y),
-                                               style="font-size: 15px;", dominant_baseline="middle")
+                                               style="font-size: 15px; pointer-events: none;", dominant_baseline="middle")
                 text_element.text = "with remainder"
                 
                 # Second question mark

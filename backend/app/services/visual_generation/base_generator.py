@@ -357,7 +357,7 @@ class BaseVisualGenerator(ABC):
                 text_y = center_y + (self.constants["UNIT_SIZE"] / 2)
                 text_element = etree.SubElement(
                     group, "text", x=str(text_x), y=str(text_y),
-                    style="font-size: 15px;", dominant_baseline="middle", text_anchor="middle"
+                    style="font-size: 15px; pointer-events: none;", dominant_baseline="middle", text_anchor="middle"
                 )
                 text_element.text = v
                 current_x += width
