@@ -456,11 +456,8 @@ class FormalVisualGenerator(BaseVisualGenerator):
             self._draw_multiplier_text(entity, svg_root, x, w, q)
             return
         
-        # Generate component ID and track component
-        component_id = self.generate_component_id(dsl_path, entity.get('name', 'entity'))
-        self.track_component(component_id, dsl_path, 
-                            entity.get('_dsl_range', (0, 0)),
-                            entity)
+        # Use component ID from parsing (already tracked centrally)
+        component_id = entity.get('_component_id')
         
         # Draw entity box with metadata
         rect_elem = etree.SubElement(svg_root, "rect", x=str(x), y=str(box_y),

@@ -154,21 +154,21 @@ export const useEditableComponents = ({
     };
   }, []);
   
-  // Get highlighted ranges for DSL
+  // Get highlighted ranges for DSL - now using backend-provided ranges
   const getDSLHighlightRanges = useCallback((hoveredComponentId: string | null): Array<[number, number]> => {
     if (!hoveredComponentId || !componentMappings[hoveredComponentId]) {
       return [];
     }
     
     const componentData = componentMappings[hoveredComponentId];
-    const range = DSLUpdater.findComponentInDSL(dslValue, componentData.dsl_path);
+    const range = componentData.dsl_range;
     
-    if (range) {
-      return [[range.start, range.end]];
+    if (range && range.length === 2) {
+      return [range];
     }
     
     return [];
-  }, [componentMappings, dslValue]);
+  }, [componentMappings]);
   
   // Get highlighted ranges for MWP
   const getMWPHighlightRanges = useCallback((hoveredComponentId: string | null): Array<[number, number]> => {

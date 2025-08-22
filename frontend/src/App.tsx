@@ -183,8 +183,22 @@ function App() {
                   componentMappings={componentMappings}
                   dslValue={vl || ''}
                   mwpValue={initialMWP}
-                  onDSLRangeHighlight={(range) => setDslHighlightRanges([range])}
-                  onMWPRangeHighlight={(range) => setMwpHighlightRanges([range])}
+                  onDSLRangeHighlight={(range) => {
+                    // Clear highlights if range is [0, 0], otherwise set the range
+                    if (range[0] === 0 && range[1] === 0) {
+                      setDslHighlightRanges([]);
+                    } else {
+                      setDslHighlightRanges([range]);
+                    }
+                  }}
+                  onMWPRangeHighlight={(range) => {
+                    // Clear highlights if range is [0, 0], otherwise set the range
+                    if (range[0] === 0 && range[1] === 0) {
+                      setMwpHighlightRanges([]);
+                    } else {
+                      setMwpHighlightRanges([range]);
+                    }
+                  }}
                   onComponentUpdate={handleComponentUpdate}
                   onRegenerateAfterUpload={handleRegenerateAfterUpload}
                   onAllFilesUploaded={clearMissingSVGEntities}

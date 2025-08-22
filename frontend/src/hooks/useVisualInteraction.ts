@@ -2,10 +2,9 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 
 interface ComponentMapping {
   [componentId: string]: {
-    dsl_path: string;
+    dsl_path: string; // Full hierarchical path like "division/subtraction/entities[0]"
     dsl_range: [number, number];
     properties: Record<string, any>;
-    type: string;
   };
 }
 
@@ -91,7 +90,7 @@ export const useVisualInteraction = ({
               const textElements = svgRef.current.querySelectorAll('text');
               textElements.forEach((textEl) => {
                 const content = textEl.textContent;
-                if (content && content.includes(quantity.toString())) {
+                if (content && content.trim() === quantity.toString()) {
                   console.log(`🔲 Found text element with "${content}" - setting to black`);
                   textEl.style.fill = 'black';
                   textEl.style.fontWeight = 'normal';
@@ -99,20 +98,20 @@ export const useVisualInteraction = ({
                 }
               });
             }
-          } else if (highlightType === 'text') {
-            // ONLY highlight text containing the quantity (not box)
-            const quantity = mapping.properties?.item?.entity_quantity;
-            if (quantity && svgRef.current) {
-              const textElements = svgRef.current.querySelectorAll('text');
-              textElements.forEach((textEl) => {
-                const content = textEl.textContent;
-                if (content && content.includes(quantity.toString())) {
-                  textEl.style.fill = '#3b82f6';
-                  textEl.style.fontWeight = 'bold';
-                  textEl.style.filter = 'drop-shadow(0 0 2px rgba(59, 130, 246, 0.8))';
-                }
-              });
-            }
+                      } else if (highlightType === 'text') {
+              // ONLY highlight text containing the quantity (not box)
+              const quantity = mapping.properties?.item?.entity_quantity;
+              if (quantity && svgRef.current) {
+                const textElements = svgRef.current.querySelectorAll('text');
+                textElements.forEach((textEl) => {
+                  const content = textEl.textContent;
+                  if (content && content.trim() === quantity.toString()) {
+                    textEl.style.fill = '#3b82f6';
+                    textEl.style.fontWeight = 'bold';
+                    textEl.style.filter = 'drop-shadow(0 0 2px rgba(59, 130, 246, 0.8))';
+                  }
+                });
+              }
             // Explicitly ensure box stays black for text hover
             const targetComponent = Array.from(svgElements).find(el => 
               el.getAttribute('data-component-id') === componentId
@@ -125,78 +124,33 @@ export const useVisualInteraction = ({
             }
           }
           
-          // Highlight in DSL editor based on specificity level
+          // Highlight in DSL editor using backend-provided ranges
           if (onDSLRangeHighlight) {
             if (highlightType === 'text') {
-              // For text hover: find entity_quantity property in formatted DSL
+              // For text hover: find entity_quantity property specifically
               const quantity = mapping.properties?.item?.entity_quantity;
               console.log(`📝 TEXT HOVER DSL: Looking for quantity ${quantity} in DSL`);
-              console.log(`📝 DSL Content (first 200 chars):`, dslValue.substring(0, 200));
               
               if (quantity) {
-                // Search for the pattern "entity_quantity: <number>" in the current DSL
+                // Search for the specific quantity pattern in the formatted DSL
                 const quantityPattern = new RegExp(`entity_quantity:\\s*${quantity}\\b`);
                 const match = quantityPattern.exec(dslValue);
-                
-                console.log(`📝 Searching with pattern: ${quantityPattern}`);
                 
                 if (match) {
                   const propertyStart = match.index;
                   const propertyEnd = match.index + match[0].length;
-                  console.log('✅ Text hover - found quantity property:', match[0], 'at range:', [propertyStart, propertyEnd]);
+                  console.log('✅ Text hover - found quantity property at range:', [propertyStart, propertyEnd]);
                   setTimeout(() => onDSLRangeHighlight([propertyStart, propertyEnd]), 0);
                 } else {
-                  console.log('❌ Text hover - quantity property not found in formatted DSL');
-                  // Fallback to searching for any entity_quantity line
-                  const fallbackPattern = /entity_quantity:\s*\d+/;
-                  const fallbackMatch = fallbackPattern.exec(dslValue);
-                  if (fallbackMatch) {
-                    console.log('📝 Using fallback match:', fallbackMatch[0]);
-                    setTimeout(() => onDSLRangeHighlight([fallbackMatch.index, fallbackMatch.index + fallbackMatch[0].length]), 0);
-                  } else {
-                    console.log('❌ No fallback match found either');
-                  }
+                  // Use backend range as fallback
+                  console.log('📝 Text hover - using backend range as fallback:', mapping.dsl_range);
+                  setTimeout(() => onDSLRangeHighlight(mapping.dsl_range || [0, 0]), 0);
                 }
               }
             } else {
-              // For box hover: find the entire container block in formatted DSL
-              const containerName = mapping.dsl_path?.split('.').pop()?.replace(/\[\d+\]$/, ''); // Extract container name like "container1"
-              
-              console.log('Box hover - extracting container name from dsl_path:', mapping.dsl_path, '→', containerName);
-              
-              if (containerName) {
-                // Search for the container block pattern in formatted DSL
-                const containerPattern = new RegExp(`${containerName}\\[([\\s\\S]*?)\\]`, 'g');
-                const matches = [...dslValue.matchAll(containerPattern)];
-                
-                console.log(`🔲 BOX HOVER DSL: Found ${matches.length} matches for pattern:`, containerPattern);
-                
-                // Find the correct container match by checking if it contains our quantity
-                const quantity = mapping.properties?.item?.entity_quantity;
-                let containerMatch = null;
-                
-                for (const match of matches) {
-                  console.log(`🔲 Checking match:`, match[0].substring(0, 100), '...');
-                  if (quantity && match[1].includes(`entity_quantity: ${quantity}`)) {
-                    console.log(`✅ Found matching container with quantity ${quantity}`);
-                    containerMatch = match;
-                    break;
-                  }
-                }
-                
-                if (containerMatch) {
-                  const containerStart = containerMatch.index;
-                  const containerEnd = containerMatch.index + containerMatch[0].length;
-                  console.log('✅ Box hover - found container:', containerName, 'at range:', [containerStart, containerEnd]);
-                  setTimeout(() => onDSLRangeHighlight([containerStart, containerEnd]), 0);
-                } else {
-                  console.log('❌ Box hover - container not found in formatted DSL, using backend range:', mapping.dsl_range);
-                  setTimeout(() => onDSLRangeHighlight(mapping.dsl_range || [0, 0]), 0);
-                }
-              } else {
-                console.log('❌ Box hover - no container name, using backend range:', mapping.dsl_range);
-                setTimeout(() => onDSLRangeHighlight(mapping.dsl_range || [0, 0]), 0);
-              }
+              // For box hover: use backend-provided range directly
+              console.log('🔲 Box hover - using backend range:', mapping.dsl_range);
+              setTimeout(() => onDSLRangeHighlight(mapping.dsl_range || [0, 0]), 0);
             }
           }
           
@@ -269,6 +223,7 @@ export const useVisualInteraction = ({
           textEl.style.filter = '';
         });
         
+        // Clear DSL and MWP highlights
         if (onDSLRangeHighlight) {
           setTimeout(() => onDSLRangeHighlight([0, 0]), 0);
         }
@@ -315,7 +270,7 @@ export const useVisualInteraction = ({
             const textElements = svgRef.current.querySelectorAll('text');
             textElements.forEach((textEl) => {
               const content = textEl.textContent;
-              if (content && content.includes(quantity.toString())) {
+              if (content && content.trim() === quantity.toString()) {
                 console.log(`📝 Setting up TEXT listeners for: ${componentId} (quantity: ${quantity})`);
                 
                 // Remove pointer-events: none for this specific text

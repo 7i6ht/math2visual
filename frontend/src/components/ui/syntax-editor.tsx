@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Editor, { type Monaco } from '@monaco-editor/react';
 import { cn } from '@/lib/utils';
-import { DSLFormatter } from '@/utils/dsl-formatter';
 import './syntax-editor.css';
 
 interface SyntaxEditorProps {
@@ -164,24 +163,12 @@ export const SyntaxEditor: React.FC<SyntaxEditorProps> = ({
   const editorRef = useRef<any>(null);
   const decorationsRef = useRef<string[]>([]);
 
-  // Auto-format when value changes externally (e.g., from API)
+  // Update formatted value when value changes externally (no formatting needed since backend sends formatted DSL)
   useEffect(() => {
-    if (value && value !== formattedValue && !isFormattingRef.current) {
-      const formatted = DSLFormatter.format(value);
-      if (formatted !== value) {
-        isFormattingRef.current = true;
-        setFormattedValue(formatted);
-        onChange(formatted);
-        setTimeout(() => {
-          isFormattingRef.current = false;
-        }, 100);
-      } else {
-        setFormattedValue(value);
-      }
-    } else if (!value) {
-      setFormattedValue('');
+    if (value !== formattedValue && !isFormattingRef.current) {
+      setFormattedValue(value || '');
     }
-  }, [value, formattedValue, onChange]);
+  }, [value, formattedValue]);
 
   const handleEditorDidMount = (editor: any, monaco: Monaco) => {
     editorRef.current = editor;

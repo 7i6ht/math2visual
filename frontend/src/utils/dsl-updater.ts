@@ -21,7 +21,7 @@ export class DSLUpdater {
     });
     
     // Parse the component path to understand the structure
-    // Path format: "entities[0]" or "operation_1/entities[2]"
+    // Path format: "entities[0]" or "division/subtraction/entities[2]"
     const pathMatch = componentPath.match(/entities\[(\d+)\]/);
     if (!pathMatch) {
       console.warn('Could not parse component path:', componentPath);
@@ -29,6 +29,11 @@ export class DSLUpdater {
     }
     
     const entityIndex = parseInt(pathMatch[1]);
+    
+    // Extract operation hierarchy for better targeting (e.g., "division/subtraction")
+    const pathParts = componentPath.split('/');
+    const operationHierarchy = pathParts.slice(0, -1); // Remove "entities[N]" part
+    console.log(`🎯 Updating component with hierarchy: ${operationHierarchy.join('/')} -> entities[${entityIndex}]`);
     
     // Find the component in the DSL
     const lines = dslText.split('\n');
@@ -113,6 +118,11 @@ export class DSLUpdater {
     }
     
     const entityIndex = parseInt(pathMatch[1]);
+    
+    // Extract operation hierarchy for context
+    const pathParts = componentPath.split('/');
+    const operationHierarchy = pathParts.slice(0, -1);
+    console.log(`🔍 Finding component with hierarchy: ${operationHierarchy.join('/')} -> entities[${entityIndex}]`);
     const lines = dslText.split('\n');
     let entityCount = -1;
     let currentPos = 0;

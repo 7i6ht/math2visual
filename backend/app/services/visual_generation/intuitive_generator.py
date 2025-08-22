@@ -606,11 +606,8 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
             self._draw_multiplier_text(container, svg_root, x, y, w, q)
             return
         
-        # Generate component ID and track component
-        component_id = self.generate_component_id(dsl_path, container.get('name', 'container'))
-        self.track_component(component_id, dsl_path, 
-                            container.get('_dsl_range', (0, 0)),
-                            container)
+        # Use component ID from parsing (already tracked centrally)
+        component_id = container.get('_component_id')
         
         # Draw container box with metadata
         rect_elem = etree.SubElement(svg_root, "rect", x=str(x), y=str(box_y),

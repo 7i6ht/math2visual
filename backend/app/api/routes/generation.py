@@ -4,6 +4,7 @@ Generation API routes for visual language processing and SVG generation.
 from flask import Blueprint, request, jsonify
 import os
 import shutil
+import copy
 from datetime import datetime
 
 from app.services.language_generation.gpt_generator import generate_visual_language
@@ -36,9 +37,13 @@ def generate():
             return jsonify({"error": "Empty DSL provided."}), 400
         # Strip the prefix if present
         if raw_dsl.lower().startswith("visual_language:"):
-            dsl = raw_dsl.split(":", 1)[1].strip()
+            formatted_dsl_input = raw_dsl.split(":", 1)[1].strip()
         else:
-            dsl = raw_dsl
+            formatted_dsl_input = raw_dsl
+        
+        # Normalize formatted DSL to single line for parsing
+        temp_generator = FormalVisualGenerator("")
+        dsl = temp_generator.normalize_dsl_to_single_line(formatted_dsl_input)
     else:
         # Generate DSL from math word problem
         mwp = body.get("mwp", "").strip()
@@ -60,16 +65,24 @@ def generate():
     formal_generator = FormalVisualGenerator(resources)
     intuitive_generator = IntuitiveVisualGenerator(resources)
     
-    # Parse DSL for both generators with range tracking
+    # Parse DSL once for both generators
     try:
-        data_formal = formal_generator.parse_dsl_with_ranges(dsl)
+        parsed_data = formal_generator.parse_dsl_with_ranges(dsl)
     except (ValueError, ValidationError) as e:
-        return jsonify({"error": f"Formal-DSL parse error: {e}"}), 500
-
+        return jsonify({"error": f"DSL parse error: {e}"}), 500
+    
+    # Format DSL and calculate ranges for formal generator
     try:
-        data_intuitive = intuitive_generator.parse_dsl_with_ranges(dsl)
-    except (ValueError, ValidationError) as e:
-        return jsonify({"error": f"Intuitive-DSL parse error: {e}"}), 500
+        formatted_dsl = formal_generator.format_dsl_with_ranges(dsl, parsed_data)
+    except Exception as e:
+        return jsonify({"error": f"DSL formatting error: {e}"}), 500
+    
+    # Share component registry with intuitive generator and copy parsed data
+    data_formal = parsed_data
+    data_intuitive = copy.deepcopy(parsed_data)  # Deep copy to avoid interference
+    
+    # Copy the component registry from formal to intuitive generator
+    intuitive_generator.component_registry = copy.deepcopy(formal_generator.component_registry)
 
     # Setup output directory using new storage structure
     output_dir = os.path.join(os.path.dirname(__file__), "../../../storage/output")
@@ -137,9 +150,9 @@ def generate():
     # Combine missing entities and remove duplicates while preserving order
     all_missing_entities = list(dict.fromkeys(formal_missing_entities + intuitive_missing_entities))
     
-    # Return results with component mappings
+    # Return results with component mappings and formatted DSL
     return jsonify({
-        "visual_language": dsl,
+        "visual_language": formatted_dsl,  # Send formatted DSL instead of raw DSL
         "svg_formal": svg_formal,
         "svg_intuitive": svg_intuitive,
         "formal_error": formal_error,
