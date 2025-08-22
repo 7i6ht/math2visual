@@ -242,6 +242,12 @@ export const SyntaxEditor: React.FC<SyntaxEditorProps> = ({
         [],
         newDecorations
       );
+      
+      // Auto-scroll to the first highlighted range to make it visible
+      if (newDecorations.length > 0) {
+        const firstRange = newDecorations[0].range;
+        editorRef.current.revealRangeInCenter(firstRange, 1); // 1 = Smooth scrolling
+      }
     } else if (editorRef.current && highlightRanges.length === 0) {
       // Clear all decorations when no ranges to highlight
       decorationsRef.current = editorRef.current.deltaDecorations(
