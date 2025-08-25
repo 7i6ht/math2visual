@@ -159,13 +159,12 @@ export const SyntaxEditor: React.FC<SyntaxEditorProps> = ({
 }) => {
   const isLanguageSetup = useRef(false);
   const [formattedValue, setFormattedValue] = useState(value);
-  const isFormattingRef = useRef(false);
   const editorRef = useRef<any>(null);
   const decorationsRef = useRef<string[]>([]);
 
   // Update formatted value when value changes externally (no formatting needed since backend sends formatted DSL)
   useEffect(() => {
-    if (value !== formattedValue && !isFormattingRef.current) {
+    if (value !== formattedValue) {
       setFormattedValue(value || '');
     }
   }, [value, formattedValue]);
