@@ -53,8 +53,7 @@ export const useVisualInteraction = ({
 
           if (isTextElement) {
             // Clear text highlights
-            (elem as SVGElement).style.fill = 'black';
-            (elem as SVGElement).style.fontWeight = 'normal';
+            (elem as SVGElement).style.fill = 'white';
             (elem as SVGElement).style.filter = '';
           } else {
             // Clear box highlights
@@ -84,16 +83,6 @@ export const useVisualInteraction = ({
               targetBox.style.strokeWidth = '3';
               targetBox.style.filter = 'drop-shadow(0 0 3px rgba(59, 130, 246, 0.5))';
             }
-
-            // Ensure quantity text stays black for box hover
-            const quantityPath = `${dslPath}/entity_quantity`;
-            const quantityTextEl = svgRef.current?.querySelector(`text[data-dsl-path="${quantityPath}"]`) as SVGElement;
-            if (quantityTextEl) {
-              quantityTextEl.style.fill = 'black';
-              quantityTextEl.style.fontWeight = 'normal';
-              quantityTextEl.style.filter = '';
-            }
-
           } else if (highlightType === 'text') {
             // Highlight the quantity text
             const quantityPath = `${dslPath}/entity_quantity`;
@@ -102,14 +91,6 @@ export const useVisualInteraction = ({
               quantityTextEl.style.fill = '#3b82f6';
               quantityTextEl.style.fontWeight = 'bold';
               quantityTextEl.style.filter = 'drop-shadow(0 0 2px rgba(59, 130, 246, 0.8))';
-            }
-
-            // Ensure box stays black for text hover
-            const targetBox = svgRef.current?.querySelector(`[data-dsl-path="${dslPath}"]:not(text)`) as SVGElement;
-            if (targetBox) {
-              targetBox.style.stroke = 'black';
-              targetBox.style.strokeWidth = '1';
-              targetBox.style.filter = '';
             }
           }
 
