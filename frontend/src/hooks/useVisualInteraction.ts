@@ -237,21 +237,21 @@ export const useVisualInteraction = ({
           console.log(`📝 Setting up TEXT listeners for quantity: ${quantityDslPath} -> entity: ${entityDslPath}`);
 
           // Ensure text is interactive
-          (svgElem as unknown as HTMLElement).style.pointerEvents = 'auto';
-          (svgElem as unknown as HTMLElement).style.cursor = 'pointer';
+          svgElem.style.pointerEvents = 'auto';
+          svgElem.style.cursor = 'pointer';
 
           // Remove existing listeners
-          (svgElem as any).onmouseenter = null;
-          (svgElem as any).onmouseleave = null;
-          (svgElem as any).onclick = null;
+          svgElem.onmouseenter = null;
+          svgElem.onmouseleave = null;
+          svgElem.onclick = null;
 
           // Add event listeners using entity DSL path for mapping lookup
-          (svgElem as any).onmouseenter = () => {
+          svgElem.onmouseenter = () => {
             console.log(`📝 TEXT MOUSEENTER: ${quantityDslPath} -> triggering for entity: ${entityDslPath}`);
             triggerTextHighlight(quantityDslPath);
           };
-          (svgElem as any).onmouseleave = clearHighlights;
-          (svgElem as any).onclick = () => {
+          svgElem.onmouseleave = clearHighlights;
+          svgElem.onclick = () => {
             setSelectedComponent(entityDslPath);
             if (onComponentClick) {
               const rect = svgElem.getBoundingClientRect();
