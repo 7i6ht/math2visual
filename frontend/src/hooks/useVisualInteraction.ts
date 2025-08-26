@@ -9,7 +9,6 @@ interface ComponentMapping {
 
 interface UseVisualInteractionProps {
   svgRef: React.RefObject<HTMLDivElement | null>;
-  dslValue: string;
   mwpValue: string;
   onDSLRangeHighlight?: (ranges: Array<[number, number]>) => void;
   onMWPRangeHighlight?: (ranges: Array<[number, number]>) => void;
@@ -18,7 +17,6 @@ interface UseVisualInteractionProps {
 
 export const useVisualInteraction = ({
   svgRef,
-  dslValue,
   mwpValue,
   onDSLRangeHighlight,
   onMWPRangeHighlight,
@@ -265,7 +263,7 @@ export const useVisualInteraction = ({
       // Always reset the flag, even if there's an error
       setupInProgressRef.current = false;
     }
-  }, [svgRef, componentMappings, onDSLRangeHighlight, onMWPRangeHighlight, onComponentClick, mwpValue, dslValue]);
+  }, [svgRef, componentMappings, onDSLRangeHighlight, onMWPRangeHighlight, onComponentClick, mwpValue]);
 
   // Setup interactions - simple approach, only when mappings change
   useEffect(() => {
@@ -274,7 +272,7 @@ export const useVisualInteraction = ({
       const timeoutId = setTimeout(setupSVGInteractions, 100);
       return () => clearTimeout(timeoutId);
     }
-  }, [componentMappings, setupSVGInteractions]);
+  }, [componentMappings, setupSVGInteractions, svgRef]);
 
   return {
     hoveredComponent,
