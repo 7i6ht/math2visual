@@ -187,12 +187,20 @@ class DSLFormatter:
             # Process entity children
             for i, entity in enumerate(node.get('entities', [])):
                 entity_path = f"{current_path}/entities[{i}]"
+                # For the first child, the formatted string has a leading "\n" after
+                # "operation(". For subsequent children, the previous child contributed
+                # the separator ",\n" already, so we must NOT add another offset.
+                child_offset = 1 if i == 0 else 0
                 if entity.get('operation'):
                     # Nested operation
-                    child_formatted, end_pos = self._format_with_ranges_recursive(entity, indent_level + 1, current_path, pos + 1)  # +1 for newline
+                    child_formatted, end_pos = self._format_with_ranges_recursive(
+                        entity, indent_level + 1, current_path, pos + child_offset
+                    )
                 else:
                     # Container entity
-                    child_formatted, end_pos = self._format_container_with_ranges(entity, indent_level + 1, entity_path, pos + 1)  # +1 for newline
+                    child_formatted, end_pos = self._format_container_with_ranges(
+                        entity, indent_level + 1, entity_path, pos + child_offset
+                    )
                 
                 children_parts.append(child_formatted)
                 children_positions.append(end_pos)
@@ -201,7 +209,11 @@ class DSLFormatter:
             # Process result container if present
             if node.get('result_container'):
                 result_path = f"{current_path}/result_container"
-                result_formatted, end_pos = self._format_container_with_ranges(node['result_container'], indent_level + 1, result_path, pos + 1)
+                # After processing the last child above, pos already points to the
+                # beginning of the next line (after ",\n"). Do not add +1 here.
+                result_formatted, end_pos = self._format_container_with_ranges(
+                    node['result_container'], indent_level + 1, result_path, pos
+                )
                 children_parts.append(result_formatted)
                 children_positions.append(end_pos)
                 pos = end_pos
@@ -209,12 +221,14 @@ class DSLFormatter:
             # Build the complete operation
             if not children_parts:
                 formatted = f"{indent}{operation}()"
+                # Use exclusive end index for consistency with property ranges
                 operation_range_end = operation_range_start + len(f"{operation}()")
                 final_pos = current_pos + len(formatted)
             else:
                 children_str = ",\n".join(children_parts)
                 formatted = f"{indent}{operation}(\n{children_str}\n{indent})"
-                operation_range_end = current_pos + len(formatted) - 1  # -1 for the closing paren position
+                # Exclusive end index (position after the closing paren)
+                operation_range_end = current_pos + len(formatted)
                 final_pos = current_pos + len(formatted)
             
             # Track the operation range
@@ -284,12 +298,14 @@ class DSLFormatter:
         # Build the complete container
         if not properties:
             formatted = f"{indent}{container_name}[]"
+            # Exclusive end index for container range
             container_end = container_start + len(f"{container_name}[]")
             final_pos = current_pos + len(formatted)
         else:
             properties_str = ",\n".join(properties)
             formatted = f"{indent}{container_name}[\n{properties_str}\n{indent}]"
-            container_end = current_pos + len(formatted) - 1  # -1 for closing bracket position
+            # Exclusive end index (position after the closing bracket)
+            container_end = current_pos + len(formatted)
             final_pos = current_pos + len(formatted)
         
         # Track the container range
