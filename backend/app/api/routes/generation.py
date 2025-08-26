@@ -67,19 +67,19 @@ def generate():
     
     # Parse DSL once for both generators
     try:
-        parsed_data = formal_generator.parse_dsl(dsl)
+        parsed_dsl = formal_generator.parse_dsl(dsl)
     except (ValueError, ValidationError) as e:
         return jsonify({"error": f"DSL parse error: {e}"}), 500
     
     # Format DSL and calculate ranges for formal generator
     try:
-        formatted_dsl = formal_generator.format_dsl_with_ranges(parsed_data)
+        formatted_dsl = formal_generator.format_with_ranges(parsed_dsl)
     except Exception as e:
         return jsonify({"error": f"DSL formatting error: {e}"}), 500
     
     # Share component registry with intuitive generator and copy parsed data
-    data_formal = parsed_data
-    data_intuitive = copy.deepcopy(parsed_data)  # Deep copy to avoid interference
+    data_formal = parsed_dsl
+    data_intuitive = copy.deepcopy(parsed_dsl)  # Deep copy to avoid interference
     
     # Copy the component registry from formal to intuitive generator
     intuitive_generator.component_registry = copy.deepcopy(formal_generator.component_registry)

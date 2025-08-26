@@ -255,13 +255,13 @@ class BaseVisualGenerator(ABC):
                 .replace(' :', ':')         # Remove space before colon
                 .strip())
 
-    def format_dsl_with_ranges(self, parsed_data: Dict[str, Any]) -> str:
+    def format_with_ranges(self, parsed_dsl: Dict[str, Any]) -> str:
         """Format DSL and calculate ranges for all hierarchical paths."""
         # Clear component registry for new formatting
         self.component_registry = {}
         
         # Format the DSL and compute ranges simultaneously during formatting
-        formatted_dsl, _ = self._format_with_ranges_recursive(parsed_data, 0, "", 0)
+        formatted_dsl, _ = self._format_with_ranges_recursive(parsed_dsl, 0, "", 0)
         
         return formatted_dsl
     
