@@ -11,6 +11,8 @@ from app.services.language_generation.gpt_generator import generate_visual_langu
 from app.services.visual_generation.formal_generator import FormalVisualGenerator
 from app.services.visual_generation.intuitive_generator import IntuitiveVisualGenerator
 from app.services.visual_generation.utils import ValidationError, VisualGenerationError
+from app.services.visual_generation.dsl_parser import DSLParser
+from app.services.visual_generation.dsl_formatter import DSLFormatter
 from app.config.storage_config import get_svg_dataset_path
 
 generation_bp = Blueprint('generation', __name__)
@@ -30,6 +32,10 @@ def generate():
     """
     body = request.json or {}
     
+    # Initialize parser and formatter
+    dsl_parser = DSLParser()
+    dsl_formatter = DSLFormatter()
+    
     # Parse DSL input
     if "dsl" in body:
         raw_dsl = body["dsl"].strip()
@@ -42,8 +48,7 @@ def generate():
             formatted_dsl_input = raw_dsl
         
         # Normalize formatted DSL to single line for parsing
-        temp_generator = FormalVisualGenerator("")
-        dsl = temp_generator.normalize_dsl_to_single_line(formatted_dsl_input)
+        dsl = dsl_formatter.normalize_dsl_to_single_line(formatted_dsl_input)
     else:
         # Generate DSL from math word problem
         mwp = body.get("mwp", "").strip()
@@ -53,9 +58,8 @@ def generate():
 
         # Generate via GPT and extract
         vl_response = generate_visual_language(mwp, formula)
-        # Use the formal generator for extraction (both have the same method)
-        temp_generator = FormalVisualGenerator("")
-        raw = temp_generator.extract_visual_language(vl_response)
+        # Use parser for extraction
+        raw = dsl_parser.extract_visual_language(vl_response)
         if not raw:
             return jsonify({"error": "Could not find `visual_language:` in GPT response."}), 500
         dsl = raw.split(":", 1)[1].strip() if raw.lower().startswith("visual_language:") else raw.strip()
@@ -67,22 +71,23 @@ def generate():
     
     # Parse DSL once for both generators
     try:
-        parsed_dsl = formal_generator.parse_dsl(dsl)
+        parsed_dsl = dsl_parser.parse_dsl(dsl)
     except (ValueError, ValidationError) as e:
         return jsonify({"error": f"DSL parse error: {e}"}), 500
     
-    # Format DSL and calculate ranges for formal generator
+    # Format DSL and calculate ranges for frontend
     try:
-        formatted_dsl = formal_generator.format_with_ranges(parsed_dsl)
+        formatted_dsl = dsl_formatter.format_with_ranges(parsed_dsl)
     except Exception as e:
         return jsonify({"error": f"DSL formatting error: {e}"}), 500
     
-    # Share component registry with intuitive generator and copy parsed data
+    # Share component registry with both generators and copy parsed data
     data_formal = parsed_dsl
     data_intuitive = copy.deepcopy(parsed_dsl)  # Deep copy to avoid interference
     
-    # Copy the component registry from formal to intuitive generator
-    intuitive_generator.component_registry = copy.deepcopy(formal_generator.component_registry)
+    # Copy the component registry from formatter to both generators
+    formal_generator.component_registry = copy.deepcopy(dsl_formatter.component_registry)
+    intuitive_generator.component_registry = copy.deepcopy(dsl_formatter.component_registry)
 
     # Setup output directory using new storage structure
     output_dir = os.path.join(os.path.dirname(__file__), "../../../storage/output")

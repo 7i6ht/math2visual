@@ -3,7 +3,6 @@ Refactored formal visual generator without global state dependencies.
 """
 import math
 import os
-import copy
 from typing import Dict, List, Tuple, Any, Optional
 from lxml import etree
 
@@ -753,13 +752,4 @@ def render_svgs_from_data(output_file: str, resources_path: str, data: Dict[str,
     return generator.render_svgs_from_data(output_file, data)
 
 
-def extract_visual_language(text: str) -> Optional[str]:
-    """Convenience function for extracting visual language."""
-    generator = FormalVisualGenerator("")  # Empty path for parsing only
-    return generator.extract_visual_language(text)
 
-
-def parse_dsl(dsl_str: str) -> Dict[str, Any]:
-    """Convenience function for parsing DSL."""
-    generator = FormalVisualGenerator("")  # Empty path for parsing only
-    return generator.parse_dsl(dsl_str)
