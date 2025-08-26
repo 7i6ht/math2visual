@@ -73,7 +73,7 @@ def generate():
     
     # Format DSL and calculate ranges for formal generator
     try:
-        formatted_dsl = formal_generator.format_dsl_with_ranges(dsl, parsed_data)
+        formatted_dsl = formal_generator.format_dsl_with_ranges(parsed_data)
     except Exception as e:
         return jsonify({"error": f"DSL formatting error: {e}"}), 500
     

@@ -255,112 +255,100 @@ class BaseVisualGenerator(ABC):
                 .replace(' :', ':')         # Remove space before colon
                 .strip())
 
-    def format_dsl_with_ranges(self, dsl_str: str, parsed_data: Dict[str, Any]) -> str:
+    def format_dsl_with_ranges(self, parsed_data: Dict[str, Any]) -> str:
         """Format DSL and calculate ranges for all hierarchical paths."""
         # Clear component registry for new formatting
         self.component_registry = {}
         
-        # Format the DSL using existing logic
-        formatted_dsl = self._format_dsl_recursive(parsed_data, 0)
-        
-        # Calculate ranges for all hierarchical paths in formatted DSL
-        self._build_hierarchical_ranges(formatted_dsl, parsed_data, "")
+        # Format the DSL and compute ranges simultaneously during formatting
+        formatted_dsl, _ = self._format_with_ranges_recursive(parsed_data, 0, "", 0)
         
         return formatted_dsl
     
-    def _build_hierarchical_ranges(self, formatted_dsl: str, node: Dict[str, Any], parent_path: str) -> None:
-        """Build ranges for operations, entities, and properties."""
+    def _format_with_ranges_recursive(self, node: Dict[str, Any], indent_level: int, parent_path: str, current_pos: int) -> Tuple[str, int]:
+        """Format DSL while tracking ranges during formatting process.
+        
+        Returns:
+            Tuple[str, int]: (formatted_string, end_position)
+        """
+        indent = "  " * indent_level
+        
         if node.get('operation'):
             # This is an operation node
             operation = node['operation']
             current_path = f"{parent_path}/{operation}" if parent_path else operation
             
-            # Find operation range in formatted DSL
-            operation_range = self._find_operation_range(formatted_dsl, operation, current_path)
-            if operation_range:
-                self.track_component(current_path, operation_range)
+            # Start building the operation
+            operation_start = f"{indent}{operation}("
+            operation_range_start = current_pos + len(indent)  # Position of operation name
+            pos = current_pos + len(operation_start)
             
-            # Process child entities
+            # Collect all children
+            children_parts = []
+            children_positions = []
+            
+            # Process entity children
             for i, entity in enumerate(node.get('entities', [])):
                 entity_path = f"{current_path}/entities[{i}]"
                 if entity.get('operation'):
                     # Nested operation
-                    self._build_hierarchical_ranges(formatted_dsl, entity, current_path)
+                    child_formatted, end_pos = self._format_with_ranges_recursive(entity, indent_level + 1, current_path, pos + 1)  # +1 for newline
                 else:
-                    # Container entity - find range and process properties
-                    self._build_container_ranges(formatted_dsl, entity, entity_path)
+                    # Container entity
+                    child_formatted, end_pos = self._format_container_with_ranges(entity, indent_level + 1, entity_path, pos + 1)  # +1 for newline
+                
+                children_parts.append(child_formatted)
+                children_positions.append(end_pos)
+                pos = end_pos + 2  # +2 for ",\n"
             
             # Process result container if present
             if node.get('result_container'):
                 result_path = f"{current_path}/result_container"
-                self._build_container_ranges(formatted_dsl, node['result_container'], result_path)
+                result_formatted, end_pos = self._format_container_with_ranges(node['result_container'], indent_level + 1, result_path, pos + 1)
+                children_parts.append(result_formatted)
+                children_positions.append(end_pos)
+                pos = end_pos
+            
+            # Build the complete operation
+            if not children_parts:
+                formatted = f"{indent}{operation}()"
+                operation_range_end = operation_range_start + len(f"{operation}()")
+                final_pos = current_pos + len(formatted)
+            else:
+                children_str = ",\n".join(children_parts)
+                formatted = f"{indent}{operation}(\n{children_str}\n{indent})"
+                operation_range_end = current_pos + len(formatted) - 1  # -1 for the closing paren position
+                final_pos = current_pos + len(formatted)
+            
+            # Track the operation range
+            self.track_component(current_path, (operation_range_start, operation_range_end))
+            
+            return formatted, final_pos
         else:
-            # This is a root-level container
-            self._build_container_ranges(formatted_dsl, node, parent_path)
+            # This is a container (root level)
+            return self._format_container_with_ranges(node, indent_level, parent_path, current_pos)
     
-    def _find_operation_range(self, formatted_dsl: str, operation: str, operation_path: str) -> Optional[Tuple[int, int]]:
-        """Find the range of an operation in the formatted DSL."""
-        pattern = rf'^(\s*){re.escape(operation)}\('
-        lines = formatted_dsl.split('\n')
+    def _format_container_with_ranges(self, container: Dict[str, Any], indent_level: int, container_path: str, current_pos: int) -> Tuple[str, int]:
+        """Format a container while tracking ranges during formatting.
         
-        for i, line in enumerate(lines):
-            if re.match(pattern, line):
-                # Found operation start
-                start_pos = sum(len(l) + 1 for l in lines[:i]) + len(line) - len(operation) - 1
-                
-                # Find matching closing parenthesis
-                paren_count = 0
-                pos = start_pos
-                for char in formatted_dsl[start_pos:]:
-                    if char == '(':
-                        paren_count += 1
-                    elif char == ')':
-                        paren_count -= 1
-                        if paren_count == 0:
-                            return (start_pos, pos + 1)
-                    pos += 1
-        return None
-    
-    def _build_container_ranges(self, formatted_dsl: str, container: Dict[str, Any], container_path: str) -> None:
-        """Build ranges for a container and its properties."""
+        Returns:
+            Tuple[str, int]: (formatted_string, end_position)
+        """
+        indent = "  " * indent_level
         container_name = container.get('name', 'container')
         
         # Set the DSL path on the container for SVG generation
         container['_dsl_path'] = container_path
         
-        # Find container range using unique identification
-        container_range = self._find_container_range_new(formatted_dsl, container, container_name)
-        if container_range:
-            self.track_component(container_path, container_range)
-            
-            # Extract container content and build property ranges
-            container_start, container_end = container_range
-            container_content = formatted_dsl[container_start:container_end]
-            self._build_property_ranges(container_content, container_start, container, container_path)
-    
-    def _find_container_range_new(self, formatted_dsl: str, container: Dict[str, Any], container_name: str) -> Optional[Tuple[int, int]]:
-        """Find container range using unique properties for identification."""
-        # Use unique properties for identification
-        container_name_prop = container.get('container_name')
-        entity_quantity = container.get('item', {}).get('entity_quantity') if 'item' in container else container.get('entity_quantity')
+        # Container starts at current position + indent
+        container_start = current_pos + len(indent)
         
-        if container_name_prop and entity_quantity is not None:
-            # Build pattern for unique identification
-            pattern = rf'{re.escape(container_name)}\[[^]]*container_name:\s*{re.escape(str(container_name_prop))}[^]]*entity_quantity:\s*{re.escape(str(entity_quantity))}[^]]*\]'
-            match = re.search(pattern, formatted_dsl, re.DOTALL)
-            if match:
-                return (match.start(), match.end())
+        # Build container opening
+        container_opening = f"{indent}{container_name}["
+        pos = current_pos + len(container_opening) + 1  # +1 for newline
         
-        # Fallback: find by container name pattern
-        pattern = rf'{re.escape(container_name)}\[[^]]*\]'
-        matches = list(re.finditer(pattern, formatted_dsl, re.DOTALL))
-        if matches:
-            return (matches[0].start(), matches[0].end())
-        
-        return None
-    
-    def _build_property_ranges(self, container_content: str, container_start: int, container: Dict[str, Any], container_path: str) -> None:
-        """Build ranges for individual properties within a container."""
+        # Format properties and track their ranges
+        properties = []
         property_order = [
             'entity_name', 'entity_type', 'entity_quantity',
             'container_name', 'container_type', 'attr_name', 'attr_type'
@@ -374,22 +362,43 @@ class BaseVisualGenerator(ABC):
                 value = container['item'][prop]
             
             if value is not None:
-                # Format value the same way as in formatting
+                # Format value properly (remove .0 for integers)
                 if isinstance(value, float) and value.is_integer():
                     formatted_value = int(value)
                 else:
                     formatted_value = value
                 
-                # Find property in container content
-                pattern = rf'{re.escape(prop)}:\s*{re.escape(str(formatted_value))}\b'
-                match = re.search(pattern, container_content)
+                # Build property line
+                property_line = f"{indent}  {prop}: {formatted_value}"
+                properties.append(property_line)
                 
-                if match:
-                    prop_start = container_start + match.start()
-                    prop_end = container_start + match.end()
-                    property_path = f"{container_path}/{prop}"
-                    # Store the formatted property value for frontend usage
-                    self.track_component(property_path, (prop_start, prop_end), formatted_value)
+                # Calculate property range
+                prop_start = pos + len(f"{indent}  ")
+                prop_end = prop_start + len(f"{prop}: {formatted_value}")
+                
+                # Track this property
+                property_path = f"{container_path}/{prop}"
+                self.track_component(property_path, (prop_start, prop_end), formatted_value)
+                print(f"DEBUG: Tracked property {property_path} at range ({prop_start}, {prop_end}) with value '{formatted_value}'")
+                
+                # Update position for next property
+                pos += len(property_line) + 2  # +2 for ",\n"
+        
+        # Build the complete container
+        if not properties:
+            formatted = f"{indent}{container_name}[]"
+            container_end = container_start + len(f"{container_name}[]")
+            final_pos = current_pos + len(formatted)
+        else:
+            properties_str = ",\n".join(properties)
+            formatted = f"{indent}{container_name}[\n{properties_str}\n{indent}]"
+            container_end = current_pos + len(formatted) - 1  # -1 for closing bracket position
+            final_pos = current_pos + len(formatted)
+        
+        # Track the container range
+        self.track_component(container_path, (container_start, container_end))
+        
+        return formatted, final_pos
     
     def _format_dsl_recursive(self, node: Dict[str, Any], indent_level: int = 0) -> str:
         """Recursively format DSL nodes with clean logic."""
