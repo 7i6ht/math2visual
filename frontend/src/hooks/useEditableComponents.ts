@@ -42,22 +42,22 @@ export const useEditableComponents = ({
   }, [mwpValue, componentMappings]);
   
   const handleComponentUpdate = useCallback((
-    componentId: string,
+    dslPath: string,
     updates: Record<string, any>
   ) => {
     try {
-      // Get component path from mappings
-      const componentData = componentMappings[componentId];
+      // Get component data from mappings
+      const componentData = componentMappings[dslPath];
       if (!componentData) {
         throw new Error('Component data not found');
       }
       
-      const componentPath = componentData.dsl_path;
+      const componentPath = dslPath;
       
       // Update DSL
       const updatedDSL = DSLUpdater.updateComponentInDSL(
         dslValue,
-        componentId,
+        dslPath,
         componentPath,
         updates
       );
@@ -71,7 +71,7 @@ export const useEditableComponents = ({
       // Update MWP
       const updatedMWP = MWPUpdater.updateMWPText(
         mwpValue,
-        componentId,
+        dslPath,
         updates,
         entityMappings,
         componentMappings
@@ -83,17 +83,17 @@ export const useEditableComponents = ({
       
       // Update component mappings with new values
       const updatedMappings = { ...componentMappings };
-      if (updatedMappings[componentId]) {
+      if (updatedMappings[dslPath]) {
         // Deep merge the updates
         if (updates.item) {
-          updatedMappings[componentId].properties.item = {
-            ...updatedMappings[componentId].properties.item,
+          updatedMappings[dslPath].properties.item = {
+            ...updatedMappings[dslPath].properties.item,
             ...updates.item
           };
         }
         Object.entries(updates).forEach(([key, value]) => {
           if (key !== 'item') {
-            updatedMappings[componentId].properties[key] = value;
+            updatedMappings[dslPath].properties[key] = value;
           }
         });
       }
@@ -115,12 +115,12 @@ export const useEditableComponents = ({
   }, [dslValue, mwpValue, entityMappings, componentMappings, onUpdate]);
   
   const openEditPanel = useCallback((
-    componentId: string,
+    dslPath: string,
     clickPosition: { x: number; y: number }
   ) => {
-    const componentData = componentMappings[componentId];
+    const componentData = componentMappings[dslPath];
     if (componentData) {
-      setEditingComponent(componentId);
+      setEditingComponent(dslPath);
       setComponentProperties(componentData.properties);
       setEditPosition(clickPosition);
     }
@@ -134,8 +134,8 @@ export const useEditableComponents = ({
   // Listen for edit panel events
   useEffect(() => {
     const handleShowEditPanel = (event: CustomEvent) => {
-      const { componentId, position } = event.detail;
-      openEditPanel(componentId, position);
+      const { dslPath, position } = event.detail;
+      openEditPanel(dslPath, position);
     };
     
     window.addEventListener('show-edit-panel', handleShowEditPanel as EventListener);
@@ -155,12 +155,12 @@ export const useEditableComponents = ({
   }, []);
   
   // Get highlighted ranges for DSL - now using backend-provided ranges
-  const getDSLHighlightRanges = useCallback((hoveredComponentId: string | null): Array<[number, number]> => {
-    if (!hoveredComponentId || !componentMappings[hoveredComponentId]) {
+  const getDSLHighlightRanges = useCallback((hoveredDslPath: string | null): Array<[number, number]> => {
+    if (!hoveredDslPath || !componentMappings[hoveredDslPath]) {
       return [];
     }
     
-    const componentData = componentMappings[hoveredComponentId];
+    const componentData = componentMappings[hoveredDslPath];
     const range = componentData.dsl_range;
     
     if (range && range.length === 2) {
@@ -171,12 +171,12 @@ export const useEditableComponents = ({
   }, [componentMappings]);
   
   // Get highlighted ranges for MWP
-  const getMWPHighlightRanges = useCallback((hoveredComponentId: string | null): Array<[number, number]> => {
-    if (!hoveredComponentId) {
+  const getMWPHighlightRanges = useCallback((hoveredDslPath: string | null): Array<[number, number]> => {
+    if (!hoveredDslPath) {
       return [];
     }
     
-    const relevantMappings = entityMappings.filter(m => m.componentId === hoveredComponentId);
+    const relevantMappings = entityMappings.filter(m => m.componentId === hoveredDslPath);
     return relevantMappings.map(m => [m.startPos, m.endPos]);
   }, [entityMappings]);
   

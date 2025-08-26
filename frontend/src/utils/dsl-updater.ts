@@ -4,7 +4,7 @@ export class DSLUpdater {
    */
   static updateComponentInDSL(
     dslText: string,
-    _componentId: string,  // Reserved for future use
+    _dslPath: string,  // Reserved for future use
     componentPath: string,
     updates: Record<string, any>
   ): string {

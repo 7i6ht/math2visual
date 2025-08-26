@@ -67,7 +67,7 @@ def generate():
     
     # Parse DSL once for both generators
     try:
-        parsed_data = formal_generator.parse_dsl_with_ranges(dsl)
+        parsed_data = formal_generator.parse_dsl(dsl)
     except (ValueError, ValidationError) as e:
         return jsonify({"error": f"DSL parse error: {e}"}), 500
     

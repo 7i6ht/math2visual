@@ -456,16 +456,25 @@ class FormalVisualGenerator(BaseVisualGenerator):
             self._draw_multiplier_text(entity, svg_root, x, w, q)
             return
         
-        # Use component ID from parsing (already tracked centrally)
-        component_id = entity.get('_component_id')
+        # Use dsl_path as component ID (hierarchical path)
+        entity_dsl_path = entity.get('_dsl_path', dsl_path)
         
         # Draw entity box with metadata
-        rect_elem = etree.SubElement(svg_root, "rect", x=str(x), y=str(box_y),
-                        width=str(w), height=str(h), stroke="black", fill="none")
-        rect_elem.set('data-component-id', component_id)
-        rect_elem.set('data-dsl-path', dsl_path)
-        rect_elem.set('data-entity-type', t)
-        rect_elem.set('class', 'interactive-component')
+        # Ensure the box can receive pointer events even when fill is none or when
+        # other SVG elements overlap in z-order. This makes hover highlighting
+        # via frontend listeners reliable on the rectangle border and area.
+        rect_elem = etree.SubElement(
+            svg_root,
+            "rect",
+            x=str(x),
+            y=str(box_y),
+            width=str(w),
+            height=str(h),
+            stroke="black",
+            fill="none",
+            style="pointer-events: all; cursor: pointer;",
+        )
+        rect_elem.set('data-dsl-path', entity_dsl_path)
         
         # Draw brackets if needed
         self._draw_brackets(entity, svg_root, x, w, box_y, h)
@@ -492,8 +501,15 @@ class FormalVisualGenerator(BaseVisualGenerator):
         text_y = 200  # Placeholder - would need proper calculation
         
         text_element = etree.SubElement(svg_root, "text", x=str(text_x), y=str(text_y),
-                                       style="font-size: 50px; pointer-events: none;", dominant_baseline="middle")
+                                       style="font-size: 50px; pointer-events: auto;", dominant_baseline="middle")
         text_element.text = q_str
+        
+        # Add component metadata for quantity text
+        entity_dsl_path = entity.get('_dsl_path', '')
+        if entity_dsl_path:
+            quantity_dsl_path = f"{entity_dsl_path}/entity_quantity"
+            text_element.set('data-dsl-path', quantity_dsl_path)
+        
         self.svg_embedder.update_max_dimensions(text_x + len(q_str)*30, text_y + 50)
     
     def _draw_brackets(self, entity: Dict[str, Any], svg_root: etree.Element, 
@@ -533,13 +549,19 @@ class FormalVisualGenerator(BaseVisualGenerator):
             width=self.constants["ITEM_SIZE"] * 4, height=self.constants["ITEM_SIZE"] * 4
         ))
         
-        # Add quantity text
+        # Add quantity text with component metadata
         font_size = "100px" if unittrans_unit and unittrans_value is not None else "45px"
         text_element = etree.SubElement(svg_root, "text", x=str(text_x), y=str(text_y),
-                                       style=f"font-size: {font_size}; fill: white; font-weight: bold; stroke: black; stroke-width: 2px; pointer-events: none;",
+                                       style=f"font-size: {font_size}; fill: white; font-weight: bold; stroke: black; stroke-width: 2px; pointer-events: auto;",
                                        dominant_baseline="middle")
         text_element.text = q_str
         
+        # Add component metadata for quantity text
+        entity_dsl_path = entity.get('_dsl_path', '')
+        if entity_dsl_path:
+            quantity_dsl_path = f"{entity_dsl_path}/entity_quantity"
+            text_element.set('data-dsl-path', quantity_dsl_path)
+
         # Add unit transformation circle if needed
         if unittrans_unit and unittrans_value is not None:
             self._draw_unit_transformation_circle(svg_root, x, svg_y, unittrans_value)

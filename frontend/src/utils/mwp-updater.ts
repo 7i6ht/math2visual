@@ -2,7 +2,7 @@ interface EntityMapping {
   text: string;
   startPos: number;
   endPos: number;
-  componentId: string;
+  componentId: string; // Note: This is actually a DSL path, keeping name for compatibility
   type: 'quantity' | 'name' | 'container';
   propertyKey: string;
 }
@@ -22,7 +22,7 @@ export class MWPUpdater {
     const nameMap: Map<string, string[]> = new Map();
     const containerMap: Map<string, string[]> = new Map();
     
-    Object.entries(componentMappings).forEach(([componentId, mapping]: [string, any]) => {
+    Object.entries(componentMappings).forEach(([dslPath, mapping]: [string, any]) => {
       const props = mapping.properties;
       
       // Extract quantity
@@ -32,7 +32,7 @@ export class MWPUpdater {
         if (!quantityMap.has(key)) {
           quantityMap.set(key, []);
         }
-        quantityMap.get(key)!.push(componentId);
+        quantityMap.get(key)!.push(dslPath);
       }
       
       // Extract entity name
@@ -42,7 +42,7 @@ export class MWPUpdater {
         if (!nameMap.has(key)) {
           nameMap.set(key, []);
         }
-        nameMap.get(key)!.push(componentId);
+        nameMap.get(key)!.push(dslPath);
       }
       
       // Extract container name
@@ -52,7 +52,7 @@ export class MWPUpdater {
         if (!containerMap.has(key)) {
           containerMap.set(key, []);
         }
-        containerMap.get(key)!.push(componentId);
+        containerMap.get(key)!.push(dslPath);
       }
     });
     
@@ -61,15 +61,15 @@ export class MWPUpdater {
     let match;
     while ((match = numberPattern.exec(mwpText)) !== null) {
       const number = match[1];
-      const componentIds = quantityMap.get(number);
+      const dslPaths = quantityMap.get(number);
       
-      if (componentIds && componentIds.length > 0) {
+      if (dslPaths && dslPaths.length > 0) {
         // Use the first matching component (could be enhanced with context analysis)
         mappings.push({
           text: number,
           startPos: match.index,
           endPos: match.index + number.length,
-          componentId: componentIds[0],
+          componentId: dslPaths[0],
           type: 'quantity',
           propertyKey: 'entity_quantity'
         });
@@ -77,7 +77,7 @@ export class MWPUpdater {
     }
     
     // Find entity names in the text (case-insensitive)
-    nameMap.forEach((componentIds, entityName) => {
+    nameMap.forEach((dslPaths, entityName) => {
       const regex = new RegExp(`\\b${this.escapeRegex(entityName)}s?\\b`, 'gi');
       let match;
       while ((match = regex.exec(mwpText)) !== null) {
@@ -86,7 +86,7 @@ export class MWPUpdater {
             text: match[0],
             startPos: match.index,
             endPos: match.index + match[0].length,
-            componentId: componentIds[0],
+            componentId: dslPaths[0],
             type: 'name',
             propertyKey: 'entity_name'
           });
@@ -95,7 +95,7 @@ export class MWPUpdater {
     });
     
     // Find container names in the text (case-insensitive)
-    containerMap.forEach((componentIds, containerName) => {
+    containerMap.forEach((dslPaths, containerName) => {
       const regex = new RegExp(`\\b${this.escapeRegex(containerName)}\\b`, 'gi');
       let match;
       while ((match = regex.exec(mwpText)) !== null) {
@@ -104,7 +104,7 @@ export class MWPUpdater {
             text: match[0],
             startPos: match.index,
             endPos: match.index + match[0].length,
-            componentId: componentIds[0],
+            componentId: dslPaths[0],
             type: 'container',
             propertyKey: 'container_name'
           });
@@ -123,7 +123,7 @@ export class MWPUpdater {
    */
   static updateMWPText(
     mwpText: string,
-    componentId: string,
+    dslPath: string,
     updates: Record<string, any>,
     entityMappings: EntityMapping[],
     componentMappings: Record<string, any> = {}
@@ -142,7 +142,7 @@ export class MWPUpdater {
     
     // Find all mappings for this component
     const relevantMappings = entityMappings
-      .filter(m => m.componentId === componentId)
+      .filter(m => m.componentId === dslPath)
       .sort((a, b) => b.startPos - a.startPos); // Sort in reverse to maintain positions
     
     let updatedText = mwpText;
@@ -157,8 +157,8 @@ export class MWPUpdater {
         if (mapping.type === 'name' && mapping.text.endsWith('s') && !newValue.endsWith('s')) {
           // Check if the original was plural
           const originalSingular = mapping.text.slice(0, -1);
-          if (originalSingular.toLowerCase() === componentMappings[componentId]?.properties?.item?.entity_name?.toLowerCase() ||
-              originalSingular.toLowerCase() === componentMappings[componentId]?.properties?.entity_name?.toLowerCase()) {
+          if (originalSingular.toLowerCase() === componentMappings[dslPath]?.properties?.item?.entity_name?.toLowerCase() ||
+              originalSingular.toLowerCase() === componentMappings[dslPath]?.properties?.entity_name?.toLowerCase()) {
             replacementValue = newValue + 's';
           }
         }
@@ -213,12 +213,12 @@ export class MWPUpdater {
   static highlightMappings(
     mwpText: string,
     entityMappings: EntityMapping[],
-    componentId?: string
+    dslPath?: string
   ): { text: string; highlights: Array<[number, number]> } {
     const highlights: Array<[number, number]> = [];
     
-    const relevantMappings = componentId
-      ? entityMappings.filter(m => m.componentId === componentId)
+    const relevantMappings = dslPath
+      ? entityMappings.filter(m => m.componentId === dslPath)
       : entityMappings;
     
     relevantMappings.forEach(mapping => {
@@ -234,10 +234,10 @@ export class MWPUpdater {
   static generateChangeSummary(
     updates: Record<string, any>,
     entityMappings: EntityMapping[],
-    componentId: string
+    dslPath: string
   ): string[] {
     const changes: string[] = [];
-    const relevantMappings = entityMappings.filter(m => m.componentId === componentId);
+    const relevantMappings = entityMappings.filter(m => m.componentId === dslPath);
     
     // Flatten updates
     const flatUpdates: Record<string, any> = {};

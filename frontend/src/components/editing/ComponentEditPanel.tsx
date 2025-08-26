@@ -6,15 +6,15 @@ import { Label } from '@/components/ui/label';
 import { X, Check } from 'lucide-react';
 
 interface ComponentEditPanelProps {
-  componentId: string;
+  dslPath: string;
   properties: Record<string, any>;
   position: { x: number; y: number };
-  onUpdate: (componentId: string, updates: Record<string, any>) => void;
+  onUpdate: (dslPath: string, updates: Record<string, any>) => void;
   onClose: () => void;
 }
 
 export const ComponentEditPanel = ({
-  componentId,
+  dslPath,
   properties,
   position,
   onUpdate,
@@ -43,7 +43,7 @@ export const ComponentEditPanel = ({
       }
     });
     setEditedValues(initialValues);
-  }, [componentId]);
+  }, [dslPath]);
   
   // Define which fields are editable
   const editableFields = [
@@ -76,7 +76,7 @@ export const ComponentEditPanel = ({
     });
     
     if (Object.keys(changes).length > 0) {
-      onUpdate(componentId, changes);
+      onUpdate(dslPath, changes);
     }
     onClose();
   };

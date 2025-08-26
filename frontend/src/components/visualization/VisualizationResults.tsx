@@ -25,8 +25,8 @@ interface VisualizationResultsProps {
   };
   dslValue?: string;
   mwpValue?: string;
-  onDSLRangeHighlight?: (range: [number, number]) => void;
-  onMWPRangeHighlight?: (range: [number, number]) => void;
+  onDSLRangeHighlight?: (ranges: Array<[number, number]>) => void;
+  onMWPRangeHighlight?: (ranges: Array<[number, number]>) => void;
   onComponentUpdate?: (dsl: string, mwp: string) => void;
   onRegenerateAfterUpload?: (toastId: string | undefined) => Promise<void>;
   onAllFilesUploaded?: () => void;
@@ -60,9 +60,7 @@ export const VisualizationResults = ({
     componentProperties,
     handleComponentUpdate,
     openEditPanel,
-    closeEditPanel,
-    getDSLHighlightRanges: _getDSLHighlightRanges,
-    getMWPHighlightRanges: _getMWPHighlightRanges,
+    closeEditPanel
   } = useEditableComponents({
     initialDSL: dslValue,
     initialMWP: mwpValue,
@@ -186,10 +184,17 @@ export const VisualizationResults = ({
 
   // Apply responsive styling when SVG content changes
   useEffect(() => {
+    // Inject SVG once per change to preserve event listeners between hovers
+    if (formalRef.current && typeof svgFormal === 'string') {
+      formalRef.current.innerHTML = svgFormal;
+    }
     makeResponsive(formalRef.current);
   }, [svgFormal]);
 
   useEffect(() => {
+    if (intuitiveRef.current && typeof svgIntuitive === 'string') {
+      intuitiveRef.current.innerHTML = svgIntuitive;
+    }
     makeResponsive(intuitiveRef.current);
   }, [svgIntuitive]);
 
@@ -248,7 +253,7 @@ export const VisualizationResults = ({
               <div className="w-full">
                 <div className="rounded-lg border border-border/50 hover:border-border transition-colors w-full">
                   <div className="p-4 bg-background w-full">
-                    <div ref={formalRef} className="w-full" dangerouslySetInnerHTML={{ __html: svgFormal ?? '' }} />
+                    <div ref={formalRef} className="w-full" />
                   </div>
                 </div>
               </div>
@@ -277,7 +282,7 @@ export const VisualizationResults = ({
               <div className="w-full">
                 <div className="rounded-lg border border-border/50 hover:border-border transition-colors w-full">
                   <div className="p-4 bg-background w-full">
-                    <div ref={intuitiveRef} className="w-full" dangerouslySetInnerHTML={{ __html: svgIntuitive ?? '' }} />
+                    <div ref={intuitiveRef} className="w-full" />
                   </div>
                 </div>
               </div>
@@ -308,7 +313,7 @@ export const VisualizationResults = ({
       {/* Edit Panel */}
       {editingComponent && componentProperties && (
         <ComponentEditPanel
-          componentId={editingComponent}
+          dslPath={editingComponent}
           properties={componentProperties}
           position={editPosition}
           onUpdate={handleComponentUpdate}

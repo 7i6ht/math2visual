@@ -606,16 +606,20 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
             self._draw_multiplier_text(container, svg_root, x, y, w, q)
             return
         
-        # Use component ID from parsing (already tracked centrally)
-        component_id = container.get('_component_id')
-        
         # Draw container box with metadata
-        rect_elem = etree.SubElement(svg_root, "rect", x=str(x), y=str(box_y),
-                        width=str(w), height=str(h), stroke="black", fill="none")
-        rect_elem.set('data-component-id', component_id)
+        # Make sure the rectangle is interactive for hover/click events even with fill="none"
+        rect_elem = etree.SubElement(
+            svg_root,
+            "rect",
+            x=str(x),
+            y=str(box_y),
+            width=str(w),
+            height=str(h),
+            stroke="black",
+            fill="none",
+            style="pointer-events: all; cursor: pointer;",
+        )
         rect_elem.set('data-dsl-path', dsl_path)
-        rect_elem.set('data-entity-type', t)
-        rect_elem.set('class', 'interactive-component')
         
         # Update max dimensions
         self.svg_embedder.update_max_dimensions(x + w, y + h)
@@ -638,8 +642,15 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
         text_y = y + 100  # Simplified positioning
         
         text_element = etree.SubElement(svg_root, "text", x=str(text_x), y=str(text_y),
-                                       style="font-size: 50px; pointer-events: none;", dominant_baseline="middle")
+                                       style="font-size: 50px; pointer-events: auto;", dominant_baseline="middle")
         text_element.text = q_str
+        
+        # Add component metadata for quantity text
+        container_dsl_path = container.get('_dsl_path', '')
+        if container_dsl_path:
+            quantity_dsl_path = f"{container_dsl_path}/entity_quantity"
+            text_element.set('data-dsl-path', quantity_dsl_path)
+        
         self.svg_embedder.update_max_dimensions(text_x + len(q_str)*30, text_y + 50)
     
     def _draw_large_container(self, container: Dict[str, Any], svg_root: etree.Element, 
@@ -663,12 +674,18 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
             width=self.constants["ITEM_SIZE"] * 4, height=self.constants["ITEM_SIZE"] * 4
         ))
         
-        # Add quantity text
+        # Add quantity text with component metadata
         font_size = "100px" if unittrans_unit and unittrans_value else "45px"
         text_element = etree.SubElement(svg_root, "text", x=str(text_x), y=str(text_y),
-                                       style=f"font-size: {font_size}; fill: white; font-weight: bold; stroke: black; stroke-width: 2px; pointer-events: none;",
+                                       style=f"font-size: {font_size}; fill: white; font-weight: bold; stroke: black; stroke-width: 2px; pointer-events: auto;",
                                        dominant_baseline="middle")
         text_element.text = q_str
+        
+        # Add component metadata for quantity text
+        container_dsl_path = container.get('_dsl_path', '')
+        if container_dsl_path:
+            quantity_dsl_path = f"{container_dsl_path}/entity_quantity"
+            text_element.set('data-dsl-path', quantity_dsl_path)
         
         # Add unit transformation circle if needed
         if unittrans_unit and unittrans_value:
