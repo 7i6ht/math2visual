@@ -64,9 +64,9 @@ export const useVisualInteraction = ({
         });
       };
 
-      // Helper function to trigger highlighting for a component
-      const triggerHighlight = (dslPath: string, highlightType: 'box' | 'text') => {
-        console.log(`🎯 triggerHighlight called: ${dslPath}, type: ${highlightType}`);
+      // Helper function to trigger highlighting for box components
+      const triggerBoxHighlight = (dslPath: string) => {
+        console.log(`🔲 triggerBoxHighlight called: ${dslPath}`);
         setHoveredComponent(dslPath);
 
         const mapping = componentMappings[dslPath];
@@ -75,88 +75,103 @@ export const useVisualInteraction = ({
           // Clear previous highlights
           clearVisualHighlights();
 
-          if (highlightType === 'box') {
-            // Highlight the box element
-            const targetBox = svgRef.current?.querySelector(`[data-dsl-path="${dslPath}"]:not(text)`) as SVGElement;
-            if (targetBox) {
-              targetBox.style.stroke = '#3b82f6';
-              targetBox.style.strokeWidth = '3';
-              targetBox.style.filter = 'drop-shadow(0 0 3px rgba(59, 130, 246, 0.5))';
-            }
-          } else if (highlightType === 'text') {
-            // Highlight the quantity text
-            const quantityPath = `${dslPath}/entity_quantity`;
-            const quantityTextEl = svgRef.current?.querySelector(`text[data-dsl-path="${quantityPath}"]`) as SVGElement;
-            if (quantityTextEl) {
-              quantityTextEl.style.fill = '#3b82f6';
-              quantityTextEl.style.fontWeight = 'bold';
-              quantityTextEl.style.filter = 'drop-shadow(0 0 2px rgba(59, 130, 246, 0.8))';
-            }
+          // Highlight the box element
+          const targetBox = svgRef.current?.querySelector(`[data-dsl-path="${dslPath}"]:not(text)`) as SVGElement;
+          if (targetBox) {
+            targetBox.style.stroke = '#3b82f6';
+            targetBox.style.strokeWidth = '3';
+            targetBox.style.filter = 'drop-shadow(0 0 3px rgba(59, 130, 246, 0.5))';
           }
 
           // Highlight in DSL editor using hierarchical mapping
           if (onDSLRangeHighlight) {
-            // Use entity range for both text and box hover
-            console.log(`${highlightType === 'text' ? '📝 TEXT' : '🔲 BOX'} hover - using entity range:`, mapping.dsl_range);
+            console.log('🔲 BOX hover - using entity range:', mapping.dsl_range);
             setTimeout(() => onDSLRangeHighlight(mapping.dsl_range ? [mapping.dsl_range] : []), 0);
           }
 
           // MWP highlighting using new component system with property values
+          // For box hover: highlight the entire sentence using stored property values
           if (onMWPRangeHighlight) {
-            if (highlightType === 'text') {
-              // For text hover: highlight only the number using stored property value
-              const quantityPath = `${dslPath}/entity_quantity`;
-              const quantityMapping = componentMappings[quantityPath];
-              const quantity = quantityMapping?.property_value;
-              
-              if (quantity && mwpValue) {
-                const regex = new RegExp(`\\b${quantity}\\b`);
-                const match = regex.exec(mwpValue);
-                if (match) {
-                  setTimeout(() => onMWPRangeHighlight([[match.index, match.index + match[0].length]]), 0);
-                } else {
-                  setTimeout(() => onMWPRangeHighlight([]), 0);
+            const containerNamePath = `${dslPath}/container_name`;
+            const entityNamePath = `${dslPath}/entity_name`;
+            const quantityPath = `${dslPath}/entity_quantity`;
+            
+            const containerName = componentMappings[containerNamePath]?.property_value;
+            const entityName = componentMappings[entityNamePath]?.property_value;
+            const quantity = componentMappings[quantityPath]?.property_value;
+
+            console.log('Box hover - looking for sentence with:', { containerName, entityName, quantity });
+
+            if (containerName && mwpValue) {
+              // Try to find the sentence containing this container's information
+              // Look for pattern: "ContainerName [verb] quantity entityName"
+              const sentencePatterns = [
+                // "Faye picked 88 colorful flowers."
+                new RegExp(`([^.!?]*${containerName}[^.!?]*${quantity}[^.!?]*${entityName}[^.!?]*[.!?])`, 'i'),
+                // "Faye picked 88 flowers."
+                new RegExp(`([^.!?]*${containerName}[^.!?]*${quantity}[^.!?]*[.!?])`, 'i'),
+                // Fallback: just the container name sentence
+                new RegExp(`([^.!?]*${containerName}[^.!?]*[.!?])`, 'i')
+              ];
+
+              for (const pattern of sentencePatterns) {
+                const sentenceMatch = pattern.exec(mwpValue);
+                if (sentenceMatch) {
+                  const sentenceStart = sentenceMatch.index;
+                  const sentenceEnd = sentenceStart + sentenceMatch[1].length;
+                  console.log('Found sentence match:', sentenceMatch[1], 'at range:', [sentenceStart, sentenceEnd]);
+                  setTimeout(() => onMWPRangeHighlight([[sentenceStart, sentenceEnd]]), 0);
+                  return; // Exit early when match found
                 }
+              }
+            }
+            
+            // If no match found, clear highlights
+            setTimeout(() => onMWPRangeHighlight([]), 0);
+          }
+        }
+      };
+
+      // Helper function to trigger highlighting for text components
+      const triggerTextHighlight = (dslPath: string) => {
+        console.log(`📝 triggerTextHighlight called: ${dslPath}`);
+        setHoveredComponent(dslPath);
+
+        const mapping = componentMappings[dslPath];
+        console.log('Mapping for component:', dslPath, mapping);
+        if (mapping) {
+          // Clear previous highlights
+          clearVisualHighlights();
+
+          // Highlight the quantity text
+          const quantityTextEl = svgRef.current?.querySelector(`text[data-dsl-path="${dslPath}"]`) as SVGElement;
+          if (quantityTextEl) {
+            quantityTextEl.style.fill = '#3b82f6';
+            quantityTextEl.style.fontWeight = 'bold';
+            quantityTextEl.style.filter = 'drop-shadow(0 0 2px rgba(59, 130, 246, 0.8))';
+          }
+
+          // Highlight in DSL editor using hierarchical mapping
+          if (onDSLRangeHighlight) {
+            console.log('📝 TEXT hover - using entity range:', mapping.dsl_range);
+            setTimeout(() => onDSLRangeHighlight(mapping.dsl_range ? [mapping.dsl_range] : []), 0);
+          }
+
+          // MWP highlighting using new component system with property values
+          // For text hover: highlight only the number using stored property value
+          if (onMWPRangeHighlight) {
+            const quantityMapping = componentMappings[dslPath];
+            const quantity = quantityMapping?.property_value;
+            
+            if (quantity && mwpValue) {
+              const regex = new RegExp(`\\b${quantity}\\b`);
+              const match = regex.exec(mwpValue);
+              if (match) {
+                setTimeout(() => onMWPRangeHighlight([[match.index, match.index + match[0].length]]), 0);
               } else {
                 setTimeout(() => onMWPRangeHighlight([]), 0);
               }
             } else {
-              // For box hover: highlight the entire sentence using stored property values
-              const containerNamePath = `${dslPath}/container_name`;
-              const entityNamePath = `${dslPath}/entity_name`;
-              const quantityPath = `${dslPath}/entity_quantity`;
-              
-              const containerName = componentMappings[containerNamePath]?.property_value;
-              const entityName = componentMappings[entityNamePath]?.property_value;
-              const quantity = componentMappings[quantityPath]?.property_value;
-
-              console.log('Box hover - looking for sentence with:', { containerName, entityName, quantity });
-
-              if (containerName && mwpValue) {
-                // Try to find the sentence containing this container's information
-                // Look for pattern: "ContainerName [verb] quantity entityName"
-                const sentencePatterns = [
-                  // "Faye picked 88 colorful flowers."
-                  new RegExp(`([^.!?]*${containerName}[^.!?]*${quantity}[^.!?]*${entityName}[^.!?]*[.!?])`, 'i'),
-                  // "Faye picked 88 flowers."
-                  new RegExp(`([^.!?]*${containerName}[^.!?]*${quantity}[^.!?]*[.!?])`, 'i'),
-                  // Fallback: just the container name sentence
-                  new RegExp(`([^.!?]*${containerName}[^.!?]*[.!?])`, 'i')
-                ];
-
-                for (const pattern of sentencePatterns) {
-                  const sentenceMatch = pattern.exec(mwpValue);
-                  if (sentenceMatch) {
-                    const sentenceStart = sentenceMatch.index;
-                    const sentenceEnd = sentenceStart + sentenceMatch[1].length;
-                    console.log('Found sentence match:', sentenceMatch[1], 'at range:', [sentenceStart, sentenceEnd]);
-                    setTimeout(() => onMWPRangeHighlight([[sentenceStart, sentenceEnd]]), 0);
-                    return; // Exit early when match found
-                  }
-                }
-              }
-              
-              // If no match found, clear highlights
               setTimeout(() => onMWPRangeHighlight([]), 0);
             }
           }
@@ -200,7 +215,7 @@ export const useVisualInteraction = ({
           // Add event listeners
           svgElem.onmouseenter = () => {
             console.log(`📦 BOX MOUSEENTER: ${dslPath}`);
-            triggerHighlight(dslPath, 'box');
+            triggerBoxHighlight(dslPath);
           };
           svgElem.onmouseleave = clearHighlights;
           svgElem.onclick = () => {
@@ -233,7 +248,7 @@ export const useVisualInteraction = ({
           // Add event listeners using entity DSL path for mapping lookup
           (svgElem as any).onmouseenter = () => {
             console.log(`📝 TEXT MOUSEENTER: ${quantityDslPath} -> triggering for entity: ${entityDslPath}`);
-            triggerHighlight(entityDslPath, 'text');
+            triggerTextHighlight(quantityDslPath);
           };
           (svgElem as any).onmouseleave = clearHighlights;
           (svgElem as any).onclick = () => {
