@@ -84,7 +84,7 @@ export const useVisualInteraction = ({
           // Highlight in DSL editor using hierarchical mapping
           if (onDSLRangeHighlight) {
             console.log('🔲 BOX hover - using entity range:', mapping.dsl_range);
-            setTimeout(() => onDSLRangeHighlight(mapping.dsl_range ? [mapping.dsl_range] : []), 0);
+            onDSLRangeHighlight(mapping.dsl_range ? [mapping.dsl_range] : []);
           }
 
           // MWP highlighting using new component system with property values
@@ -118,14 +118,14 @@ export const useVisualInteraction = ({
                   const sentenceStart = sentenceMatch.index;
                   const sentenceEnd = sentenceStart + sentenceMatch[1].length;
                   console.log('Found sentence match:', sentenceMatch[1], 'at range:', [sentenceStart, sentenceEnd]);
-                  setTimeout(() => onMWPRangeHighlight([[sentenceStart, sentenceEnd]]), 0);
+                  onMWPRangeHighlight([[sentenceStart, sentenceEnd]]);
                   return; // Exit early when match found
                 }
               }
             }
             
             // If no match found, clear highlights
-            setTimeout(() => onMWPRangeHighlight([]), 0);
+            onMWPRangeHighlight([]);
           }
         }
       };
@@ -152,7 +152,7 @@ export const useVisualInteraction = ({
           // Highlight in DSL editor using hierarchical mapping
           if (onDSLRangeHighlight) {
             console.log('📝 TEXT hover - using entity range:', mapping.dsl_range);
-            setTimeout(() => onDSLRangeHighlight(mapping.dsl_range ? [mapping.dsl_range] : []), 0);
+            onDSLRangeHighlight(mapping.dsl_range ? [mapping.dsl_range] : []);
           }
 
           // MWP highlighting using new component system with property values
@@ -165,12 +165,12 @@ export const useVisualInteraction = ({
               const regex = new RegExp(`\\b${quantity}\\b`);
               const match = regex.exec(mwpValue);
               if (match) {
-                setTimeout(() => onMWPRangeHighlight([[match.index, match.index + match[0].length]]), 0);
+                onMWPRangeHighlight([[match.index, match.index + match[0].length]]);
               } else {
-                setTimeout(() => onMWPRangeHighlight([]), 0);
+                onMWPRangeHighlight([]);
               }
             } else {
-              setTimeout(() => onMWPRangeHighlight([]), 0);
+              onMWPRangeHighlight([]);
             }
           }
         }
@@ -183,10 +183,10 @@ export const useVisualInteraction = ({
 
         // Clear DSL and MWP highlights
         if (onDSLRangeHighlight) {
-          setTimeout(() => onDSLRangeHighlight([]), 0);
+          onDSLRangeHighlight([]);
         }
         if (onMWPRangeHighlight) {
-          setTimeout(() => onMWPRangeHighlight([]), 0);
+          onMWPRangeHighlight([]);
         }
       };
 
@@ -265,12 +265,10 @@ export const useVisualInteraction = ({
     }
   }, [svgRef, componentMappings, onDSLRangeHighlight, onMWPRangeHighlight, onComponentClick, mwpValue]);
 
-  // Setup interactions - simple approach, only when mappings change
+  // Setup interactions when mappings change
   useEffect(() => {
     if (Object.keys(componentMappings).length > 0 && svgRef.current) {
-      // Small delay to ensure SVG is fully rendered
-      const timeoutId = setTimeout(setupSVGInteractions, 100);
-      return () => clearTimeout(timeoutId);
+      setupSVGInteractions();
     }
   }, [componentMappings, setupSVGInteractions, svgRef]);
 

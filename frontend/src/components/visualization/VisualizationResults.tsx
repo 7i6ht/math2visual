@@ -6,7 +6,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { AlertCircle } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { SVGMissingError } from "@/components/errors/SVGMissingError";
 import { DownloadButton } from "@/components/visualization/DownloadButton";
 import { useVisualInteraction } from "@/hooks/useVisualInteraction";
@@ -20,8 +20,14 @@ interface VisualizationResultsProps {
   intuitiveError: string | null;
   missingSVGEntities?: string[];
   componentMappings?: {
-    formal: Record<string, any>;
-    intuitive: Record<string, any>;
+    formal: Record<string, {
+      dsl_range: [number, number];
+      property_value?: string;
+    }>;
+    intuitive: Record<string, {
+      dsl_range: [number, number];
+      property_value?: string;
+    }>;
   };
   dslValue?: string;
   mwpValue?: string;
@@ -52,6 +58,7 @@ export const VisualizationResults = ({
   const formalRef = useRef<HTMLDivElement | null>(null);
   const intuitiveRef = useRef<HTMLDivElement | null>(null);
   const [activeVisualizationType, setActiveVisualizationType] = useState<'formal' | 'intuitive'>('formal');
+  const [openAccordionItems, setOpenAccordionItems] = useState<string[]>(["formal"]);
   
   // Setup editable components
   const {
@@ -74,9 +81,9 @@ export const VisualizationResults = ({
   const {
     hoveredComponent: hoveredFormal,
     setComponentMappings: setFormalMappings,
+    setupSVGInteractions: setupFormalInteractions,
   } = useVisualInteraction({
     svgRef: formalRef,
-    dslValue,
     mwpValue,
     onDSLRangeHighlight,
     onMWPRangeHighlight,
@@ -87,9 +94,9 @@ export const VisualizationResults = ({
   const {
     hoveredComponent: hoveredIntuitive,
     setComponentMappings: setIntuitiveMappings,
+    setupSVGInteractions: setupIntuitiveInteractions,
   } = useVisualInteraction({
     svgRef: intuitiveRef,
-    dslValue,
     mwpValue,
     onDSLRangeHighlight,
     onMWPRangeHighlight,
@@ -111,7 +118,7 @@ export const VisualizationResults = ({
     return match ? Number(match[1]) : null;
   };
 
-  const makeResponsive = (root: HTMLDivElement | null) => {
+  const makeResponsive = useCallback((root: HTMLDivElement | null) => {
     if (!root) return;
     const svg = root.querySelector('svg');
     if (!svg) return;
@@ -140,7 +147,7 @@ export const VisualizationResults = ({
     }
 
     // Compute aspect ratio from viewBox (preferred) or width/height
-    let vb = svg.getAttribute('viewBox');
+    const vb = svg.getAttribute('viewBox');
     let vbW: number | null = null;
     let vbH: number | null = null;
     if (vb) {
@@ -174,12 +181,11 @@ export const VisualizationResults = ({
       svg.removeAttribute('width');
       (svg as unknown as HTMLElement).style.width = '100%';
     }
-  };
+  }, []);
 
   // Handle accordion state changes
-  const handleAccordionChange = (_value: string[]) => {
-    makeResponsive(formalRef.current);
-    makeResponsive(intuitiveRef.current);
+  const handleAccordionChange = (value: string[]) => {
+    setOpenAccordionItems(value);
   };
 
   // Apply responsive styling when SVG content changes
@@ -189,14 +195,14 @@ export const VisualizationResults = ({
       formalRef.current.innerHTML = svgFormal;
     }
     makeResponsive(formalRef.current);
-  }, [svgFormal]);
+  }, [svgFormal, makeResponsive]);
 
   useEffect(() => {
     if (intuitiveRef.current && typeof svgIntuitive === 'string') {
       intuitiveRef.current.innerHTML = svgIntuitive;
     }
     makeResponsive(intuitiveRef.current);
-  }, [svgIntuitive]);
+  }, [svgIntuitive, makeResponsive]);
 
   // Re-apply on window resize so clamping (viewport height calculation) stays accurate
   useEffect(() => {
@@ -206,7 +212,7 @@ export const VisualizationResults = ({
     };
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
-  }, []);
+  }, [makeResponsive]);
   
   // Update component mappings when they change
   useEffect(() => {
@@ -217,6 +223,33 @@ export const VisualizationResults = ({
       setIntuitiveMappings(componentMappings.intuitive);
     }
   }, [componentMappings, setFormalMappings, setIntuitiveMappings]);
+  
+  // Handle accordion visibility changes - use useEffect with proper dependencies
+  useEffect(() => {
+    // When formal accordion becomes visible and SVG content exists, ensure it's properly set up
+    if (openAccordionItems.includes("formal") && formalRef.current && typeof svgFormal === 'string') {
+      // Check if SVG content is missing and inject it
+      if (!formalRef.current.innerHTML.includes('<svg')) {
+        formalRef.current.innerHTML = svgFormal;
+        makeResponsive(formalRef.current);
+      }
+      // Always setup interactions when accordion is open
+      setupFormalInteractions();
+    }
+  }, [openAccordionItems, svgFormal, setupFormalInteractions, makeResponsive]);
+  
+  useEffect(() => {
+    // When intuitive accordion becomes visible and SVG content exists, ensure it's properly set up
+    if (openAccordionItems.includes("intuitive") && intuitiveRef.current && typeof svgIntuitive === 'string') {
+      // Check if SVG content is missing and inject it
+      if (!intuitiveRef.current.innerHTML.includes('<svg')) {
+        intuitiveRef.current.innerHTML = svgIntuitive;
+        makeResponsive(intuitiveRef.current);
+      }
+      // Always setup interactions when accordion is open
+      setupIntuitiveInteractions();
+    }
+  }, [openAccordionItems, svgIntuitive, setupIntuitiveInteractions, makeResponsive]);
   // Only show the results container if there's something to display
   if (!svgFormal && !formalError && !svgIntuitive && !intuitiveError && missingSVGEntities.length === 0) {
     return null;
