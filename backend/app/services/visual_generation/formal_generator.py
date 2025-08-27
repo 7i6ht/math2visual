@@ -55,9 +55,7 @@ class FormalVisualGenerator(BaseVisualGenerator):
         self._handle_container_name_conflicts(compare1_entities, compare1_result_entities)
         self._handle_container_name_conflicts(compare2_entities, compare2_result_entities)
         
-        # Convert operations to expected format
-        compare1_operations = [{"entity_type": op} for op in compare1_operations]
-        compare2_operations = [{"entity_type": op} for op in compare2_operations]
+        # Operations are already in the expected format with DSL paths
         
         return self._render_comparison(
             compare1_operations, compare1_entities, compare1_result_entities,
@@ -72,17 +70,17 @@ class FormalVisualGenerator(BaseVisualGenerator):
         # Update container types and handle conflicts
         entities, result_entities = self.update_container_types_optimized(entities, result_entities)
         self._handle_container_name_conflicts(entities, result_entities)
-        # Convert operations to expected format
-        operations = [{"entity_type": op} for op in operations]
+        # Operations are already in the expected format with DSL paths
         
         return self._render_regular_operation(operations, entities, svg_root, result_entities)
     
     def _extract_operations_and_entities(self, node: Dict[str, Any], 
-                                       operations: Optional[List[str]] = None,
+                                       operations: Optional[List[Dict[str, Any]]] = None,
                                        entities: Optional[List[Dict[str, Any]]] = None,
                                        result_entities: Optional[List[Dict[str, Any]]] = None,
                                        parent_op: Optional[str] = None,
-                                       parent_container_name: Optional[str] = None) -> Tuple[List[str], List[Dict[str, Any]], List[Dict[str, Any]]]:
+                                       parent_container_name: Optional[str] = None,
+                                       current_path: str = "") -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]], List[Dict[str, Any]]]:
         """Extract operations and entities from parsed data structure."""
         if operations is None:
             operations = []
@@ -120,20 +118,25 @@ class FormalVisualGenerator(BaseVisualGenerator):
         need_brackets = self._should_add_brackets(parent_op, op, container_name, parent_container_name)
         start_len = len(entities)
 
-        # Process left child
+        # Construct operation path for use in child paths (but don't record operation yet)
+        operation_path = f"{current_path}/operation" if current_path else "operation"
+
+        # Process left child (use operation_path for correct nested path)
         if "operation" in left_child:
+            left_path = f"{operation_path}/entities[0]"
             self._extract_operations_and_entities(
-                left_child, operations, entities, result_entities, op, container_name)
+                left_child, operations, entities, result_entities, op, container_name, left_path)
         else:
             entities.append(left_child)
 
-        # Record current operation
-        operations.append(op)
+        # Record current operation with DSL path (preserve original order)
+        operations.append({"entity_type": op, "_dsl_path": operation_path})
 
-        # Process right child
+        # Process right child (use operation_path for correct nested path)
         if "operation" in right_child:
+            right_path = f"{operation_path}/entities[1]"
             self._extract_operations_and_entities(
-                right_child, operations, entities, result_entities, op, container_name)
+                right_child, operations, entities, result_entities, op, container_name, right_path)
         else:
             entities.append(right_child)
 
@@ -624,7 +627,12 @@ class FormalVisualGenerator(BaseVisualGenerator):
                 fallback_type = operator_svg_mapping["default"]
                 operator_svg_path = os.path.join(self.resources_path, f"{fallback_type}.svg")
             
-            svg_root.append(self.svg_embedder.embed_svg(
+            # Create a group element to contain the operation and add interactivity
+            operation_group = etree.SubElement(svg_root, 'g')
+            operation_group.set('data-dsl-path', operator.get('_dsl_path', ''))
+            operation_group.set('style', 'pointer-events: all; cursor: pointer;')
+            
+            operation_group.append(self.svg_embedder.embed_svg(
                 operator_svg_path,
                 x=operator["planned_x"], y=operator["planned_y"],
                 width=self.constants["OPERATOR_SIZE"], height=self.constants["OPERATOR_SIZE"]

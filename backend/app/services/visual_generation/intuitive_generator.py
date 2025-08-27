@@ -59,9 +59,7 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
         self._handle_container_name_conflicts(compare1_containers, compare1_result_containers)
         self._handle_container_name_conflicts(compare2_containers, compare2_result_containers)
         
-        # Convert operations to expected format
-        compare1_operations = [{"entity_type": op} for op in compare1_operations]
-        compare2_operations = [{"entity_type": op} for op in compare2_operations]
+        # Operations are already in the expected format with DSL paths
         
         return self._render_comparison(
             compare1_operations, compare1_containers, compare1_result_containers,
@@ -81,7 +79,7 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
         if not operations:
             return False
             
-        operation_type = operations[0]
+        operation_type = operations[0]["entity_type"]
         
         if operation_type == "multiplication":
             return self._handle_multiplication(operations, containers, result_containers, svg_root)
@@ -96,11 +94,12 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
             return self._handle_tvq_final(operations, containers, result_containers, svg_root)
     
     def _extract_operations_and_containers(self, node: Dict[str, Any], 
-                                         operations: Optional[List[str]] = None,
+                                         operations: Optional[List[Dict[str, Any]]] = None,
                                          containers: Optional[List[Dict[str, Any]]] = None,
                                          result_containers: Optional[List[Dict[str, Any]]] = None,
                                          parent_op: Optional[str] = None,
-                                         parent_container_name: Optional[str] = None) -> Tuple[List[str], List[Dict[str, Any]], List[Dict[str, Any]]]:
+                                         parent_container_name: Optional[str] = None,
+                                         current_path: str = "") -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]], List[Dict[str, Any]]]:
         """Extract operations and containers from parsed data structure."""
         if operations is None:
             operations = []
@@ -138,20 +137,25 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
         need_brackets = self._should_add_brackets(parent_op, op, container_name, parent_container_name)
         start_len = len(containers)
 
-        # Process left child
+        # Construct operation path for use in child paths (but don't record operation yet)
+        operation_path = f"{current_path}/operation" if current_path else "operation"
+
+        # Process left child (use operation_path for correct nested path)
         if "operation" in left_child:
+            left_path = f"{operation_path}/entities[0]"
             self._extract_operations_and_containers(
-                left_child, operations, containers, result_containers, op, container_name)
+                left_child, operations, containers, result_containers, op, container_name, left_path)
         else:
             containers.append(left_child)
 
-        # Record current operation
-        operations.append(op)
+        # Record current operation with DSL path (preserve original order)
+        operations.append({"entity_type": op, "_dsl_path": operation_path})
 
-        # Process right child
+        # Process right child (use operation_path for correct nested path)
         if "operation" in right_child:
+            right_path = f"{operation_path}/entities[1]"
             self._extract_operations_and_containers(
-                right_child, operations, containers, result_containers, op, container_name)
+                right_child, operations, containers, result_containers, op, container_name, right_path)
         else:
             containers.append(right_child)
 
