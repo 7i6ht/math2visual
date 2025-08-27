@@ -48,6 +48,7 @@ export const useHighlighting = ({
         svgElem.style.filter = '';
         svgElem.style.transform = '';
         svgElem.style.transformOrigin = '';
+        svgElem.style.vectorEffect = '';
       } else if (isBoxElement(svgElem)) {
         // Clear box highlights (only for rectangles)
         svgElem.style.stroke = 'black';
@@ -248,11 +249,17 @@ export const useHighlighting = ({
       icon: '⚙️',
       label: 'Operation',
       applyVisualHighlight: () => {
-        const operationEl = svgRef.current?.querySelector(`g[data-dsl-path="${dslPath}"]`) as SVGElement;
+        const operationEl = svgRef.current?.querySelector(`g[data-dsl-path="${dslPath}"]`) as SVGGraphicsElement;
         if (operationEl) {
+          // Get the bounding box to calculate the actual center
+          const bbox = operationEl.getBBox();
+          const centerX = bbox.x + bbox.width / 2;
+          const centerY = bbox.y + bbox.height / 2;
+          
           operationEl.style.filter = 'drop-shadow(0 0 4px rgba(59, 130, 246, 0.8))';
           operationEl.style.transform = 'scale(1.1)';
-          operationEl.style.transformOrigin = 'center';
+          operationEl.style.transformOrigin = `${centerX}px ${centerY}px`;
+          operationEl.style.vectorEffect = 'non-scaling-stroke';
         }
       },
       applyMWPHighlight: () => {
