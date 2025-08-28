@@ -61,7 +61,7 @@ export const useVisualInteraction = ({
   }, [componentMappings, interactions, svgRef]);
 
   // ===== PUBLIC API =====
-  
+
   return {
     // Current state
     hoveredComponent,

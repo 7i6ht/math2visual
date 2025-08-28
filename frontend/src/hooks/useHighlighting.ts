@@ -1,8 +1,8 @@
 import { useCallback } from 'react';
 import type { ComponentMapping } from '../types/visualInteraction';
 import { numberToWord } from '../utils/numberUtils';
-import { isTextElement, isOperationElement, isBoxElement } from '../utils/elementUtils';
-import { createSentencePatterns, findSentencePosition, findQuantityInText, splitIntoSentences } from '../utils/mwpUtils';
+import { isTextElement, isOperationElement, isBoxElement, isEmbeddedSvgElement } from '../utils/elementUtils';
+import { createSentencePatterns, findSentencePosition, findQuantityInText, splitIntoSentences, scoreSentencesForEntity, findEntityNameInSentence, findAllEntityNameOccurrencesInText } from '../utils/mwpUtils';
 
 interface UseHighlightingProps {
   svgRef: React.RefObject<HTMLDivElement | null>;
@@ -54,6 +54,12 @@ export const useHighlighting = ({
         svgElem.style.stroke = 'black';
         svgElem.style.strokeWidth = '1';
         svgElem.style.filter = '';
+      } else if (isEmbeddedSvgElement(svgElem)) {
+        // Clear embedded SVG highlights
+        svgElem.style.filter = '';
+        svgElem.style.transform = '';
+        svgElem.style.transformOrigin = '';
+        svgElem.style.vectorEffect = '';
       }
     });
   }, [svgRef]);
@@ -77,33 +83,25 @@ export const useHighlighting = ({
    * Base function for triggering highlighting with common logic
    */
   const triggerHighlight = useCallback((
-    dslPath: string,
+    mapping: any | undefined,
     config: HighlightConfig
   ) => {
-    console.log(`${config.icon} trigger${config.label}Highlight called: ${dslPath}`);
+    // Clear previous highlights regardless of mapping
+    clearVisualHighlights();
 
-    const mapping = componentMappings[dslPath];
-    console.log(`Mapping for ${config.label.toLowerCase()}:`, dslPath, mapping);
-    
-    if (mapping) {
-      // Clear previous highlights
-      clearVisualHighlights();
+    // Apply specific visual highlighting
+    config.applyVisualHighlight(mapping);
 
-      // Apply specific visual highlighting
-      config.applyVisualHighlight(mapping);
-
-      // Highlight in DSL editor using mapping
-      if (onDSLRangeHighlight) {
-        console.log(`${config.icon} ${config.label} hover - using range:`, mapping.dsl_range);
-        onDSLRangeHighlight(mapping.dsl_range ? [mapping.dsl_range] : []);
-      }
-
-      // Apply MWP highlighting
-      if (onMWPRangeHighlight) {
-        config.applyMWPHighlight(mapping);
-      }
+    // Highlight in DSL editor using mapping (if provided)
+    if (onDSLRangeHighlight) {
+      onDSLRangeHighlight(mapping?.dsl_range ? [mapping.dsl_range] : []);
     }
-  }, [componentMappings, clearVisualHighlights, onDSLRangeHighlight, onMWPRangeHighlight]);
+
+    // Apply MWP highlighting
+    if (onMWPRangeHighlight) {
+      config.applyMWPHighlight(mapping);
+    }
+  }, [clearVisualHighlights, onDSLRangeHighlight, onMWPRangeHighlight]);
 
   /**
    * Find and highlight the sentence containing the second operand of an operation
@@ -111,9 +109,6 @@ export const useHighlighting = ({
   const highlightSecondOperandSentence = useCallback((operationDslPath: string) => {
     if (!mwpValue) return;
 
-    // Extract operation type from DSL path
-    const operationType = componentMappings[operationDslPath]?.property_value;
-    
     // Find the second operand's value by looking for sibling entities 
     const secondOperandPath = `${operationDslPath}/entities[1]`;
     
@@ -121,15 +116,11 @@ export const useHighlighting = ({
     const secondOperandQuantityPath = `${secondOperandPath}/entity_quantity`;
     const secondOperandQuantity = componentMappings[secondOperandQuantityPath]?.property_value;
     
-    console.log('Operation type:', operationType, 'Second operand quantity:', secondOperandQuantity);
-    
     if (secondOperandQuantity) {
       // Find sentence containing the second operand value using utility functions
       const sentences = splitIntoSentences(mwpValue);
       const numericQuantity = secondOperandQuantity.toString();
       const wordQuantity = numberToWord(parseInt(secondOperandQuantity.toString()));
-      
-      console.log('Searching for quantity in forms:', { numeric: numericQuantity, word: wordQuantity });
       
       for (let i = 0; i < sentences.length; i++) {
         const sentence = sentences[i].trim();
@@ -139,13 +130,10 @@ export const useHighlighting = ({
         const containsWord = sentence.toLowerCase().includes(wordQuantity.toLowerCase());
         
         if (containsNumeric || containsWord) {
-          console.log(`Found matching sentence (${containsNumeric ? 'numeric' : 'word'} form):`, sentence);
-          
           // Use utility function to find sentence position
           const position = findSentencePosition(mwpValue, sentences, i, sentence);
           if (position && onMWPRangeHighlight) {
             const [actualStart, actualEnd] = position;
-            console.log('Found second operand sentence:', sentence, 'at range:', [actualStart, actualEnd]);
             onMWPRangeHighlight([[actualStart, actualEnd]]);
             return;
           }
@@ -158,7 +146,8 @@ export const useHighlighting = ({
    * Trigger highlighting for box/container components
    */
   const triggerBoxHighlight = useCallback((dslPath: string) => {
-    triggerHighlight(dslPath, {
+    const mapping = componentMappings[dslPath];
+    triggerHighlight(mapping, {
       icon: '🔲',
       label: 'Box',
       applyVisualHighlight: () => {
@@ -178,8 +167,6 @@ export const useHighlighting = ({
         const entityName = componentMappings[entityNamePath]?.property_value;
         const quantity = componentMappings[quantityPath]?.property_value;
 
-        console.log('Box hover - looking for sentence with:', { containerName, entityName, quantity });
-
         if (containerName && mwpValue) {
           // Use utility function to create sentence patterns
           const sentencePatterns = createSentencePatterns(containerName, quantity, entityName);
@@ -190,8 +177,6 @@ export const useHighlighting = ({
             if (sentenceMatch) {
               const sentenceStart = sentenceMatch.index;
               const sentenceEnd = sentenceStart + sentenceMatch[1].length;
-              const patternType = i === 0 ? 'container+quantity+entity' : i === 1 ? 'container+quantity' : 'container-only';
-              console.log(`Found box sentence match (${patternType}):`, sentenceMatch[1], 'at range:', [sentenceStart, sentenceEnd]);
               onMWPRangeHighlight!([[sentenceStart, sentenceEnd]]);
               return;
             }
@@ -206,7 +191,8 @@ export const useHighlighting = ({
    * Trigger highlighting for text/quantity components
    */
   const triggerTextHighlight = useCallback((dslPath: string) => {
-    triggerHighlight(dslPath, {
+    const mapping = componentMappings[dslPath];
+    triggerHighlight(mapping, {
       icon: '📝',
       label: 'Text',
       applyVisualHighlight: () => {
@@ -221,17 +207,13 @@ export const useHighlighting = ({
         const quantity = mapping?.property_value;
         
         if (quantity && mwpValue) {
-          console.log('Text element - searching for quantity:', quantity);
-          
           // Use utility function to find quantity in text
           const position = findQuantityInText(mwpValue, quantity);
           
           if (position && onMWPRangeHighlight) {
             const [start, end] = position;
-            console.log(`Found text quantity at position [${start}, ${end}]`);
             onMWPRangeHighlight([[start, end]]);
           } else {
-            console.log(`Text quantity not found: ${quantity}`);
             onMWPRangeHighlight!([]);
           }
         } else {
@@ -239,13 +221,14 @@ export const useHighlighting = ({
         }
       }
     });
-  }, [triggerHighlight, svgRef, mwpValue, onMWPRangeHighlight]);
+  }, [triggerHighlight, svgRef, componentMappings, mwpValue, onMWPRangeHighlight]);
 
   /**
    * Trigger highlighting for operation components
    */
   const triggerOperationHighlight = useCallback((dslPath: string) => {
-    triggerHighlight(dslPath, {
+    const mapping = componentMappings[dslPath];
+    triggerHighlight(mapping, {
       icon: '⚙️',
       label: 'Operation',
       applyVisualHighlight: () => {
@@ -266,7 +249,95 @@ export const useHighlighting = ({
         highlightSecondOperandSentence(dslPath);
       }
     });
-  }, [triggerHighlight, svgRef, highlightSecondOperandSentence]);
+  }, [triggerHighlight, svgRef, componentMappings, highlightSecondOperandSentence]);
+
+  /**
+   * Handle MWP highlighting for embedded SVG elements
+   */
+  const handleEmbeddedSvgMWPHighlight = useCallback((dslPath: string) => {
+    // Get the component mappings for this entity
+    // Handle both indexed format (/entity_type[0]) and non-indexed format (/entity_type)
+    const entityPath = dslPath.replace(/\/entity_type(\[\d+\])?$/, '');
+    const entityNamePath = `${entityPath}/entity_name`;
+    const containerNamePath = `${entityPath}/container_name`;
+    const quantityPath = `${entityPath}/entity_quantity`;
+    
+    const entityNameMapping = componentMappings[entityNamePath];
+    const containerNameMapping = componentMappings[containerNamePath];
+    const quantityMapping = componentMappings[quantityPath];
+    
+    if (!entityNameMapping?.property_value || !containerNameMapping?.property_value || !quantityMapping?.property_value || !mwpValue) {
+      onMWPRangeHighlight?.([]);
+      return;
+    }
+    
+    const entityName = entityNameMapping.property_value;
+    const containerName = containerNameMapping.property_value;
+    const quantity = quantityMapping.property_value;
+    
+    // Split text into sentences and score them
+    const sentences = splitIntoSentences(mwpValue);
+    const sentenceScores = scoreSentencesForEntity(sentences, containerName, quantity);
+    
+    // Try to highlight entity_name in the best matching sentence
+    if (sentenceScores.length > 0) {
+      const bestMatch = sentenceScores[0];
+      const ranges = findEntityNameInSentence(
+        entityName, 
+        bestMatch.sentence, 
+        bestMatch.index, 
+        sentences, 
+        mwpValue
+      );
+      
+      if (ranges && ranges.length > 0) {
+        onMWPRangeHighlight!(ranges);
+        return;
+      }
+    }
+    
+    // Fallback: highlight all entity_name occurrences
+    const fallbackRanges = findAllEntityNameOccurrencesInText(entityName, mwpValue);
+    onMWPRangeHighlight!(fallbackRanges);
+  }, [componentMappings, mwpValue, onMWPRangeHighlight]);
+
+  /**
+   * Trigger highlighting for embedded SVG components (entity_type)
+   */
+  const triggerEmbeddedSvgHighlight = useCallback((dslPath: string) => {
+    // For embedded SVGs, get the appropriate mapping (indexed or non-indexed)
+    let mapping = componentMappings[dslPath];
+    if (!mapping && dslPath.includes('/entity_type[')) {
+      // Handle indexed paths - convert to base path
+      const basePath = dslPath.replace(/\/entity_type\[\d+\]$/, '/entity_type');
+      mapping = componentMappings[basePath];
+    }
+    
+    triggerHighlight(mapping, {
+      icon: '🖼️',
+      label: 'Embedded SVG',
+      applyVisualHighlight: () => {
+        // Use the indexed dslPath to find the specific SVG element
+        const embeddedSvgEl = svgRef.current?.querySelector(`svg[data-dsl-path="${dslPath}"]`) as SVGGraphicsElement;
+        if (embeddedSvgEl) {
+          // For embedded SVGs, use their position attributes to calculate center
+          const x = parseFloat(embeddedSvgEl.getAttribute('x') || '0');
+          const y = parseFloat(embeddedSvgEl.getAttribute('y') || '0');
+          const width = parseFloat(embeddedSvgEl.getAttribute('width') || '0');
+          const height = parseFloat(embeddedSvgEl.getAttribute('height') || '0');
+          
+          const centerX = x + width / 2;
+          const centerY = y + height / 2;
+          
+          embeddedSvgEl.style.filter = 'drop-shadow(0 0 6px rgba(59, 130, 246, 0.9))';
+          embeddedSvgEl.style.transform = 'scale(1.05)';
+          embeddedSvgEl.style.transformOrigin = `${centerX}px ${centerY}px`;
+          embeddedSvgEl.style.vectorEffect = 'non-scaling-stroke';
+        }
+      },
+      applyMWPHighlight: () => handleEmbeddedSvgMWPHighlight(dslPath)
+    });
+  }, [triggerHighlight, svgRef, componentMappings, handleEmbeddedSvgMWPHighlight]);
 
   return {
     clearVisualHighlights,
@@ -274,5 +345,6 @@ export const useHighlighting = ({
     triggerBoxHighlight,
     triggerTextHighlight,
     triggerOperationHighlight,
+    triggerEmbeddedSvgHighlight,
   };
 };

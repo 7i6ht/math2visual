@@ -34,6 +34,19 @@ export const isBoxElement = (el: Element): boolean => {
 };
 
 /**
+ * Check if an element is an embedded SVG element (entity_type)
+ * @param el - The element to check
+ * @returns true if the element is an embedded SVG element
+ */
+export const isEmbeddedSvgElement = (el: Element): boolean => {
+  const tag = el.tagName.toLowerCase();
+  if (tag !== 'svg') return false;
+  
+  const path = (el as SVGElement).getAttribute('data-dsl-path') || '';
+  return path.includes('/entity_type');
+};
+
+/**
  * Get the DSL path from an SVG element
  * @param el - The SVG element
  * @returns The DSL path or null if not found

@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { isTextElement, isOperationElement, isBoxElement, getDslPath, setCursorStyle } from '../utils/elementUtils';
+import { isTextElement, isOperationElement, isBoxElement, isEmbeddedSvgElement, getDslPath, setCursorStyle } from '../utils/elementUtils';
 
 interface UseElementInteractionsProps {
   svgRef: React.RefObject<HTMLDivElement | null>;
@@ -8,6 +8,7 @@ interface UseElementInteractionsProps {
     triggerBoxHighlight: (dslPath: string) => void;
     triggerTextHighlight: (dslPath: string) => void;
     triggerOperationHighlight: (dslPath: string) => void;
+    triggerEmbeddedSvgHighlight: (dslPath: string) => void;
   };
   onComponentClick?: (dslPath: string, clickPosition: { x: number; y: number }) => void;
   setHoveredComponent: (component: string | null) => void;
@@ -131,6 +132,19 @@ export const useElementInteractions = ({
   }, [setupElementListeners, triggerHighlight, highlighting]);
 
   /**
+   * Setup embedded SVG element interactions
+   */
+  const setupEmbeddedSvgElement = useCallback((svgElem: SVGElement, dslPath: string) => {
+    setupElementListeners(svgElem, dslPath, {
+      icon: '🖼️',
+      label: 'EMBEDDED SVG',
+      onMouseEnter: () => {
+        triggerHighlight(dslPath, () => highlighting.triggerEmbeddedSvgHighlight(dslPath));
+      }
+    });
+  }, [setupElementListeners, triggerHighlight, highlighting]);
+
+  /**
    * Setup interactions for all SVG elements with DSL paths
    */
   const setupSVGInteractions = useCallback(() => {
@@ -154,13 +168,16 @@ export const useElementInteractions = ({
         setupBoxElement(svgElem, dslPath);
       } else if (isTextElement(svgElem)) {
         setupTextElement(svgElem, dslPath);
+      } else if (isEmbeddedSvgElement(svgElem)) {
+        setupEmbeddedSvgElement(svgElem, dslPath);
       }
     });
   }, [
     svgRef,
     setupOperationElement,
     setupBoxElement,
-    setupTextElement
+    setupTextElement,
+    setupEmbeddedSvgElement
   ]);
 
   return {

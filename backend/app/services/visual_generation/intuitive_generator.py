@@ -671,12 +671,21 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
         text_y = y + self.constants["ITEM_PADDING"] + 2.4 * self.constants["ITEM_SIZE"]
         text_x = svg_x + self.constants["ITEM_SIZE"]
         
-        # Add item SVG
+        # Add item SVG with DSL path for interactivity
         item_svg_path = os.path.join(self.resources_path, f"{t}.svg")
-        svg_root.append(self.svg_embedder.embed_svg(
+        embedded_svg = self.svg_embedder.embed_svg(
             item_svg_path, x=svg_x, y=svg_y, 
             width=self.constants["ITEM_SIZE"] * 4, height=self.constants["ITEM_SIZE"] * 4
-        ))
+        )
+        
+        # Add DSL path metadata for entity_type highlighting
+        container_dsl_path = container.get('_dsl_path', '')
+        if container_dsl_path:
+            entity_type_dsl_path = f"{container_dsl_path}/entity_type"
+            embedded_svg.set('data-dsl-path', entity_type_dsl_path)
+            embedded_svg.set('style', 'pointer-events: all; cursor: pointer;')
+        
+        svg_root.append(embedded_svg)
         
         # Add quantity text with component metadata
         font_size = "100px" if unittrans_unit and unittrans_value else "45px"
@@ -714,11 +723,20 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
                 else:
                     item_y = y + self.constants["BOX_PADDING"] / 2 + row * (self.constants["ITEM_SIZE"] + self.constants["ITEM_PADDING"] + unit_trans_padding) + unit_trans_padding
                 
-                # Draw the item
-                svg_root.append(self.svg_embedder.embed_svg(
+                # Draw the item with DSL path for interactivity
+                embedded_svg = self.svg_embedder.embed_svg(
                     item_svg_path, x=item_x, y=item_y, 
                     width=self.constants["ITEM_SIZE"], height=self.constants["ITEM_SIZE"]
-                ))
+                )
+                
+                # Add DSL path metadata for entity_type highlighting
+                container_dsl_path = container.get('_dsl_path', '')
+                if container_dsl_path:
+                    entity_type_dsl_path = f"{container_dsl_path}/entity_type[{i}]"
+                    embedded_svg.set('data-dsl-path', entity_type_dsl_path)
+                    embedded_svg.set('style', 'pointer-events: all; cursor: pointer;')
+                
+                svg_root.append(embedded_svg)
                 
                 # Draw crosses for subtraction if applicable
                 self._draw_subtraction_crosses(container, svg_root, i, item_x, item_y, q, cols)
