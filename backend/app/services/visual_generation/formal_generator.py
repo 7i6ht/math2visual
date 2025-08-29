@@ -486,7 +486,7 @@ class FormalVisualGenerator(BaseVisualGenerator):
         
         # Embed top figures and text
         self.embed_top_figures_and_text(svg_root, x, box_y, w, container_type, 
-                                       container_name, attr_entity_type, attr_name)
+                                       container_name, attr_entity_type, attr_name, dsl_path)
         
         # Draw entity content
         if layout == "large":

@@ -1,8 +1,9 @@
 import { useCallback } from 'react';
 import type { ComponentMapping } from '../types/visualInteraction';
 import { numberToWord } from '../utils/numberUtils';
-import { isTextElement, isOperationElement, isBoxElement, isEmbeddedSvgElement } from '../utils/elementUtils';
+import { isTextElement, isOperationElement, isBoxElement, isEmbeddedSvgElement, isContainerTypeSvgElement } from '../utils/elementUtils';
 import { createSentencePatterns, findSentencePosition, findQuantityInText, splitIntoSentences, scoreSentencesForEntity, findEntityNameInSentence, findAllEntityNameOccurrencesInText } from '../utils/mwpUtils';
+import { HIGHLIGHT_COLORS, createDropShadow } from '../utils/colorConfig';
 
 interface UseHighlightingProps {
   svgRef: React.RefObject<HTMLDivElement | null>;
@@ -56,6 +57,12 @@ export const useHighlighting = ({
         svgElem.style.filter = '';
       } else if (isEmbeddedSvgElement(svgElem)) {
         // Clear embedded SVG highlights
+        svgElem.style.filter = '';
+        svgElem.style.transform = '';
+        svgElem.style.transformOrigin = '';
+        svgElem.style.vectorEffect = '';
+      } else if (isContainerTypeSvgElement(svgElem)) {
+        // Clear container type SVG highlights
         svgElem.style.filter = '';
         svgElem.style.transform = '';
         svgElem.style.transformOrigin = '';
@@ -155,7 +162,7 @@ export const useHighlighting = ({
         if (targetBox) {
           targetBox.style.stroke = '#3b82f6';
           targetBox.style.strokeWidth = '3';
-          targetBox.style.filter = 'drop-shadow(0 0 3px rgba(59, 130, 246, 0.5))';
+          targetBox.style.filter = createDropShadow(HIGHLIGHT_COLORS.BOX, 3);
         }
       },
       applyMWPHighlight: () => {
@@ -200,7 +207,7 @@ export const useHighlighting = ({
         if (quantityTextEl) {
           quantityTextEl.style.fill = '#3b82f6';
           quantityTextEl.style.fontWeight = 'bold';
-          quantityTextEl.style.filter = 'drop-shadow(0 0 2px rgba(59, 130, 246, 0.8))';
+          quantityTextEl.style.filter = createDropShadow(HIGHLIGHT_COLORS.TEXT, 2);
         }
       },
       applyMWPHighlight: (mapping) => {
@@ -239,7 +246,7 @@ export const useHighlighting = ({
           const centerX = bbox.x + bbox.width / 2;
           const centerY = bbox.y + bbox.height / 2;
           
-          operationEl.style.filter = 'drop-shadow(0 0 4px rgba(59, 130, 246, 0.8))';
+          operationEl.style.filter = createDropShadow(HIGHLIGHT_COLORS.OPERATION, 4);
           operationEl.style.transform = 'scale(1.1)';
           operationEl.style.transformOrigin = `${centerX}px ${centerY}px`;
           operationEl.style.vectorEffect = 'non-scaling-stroke';
@@ -250,6 +257,35 @@ export const useHighlighting = ({
       }
     });
   }, [triggerHighlight, svgRef, componentMappings, highlightSecondOperandSentence]);
+
+  /**
+   * Handle MWP highlighting for container_type elements
+   */
+  const handleContainerTypeMWPHighlight = useCallback((dslPath: string) => {
+    // Get the container name for highlighting
+    // Container_type paths are always non-indexed: /operation/entities[0]/container_type
+    const containerPath = dslPath.replace(/\/container_type$/, '');
+    const containerNamePath = `${containerPath}/container_name`;
+    
+    const containerNameMapping = componentMappings[containerNamePath];
+    
+    if (!containerNameMapping?.property_value || !mwpValue) {
+      onMWPRangeHighlight?.([]);
+      return;
+    }
+    
+    const containerName = containerNameMapping.property_value;
+    
+    // Find all occurrences of the container name using regex with word boundaries and plural support
+    const escapedName = containerName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // Escape regex special chars
+    const regex = new RegExp(`\\b${escapedName}s?\\b`, 'gi'); // Word boundaries, optional 's' for plural, case-insensitive
+    
+    // Functional approach: map matches to ranges
+    const ranges: Array<[number, number]> = Array.from(mwpValue.matchAll(regex))
+      .map(match => [match.index, match.index + match[0].length]);
+    
+    onMWPRangeHighlight!(ranges);
+  }, [componentMappings, mwpValue, onMWPRangeHighlight]);
 
   /**
    * Handle MWP highlighting for embedded SVG elements
@@ -329,7 +365,7 @@ export const useHighlighting = ({
           const centerX = x + width / 2;
           const centerY = y + height / 2;
           
-          embeddedSvgEl.style.filter = 'drop-shadow(0 0 6px rgba(59, 130, 246, 0.9))';
+          embeddedSvgEl.style.filter = createDropShadow(HIGHLIGHT_COLORS.SVG);
           embeddedSvgEl.style.transform = 'scale(1.05)';
           embeddedSvgEl.style.transformOrigin = `${centerX}px ${centerY}px`;
           embeddedSvgEl.style.vectorEffect = 'non-scaling-stroke';
@@ -339,6 +375,39 @@ export const useHighlighting = ({
     });
   }, [triggerHighlight, svgRef, componentMappings, handleEmbeddedSvgMWPHighlight]);
 
+  /**
+   * Trigger highlighting for container_type components (embedded SVGs on containers)
+   */
+  const triggerContainerTypeHighlight = useCallback((dslPath: string) => {
+    // Container_type paths are always non-indexed: /operation/entities[0]/container_type
+    const mapping = componentMappings[dslPath];
+    
+    triggerHighlight(mapping, {
+      icon: '🏷️',
+      label: 'Container Type',
+      applyVisualHighlight: () => {
+        // Use the dslPath to find the specific SVG element
+        const containerTypeSvgEl = svgRef.current?.querySelector(`svg[data-dsl-path="${dslPath}"]`) as SVGGraphicsElement;
+        if (containerTypeSvgEl) {
+          // For container type SVGs, use their position attributes to calculate center
+          const x = parseFloat(containerTypeSvgEl.getAttribute('x') || '0');
+          const y = parseFloat(containerTypeSvgEl.getAttribute('y') || '0');
+          const width = parseFloat(containerTypeSvgEl.getAttribute('width') || '0');
+          const height = parseFloat(containerTypeSvgEl.getAttribute('height') || '0');
+          
+          const centerX = x + width / 2;
+          const centerY = y + height / 2;
+          
+          containerTypeSvgEl.style.filter = createDropShadow(HIGHLIGHT_COLORS.SVG);
+          containerTypeSvgEl.style.transform = 'scale(1.05)';
+          containerTypeSvgEl.style.transformOrigin = `${centerX}px ${centerY}px`;
+          containerTypeSvgEl.style.vectorEffect = 'non-scaling-stroke';
+        }
+      },
+      applyMWPHighlight: () => handleContainerTypeMWPHighlight(dslPath)
+    });
+  }, [triggerHighlight, svgRef, componentMappings, handleContainerTypeMWPHighlight]);
+
   return {
     clearVisualHighlights,
     clearAllHighlights,
@@ -346,5 +415,6 @@ export const useHighlighting = ({
     triggerTextHighlight,
     triggerOperationHighlight,
     triggerEmbeddedSvgHighlight,
+    triggerContainerTypeHighlight,
   };
 };

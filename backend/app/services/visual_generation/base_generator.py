@@ -80,7 +80,7 @@ class BaseVisualGenerator(ABC):
     
     def embed_top_figures_and_text(self, parent: etree.Element, box_x: float, box_y: float, 
                                   box_width: float, container_type: str, container_name: str, 
-                                  attr_type: str, attr_name: str) -> None:
+                                  attr_type: str, attr_name: str, dsl_path: str = "") -> None:
         """Embed figures and text at the top of a container."""
         items = []
         show_something = container_name or container_type or attr_name or attr_type
@@ -129,6 +129,18 @@ class BaseVisualGenerator(ABC):
                         figure_path, x=current_x, y=center_y, 
                         width=self.constants["UNIT_SIZE"], height=self.constants["UNIT_SIZE"]
                     )
+                    
+                    # Add DSL path metadata for container_type and attr_type highlighting
+                    if dsl_path:
+                        if v == container_type:
+                            container_type_dsl_path = f"{dsl_path}/container_type"
+                            svg_el.set('data-dsl-path', container_type_dsl_path)
+                            svg_el.set('style', 'pointer-events: all; cursor: pointer;')
+                        elif v == attr_type:
+                            attr_type_dsl_path = f"{dsl_path}/attr_type"
+                            svg_el.set('data-dsl-path', attr_type_dsl_path)
+                            svg_el.set('style', 'pointer-events: all; cursor: pointer;')
+                    
                     group.append(svg_el)
                 current_x += width
             else:

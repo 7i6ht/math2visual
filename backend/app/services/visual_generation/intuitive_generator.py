@@ -630,7 +630,7 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
         
         # Embed top figures and text
         self.embed_top_figures_and_text(svg_root, x, box_y, w, container_type, 
-                                       container_name, attr_type, attr_name)
+                                       container_name, attr_type, attr_name, dsl_path)
         
         # Draw container content
         if layout == "large":
@@ -818,10 +818,12 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
         big_box_height = max_y + 2 * self.constants["MARGIN"] - 90
         
         # Embed text and figures at the top of the big box
+        result_dsl_path = result_container.get('_dsl_path', '')
         self.embed_top_figures_and_text(
             svg_root, big_box_x, big_box_y, big_box_width,
             result_container.get('container_type', ''), result_container.get('container_name', ''),
-            result_container.get('attr_type', ''), result_container.get('attr_name', '')
+            result_container.get('attr_type', ''), result_container.get('attr_name', ''),
+            result_dsl_path
         )
         
         # Draw the box

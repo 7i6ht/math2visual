@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { isTextElement, isOperationElement, isBoxElement, isEmbeddedSvgElement, getDslPath, setCursorStyle } from '../utils/elementUtils';
+import { isTextElement, isOperationElement, isBoxElement, isEmbeddedSvgElement, isContainerTypeSvgElement, getDslPath, setCursorStyle } from '../utils/elementUtils';
 
 interface UseElementInteractionsProps {
   svgRef: React.RefObject<HTMLDivElement | null>;
@@ -9,6 +9,7 @@ interface UseElementInteractionsProps {
     triggerTextHighlight: (dslPath: string) => void;
     triggerOperationHighlight: (dslPath: string) => void;
     triggerEmbeddedSvgHighlight: (dslPath: string) => void;
+    triggerContainerTypeHighlight: (dslPath: string) => void;
   };
   onComponentClick?: (dslPath: string, clickPosition: { x: number; y: number }) => void;
   setHoveredComponent: (component: string | null) => void;
@@ -145,6 +146,20 @@ export const useElementInteractions = ({
   }, [setupElementListeners, triggerHighlight, highlighting]);
 
   /**
+   * Setup container type SVG element interactions
+   */
+  const setupContainerTypeSvgElement = useCallback((svgElem: SVGElement, dslPath: string) => {
+    setupElementListeners(svgElem, dslPath, {
+      icon: '🏷️',
+      label: 'CONTAINER TYPE SVG',
+      onMouseEnter: () => {
+        console.log(`🏷️ CONTAINER TYPE SVG MOUSEENTER: ${dslPath}`);
+        triggerHighlight(dslPath, () => highlighting.triggerContainerTypeHighlight(dslPath));
+      }
+    });
+  }, [setupElementListeners, triggerHighlight, highlighting]);
+
+  /**
    * Setup interactions for all SVG elements with DSL paths
    */
   const setupSVGInteractions = useCallback(() => {
@@ -170,6 +185,8 @@ export const useElementInteractions = ({
         setupTextElement(svgElem, dslPath);
       } else if (isEmbeddedSvgElement(svgElem)) {
         setupEmbeddedSvgElement(svgElem, dslPath);
+      } else if (isContainerTypeSvgElement(svgElem)) {
+        setupContainerTypeSvgElement(svgElem, dslPath);
       }
     });
   }, [
@@ -177,7 +194,8 @@ export const useElementInteractions = ({
     setupOperationElement,
     setupBoxElement,
     setupTextElement,
-    setupEmbeddedSvgElement
+    setupEmbeddedSvgElement,
+    setupContainerTypeSvgElement
   ]);
 
   return {
