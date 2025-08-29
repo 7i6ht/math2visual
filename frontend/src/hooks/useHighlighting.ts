@@ -1,9 +1,9 @@
 import { useCallback } from 'react';
 import type { ComponentMapping } from '../types/visualInteraction';
 import { numberToWord } from '../utils/numberUtils';
-import { isTextElement, isOperationElement, isBoxElement, isEmbeddedSvgElement, isContainerTypeSvgElement } from '../utils/elementUtils';
 import { createSentencePatterns, findSentencePosition, findQuantityInText, splitIntoSentences, scoreSentencesForEntity, findEntityNameInSentence, findAllEntityNameOccurrencesInText } from '../utils/mwpUtils';
 import { HIGHLIGHT_COLORS, createDropShadow } from '../utils/colorConfig';
+import { clearElementHighlight } from '../utils/highlightUtils';
 
 interface UseHighlightingProps {
   svgRef: React.RefObject<HTMLDivElement | null>;
@@ -39,35 +39,7 @@ export const useHighlighting = ({
     const allInteractiveElements = svgRef.current?.querySelectorAll('[data-dsl-path]');
     allInteractiveElements?.forEach(elem => {
       const svgElem = elem as SVGElement;
-      
-      if (isTextElement(svgElem)) {
-        // Clear text highlights
-        svgElem.style.fill = 'white';
-        svgElem.style.filter = '';
-      } else if (isOperationElement(svgElem)) {
-        // Clear operation highlights
-        svgElem.style.filter = '';
-        svgElem.style.transform = '';
-        svgElem.style.transformOrigin = '';
-        svgElem.style.vectorEffect = '';
-      } else if (isBoxElement(svgElem)) {
-        // Clear box highlights (only for rectangles)
-        svgElem.style.stroke = 'black';
-        svgElem.style.strokeWidth = '1';
-        svgElem.style.filter = '';
-      } else if (isEmbeddedSvgElement(svgElem)) {
-        // Clear embedded SVG highlights
-        svgElem.style.filter = '';
-        svgElem.style.transform = '';
-        svgElem.style.transformOrigin = '';
-        svgElem.style.vectorEffect = '';
-      } else if (isContainerTypeSvgElement(svgElem)) {
-        // Clear container type SVG highlights
-        svgElem.style.filter = '';
-        svgElem.style.transform = '';
-        svgElem.style.transformOrigin = '';
-        svgElem.style.vectorEffect = '';
-      }
+      clearElementHighlight(svgElem);
     });
   }, [svgRef]);
 
