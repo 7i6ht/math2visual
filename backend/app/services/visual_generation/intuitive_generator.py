@@ -824,10 +824,16 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
             result_dsl_path
         )
         
-        # Draw the box
-        etree.SubElement(svg_root, "rect", x=str(big_box_x), y=str(big_box_y), 
+        # Draw the box with DSL path metadata for interactivity
+        rect_elem = etree.SubElement(svg_root, "rect", x=str(big_box_x), y=str(big_box_y), 
                         width=str(big_box_width), height=str(big_box_height), 
                         stroke="black", fill="none", stroke_width="2")
+        
+        # Add DSL path metadata for result container highlighting
+        if result_dsl_path:
+            rect_elem.set('data-dsl-path', result_dsl_path)
+            # Use stroke-only pointer events so internal elements can still receive events
+            rect_elem.set('style', 'pointer-events: stroke; cursor: pointer;')
         
         # Add question mark circle
         circle_radius = 30

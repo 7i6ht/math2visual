@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { isTextElement, isOperationElement, isBoxElement, isEmbeddedSvgElement, isContainerTypeSvgElement, isContainerNameElement, getDslPath, setCursorStyle } from '../utils/elementUtils';
+import { isTextElement, isOperationElement, isBoxElement, isEmbeddedSvgElement, isContainerTypeSvgElement, isContainerNameElement, isResultContainerElement, getDslPath, setCursorStyle } from '../utils/elementUtils';
 
 interface UseElementInteractionsProps {
   svgRef: React.RefObject<HTMLDivElement | null>;
@@ -11,6 +11,7 @@ interface UseElementInteractionsProps {
     triggerEmbeddedSvgHighlight: (dslPath: string) => void;
     triggerContainerTypeHighlight: (dslPath: string) => void;
     triggerContainerNameHighlight: (dslPath: string) => void;
+    triggerResultContainerHighlight: (dslPath: string) => void;
   };
   onComponentClick?: (dslPath: string, clickPosition: { x: number; y: number }) => void;
   setHoveredComponent: (component: string | null) => void;
@@ -175,6 +176,20 @@ export const useElementInteractions = ({
   }, [setupElementListeners, triggerHighlight, highlighting]);
 
   /**
+   * Setup result container element interactions
+   */
+  const setupResultContainerElement = useCallback((svgElem: SVGElement, dslPath: string) => {
+    setupElementListeners(svgElem, dslPath, {
+      icon: '📦',
+      label: 'RESULT CONTAINER',
+      onMouseEnter: () => {
+        console.log(`📦 RESULT CONTAINER MOUSEENTER: ${dslPath}`);
+        triggerHighlight(dslPath, () => highlighting.triggerResultContainerHighlight(dslPath));
+      }
+    });
+  }, [setupElementListeners, triggerHighlight, highlighting]);
+
+  /**
    * Setup interactions for all SVG elements with DSL paths
    */
   const setupSVGInteractions = useCallback(() => {
@@ -192,10 +207,9 @@ export const useElementInteractions = ({
       if (!dslPath) return;
 
       // Determine element type and setup appropriate interactions
+      // Check smaller/internal elements first, then containers, to avoid event blocking
       if (isOperationElement(svgElem)) {
         setupOperationElement(svgElem, dslPath);
-      } else if (isBoxElement(svgElem)) {
-        setupBoxElement(svgElem, dslPath);
       } else if (isContainerNameElement(svgElem)) {
         setupContainerNameElement(svgElem, dslPath);
       } else if (isTextElement(svgElem)) {
@@ -204,11 +218,16 @@ export const useElementInteractions = ({
         setupEmbeddedSvgElement(svgElem, dslPath);
       } else if (isContainerTypeSvgElement(svgElem)) {
         setupContainerTypeSvgElement(svgElem, dslPath);
+      } else if (isBoxElement(svgElem)) {
+        setupBoxElement(svgElem, dslPath);
+      } else if (isResultContainerElement(svgElem)) {
+        setupResultContainerElement(svgElem, dslPath);
       }
     });
   }, [
     svgRef,
     setupOperationElement,
+    setupResultContainerElement,
     setupBoxElement,
     setupContainerNameElement,
     setupTextElement,

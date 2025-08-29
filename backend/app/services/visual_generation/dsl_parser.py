@@ -55,8 +55,8 @@ class DSLParser:
 
             return entities
         
-        def recursive_parse(input_str: str) -> Dict[str, Any]:
-            """Recursively parse operations and entities."""
+        def recursive_parse(input_str: str, current_path: str = "") -> Dict[str, Any]:
+            """Recursively parse operations and entities with path tracking."""
             input_str = " ".join(input_str.strip().split())
             func_pattern = r"(\w+)\s*\((.*)\)"
             match = re.match(func_pattern, input_str)
@@ -68,12 +68,18 @@ class DSLParser:
             parsed_entities = []
             result_container = None
 
+            # Create operation path
+            operation_path = f"{current_path}/operation" if current_path else "operation"
+
             # Process entities
-            for entity in split_entities(inside):
+            for i, entity in enumerate(split_entities(inside)):
+                entity_path = f"{operation_path}/entities[{i}]"
                 if any(entity.startswith(op) for op in operations_list):
-                    parsed_entities.append(recursive_parse(entity))
+                    parsed_entities.append(recursive_parse(entity, entity_path))
                 else:
                     entity_dict = self._parse_entity(entity)
+                    # Set the DSL path on the entity
+                    entity_dict["_dsl_path"] = entity_path
                     if entity_dict["name"] == "result_container":
                         result_container = entity_dict
                     else:
@@ -81,6 +87,8 @@ class DSLParser:
 
             result = {"operation": operation, "entities": parsed_entities}
             if result_container:
+                # Set the DSL path on the result container
+                result_container["_dsl_path"] = f"{operation_path}/result_container"
                 result["result_container"] = result_container
 
             return result

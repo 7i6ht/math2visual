@@ -428,6 +428,29 @@ export const useHighlighting = ({
     });
   }, [triggerHighlight, svgRef, componentMappings, handleContainerNameMWPHighlight]);
 
+  /**
+   * Trigger highlighting for result container components (box elements)
+   */
+  const triggerResultContainerHighlight = useCallback((dslPath: string) => {
+    const mapping = componentMappings[dslPath];
+    triggerHighlight(mapping, {
+      icon: '📦',
+      label: 'Result Container',
+      applyVisualHighlight: () => {
+        const targetBox = svgRef.current?.querySelector(`[data-dsl-path="${dslPath}"]:not(text)`) as SVGElement;
+        if (targetBox) {
+          targetBox.style.stroke = '#3b82f6';
+          targetBox.style.strokeWidth = '3';
+          targetBox.style.filter = createDropShadow(HIGHLIGHT_COLORS.BOX, 3);
+        }
+      },
+      applyMWPHighlight: () => {
+        // For result containers, we don't highlight anything in the MWP
+        onMWPRangeHighlight?.([]);
+      }
+    });
+  }, [triggerHighlight, svgRef, componentMappings, onMWPRangeHighlight]);
+
   return {
     clearVisualHighlights,
     clearAllHighlights,
@@ -437,5 +460,6 @@ export const useHighlighting = ({
     triggerEmbeddedSvgHighlight,
     triggerContainerTypeHighlight,
     triggerContainerNameHighlight,
+    triggerResultContainerHighlight,
   };
 };

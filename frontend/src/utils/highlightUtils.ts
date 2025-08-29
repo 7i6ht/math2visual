@@ -1,4 +1,4 @@
-import { isTextElement, isOperationElement, isBoxElement, isEmbeddedSvgElement, isContainerTypeSvgElement, isContainerNameElement } from './elementUtils';
+import { isTextElement, isOperationElement, isBoxElement, isEmbeddedSvgElement, isContainerTypeSvgElement, isContainerNameElement, isResultContainerElement } from './elementUtils';
 
 /**
  * Clear functions for different SVG element types
@@ -53,6 +53,14 @@ export const clearFunctions = [
       el.style.transform = '';
       el.style.transformOrigin = '';
       el.style.vectorEffect = '';
+    }
+  },
+  {
+    test: isResultContainerElement,
+    clear: (el: SVGElement) => {
+      el.style.stroke = 'black';
+      el.style.strokeWidth = '1';
+      el.style.filter = '';
     }
   }
 ] as const;

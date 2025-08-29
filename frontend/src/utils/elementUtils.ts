@@ -30,7 +30,12 @@ export const isOperationElement = (el: Element): boolean => {
  * @returns true if the element is a box element
  */
 export const isBoxElement = (el: Element): boolean => {
-  return el.tagName.toLowerCase() === 'rect';
+  const tag = el.tagName.toLowerCase();
+  if (tag !== 'rect') return false;
+  
+  // Exclude result containers from being treated as regular boxes
+  const path = (el as SVGElement).getAttribute('data-dsl-path') || '';
+  return !path.endsWith('result_container');
 };
 
 /**
@@ -70,6 +75,19 @@ export const isContainerNameElement = (el: Element): boolean => {
   
   const path = (el as SVGElement).getAttribute('data-dsl-path') || '';
   return path.includes('/container_name');
+};
+
+/**
+ * Check if an element is a result container box element (result_container)
+ * @param el - The element to check
+ * @returns true if the element is a result container box element
+ */
+export const isResultContainerElement = (el: Element): boolean => {
+  const tag = el.tagName.toLowerCase();
+  if (tag !== 'rect') return false;
+  
+  const path = (el as SVGElement).getAttribute('data-dsl-path') || '';
+  return path.endsWith('result_container');
 };
 
 /**
