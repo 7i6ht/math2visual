@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { isTextElement, isOperationElement, isBoxElement, isEmbeddedSvgElement, isContainerTypeSvgElement, getDslPath, setCursorStyle } from '../utils/elementUtils';
+import { isTextElement, isOperationElement, isBoxElement, isEmbeddedSvgElement, isContainerTypeSvgElement, isContainerNameElement, getDslPath, setCursorStyle } from '../utils/elementUtils';
 
 interface UseElementInteractionsProps {
   svgRef: React.RefObject<HTMLDivElement | null>;
@@ -10,6 +10,7 @@ interface UseElementInteractionsProps {
     triggerOperationHighlight: (dslPath: string) => void;
     triggerEmbeddedSvgHighlight: (dslPath: string) => void;
     triggerContainerTypeHighlight: (dslPath: string) => void;
+    triggerContainerNameHighlight: (dslPath: string) => void;
   };
   onComponentClick?: (dslPath: string, clickPosition: { x: number; y: number }) => void;
   setHoveredComponent: (component: string | null) => void;
@@ -160,6 +161,20 @@ export const useElementInteractions = ({
   }, [setupElementListeners, triggerHighlight, highlighting]);
 
   /**
+   * Setup container name text element interactions
+   */
+  const setupContainerNameElement = useCallback((svgElem: SVGElement, dslPath: string) => {
+    setupElementListeners(svgElem, dslPath, {
+      icon: '🏷️',
+      label: 'CONTAINER NAME TEXT',
+      onMouseEnter: () => {
+        console.log(`🏷️ CONTAINER NAME TEXT MOUSEENTER: ${dslPath}`);
+        triggerHighlight(dslPath, () => highlighting.triggerContainerNameHighlight(dslPath));
+      }
+    });
+  }, [setupElementListeners, triggerHighlight, highlighting]);
+
+  /**
    * Setup interactions for all SVG elements with DSL paths
    */
   const setupSVGInteractions = useCallback(() => {
@@ -181,6 +196,8 @@ export const useElementInteractions = ({
         setupOperationElement(svgElem, dslPath);
       } else if (isBoxElement(svgElem)) {
         setupBoxElement(svgElem, dslPath);
+      } else if (isContainerNameElement(svgElem)) {
+        setupContainerNameElement(svgElem, dslPath);
       } else if (isTextElement(svgElem)) {
         setupTextElement(svgElem, dslPath);
       } else if (isEmbeddedSvgElement(svgElem)) {
@@ -193,6 +210,7 @@ export const useElementInteractions = ({
     svgRef,
     setupOperationElement,
     setupBoxElement,
+    setupContainerNameElement,
     setupTextElement,
     setupEmbeddedSvgElement,
     setupContainerTypeSvgElement

@@ -137,9 +137,15 @@ class BaseVisualGenerator(ABC):
                 text_y = center_y + (self.constants["UNIT_SIZE"] / 2)
                 text_element = etree.SubElement(
                     group, "text", x=str(text_x), y=str(text_y),
-                    style="font-size: 15px; pointer-events: none;", dominant_baseline="middle", text_anchor="middle"
+                    style="font-size: 15px; pointer-events: auto; cursor: pointer;", dominant_baseline="middle", text_anchor="middle"
                 )
                 text_element.text = v
+                
+                # Add DSL path metadata for container_name highlighting
+                if dsl_path and v == container_name:
+                    container_name_dsl_path = f"{dsl_path}/container_name"
+                    text_element.set('data-dsl-path', container_name_dsl_path)
+                
                 current_x += width
             
             if idx < len(items) - 1:

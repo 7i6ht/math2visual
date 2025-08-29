@@ -1,10 +1,18 @@
-import { isTextElement, isOperationElement, isBoxElement, isEmbeddedSvgElement, isContainerTypeSvgElement } from './elementUtils';
+import { isTextElement, isOperationElement, isBoxElement, isEmbeddedSvgElement, isContainerTypeSvgElement, isContainerNameElement } from './elementUtils';
 
 /**
  * Clear functions for different SVG element types
  * Each function resets the element's visual styles to their default state
  */
 export const clearFunctions = [
+  {
+    test: isContainerNameElement,
+    clear: (el: SVGElement) => {
+      el.style.fill = 'black';
+      el.style.fontWeight = 'normal';
+      el.style.filter = '';
+    }
+  },
   {
     test: isTextElement,
     clear: (el: SVGElement) => {

@@ -380,6 +380,54 @@ export const useHighlighting = ({
     });
   }, [triggerHighlight, svgRef, componentMappings, handleContainerTypeMWPHighlight]);
 
+  /**
+   * Handle MWP highlighting for container_name elements
+   */
+  const handleContainerNameMWPHighlight = useCallback((dslPath: string) => {
+    // Get the container name mapping directly from the path
+    const containerNameMapping = componentMappings[dslPath];
+    
+    if (!containerNameMapping?.property_value || !mwpValue) {
+      onMWPRangeHighlight?.([]);
+      return;
+    }
+    
+    const containerName = containerNameMapping.property_value;
+    
+    // Find all occurrences of the container name using regex with word boundaries and plural support
+    const escapedName = containerName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // Escape regex special chars
+    const regex = new RegExp(`\\b${escapedName}s?\\b`, 'gi'); // Word boundaries, optional 's' for plural, case-insensitive
+    
+    // Functional approach: map matches to ranges
+    const ranges: Array<[number, number]> = Array.from(mwpValue.matchAll(regex))
+      .map(match => [match.index, match.index + match[0].length]);
+    
+    onMWPRangeHighlight!(ranges);
+  }, [componentMappings, mwpValue, onMWPRangeHighlight]);
+
+  /**
+   * Trigger highlighting for container_name components (text elements)
+   */
+  const triggerContainerNameHighlight = useCallback((dslPath: string) => {
+    // Container_name paths are always non-indexed: /operation/entities[0]/container_name
+    const mapping = componentMappings[dslPath];
+    
+    triggerHighlight(mapping, {
+      icon: '🏷️',
+      label: 'Container Name',
+      applyVisualHighlight: () => {
+        // Use the dslPath to find the specific text element
+        const containerNameTextEl = svgRef.current?.querySelector(`text[data-dsl-path="${dslPath}"]`) as SVGElement;
+        if (containerNameTextEl) {
+          containerNameTextEl.style.fill = '#3b82f6';
+          containerNameTextEl.style.fontWeight = 'bold';
+          containerNameTextEl.style.filter = createDropShadow(HIGHLIGHT_COLORS.TEXT, 2);
+        }
+      },
+      applyMWPHighlight: () => handleContainerNameMWPHighlight(dslPath)
+    });
+  }, [triggerHighlight, svgRef, componentMappings, handleContainerNameMWPHighlight]);
+
   return {
     clearVisualHighlights,
     clearAllHighlights,
@@ -388,5 +436,6 @@ export const useHighlighting = ({
     triggerOperationHighlight,
     triggerEmbeddedSvgHighlight,
     triggerContainerTypeHighlight,
+    triggerContainerNameHighlight,
   };
 };

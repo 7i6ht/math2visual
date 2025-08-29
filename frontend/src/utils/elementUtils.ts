@@ -60,6 +60,19 @@ export const isContainerTypeSvgElement = (el: Element): boolean => {
 };
 
 /**
+ * Check if an element is a container name text element (container_name)
+ * @param el - The element to check
+ * @returns true if the element is a container name text element
+ */
+export const isContainerNameElement = (el: Element): boolean => {
+  const tag = el.tagName.toLowerCase();
+  if (tag !== 'text') return false;
+  
+  const path = (el as SVGElement).getAttribute('data-dsl-path') || '';
+  return path.includes('/container_name');
+};
+
+/**
  * Get the DSL path from an SVG element
  * @param el - The SVG element
  * @returns The DSL path or null if not found
