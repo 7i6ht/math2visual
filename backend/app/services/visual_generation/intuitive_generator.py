@@ -589,8 +589,7 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
         t = container["item"].get("entity_type", "apple")
         container_name = container.get("container_name", "").strip()
         container_type = container.get("container_type", "").strip()
-        attr_name = container.get("attr_name", "").strip()
-        attr_type = container.get("attr_type", "").strip()
+
         
         unittrans_unit = container.get("unittrans_unit", "")
         unittrans_value = container.get("unittrans_value", "")
@@ -630,7 +629,7 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
         
         # Embed top figures and text
         self.embed_top_figures_and_text(svg_root, x, box_y, w, container_type, 
-                                       container_name, attr_type, attr_name, dsl_path)
+                                       container_name, dsl_path)
         
         # Draw container content
         if layout == "large":
@@ -822,7 +821,6 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
         self.embed_top_figures_and_text(
             svg_root, big_box_x, big_box_y, big_box_width,
             result_container.get('container_type', ''), result_container.get('container_name', ''),
-            result_container.get('attr_type', ''), result_container.get('attr_name', ''),
             result_dsl_path
         )
         

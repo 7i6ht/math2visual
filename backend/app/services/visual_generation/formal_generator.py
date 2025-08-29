@@ -437,8 +437,7 @@ class FormalVisualGenerator(BaseVisualGenerator):
         t = entity["item"].get("entity_type", "apple")
         container_name = entity.get("container_name", "").strip()
         container_type = entity.get("container_type", "").strip()
-        attr_name = entity.get("attr_name", "").strip()
-        attr_entity_type = entity.get("attr_entity_type", "").strip()
+
         
         unittrans_unit = entity.get("unittrans_unit", "")
         unittrans_value = entity.get("unittrans_value", None)
@@ -486,7 +485,7 @@ class FormalVisualGenerator(BaseVisualGenerator):
         
         # Embed top figures and text
         self.embed_top_figures_and_text(svg_root, x, box_y, w, container_type, 
-                                       container_name, attr_entity_type, attr_name, dsl_path)
+                                       container_name, dsl_path)
         
         # Draw entity content
         if layout == "large":

@@ -80,10 +80,10 @@ class BaseVisualGenerator(ABC):
     
     def embed_top_figures_and_text(self, parent: etree.Element, box_x: float, box_y: float, 
                                   box_width: float, container_type: str, container_name: str, 
-                                  attr_type: str, attr_name: str, dsl_path: str = "") -> None:
+                                  dsl_path: str = "") -> None:
         """Embed figures and text at the top of a container."""
         items = []
-        show_something = container_name or container_type or attr_name or attr_type
+        show_something = container_name or container_type
         
         if not show_something:
             items.append(("text", ""))
@@ -95,12 +95,6 @@ class BaseVisualGenerator(ABC):
             
             if container_name:
                 items.append(("text", container_name))
-            
-            if attr_type and attr_name:
-                figure_path = self.get_figure_svg_path(attr_type)
-                if figure_path and os.path.exists(figure_path):
-                    items.append(("svg", attr_type))
-                items.append(("text", attr_name))
         
         # Calculate positions
         item_positions = []
@@ -130,16 +124,11 @@ class BaseVisualGenerator(ABC):
                         width=self.constants["UNIT_SIZE"], height=self.constants["UNIT_SIZE"]
                     )
                     
-                    # Add DSL path metadata for container_type and attr_type highlighting
-                    if dsl_path:
-                        if v == container_type:
-                            container_type_dsl_path = f"{dsl_path}/container_type"
-                            svg_el.set('data-dsl-path', container_type_dsl_path)
-                            svg_el.set('style', 'pointer-events: all; cursor: pointer;')
-                        elif v == attr_type:
-                            attr_type_dsl_path = f"{dsl_path}/attr_type"
-                            svg_el.set('data-dsl-path', attr_type_dsl_path)
-                            svg_el.set('style', 'pointer-events: all; cursor: pointer;')
+                    # Add DSL path metadata for container_type highlighting
+                    if dsl_path and v == container_type:
+                        container_type_dsl_path = f"{dsl_path}/container_type"
+                        svg_el.set('data-dsl-path', container_type_dsl_path)
+                        svg_el.set('style', 'pointer-events: all; cursor: pointer;')
                     
                     group.append(svg_el)
                 current_x += width
