@@ -2,8 +2,6 @@ import { useCallback } from 'react';
 import type { ComponentMapping } from '../types/visualInteraction';
 import { numberToWord } from '../utils/numberUtils';
 import { createSentencePatterns, findSentencePosition, findQuantityInText, splitIntoSentences, scoreSentencesForEntity, findEntityNameInSentence, findAllEntityNameOccurrencesInText } from '../utils/mwpUtils';
-import { HIGHLIGHT_COLORS, createDropShadow } from '../utils/colorConfig';
-import { clearElementHighlight } from '../utils/highlightUtils';
 
 interface UseHighlightingProps {
   svgRef: React.RefObject<HTMLDivElement | null>;
@@ -39,20 +37,72 @@ export const useHighlighting = ({
     const allInteractiveElements = svgRef.current?.querySelectorAll('[data-dsl-path]');
     allInteractiveElements?.forEach(elem => {
       const svgElem = elem as SVGElement;
-      clearElementHighlight(svgElem);
+      // Remove all highlighting CSS classes
+      svgElem.classList.remove('highlighted-box', 'highlighted-text', 'highlighted-operation', 'highlighted-svg');
+      // Clear transformOrigin since we still set it in JavaScript for positioning
+      svgElem.style.transformOrigin = '';
     });
   }, [svgRef]);
 
   /**
    * Clear all highlights (visual, DSL, and MWP)
    */
-  const clearAllHighlights = useCallback(() => {
-    clearVisualHighlights();
+    const clearAllHighlights = useCallback(() => {
+      clearVisualHighlights();
+  
+      // Clear DSL and MWP highlights
+      onDSLRangeHighlight?.([]);
+      onMWPRangeHighlight?.([]);
+    }, [clearVisualHighlights, onDSLRangeHighlight, onMWPRangeHighlight]);
 
-    // Clear DSL and MWP highlights
-    onDSLRangeHighlight?.([]);
-    onMWPRangeHighlight?.([]);
-  }, [clearVisualHighlights, onDSLRangeHighlight, onMWPRangeHighlight]);
+  /**
+   * Set transform origin for embedded SVG elements using position attributes
+   */
+  const setSvgTransformOrigin = useCallback((svgElem: SVGElement) => {
+    const x = parseFloat(svgElem.getAttribute('x') || '0');
+    const y = parseFloat(svgElem.getAttribute('y') || '0');
+    const width = parseFloat(svgElem.getAttribute('width') || '0');
+    const height = parseFloat(svgElem.getAttribute('height') || '0');
+    
+    const centerX = x + width / 2;
+    const centerY = y + height / 2;
+    
+    svgElem.style.transformOrigin = `${centerX}px ${centerY}px`;
+  }, []);
+
+  /**
+   * Set transform origin for group elements (operations) using getBBox for accurate positioning
+   */
+  const setGroupTransformOrigin = useCallback((groupElem: SVGElement) => {
+    try {
+      const gElement = groupElem as SVGGraphicsElement;
+      const bbox = gElement.getBBox();
+      const centerX = bbox.x + bbox.width / 2;
+      const centerY = bbox.y + bbox.height / 2;
+      
+      groupElem.style.transformOrigin = `${centerX}px ${centerY}px`;
+    } catch {
+      // Fallback to center if getBBox fails
+      groupElem.style.transformOrigin = 'center';
+    }
+  }, []);
+
+  /**
+   * Setup transform origins for all interactive elements to ensure proper scaling
+   */
+  const setupTransformOrigins = useCallback(() => {
+    // Handle SVG elements using position attributes
+    const allSvgElements = svgRef.current?.querySelectorAll('svg[data-dsl-path]');
+    allSvgElements?.forEach(elem => {
+      setSvgTransformOrigin(elem as SVGElement);
+    });
+    
+    // Handle group elements (operations) using getBBox
+    const allGroupElements = svgRef.current?.querySelectorAll('g[data-dsl-path]');
+    allGroupElements?.forEach(elem => {
+      setGroupTransformOrigin(elem as SVGElement);
+    });
+  }, [svgRef, setSvgTransformOrigin, setGroupTransformOrigin]);
 
   /**
    * Base function for triggering highlighting with common logic
@@ -128,9 +178,7 @@ export const useHighlighting = ({
       applyVisualHighlight: () => {
         const targetBox = svgRef.current?.querySelector(`[data-dsl-path="${dslPath}"]:not(text)`) as SVGElement;
         if (targetBox) {
-          targetBox.style.stroke = '#3b82f6';
-          targetBox.style.strokeWidth = '3';
-          targetBox.style.filter = createDropShadow(HIGHLIGHT_COLORS.BOX, 3);
+          targetBox.classList.add('highlighted-box');
         }
       },
       applyMWPHighlight: () => {
@@ -179,9 +227,7 @@ export const useHighlighting = ({
       applyVisualHighlight: () => {
         const quantityTextEl = svgRef.current?.querySelector(`text[data-dsl-path="${dslPath}"]`) as SVGElement;
         if (quantityTextEl) {
-          quantityTextEl.style.fill = '#3b82f6';
-          quantityTextEl.style.fontWeight = 'bold';
-          quantityTextEl.style.filter = createDropShadow(HIGHLIGHT_COLORS.TEXT, 2);
+          quantityTextEl.classList.add('highlighted-text');
         }
       },
       applyMWPHighlight: (mapping) => {
@@ -217,15 +263,8 @@ export const useHighlighting = ({
       applyVisualHighlight: () => {
         const operationEl = svgRef.current?.querySelector(`g[data-dsl-path="${dslPath}"]`) as SVGGraphicsElement;
         if (operationEl) {
-          // Get the bounding box to calculate the actual center
-          const bbox = operationEl.getBBox();
-          const centerX = bbox.x + bbox.width / 2;
-          const centerY = bbox.y + bbox.height / 2;
-          
-          operationEl.style.filter = createDropShadow(HIGHLIGHT_COLORS.OPERATION, 4);
-          operationEl.style.transform = 'scale(1.1)';
-          operationEl.style.transformOrigin = `${centerX}px ${centerY}px`;
-          operationEl.style.vectorEffect = 'non-scaling-stroke';
+          // Apply CSS class - transform origin is already set by setupSvgTransformOrigins
+          operationEl.classList.add('highlighted-operation');
         }
       },
       applyMWPHighlight: () => {
@@ -342,10 +381,9 @@ export const useHighlighting = ({
           const centerX = x + width / 2;
           const centerY = y + height / 2;
           
-          embeddedSvgEl.style.filter = createDropShadow(HIGHLIGHT_COLORS.SVG);
-          embeddedSvgEl.style.transform = 'scale(1.05)';
+          // Apply CSS class and set custom transform origin
+          embeddedSvgEl.classList.add('highlighted-svg');
           embeddedSvgEl.style.transformOrigin = `${centerX}px ${centerY}px`;
-          embeddedSvgEl.style.vectorEffect = 'non-scaling-stroke';
         }
       },
       applyMWPHighlight: () => handleEmbeddedSvgMWPHighlight(dslPath)
@@ -364,7 +402,7 @@ export const useHighlighting = ({
       label: 'Container Type',
       applyVisualHighlight: () => {
         // Use the dslPath to find the specific SVG element
-        const containerTypeSvgEl = svgRef.current?.querySelector(`svg[data-dsl-path="${dslPath}"]`) as SVGGraphicsElement;
+        const containerTypeSvgEl = svgRef.current?.querySelector(`svg[data-dsl-path="${dslPath}"]`) as SVGElement;
         if (containerTypeSvgEl) {
           // For container type SVGs, use their position attributes to calculate center
           const x = parseFloat(containerTypeSvgEl.getAttribute('x') || '0');
@@ -375,10 +413,9 @@ export const useHighlighting = ({
           const centerX = x + width / 2;
           const centerY = y + height / 2;
           
-          containerTypeSvgEl.style.filter = createDropShadow(HIGHLIGHT_COLORS.SVG);
-          containerTypeSvgEl.style.transform = 'scale(1.05)';
+          // Apply CSS class and set custom transform origin
+          containerTypeSvgEl.classList.add('highlighted-svg');
           containerTypeSvgEl.style.transformOrigin = `${centerX}px ${centerY}px`;
-          containerTypeSvgEl.style.vectorEffect = 'non-scaling-stroke';
         }
       },
       applyMWPHighlight: () => handleContainerTypeMWPHighlight(dslPath)
@@ -424,9 +461,7 @@ export const useHighlighting = ({
         // Use the dslPath to find the specific text element
         const containerNameTextEl = svgRef.current?.querySelector(`text[data-dsl-path="${dslPath}"]`) as SVGElement;
         if (containerNameTextEl) {
-          containerNameTextEl.style.fill = '#3b82f6';
-          containerNameTextEl.style.fontWeight = 'bold';
-          containerNameTextEl.style.filter = createDropShadow(HIGHLIGHT_COLORS.TEXT, 2);
+          containerNameTextEl.classList.add('highlighted-text');
         }
       },
       applyMWPHighlight: () => handleContainerNameMWPHighlight(dslPath)
@@ -444,9 +479,7 @@ export const useHighlighting = ({
       applyVisualHighlight: () => {
         const targetBox = svgRef.current?.querySelector(`[data-dsl-path="${dslPath}"]:not(text)`) as SVGElement;
         if (targetBox) {
-          targetBox.style.stroke = '#3b82f6';
-          targetBox.style.strokeWidth = '3';
-          targetBox.style.filter = createDropShadow(HIGHLIGHT_COLORS.BOX, 3);
+          targetBox.classList.add('highlighted-box');
         }
       },
       applyMWPHighlight: () => {
@@ -459,6 +492,7 @@ export const useHighlighting = ({
   return {
     clearVisualHighlights,
     clearAllHighlights,
+    setupTransformOrigins,
     triggerBoxHighlight,
     triggerTextHighlight,
     triggerOperationHighlight,

@@ -57,8 +57,10 @@ export const useVisualInteraction = ({
   useEffect(() => {
     if (Object.keys(componentMappings).length > 0 && svgRef.current) {
       interactions.setupSVGInteractions();
+      // Setup transform origins for interactive elements to ensure proper scaling
+      highlighting.setupTransformOrigins();
     }
-  }, [componentMappings, interactions, svgRef]);
+  }, [componentMappings, interactions, svgRef, highlighting]);
 
   // ===== PUBLIC API =====
 
