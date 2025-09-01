@@ -650,9 +650,8 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
         
         # Add component metadata for quantity text
         container_dsl_path = container.get('_dsl_path', '')
-        if container_dsl_path:
-            quantity_dsl_path = f"{container_dsl_path}/entity_quantity"
-            text_element.set('data-dsl-path', quantity_dsl_path)
+        quantity_dsl_path = f"{container_dsl_path}/entity_quantity"
+        text_element.set('data-dsl-path', quantity_dsl_path)
         
         self.svg_embedder.update_max_dimensions(text_x + len(q_str)*30, text_y + 50)
     
@@ -679,10 +678,9 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
         
         # Add DSL path metadata for entity_type highlighting
         container_dsl_path = container.get('_dsl_path', '')
-        if container_dsl_path:
-            entity_type_dsl_path = f"{container_dsl_path}/entity_type"
-            embedded_svg.set('data-dsl-path', entity_type_dsl_path)
-            embedded_svg.set('style', 'pointer-events: all;')
+        entity_type_dsl_path = f"{container_dsl_path}/entity_type"
+        embedded_svg.set('data-dsl-path', entity_type_dsl_path)
+        embedded_svg.set('style', 'pointer-events: all;')
         
         svg_root.append(embedded_svg)
         
@@ -695,9 +693,8 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
         
         # Add component metadata for quantity text
         container_dsl_path = container.get('_dsl_path', '')
-        if container_dsl_path:
-            quantity_dsl_path = f"{container_dsl_path}/entity_quantity"
-            text_element.set('data-dsl-path', quantity_dsl_path)
+        quantity_dsl_path = f"{container_dsl_path}/entity_quantity"
+        text_element.set('data-dsl-path', quantity_dsl_path)
         
         # Add unit transformation circle if needed
         if unittrans_unit and unittrans_value:
@@ -730,10 +727,9 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
                 
                 # Add DSL path metadata for entity_type highlighting
                 container_dsl_path = container.get('_dsl_path', '')
-                if container_dsl_path:
-                    entity_type_dsl_path = f"{container_dsl_path}/entity_type[{i}]"
-                    embedded_svg.set('data-dsl-path', entity_type_dsl_path)
-                    embedded_svg.set('style', 'pointer-events: all;')
+                entity_type_dsl_path = f"{container_dsl_path}/entity_type[{i}]"
+                embedded_svg.set('data-dsl-path', entity_type_dsl_path)
+                embedded_svg.set('style', 'pointer-events: all;')
                 
                 svg_root.append(embedded_svg)
                 
@@ -830,10 +826,9 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
                         stroke="black", fill="none", stroke_width="2")
         
         # Add DSL path metadata for result container highlighting
-        if result_dsl_path:
-            rect_elem.set('data-dsl-path', result_dsl_path)
-            # Use stroke-only pointer events so internal elements can still receive events
-            rect_elem.set('style', 'pointer-events: stroke;')
+        rect_elem.set('data-dsl-path', result_dsl_path)
+        # Use stroke-only pointer events so internal elements can still receive events
+        rect_elem.set('style', 'pointer-events: stroke;')
         
         # Add question mark circle
         circle_radius = 30

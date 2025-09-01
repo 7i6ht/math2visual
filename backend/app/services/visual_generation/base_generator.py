@@ -125,7 +125,7 @@ class BaseVisualGenerator(ABC):
                     )
                     
                     # Add DSL path metadata for container_type highlighting
-                    if dsl_path and v == container_type:
+                    if v == container_type:
                         container_type_dsl_path = f"{dsl_path}/container_type"
                         svg_el.set('data-dsl-path', container_type_dsl_path)
                         svg_el.set('style', 'pointer-events: all;')
@@ -142,7 +142,7 @@ class BaseVisualGenerator(ABC):
                 text_element.text = v
                 
                 # Add DSL path metadata for container_name highlighting
-                if dsl_path and v == container_name:
+                if v == container_name:
                     container_name_dsl_path = f"{dsl_path}/container_name"
                     text_element.set('data-dsl-path', container_name_dsl_path)
                 
