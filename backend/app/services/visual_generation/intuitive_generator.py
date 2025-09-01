@@ -620,7 +620,7 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
             height=str(h),
             stroke="black",
             fill="none",
-            style="pointer-events: all; cursor: pointer;",
+            style="pointer-events: all;",
         )
         rect_elem.set('data-dsl-path', dsl_path)
         
@@ -682,7 +682,7 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
         if container_dsl_path:
             entity_type_dsl_path = f"{container_dsl_path}/entity_type"
             embedded_svg.set('data-dsl-path', entity_type_dsl_path)
-            embedded_svg.set('style', 'pointer-events: all; cursor: pointer;')
+            embedded_svg.set('style', 'pointer-events: all;')
         
         svg_root.append(embedded_svg)
         
@@ -733,7 +733,7 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
                 if container_dsl_path:
                     entity_type_dsl_path = f"{container_dsl_path}/entity_type[{i}]"
                     embedded_svg.set('data-dsl-path', entity_type_dsl_path)
-                    embedded_svg.set('style', 'pointer-events: all; cursor: pointer;')
+                    embedded_svg.set('style', 'pointer-events: all;')
                 
                 svg_root.append(embedded_svg)
                 
@@ -833,7 +833,7 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
         if result_dsl_path:
             rect_elem.set('data-dsl-path', result_dsl_path)
             # Use stroke-only pointer events so internal elements can still receive events
-            rect_elem.set('style', 'pointer-events: stroke; cursor: pointer;')
+            rect_elem.set('style', 'pointer-events: stroke;')
         
         # Add question mark circle
         circle_radius = 30

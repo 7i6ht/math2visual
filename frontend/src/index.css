@@ -77,3 +77,11 @@ h1 {
     color: hsl(var(--foreground));
   }
 }
+
+/* SVG Interactive Elements */
+@layer components {
+  /* Base cursor styling for all interactive SVG elements */
+  [data-dsl-path] {
+    cursor: pointer;
+  }
+}

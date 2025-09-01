@@ -473,7 +473,7 @@ class FormalVisualGenerator(BaseVisualGenerator):
             height=str(h),
             stroke="black",
             fill="none",
-            style="pointer-events: all; cursor: pointer;",
+            style="pointer-events: all;",
         )
         rect_elem.set('data-dsl-path', entity_dsl_path)
         
@@ -555,7 +555,7 @@ class FormalVisualGenerator(BaseVisualGenerator):
         if entity_dsl_path:
             entity_type_dsl_path = f"{entity_dsl_path}/entity_type"
             embedded_svg.set('data-dsl-path', entity_type_dsl_path)
-            embedded_svg.set('style', 'pointer-events: all; cursor: pointer;')
+            embedded_svg.set('style', 'pointer-events: all;')
         
         svg_root.append(embedded_svg)
         
@@ -602,7 +602,7 @@ class FormalVisualGenerator(BaseVisualGenerator):
                 if entity_dsl_path:
                     entity_type_dsl_path = f"{entity_dsl_path}/entity_type[{i}]"
                     embedded_svg.set('data-dsl-path', entity_type_dsl_path)
-                    embedded_svg.set('style', 'pointer-events: all; cursor: pointer;')
+                    embedded_svg.set('style', 'pointer-events: all;')
                 
                 svg_root.append(embedded_svg)
                 
@@ -647,7 +647,7 @@ class FormalVisualGenerator(BaseVisualGenerator):
             # Create a group element to contain the operation and add interactivity
             operation_group = etree.SubElement(svg_root, 'g')
             operation_group.set('data-dsl-path', operator.get('_dsl_path', ''))
-            operation_group.set('style', 'pointer-events: all; cursor: pointer;')
+            operation_group.set('style', 'pointer-events: all;')
             
             operation_group.append(self.svg_embedder.embed_svg(
                 operator_svg_path,

@@ -128,7 +128,7 @@ class BaseVisualGenerator(ABC):
                     if dsl_path and v == container_type:
                         container_type_dsl_path = f"{dsl_path}/container_type"
                         svg_el.set('data-dsl-path', container_type_dsl_path)
-                        svg_el.set('style', 'pointer-events: all; cursor: pointer;')
+                        svg_el.set('style', 'pointer-events: all;')
                     
                     group.append(svg_el)
                 current_x += width
@@ -137,7 +137,7 @@ class BaseVisualGenerator(ABC):
                 text_y = center_y + (self.constants["UNIT_SIZE"] / 2)
                 text_element = etree.SubElement(
                     group, "text", x=str(text_x), y=str(text_y),
-                    style="font-size: 15px; pointer-events: auto; cursor: pointer;", dominant_baseline="middle", text_anchor="middle"
+                    style="font-size: 15px; pointer-events: auto;", dominant_baseline="middle", text_anchor="middle"
                 )
                 text_element.text = v
                 
