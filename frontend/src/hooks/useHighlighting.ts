@@ -50,12 +50,8 @@ export const useHighlighting = ({
     clearVisualHighlights();
 
     // Clear DSL and MWP highlights
-    if (onDSLRangeHighlight) {
-      onDSLRangeHighlight([]);
-    }
-    if (onMWPRangeHighlight) {
-      onMWPRangeHighlight([]);
-    }
+    onDSLRangeHighlight?.([]);
+    onMWPRangeHighlight?.([]);
   }, [clearVisualHighlights, onDSLRangeHighlight, onMWPRangeHighlight]);
 
   /**
@@ -86,36 +82,36 @@ export const useHighlighting = ({
    * Find and highlight the sentence containing the second operand of an operation
    */
   const highlightSecondOperandSentence = useCallback((operationDslPath: string) => {
-    if (!mwpValue) return;
+    // Early return if missing required data
+    if (!mwpValue || !onMWPRangeHighlight) return;
 
     // Find the second operand's value by looking for sibling entities 
     const secondOperandPath = `${operationDslPath}/entities[1]`;
-    
-    // Look for quantity in the second operand
     const secondOperandQuantityPath = `${secondOperandPath}/entity_quantity`;
     const secondOperandQuantity = componentMappings[secondOperandQuantityPath]?.property_value;
     
-    if (secondOperandQuantity) {
-      // Find sentence containing the second operand value using utility functions
-      const sentences = splitIntoSentences(mwpValue);
-      const numericQuantity = secondOperandQuantity.toString();
-      const wordQuantity = numberToWord(parseInt(secondOperandQuantity.toString()));
+    // Early return if no quantity found
+    if (!secondOperandQuantity) return;
+    
+    // Find sentence containing the second operand value using utility functions
+    const sentences = splitIntoSentences(mwpValue);
+    const numericQuantity = secondOperandQuantity.toString();
+    const wordQuantity = numberToWord(parseInt(secondOperandQuantity.toString()));
+    
+    for (let i = 0; i < sentences.length; i++) {
+      const sentence = sentences[i].trim();
       
-      for (let i = 0; i < sentences.length; i++) {
-        const sentence = sentences[i].trim();
-        
-        // Check if sentence contains either the numeric form or word form
-        const containsNumeric = sentence.includes(numericQuantity);
-        const containsWord = sentence.toLowerCase().includes(wordQuantity.toLowerCase());
-        
-        if (containsNumeric || containsWord) {
-          // Use utility function to find sentence position
-          const position = findSentencePosition(mwpValue, sentences, i, sentence);
-          if (position && onMWPRangeHighlight) {
-            const [actualStart, actualEnd] = position;
-            onMWPRangeHighlight([[actualStart, actualEnd]]);
-            return;
-          }
+      // Check if sentence contains either the numeric form or word form
+      const containsNumeric = sentence.includes(numericQuantity);
+      const containsWord = sentence.toLowerCase().includes(wordQuantity.toLowerCase());
+      
+      if (containsNumeric || containsWord) {
+        // Use utility function to find sentence position
+        const position = findSentencePosition(mwpValue, sentences, i, sentence);
+        if (position) {
+          const [actualStart, actualEnd] = position;
+          onMWPRangeHighlight([[actualStart, actualEnd]]);
+          return;
         }
       }
     }
@@ -146,22 +142,28 @@ export const useHighlighting = ({
         const entityName = componentMappings[entityNamePath]?.property_value;
         const quantity = componentMappings[quantityPath]?.property_value;
 
-        if (containerName && mwpValue) {
-          // Use utility function to create sentence patterns
-          const sentencePatterns = createSentencePatterns(containerName, quantity, entityName);
+        // Early return if missing required data
+        if (!containerName || !mwpValue || !onMWPRangeHighlight) {
+          onMWPRangeHighlight?.([]);
+          return;
+        }
+        
+        // Use utility function to create sentence patterns
+        const sentencePatterns = createSentencePatterns(containerName, quantity, entityName);
 
-          for (let i = 0; i < sentencePatterns.length; i++) {
-            const pattern = sentencePatterns[i] as RegExp;
-            const sentenceMatch = pattern.exec(mwpValue);
-            if (sentenceMatch) {
-              const sentenceStart = sentenceMatch.index;
-              const sentenceEnd = sentenceStart + sentenceMatch[1].length;
-              onMWPRangeHighlight!([[sentenceStart, sentenceEnd]]);
-              return;
-            }
+        for (let i = 0; i < sentencePatterns.length; i++) {
+          const pattern = sentencePatterns[i] as RegExp;
+          const sentenceMatch = pattern.exec(mwpValue);
+          if (sentenceMatch) {
+            const sentenceStart = sentenceMatch.index;
+            const sentenceEnd = sentenceStart + sentenceMatch[1].length;
+            onMWPRangeHighlight([[sentenceStart, sentenceEnd]]);
+            return;
           }
         }
-        onMWPRangeHighlight!([]);
+        
+        // No match found
+        onMWPRangeHighlight([]);
       }
     });
   }, [triggerHighlight, svgRef, componentMappings, mwpValue, onMWPRangeHighlight]);
@@ -185,18 +187,20 @@ export const useHighlighting = ({
       applyMWPHighlight: (mapping) => {
         const quantity = mapping?.property_value;
         
-        if (quantity && mwpValue) {
-          // Use utility function to find quantity in text
-          const position = findQuantityInText(mwpValue, quantity);
-          
-          if (position && onMWPRangeHighlight) {
-            const [start, end] = position;
-            onMWPRangeHighlight([[start, end]]);
-          } else {
-            onMWPRangeHighlight!([]);
-          }
+        // Early return if missing required data
+        if (!quantity || !mwpValue || !onMWPRangeHighlight) {
+          onMWPRangeHighlight?.([]);
+          return;
+        }
+        
+        // Find quantity position in text
+        const position = findQuantityInText(mwpValue, quantity);
+        
+        if (position) {
+          const [start, end] = position;
+          onMWPRangeHighlight([[start, end]]);
         } else {
-          onMWPRangeHighlight!([]);
+          onMWPRangeHighlight([]);
         }
       }
     });
@@ -256,7 +260,7 @@ export const useHighlighting = ({
     const ranges: Array<[number, number]> = Array.from(mwpValue.matchAll(regex))
       .map(match => [match.index, match.index + match[0].length]);
     
-    onMWPRangeHighlight!(ranges);
+    onMWPRangeHighlight?.(ranges);
   }, [componentMappings, mwpValue, onMWPRangeHighlight]);
 
   /**
@@ -299,14 +303,14 @@ export const useHighlighting = ({
       );
       
       if (ranges && ranges.length > 0) {
-        onMWPRangeHighlight!(ranges);
+        onMWPRangeHighlight?.(ranges);
         return;
       }
     }
     
     // Fallback: highlight all entity_name occurrences
     const fallbackRanges = findAllEntityNameOccurrencesInText(entityName, mwpValue);
-    onMWPRangeHighlight!(fallbackRanges);
+    onMWPRangeHighlight?.(fallbackRanges);
   }, [componentMappings, mwpValue, onMWPRangeHighlight]);
 
   /**
@@ -315,8 +319,9 @@ export const useHighlighting = ({
   const triggerEmbeddedSvgHighlight = useCallback((dslPath: string) => {
     // For embedded SVGs, get the appropriate mapping (indexed or non-indexed)
     let mapping = componentMappings[dslPath];
+    
+    // Handle indexed paths - convert to base path if needed
     if (!mapping && dslPath.includes('/entity_type[')) {
-      // Handle indexed paths - convert to base path
       const basePath = dslPath.replace(/\/entity_type\[\d+\]$/, '/entity_type');
       mapping = componentMappings[basePath];
     }
@@ -402,7 +407,7 @@ export const useHighlighting = ({
     const ranges: Array<[number, number]> = Array.from(mwpValue.matchAll(regex))
       .map(match => [match.index, match.index + match[0].length]);
     
-    onMWPRangeHighlight!(ranges);
+    onMWPRangeHighlight?.(ranges);
   }, [componentMappings, mwpValue, onMWPRangeHighlight]);
 
   /**
