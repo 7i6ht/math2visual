@@ -50,11 +50,11 @@ function App() {
     setVLFormLoading(true);
     setResults(
       updatedDSL,
-      null,  // Clear visuals to trigger regeneration
-      null,
-      undefined,
-      undefined,
-      undefined,
+      svgFormal,  // Keep existing formal visual during regeneration
+      svgIntuitive,  // Keep existing intuitive visual during regeneration
+      formalError,
+      intuitiveError,
+      missingSVGEntities,
       updatedMWP,
       initialFormula,
       componentMappings
@@ -122,21 +122,7 @@ function App() {
           </div>
         ) : (
           /* Two-column layout after generation completes */
-          isLoading ? (
-            <div className="container mx-auto px-4 py-4 lg:px-8">
-              <div className="flex flex-col items-center justify-center min-h-[calc(100vh-2rem)]">
-                <div className="animate-in fade-in-0 duration-300">
-                  <GearLoading 
-                    message={loadingMessage} 
-                    onAbort={handleAbort}
-                    showAbortButton={true}
-                    size="large"
-                  />
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="container mx-auto px-4 py-4 lg:px-8">
+          <div className="container mx-auto px-4 py-4 lg:px-8">
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 min-h-[calc(100vh-2rem)] items-start">
               {/* Left Panel - Title / Input Forms */}
               <div className="flex flex-col space-y-6 xl:sticky xl:top-6 xl:h-[calc(100vh-3rem)] xl:z-10">
@@ -186,13 +172,10 @@ function App() {
                     )}
                   </div>
                 </div>
-
-
               </div>
 
               {/* Right Panel - Visualizations */}
               <div className="flex flex-col w-full">
-
                 <VisualizationResults
                   svgFormal={svgFormal}
                   formalError={formalError}
@@ -208,10 +191,21 @@ function App() {
                   onRegenerateAfterUpload={handleRegenerateAfterUpload}
                   onAllFilesUploaded={clearMissingSVGEntities}
                 />
+
+                {/* Loading animation below the accordions when regenerating */}
+                {vlFormLoading && (
+                  <div className="mt-6 animate-in fade-in-0 duration-300">
+                    <GearLoading 
+                      message="Regenerating..." 
+                      onAbort={handleAbort}
+                      showAbortButton={true}
+                      size="small"
+                    />
+                  </div>
+                )}
               </div>
             </div>
-            </div>
-          )
+          </div>
         )}
       </div>
       <Toaster/>

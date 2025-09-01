@@ -5,10 +5,18 @@ interface GearLoadingProps {
   message?: string;
   onAbort?: () => void;
   showAbortButton?: boolean;
-  size?: "default" | "large";
+  size?: "small" | "default" | "large";
 }
 
 const sizeConfig = {
+  small: {
+    container: "space-y-2 py-4",
+    gearContainer: "w-10 h-7",
+    gear1: "w-7 h-7",
+    gear2: "w-5 h-5",
+    gear2Position: "left-[18px]",
+    message: "text-xs"
+  },
   default: {
     container: "space-y-4 py-8",
     gearContainer: "w-14 h-10",

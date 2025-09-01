@@ -40,7 +40,8 @@ export const useVisualLanguageForm = ({
   const handleVLForm = async (data: VLFormData) => {
     setError(null);
     setLoading(true);
-    onReset();
+    // Don't reset visuals when regenerating - keep them visible during regeneration
+    // onReset();
 
     // Create abort controller for this request
     const controller = new AbortController();
