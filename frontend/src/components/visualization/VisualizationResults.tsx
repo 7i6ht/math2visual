@@ -1,10 +1,11 @@
 
 import { Accordion } from "@/components/ui/accordion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ComponentEditPanel } from "@/components/editing/ComponentEditPanel";
 import { useEditableComponents } from "@/hooks/useEditableComponents";
 import { VisualizationSection } from "./VisualizationSection";
 import { MissingSVGSection } from "./MissingSVGSection";
+import { ParseErrorSection } from "./ParseErrorSection";
 
 interface VisualizationResultsProps {
   svgFormal: string | null;
@@ -31,8 +32,6 @@ interface VisualizationResultsProps {
   onAllFilesUploaded?: () => void;
 }
 
-
-
 export const VisualizationResults = ({
   svgFormal,
   formalError,
@@ -49,7 +48,30 @@ export const VisualizationResults = ({
   onAllFilesUploaded,
 }: VisualizationResultsProps) => {
   const [activeVisualizationType, setActiveVisualizationType] = useState<'formal' | 'intuitive'>('formal');
-  const [openAccordionItems, setOpenAccordionItems] = useState<string[]>(["formal"]);
+  const [openAccordionItems, setOpenAccordionItems] = useState<string[]>([]);
+  
+  // Auto-expand error items when they're the only ones displayed
+  const getDefaultAccordionItems = () => {
+    // Check for parse errors first
+    if (formalError && /DSL parse error/i.test(formalError)) {
+      return ["parse-error"];
+    }
+    if (intuitiveError && /DSL parse error/i.test(intuitiveError)) {
+      return ["parse-error"];
+    }
+    // Check for missing SVG entities
+    if (missingSVGEntities.length > 0) {
+      return ["missing-svg"];
+    }
+    // Default to formal visualization
+    return ["formal"];
+  };
+
+  // Update accordion items when props change
+  useEffect(() => {
+    const defaultItems = getDefaultAccordionItems();
+    setOpenAccordionItems(defaultItems);
+  }, [formalError, intuitiveError, missingSVGEntities]);
   
   // Suppress generic missing-SVG errors in the accordion; these are shown
   // more helpfully in the dedicated MissingSVGSection below
@@ -80,7 +102,11 @@ export const VisualizationResults = ({
     setActiveVisualizationType(type);
   };
 
-  // Don't render if no content
+  // Detect if this is a parse error by checking error message content
+  const hasParseError = (formalError && /DSL parse error/i.test(formalError)) || 
+                       (intuitiveError && /DSL parse error/i.test(intuitiveError));
+
+  // Don't render if no content or errors at all
   if (!svgFormal && !formalError && !svgIntuitive && !intuitiveError && missingSVGEntities.length === 0) {
     return null;
   }
@@ -91,37 +117,47 @@ export const VisualizationResults = ({
       
       <Accordion 
         type="multiple" 
-        defaultValue={["formal"]} 
+        value={openAccordionItems}
         className="w-full space-y-2"
         onValueChange={setOpenAccordionItems}
       >
-        <VisualizationSection
-          type="formal"
-          title="Formal Representation"
-          svgContent={svgFormal}
-          error={filterMissingSvgError(formalError)}
-          componentMappings={componentMappings?.formal || {}}
-          isOpen={openAccordionItems.includes("formal")}
-          mwpValue={mwpValue}
-          onDSLRangeHighlight={onDSLRangeHighlight}
-          onMWPRangeHighlight={onMWPRangeHighlight}
-          onComponentClick={openEditPanel}
-          onHover={() => handleVisualizationHover('formal')}
-        />
+        {/* Show parse error section when parse error exists */}
+        {hasParseError && (
+          <ParseErrorSection message="Could not parse Visual Language." />
+        )}
 
-        <VisualizationSection
-          type="intuitive"
-          title="Intuitive Representation"
-          svgContent={svgIntuitive}
-          error={filterMissingSvgError(intuitiveError)}
-          componentMappings={componentMappings?.intuitive || {}}
-          isOpen={openAccordionItems.includes("intuitive")}
-          mwpValue={mwpValue}
-          onDSLRangeHighlight={onDSLRangeHighlight}
-          onMWPRangeHighlight={onMWPRangeHighlight}
-          onComponentClick={openEditPanel}
-          onHover={() => handleVisualizationHover('intuitive')}
-        />
+        {/* Hide visualization sections entirely if SVG entities are missing or parse error exists */}
+        {!hasParseError && missingSVGEntities.length === 0 && (
+          <>
+            <VisualizationSection
+              type="formal"
+              title="Formal Representation"
+              svgContent={svgFormal}
+              error={filterMissingSvgError(formalError)}
+              componentMappings={componentMappings?.formal || {}}
+              isOpen={openAccordionItems.includes("formal")}
+              mwpValue={mwpValue}
+              onDSLRangeHighlight={onDSLRangeHighlight}
+              onMWPRangeHighlight={onMWPRangeHighlight}
+              onComponentClick={openEditPanel}
+              onHover={() => handleVisualizationHover('formal')}
+            />
+
+            <VisualizationSection
+              type="intuitive"
+              title="Intuitive Representation"
+              svgContent={svgIntuitive}
+              error={filterMissingSvgError(intuitiveError)}
+              componentMappings={componentMappings?.intuitive || {}}
+              isOpen={openAccordionItems.includes("intuitive")}
+              mwpValue={mwpValue}
+              onDSLRangeHighlight={onDSLRangeHighlight}
+              onMWPRangeHighlight={onMWPRangeHighlight}
+              onComponentClick={openEditPanel}
+              onHover={() => handleVisualizationHover('intuitive')}
+            />
+          </>
+        )}
 
         {missingSVGEntities.length > 0 && (
           <MissingSVGSection

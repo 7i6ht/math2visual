@@ -8,13 +8,13 @@ import { DSLFormatter } from "@/utils/dsl-formatter";
 
 interface UseVisualLanguageFormProps {
   vl: string | null;
-  onSuccess: (vl: string, svgFormal: string | null, svgIntuitive: string | null, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], mwp?: string, formula?: string, componentMappings?: any) => void;
+  onResult: (vl: string, svgFormal: string | null, svgIntuitive: string | null, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], mwp?: string, formula?: string, componentMappings?: any) => void;
   onLoadingChange: (loading: boolean, abortFn?: () => void) => void;
 }
 
 export const useVisualLanguageForm = ({
   vl,
-  onSuccess,
+  onResult,
   onLoadingChange,
 }: UseVisualLanguageFormProps) => {
   const [error, setError] = useState<string | null>(null);
@@ -54,8 +54,20 @@ export const useVisualLanguageForm = ({
       // Minify the DSL (single line format)
       const minifiedDsl = DSLFormatter.minify(dslValue);
       const result = await service.generateFromDSL(minifiedDsl, controller.signal);
-      onSuccess(
-        result.visual_language,
+      
+      // Determine which visual language value to use
+      let visualLanguageToUse: string;
+      if (result.formal_error || result.intuitive_error) {
+        // If there are errors, preserve the old formatted value
+        visualLanguageToUse = vl || "";
+      } else {
+        // If no errors, use the new formatted value
+        visualLanguageToUse = result.visual_language;
+      }
+      
+      // Always call onResult to pass result information to VisualizationResults
+      onResult(
+        visualLanguageToUse,
         result.svg_formal,
         result.svg_intuitive,
         result.formal_error || undefined,

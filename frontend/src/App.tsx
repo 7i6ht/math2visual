@@ -159,7 +159,7 @@ function App() {
                     {vl && (
                       <VisualLanguageForm
                         vl={vl}
-                        onSuccess={setResults}
+                        onResult={setResults}
                         onLoadingChange={(loading, abortFn) => {
                           setVLFormLoading(loading, abortFn);
                         }}

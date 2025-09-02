@@ -6,29 +6,27 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { ErrorDisplay } from "@/components/ui/error-display";
 import { useVisualLanguageForm } from "@/hooks/useVisualLanguageForm";
 
 interface VisualLanguageFormProps {
   vl: string | null;
-  onResult: (vl: string, svgFormal: string | null, svgIntuitive: string | null, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], mwp?: string, formula?: string, componentMappings?: any) => void;
+  onSuccess: (vl: string, svgFormal: string | null, svgIntuitive: string | null, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], mwp?: string, formula?: string, componentMappings?: any) => void;
   onLoadingChange: (loading: boolean, abortFn?: () => void) => void;
   highlightRanges?: Array<[number, number]>
 }
 
 export const VisualLanguageForm = ({ 
   vl,
-  onResult,
+  onSuccess,
   onLoadingChange,
-  highlightRanges = []
+  highlightRanges = [],
 }: VisualLanguageFormProps) => {
   const { 
     form, 
-    error,
     handleDebouncedChange,
   } = useVisualLanguageForm({
     vl,
-    onResult,
+    onSuccess,
     onLoadingChange,
   });
 
@@ -61,8 +59,9 @@ export const VisualLanguageForm = ({
           />
         </div>
       </Form>
-
-      {error && <ErrorDisplay error={error} />}
     </div>
   );
-}; 
+};
+
+
+

@@ -25,6 +25,23 @@ const generationService = {
 
       const result: ApiResponse = await response.json();
 
+      // Special handling for DSL parse errors - return them as successful responses
+      // so they can be displayed in the VisualizationResults accordion
+      if (!response.ok && result.error && /DSL parse error/i.test(result.error)) {
+        return {
+          visual_language: request.dsl || "", // Preserve the original DSL input
+          svg_formal: null,
+          svg_intuitive: null,
+          formal_error: result.error,
+          intuitive_error: undefined,
+          missing_svg_entities: [],
+          component_mappings: {
+            formal: {},
+            intuitive: {}
+          }
+        };
+      }
+
       if (!response.ok) {
         throw new ApiError(result.error || "Unknown error", response.status);
       }
