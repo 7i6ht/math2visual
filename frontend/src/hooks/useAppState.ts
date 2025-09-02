@@ -75,17 +75,6 @@ export const useAppState = () => {
     }));
   };
 
-  const resetVisuals = () => {
-    setState(prev => ({
-      ...prev,
-      svgFormal: null,
-      svgIntuitive: null,
-      formalError: null,
-      intuitiveError: null,
-      missingSVGEntities: [],
-    }));
-  };
-
   const setUploadGenerating = (uploadGenerating: boolean) => {
     setState(prev => ({ ...prev, uploadGenerating }));
   };
@@ -104,7 +93,6 @@ export const useAppState = () => {
     
     try {
       setUploadGenerating(true);
-      resetVisuals();
       toast.loading('Regenerating visualizations...', { id: generateToastId });
       
       const { default: service } = await import('@/api_services/generation');
@@ -179,7 +167,6 @@ export const useAppState = () => {
     setVLFormLoading,
     setResults,
     resetResults,
-    resetVisuals,
     clearMissingSVGEntities,
     handleRegenerateAfterUpload,
     handleAbort,

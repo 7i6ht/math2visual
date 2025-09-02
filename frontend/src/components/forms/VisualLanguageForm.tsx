@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import { SyntaxEditor } from "@/components/ui/syntax-editor";
 import {
   Form,
@@ -14,27 +13,23 @@ interface VisualLanguageFormProps {
   vl: string | null;
   onSuccess: (vl: string, svgFormal: string | null, svgIntuitive: string | null, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], initialMWP?: string, initialFormula?: string, componentMappings?: any) => void;
   onLoadingChange: (loading: boolean, abortFn?: () => void) => void;
-  onReset: () => void;
-  highlightRanges?: Array<[number, number]>;
+  highlightRanges?: Array<[number, number]>
 }
 
 export const VisualLanguageForm = ({ 
   vl,
   onSuccess,
   onLoadingChange,
-  onReset,
   highlightRanges = []
 }: VisualLanguageFormProps) => {
   const { 
     form, 
     error,
-    loading,
-    handleVLForm,
+    handleDebouncedChange,
   } = useVisualLanguageForm({
     vl,
     onSuccess,
     onLoadingChange,
-    onReset,
   });
 
   return (
@@ -42,7 +37,7 @@ export const VisualLanguageForm = ({
       <h2 className="text-xl font-semibold mb-3 flex-shrink-0">Visual Language</h2>
       
       <Form {...form}>
-        <form onSubmit={handleVLForm} className="flex flex-col min-h-0 flex-1">
+        <div className="flex flex-col min-h-0 flex-1">
           <FormField
             control={form.control}
             name="dsl"
@@ -51,7 +46,10 @@ export const VisualLanguageForm = ({
                 <FormControl className="flex-1 min-h-0">
                   <SyntaxEditor
                     value={field.value}
-                    onChange={field.onChange}
+                    onChange={(value) => {
+                      field.onChange(value);
+                      handleDebouncedChange(value);
+                    }}
                     className="w-full"
                     height="100%"
                     highlightRanges={highlightRanges}
@@ -61,19 +59,7 @@ export const VisualLanguageForm = ({
               </FormItem>
             )}
           />
-
-          <div className="flex justify-center mt-4 flex-shrink-0">
-            {!loading && (
-              <Button
-                type="submit"
-                variant="secondary"
-                className="min-w-[200px]"
-              >
-                Resubmit Visualization
-              </Button>
-            )}
-          </div>
-        </form>
+        </div>
       </Form>
 
       {error && <ErrorDisplay error={error} />}

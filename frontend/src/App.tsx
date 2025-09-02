@@ -27,7 +27,6 @@ function App() {
     setVLFormLoading,
     setResults,
     resetResults,
-    resetVisuals,
     clearMissingSVGEntities,
     handleRegenerateAfterUpload,
     handleAbort,
@@ -37,10 +36,6 @@ function App() {
   // State for highlighting
   const [dslHighlightRanges, setDslHighlightRanges] = useState<Array<[number, number]>>([]);
   const [mwpHighlightRanges, setMwpHighlightRanges] = useState<Array<[number, number]>>([]);
-
-  // Determine if any loading is happening and what message to show
-  const isLoading = mpFormLoading || vlFormLoading || uploadGenerating;
-  const loadingMessage = mpFormLoading ? "Generating..." : "Regenerating...";
   
   // Handle component updates from edit panel
   const handleComponentUpdate = (updatedDSL: string, updatedMWP: string) => {
@@ -109,10 +104,10 @@ function App() {
               </div>
 
               {/* Loading state with better positioning and spacing */}
-              {isLoading && (
+              {mpFormLoading && (
                 <div className="animate-in fade-in-0 duration-300">
                   <GearLoading 
-                    message={loadingMessage} 
+                    message={"Generating..."} 
                     onAbort={handleAbort}
                     showAbortButton={true}
                   />
@@ -166,7 +161,6 @@ function App() {
                         onLoadingChange={(loading, abortFn) => {
                           setVLFormLoading(loading, abortFn);
                         }}
-                        onReset={resetVisuals}
                         highlightRanges={dslHighlightRanges}
                       />
                     )}
@@ -193,7 +187,7 @@ function App() {
                 />
 
                 {/* Loading animation below the accordions when regenerating */}
-                {vlFormLoading && (
+                {(vlFormLoading || uploadGenerating) && (
                   <div className="mt-6 animate-in fade-in-0 duration-300">
                     <GearLoading 
                       message="Regenerating..." 

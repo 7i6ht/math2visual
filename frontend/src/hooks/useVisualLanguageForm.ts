@@ -1,27 +1,23 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { vlFormSchema } from "@/schemas/validation";
 import { generationService as service } from "@/api_services/generation";
 import type { VLFormData } from "@/schemas/validation";
 import { DSLFormatter } from "@/utils/dsl-formatter";
 
-
 interface UseVisualLanguageFormProps {
   vl: string | null;
   onSuccess: (vl: string, svgFormal: string | null, svgIntuitive: string | null, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], initialMWP?: string, initialFormula?: string, componentMappings?: any) => void;
   onLoadingChange: (loading: boolean, abortFn?: () => void) => void;
-  onReset: () => void;
 }
 
 export const useVisualLanguageForm = ({
   vl,
   onSuccess,
   onLoadingChange,
-  onReset,
 }: UseVisualLanguageFormProps) => {
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
 
   const form = useForm<VLFormData>({
     resolver: zodResolver(vlFormSchema),
@@ -37,25 +33,26 @@ export const useVisualLanguageForm = ({
     }
   }, [vl, form]);
 
-  const handleVLForm = async (data: VLFormData) => {
+  const handleVLChange = async (dslValue: string) => {
+    // Don't regenerate if the value is empty or hasn't changed
+    if (!dslValue.trim() || dslValue === vl) {
+      return;
+    }
+
     setError(null);
-    setLoading(true);
-    // Don't reset visuals when regenerating - keep them visible during regeneration
-    // onReset();
 
     // Create abort controller for this request
     const controller = new AbortController();
     const abort = () => {
       controller.abort();
-      setLoading(false);
       setError("Update cancelled");
     };
-    
+
     onLoadingChange(true, abort);
 
     try {
       // Minify the DSL (single line format)
-      const minifiedDsl = DSLFormatter.minify(data.dsl);
+      const minifiedDsl = DSLFormatter.minify(dslValue);
       const result = await service.generateFromDSL(minifiedDsl, controller.signal);
       onSuccess(
         result.visual_language,
@@ -72,15 +69,27 @@ export const useVisualLanguageForm = ({
       const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
       setError(errorMessage);
     } finally {
-      setLoading(false);
       onLoadingChange(false);
     }
+  };
+
+  // Debounced change handler managed by the hook
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const handleDebouncedChange = (value: string, delayMs = 800) => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    timeoutRef.current = setTimeout(() => {
+      if (value && value.trim() && value !== vl) {
+        void handleVLChange(value);
+      }
+    }, delayMs);
   };
 
   return {
     form,
     error,
-    loading,
-    handleVLForm: form.handleSubmit(handleVLForm),
+    handleVLChange,
+    handleDebouncedChange,
   };
 }; 
