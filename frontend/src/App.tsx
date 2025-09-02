@@ -62,7 +62,7 @@ function App() {
   return (
     <>
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-        {!hasCompletedGeneration ? (
+        { !hasCompletedGeneration || mpFormLoading ? (
           /* Centered layout (initial state and during loading) */
           <div className="container mx-auto px-4 py-4 lg:px-8">
             <div className="flex flex-col items-center justify-center min-h-[calc(100vh-2rem)]">
