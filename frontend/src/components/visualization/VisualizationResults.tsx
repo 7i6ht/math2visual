@@ -51,6 +51,14 @@ export const VisualizationResults = ({
   const [activeVisualizationType, setActiveVisualizationType] = useState<'formal' | 'intuitive'>('formal');
   const [openAccordionItems, setOpenAccordionItems] = useState<string[]>(["formal"]);
   
+  // Suppress generic missing-SVG errors in the accordion; these are shown
+  // more helpfully in the dedicated MissingSVGSection below
+  const filterMissingSvgError = (error: string | null): string | null => {
+    if (!error) return error;
+    // Backend raises FileNotFoundError as: "SVG file not found: <path>"
+    return /SVG file not found/i.test(error) ? null : error;
+  };
+
   // Setup editable components
   const {
     editingComponent,
@@ -91,7 +99,7 @@ export const VisualizationResults = ({
           type="formal"
           title="Formal Representation"
           svgContent={svgFormal}
-          error={formalError}
+          error={filterMissingSvgError(formalError)}
           componentMappings={componentMappings?.formal || {}}
           isOpen={openAccordionItems.includes("formal")}
           mwpValue={mwpValue}
@@ -105,7 +113,7 @@ export const VisualizationResults = ({
           type="intuitive"
           title="Intuitive Representation"
           svgContent={svgIntuitive}
-          error={intuitiveError}
+          error={filterMissingSvgError(intuitiveError)}
           componentMappings={componentMappings?.intuitive || {}}
           isOpen={openAccordionItems.includes("intuitive")}
           mwpValue={mwpValue}
