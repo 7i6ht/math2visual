@@ -99,6 +99,7 @@ function App() {
                     formula={formula}
                     saveInitialValues={saveInitialValues}
                     rows={5}
+                    hideSubmit={mpFormLoading}
                   />
                 </div>
               </div>
@@ -149,6 +150,7 @@ function App() {
                       saveInitialValues={saveInitialValues}
                       rows={8}
                       highlightRanges={mwpHighlightRanges}
+                      hideSubmit={false}
                     />
                   </div>
 

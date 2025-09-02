@@ -81,6 +81,15 @@ export const GearLoading = ({
             </svg>
           </div>
         </div>
+      </div>
+      
+      <div className="flex flex-col items-center space-y-1">
+        <span className={`text-muted-foreground ${config.message}`}>
+          {message.replace(/\.{3}$/, "")} 
+          <span className="inline-block ml-3 animate-bounce" style={{ animationDelay: "0ms", animationDuration: "2.4s" }}>.</span>
+          <span className="inline-block animate-bounce" style={{ animationDelay: "300ms", animationDuration: "2.4s" }}>.</span>
+          <span className="inline-block animate-bounce" style={{ animationDelay: "600ms", animationDuration: "2.4s" }}>.</span>
+        </span>
 
         {showAbortButton && onAbort && (
           <Button
@@ -94,11 +103,6 @@ export const GearLoading = ({
             <X className={`${config.icon}`} />
           </Button>
         )}
-      </div>
-      
-      <div className="flex flex-col items-center space-y-3">
-        <span className={`text-muted-foreground ${config.message}`}>{message}</span>
-        
       </div>
     </div>
   );

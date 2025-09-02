@@ -20,6 +20,7 @@ interface MathProblemFormProps {
   saveInitialValues: (mwp: string, formula: string) => void;
   rows?: number;
   highlightRanges?: Array<[number, number]>;
+  hideSubmit?: boolean;
 }
 
 export const MathProblemForm = ({ 
@@ -30,7 +31,8 @@ export const MathProblemForm = ({
   formula = "",
   saveInitialValues,
   rows = 8,
-  highlightRanges = []
+  highlightRanges = [],
+  hideSubmit = false
 }: MathProblemFormProps) => {
   const { 
     form, 
@@ -90,7 +92,7 @@ export const MathProblemForm = ({
         />
 
         <div className="flex justify-center mt-6">
-          {!loading && (
+          {!loading && !hideSubmit && (
             <Button
               type="submit"
               size="lg"
