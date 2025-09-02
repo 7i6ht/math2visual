@@ -6,11 +6,11 @@ import { generationService as service } from "@/api_services/generation";
 import type { FormData } from "@/schemas/validation";
 
 interface UseMathProblemFormProps {
-  onSuccess: (vl: string, svgFormal: string | null, svgIntuitive: string | null, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], initialMWP?: string, initialFormula?: string, componentMappings?: any) => void;
+  onSuccess: (vl: string, svgFormal: string | null, svgIntuitive: string | null, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], mwp?: string, formula?: string, componentMappings?: any) => void;
   onLoadingChange: (loading: boolean, abortFn?: () => void) => void;
   onReset: () => void;
-  initialMwp?: string;
-  initialFormula?: string;
+  mwp?: string;
+  formula?: string;
   saveInitialValues: (mwp: string, formula: string) => void;
 }
 
@@ -18,8 +18,8 @@ export const useMathProblemForm = ({
   onSuccess,
   onLoadingChange,
   onReset,
-  initialMwp = "",
-  initialFormula = "",
+  mwp = "",
+  formula = "",
   saveInitialValues,
 }: UseMathProblemFormProps) => {
   const [error, setError] = useState<string | null>(null);
@@ -28,18 +28,18 @@ export const useMathProblemForm = ({
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      mwp: initialMwp,
-      formula: initialFormula,
+      mwp: mwp,
+      formula: formula,
     },
   });
 
   // Update form values when initial values change (only for the two-column layout)
   useEffect(() => {
-    if (initialMwp || initialFormula) {
-      form.setValue("mwp", initialMwp);
-      form.setValue("formula", initialFormula);
+    if (mwp || formula) {
+      form.setValue("mwp", mwp);
+      form.setValue("formula", formula);
     }
-  }, [initialMwp, initialFormula, form]);
+  }, [mwp, formula, form]);
 
   const handleSubmit = async (data: FormData) => {
     setError(null);

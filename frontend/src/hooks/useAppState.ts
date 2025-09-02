@@ -16,8 +16,8 @@ export const useAppState = () => {
     uploadGenerating: false,
     uploadedEntities: [],
     hasCompletedGeneration: false,
-    initialMWP: "",
-    initialFormula: "",
+    mwp: "",
+    formula: "",
     componentMappings: undefined,
   });
 
@@ -44,8 +44,8 @@ export const useAppState = () => {
     formalError?: string | null,
     intuitiveError?: string | null,
     missingSvgEntities?: string[],
-    initialMWP?: string,
-    initialFormula?: string,
+    mwp?: string,
+    formula?: string,
     componentMappings?: { formal: Record<string, any>; intuitive: Record<string, any> }
   ) => {
     setState(prev => ({
@@ -57,8 +57,8 @@ export const useAppState = () => {
       intuitiveError: intuitiveError || null,
       missingSVGEntities: missingSvgEntities|| [],
       hasCompletedGeneration: true,
-      ...(initialMWP !== undefined && { initialMWP }),
-      ...(initialFormula !== undefined && { initialFormula }),
+      ...(mwp !== undefined && { mwp }),
+      ...(formula !== undefined && { formula }),
       ...(componentMappings !== undefined && { componentMappings }),
     }));
   };
@@ -137,8 +137,8 @@ export const useAppState = () => {
   const saveInitialValues = (mwp: string, formula: string) => {
     setState(prev => ({
       ...prev,
-      initialMWP: mwp,
-      initialFormula: formula,
+      mwp: mwp,
+      formula: formula,
     }));
   };
 
@@ -155,7 +155,7 @@ export const useAppState = () => {
       mpFormLoading: false,
       vlFormLoading: false,
       currentAbortFunction: undefined,
-      // Keep initialMWP and initialFormula values intact
+      // Keep mwp and formula values intact
     }));
 
     toast.info('Generation cancelled');

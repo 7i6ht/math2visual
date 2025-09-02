@@ -20,8 +20,8 @@ function App() {
     missingSVGEntities,
     uploadGenerating,
     hasCompletedGeneration,
-    initialMWP,
-    initialFormula,
+    mwp,
+    formula,
     componentMappings,
     setMpFormLoading,
     setVLFormLoading,
@@ -40,7 +40,7 @@ function App() {
   // Handle component updates from edit panel
   const handleComponentUpdate = (updatedDSL: string, updatedMWP: string) => {
     // Update the visual language and initial MWP
-    saveInitialValues(updatedMWP, initialFormula);
+    saveInitialValues(updatedMWP, formula);
     // Trigger regeneration with updated DSL
     setVLFormLoading(true);
     setResults(
@@ -51,7 +51,7 @@ function App() {
       intuitiveError,
       missingSVGEntities,
       updatedMWP,
-      initialFormula,
+      formula,
       componentMappings
     );
     // Note: The actual regeneration would be triggered by the VisualLanguageForm
@@ -95,8 +95,8 @@ function App() {
                       setMpFormLoading(loading, abortFn);
                     }}
                     onReset={resetResults}
-                    initialMwp={initialMWP}
-                    initialFormula={initialFormula}
+                    mwp={mwp}
+                    formula={formula}
                     saveInitialValues={saveInitialValues}
                     rows={5}
                   />
@@ -144,8 +144,8 @@ function App() {
                         setMpFormLoading(loading, abortFn);
                       }}
                       onReset={resetResults}
-                      initialMwp={initialMWP}
-                      initialFormula={initialFormula}
+                      mwp={mwp}
+                      formula={formula}
                       saveInitialValues={saveInitialValues}
                       rows={8}
                       highlightRanges={mwpHighlightRanges}
@@ -178,7 +178,7 @@ function App() {
                   missingSVGEntities={missingSVGEntities}
                   componentMappings={componentMappings}
                   dslValue={vl || ''}
-                  mwpValue={initialMWP}
+                  mwpValue={mwp}
                   onDSLRangeHighlight={setDslHighlightRanges}
                   onMWPRangeHighlight={setMwpHighlightRanges}
                   onComponentUpdate={handleComponentUpdate}

@@ -8,7 +8,7 @@ import { DSLFormatter } from "@/utils/dsl-formatter";
 
 interface UseVisualLanguageFormProps {
   vl: string | null;
-  onSuccess: (vl: string, svgFormal: string | null, svgIntuitive: string | null, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], initialMWP?: string, initialFormula?: string, componentMappings?: any) => void;
+  onSuccess: (vl: string, svgFormal: string | null, svgIntuitive: string | null, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], mwp?: string, formula?: string, componentMappings?: any) => void;
   onLoadingChange: (loading: boolean, abortFn?: () => void) => void;
 }
 
@@ -61,8 +61,8 @@ export const useVisualLanguageForm = ({
         result.formal_error || undefined,
         result.intuitive_error || undefined,
         result.missing_svg_entities,
-        undefined, // initialMWP - not changing
-        undefined, // initialFormula - not changing
+        undefined, // mwp - not changing
+        undefined, // formula - not changing
         result.component_mappings
       );
     } catch (error) {

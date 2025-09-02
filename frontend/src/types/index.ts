@@ -82,8 +82,8 @@ export interface AppState {
   uploadGenerating: boolean;
   uploadedEntities: string[];
   hasCompletedGeneration: boolean;
-  initialMWP: string;
-  initialFormula: string;
+  mwp: string;
+  formula: string;
   componentMappings?: {
     formal: Record<string, any>;
     intuitive: Record<string, any>;

@@ -12,11 +12,11 @@ import { ErrorDisplay } from "@/components/ui/error-display";
 import { useMathProblemForm } from "@/hooks/useMathProblemForm";
 
 interface MathProblemFormProps {
-  onSuccess: (vl: string, svgFormal: string | null, svgIntuitive: string | null, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], initialMWP?: string, initialFormula?: string) => void;
+  onSuccess: (vl: string, svgFormal: string | null, svgIntuitive: string | null, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], mwp?: string, formula?: string) => void;
   onLoadingChange: (loading: boolean, abortFn?: () => void) => void;
   onReset: () => void;
-  initialMwp?: string;
-  initialFormula?: string;
+  mwp?: string;
+  formula?: string;
   saveInitialValues: (mwp: string, formula: string) => void;
   rows?: number;
   highlightRanges?: Array<[number, number]>;
@@ -26,8 +26,8 @@ export const MathProblemForm = ({
   onSuccess, 
   onLoadingChange, 
   onReset,
-  initialMwp = "",
-  initialFormula = "",
+  mwp = "",
+  formula = "",
   saveInitialValues,
   rows = 8,
   highlightRanges = []
@@ -41,8 +41,8 @@ export const MathProblemForm = ({
     onSuccess,
     onLoadingChange,
     onReset,
-    initialMwp,
-    initialFormula,
+    mwp,
+    formula,
     saveInitialValues,
   });
 
