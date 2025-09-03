@@ -1,10 +1,11 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { vlFormSchema } from "@/schemas/validation";
 import { generationService as service } from "@/api_services/generation";
-import type { VLFormData } from "@/schemas/validation";
 import { DSLFormatter } from "@/utils/dsl-formatter";
+import { toast } from "sonner";
+import type { VLFormData } from "@/schemas/validation";
 
 interface UseVisualLanguageFormProps {
   vl: string | null;
@@ -17,7 +18,7 @@ export const useVisualLanguageForm = ({
   onResult,
   onLoadingChange,
 }: UseVisualLanguageFormProps) => {
-  const [error, setError] = useState<string | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const form = useForm<VLFormData>({
     resolver: zodResolver(vlFormSchema),
@@ -39,13 +40,11 @@ export const useVisualLanguageForm = ({
       return;
     }
 
-    setError(null);
-
     // Create abort controller for this request
     const controller = new AbortController();
     const abort = () => {
       controller.abort();
-      setError("Update cancelled");
+      toast.info('Generation cancelled');
     };
 
     onLoadingChange(true, abort);
@@ -56,37 +55,34 @@ export const useVisualLanguageForm = ({
       const result = await service.generateFromDSL(minifiedDsl, controller.signal);
       
       // Determine which visual language value to use
-      let visualLanguageToUse: string;
-      if (result.formal_error || result.intuitive_error) {
-        // If there are errors, preserve the old formatted value
-        visualLanguageToUse = vl || "";
-      } else {
-        // If no errors, use the new formatted value
-        visualLanguageToUse = result.visual_language;
-      }
+      const visualLanguageToUse = (result.formal_error || result.intuitive_error)
+        ? (vl || "")
+        : result.visual_language;
       
-      // Always call onResult to pass result information to VisualizationResults
+      // Pass results up; App will handle MWP updates and preservation logic
       onResult(
         visualLanguageToUse,
         result.svg_formal,
         result.svg_intuitive,
-        result.formal_error || undefined,
-        result.intuitive_error || undefined,
+        result.formal_error,
+        result.intuitive_error,
         result.missing_svg_entities,
         undefined, // mwp - not changing
         undefined, // formula - not changing
         result.component_mappings
       );
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-      setError(errorMessage);
+      if (error instanceof Error && error.name === 'AbortError') {
+        toast.info('Generation cancelled');
+      } else {
+        toast.error(error instanceof Error ? error.message : "An error occurred");
+      }
     } finally {
       onLoadingChange(false);
     }
   };
 
   // Debounced change handler managed by the hook
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const handleDebouncedChange = (value: string, delayMs = 800) => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
@@ -100,8 +96,6 @@ export const useVisualLanguageForm = ({
 
   return {
     form,
-    error,
-    handleVLChange,
     handleDebouncedChange,
   };
 }; 

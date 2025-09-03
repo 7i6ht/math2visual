@@ -7,6 +7,7 @@ import { VisualizationResults } from "@/components/visualization/VisualizationRe
 import { GearLoading } from "@/components/ui/gear-loading";
 import { Toaster } from "@/components/ui/sonner";
 import { useAppState } from "@/hooks/useAppState";
+import { detectDSLChanges, updateMWPText } from "@/lib/dsl-utils";
 
 function App() {
   const {
@@ -56,6 +57,53 @@ function App() {
     );
     // Note: The actual regeneration would be triggered by the VisualLanguageForm
     // when it detects the DSL change
+  };
+
+  // Wrapper to handle DSL→MWP sync and SVG preservation
+  const handleVLResult = (
+    nextVL: string,
+    nextSvgFormal: string | null,
+    nextSvgIntuitive: string | null,
+    nextFormalError?: string,
+    nextIntuitiveError?: string,
+    nextMissing?: string[],
+    nextMWPOverride?: string,
+    nextFormula?: string,
+    nextMappings?: { formal: Record<string, any>; intuitive: Record<string, any> }
+  ) => {
+    // Compute MWP updates from DSL diffs when override not provided
+    let nextMWP = nextMWPOverride ?? mwp;
+    if (!nextMWPOverride) {
+      const changes = detectDSLChanges(vl ?? "", nextVL);
+      if (changes.length > 0) {
+        nextMWP = updateMWPText(mwp, changes);
+      }
+    }
+
+    // Preserve existing SVGs if new ones are null
+    const mergedSvgFormal = nextSvgFormal ?? svgFormal;
+    const mergedSvgIntuitive = nextSvgIntuitive ?? svgIntuitive;
+
+    // Preserve errors/missing/formula/mappings per merge policy:
+    // - undefined => no change (keep existing)
+    // - null      => explicitly clear (overwrite with null)
+    const mergedFormalError = nextFormalError !== undefined ? nextFormalError : formalError;
+    const mergedIntuitiveError = nextIntuitiveError !== undefined ? nextIntuitiveError : intuitiveError;
+    const mergedMissing = nextMissing !== undefined ? nextMissing : missingSVGEntities;
+    const mergedFormula = nextFormula !== undefined ? nextFormula : formula;
+    const mergedMappings = nextMappings !== undefined ? nextMappings : componentMappings;
+
+    setResults(
+      nextVL,
+      mergedSvgFormal,
+      mergedSvgIntuitive,
+      mergedFormalError,
+      mergedIntuitiveError,
+      mergedMissing,
+      nextMWP,
+      mergedFormula,
+      mergedMappings
+    );
   };
   
 
@@ -161,7 +209,7 @@ function App() {
                     {vl && (
                       <VisualLanguageForm
                         vl={vl}
-                        onResult={setResults}
+                        onResult={handleVLResult}
                         onLoadingChange={(loading, abortFn) => {
                           setVLFormLoading(loading, abortFn);
                         }}
