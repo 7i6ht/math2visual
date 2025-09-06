@@ -26,6 +26,8 @@ export interface UseVisualInteractionProps {
   onMWPRangeHighlight?: (ranges: Array<[number, number]>) => void;
   /** Callback for component click events */
   onComponentClick?: (dslPath: string, clickPosition: { x: number; y: number }) => void;
+  /** Current DSL path from cursor position in editor */
+  currentDSLPath?: string | null;
 }
 
 /**

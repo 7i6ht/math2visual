@@ -30,6 +30,7 @@ interface VisualizationResultsProps {
   onComponentUpdate?: (dsl: string, mwp: string) => void;
   onRegenerateAfterUpload?: (toastId: string | undefined) => Promise<void>;
   onAllFilesUploaded?: () => void;
+  currentDSLPath?: string | null;
 }
 
 export const VisualizationResults = ({
@@ -46,6 +47,7 @@ export const VisualizationResults = ({
   onComponentUpdate,
   onRegenerateAfterUpload,
   onAllFilesUploaded,
+  currentDSLPath,
 }: VisualizationResultsProps) => {
   const [activeVisualizationType, setActiveVisualizationType] = useState<'formal' | 'intuitive'>('formal');
   const [openAccordionItems, setOpenAccordionItems] = useState<string[]>([]);
@@ -141,6 +143,7 @@ export const VisualizationResults = ({
               onMWPRangeHighlight={onMWPRangeHighlight}
               onComponentClick={openEditPanel}
               onHover={() => handleVisualizationHover('formal')}
+              currentDSLPath={currentDSLPath}
             />
 
             <VisualizationSection
@@ -155,6 +158,7 @@ export const VisualizationResults = ({
               onMWPRangeHighlight={onMWPRangeHighlight}
               onComponentClick={openEditPanel}
               onHover={() => handleVisualizationHover('intuitive')}
+              currentDSLPath={currentDSLPath}
             />
           </>
         )}

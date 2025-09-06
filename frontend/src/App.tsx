@@ -37,6 +37,7 @@ function App() {
   // State for highlighting
   const [dslHighlightRanges, setDslHighlightRanges] = useState<Array<[number, number]>>([]);
   const [mwpHighlightRanges, setMwpHighlightRanges] = useState<Array<[number, number]>>([]);
+  const [currentDSLPath, setCurrentDSLPath] = useState<string | null>(null);
   
   // Handle component updates from edit panel
   const handleComponentUpdate = (updatedDSL: string, updatedMWP: string) => {
@@ -214,6 +215,7 @@ function App() {
                           setVLFormLoading(loading, abortFn);
                         }}
                         highlightRanges={dslHighlightRanges}
+                        onDSLPathHighlight={setCurrentDSLPath}
                       />
                     )}
                   </div>
@@ -234,8 +236,9 @@ function App() {
                   onDSLRangeHighlight={setDslHighlightRanges}
                   onMWPRangeHighlight={setMwpHighlightRanges}
                   onComponentUpdate={handleComponentUpdate}
-                  onRegenerateAfterUpload={handleRegenerateAfterUpload}
+                                    onRegenerateAfterUpload={handleRegenerateAfterUpload}
                   onAllFilesUploaded={clearMissingSVGEntities}
+                  currentDSLPath={currentDSLPath}
                 />
 
                 {/* Loading animation below the accordions when regenerating */}

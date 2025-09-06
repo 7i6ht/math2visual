@@ -9,6 +9,7 @@ interface UseHighlightingProps {
   mwpValue: string;
   onDSLRangeHighlight?: (ranges: Array<[number, number]>) => void;
   onMWPRangeHighlight?: (ranges: Array<[number, number]>) => void;
+  currentDSLPath?: string | null;
 }
 
 interface HighlightConfig {
@@ -28,6 +29,7 @@ export const useHighlighting = ({
   mwpValue,
   onDSLRangeHighlight,
   onMWPRangeHighlight,
+  currentDSLPath,
 }: UseHighlightingProps) => {
 
   /**
@@ -489,6 +491,58 @@ export const useHighlighting = ({
     });
   }, [triggerHighlight, svgRef, componentMappings, onMWPRangeHighlight]);
 
+  /**
+   * Highlight the visual element corresponding to the current DSL path
+   */
+  const highlightCurrentDSLPath = useCallback(() => {
+    console.log('🎯 highlightCurrentDSLPath called with:', currentDSLPath);
+    console.log('🎯 Available component mappings:', Object.keys(componentMappings));
+    
+    if (!currentDSLPath) {
+      console.log('❌ No currentDSLPath, clearing highlights');
+      clearVisualHighlights();
+      return;
+    }
+
+    // Find the component mapping for the current DSL path
+    const mapping = componentMappings[currentDSLPath];
+    console.log('🎯 Looking for mapping for path:', currentDSLPath);
+    console.log('🎯 Found mapping:', mapping);
+    
+    if (!mapping) {
+      console.log('❌ No mapping found for path:', currentDSLPath);
+      clearVisualHighlights();
+      return;
+    }
+
+    // Map DSL path types to their corresponding highlight functions
+    const pathTypeHandlers: Record<string, () => void> = {
+      'entity_quantity': () => triggerTextHighlight(currentDSLPath),
+      'container_name': () => triggerContainerNameHighlight(currentDSLPath),
+      'entity_type': () => triggerEmbeddedSvgHighlight(currentDSLPath),
+      'container_type': () => triggerContainerTypeHighlight(currentDSLPath),
+      'operation': () => triggerOperationHighlight(currentDSLPath),
+    };
+
+    // Find the matching handler for the current path
+    const handler = Object.entries(pathTypeHandlers).find(([pathType]) => 
+      currentDSLPath.endsWith(pathType)
+    );
+
+    if (handler) {
+      console.log('🎯 Executing handler for path:', currentDSLPath);
+      handler[1](); // Execute the handler function
+    } else if (currentDSLPath.includes('/entities[') && !currentDSLPath.includes('/')) {
+      // Special case for entity containers (boxes)
+      console.log('🎯 Triggering box highlight for path:', currentDSLPath);
+      triggerBoxHighlight(currentDSLPath);
+    } else {
+      // For any other path type, just clear highlights
+      console.log('🎯 No handler found, clearing highlights for path:', currentDSLPath);
+      clearVisualHighlights();
+    }
+  }, [currentDSLPath, componentMappings, clearVisualHighlights, triggerTextHighlight, triggerContainerNameHighlight, triggerEmbeddedSvgHighlight, triggerContainerTypeHighlight, triggerBoxHighlight, triggerOperationHighlight]);
+
   return {
     clearVisualHighlights,
     clearAllHighlights,
@@ -500,5 +554,6 @@ export const useHighlighting = ({
     triggerContainerTypeHighlight,
     triggerContainerNameHighlight,
     triggerResultContainerHighlight,
+    highlightCurrentDSLPath,
   };
 };

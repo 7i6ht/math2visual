@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { 
   ComponentMapping, 
   UseVisualInteractionProps, 
@@ -25,6 +25,7 @@ export const useVisualInteraction = ({
   onDSLRangeHighlight,
   onMWPRangeHighlight,
   onComponentClick,
+  currentDSLPath,
 }: UseVisualInteractionProps): UseVisualInteractionReturn => {
   // ===== STATE MANAGEMENT =====
   const [hoveredComponent, setHoveredComponent] = useState<string | null>(null);
@@ -40,6 +41,7 @@ export const useVisualInteraction = ({
     mwpValue,
     onDSLRangeHighlight,
     onMWPRangeHighlight,
+    currentDSLPath,
   });
 
   // Event management and interaction setup
@@ -61,6 +63,20 @@ export const useVisualInteraction = ({
       highlighting.setupTransformOrigins();
     }
   }, [componentMappings, interactions, svgRef, highlighting]);
+
+  // Smart guard: Only trigger highlighting when currentDSLPath actually changes
+  // This prevents infinite loops by tracking the previous path
+  const previousPathRef = useRef<string | null>(null);
+  
+  useEffect(() => {
+    if (currentDSLPath && 
+        currentDSLPath !== previousPathRef.current && 
+        Object.keys(componentMappings).length > 0) {
+      console.log('🔄 Path changed from', previousPathRef.current, 'to', currentDSLPath);
+      previousPathRef.current = currentDSLPath;
+      highlighting.highlightCurrentDSLPath();
+    }
+  }, [currentDSLPath, componentMappings, highlighting]);
 
   // ===== PUBLIC API =====
 

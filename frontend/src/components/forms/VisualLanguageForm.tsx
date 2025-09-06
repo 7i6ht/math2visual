@@ -13,6 +13,7 @@ interface VisualLanguageFormProps {
   onResult: (vl: string, svgFormal: string | null, svgIntuitive: string | null, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], mwp?: string, formula?: string, componentMappings?: any) => void;
   onLoadingChange: (loading: boolean, abortFn?: () => void) => void;
   highlightRanges?: Array<[number, number]>;
+  onDSLPathHighlight?: (dslPath: string | null) => void;
 }
 
 export const VisualLanguageForm = ({ 
@@ -20,6 +21,7 @@ export const VisualLanguageForm = ({
   onResult,
   onLoadingChange,
   highlightRanges = [],
+  onDSLPathHighlight,
 }: VisualLanguageFormProps) => {
   const { 
     form, 
@@ -51,6 +53,7 @@ export const VisualLanguageForm = ({
                     className="w-full"
                     height="100%"
                     highlightRanges={highlightRanges}
+                    onCursorPositionChange={(_position, dslPath) => {onDSLPathHighlight?.(dslPath);}}
                   />
                 </FormControl>
                 <FormMessage />

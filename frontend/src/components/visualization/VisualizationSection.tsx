@@ -20,6 +20,7 @@ interface VisualizationSectionProps {
   onMWPRangeHighlight?: (ranges: Array<[number, number]>) => void;
   onComponentClick: (dslPath: string, position: { x: number; y: number }) => void;
   onHover: () => void;
+  currentDSLPath?: string | null;
 }
 
 export const VisualizationSection = ({
@@ -34,6 +35,7 @@ export const VisualizationSection = ({
   onMWPRangeHighlight,
   onComponentClick,
   onHover,
+  currentDSLPath,
 }: VisualizationSectionProps) => {
   const svgRef = useRef<HTMLDivElement | null>(null);
   
@@ -57,6 +59,7 @@ export const VisualizationSection = ({
     onDSLRangeHighlight,
     onMWPRangeHighlight,
     onComponentClick,
+    currentDSLPath,
   });
 
   // Notify parent when this visualization is hovered
