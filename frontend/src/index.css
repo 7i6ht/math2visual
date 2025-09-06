@@ -107,7 +107,7 @@ h1 {
   }
   
   [data-dsl-path].highlighted-svg {
-    filter: drop-shadow(0 4px 8px rgba(59, 130, 246, 0.3)) !important;
+    filter: drop-shadow(0 12px 24px rgba(59, 130, 246, 0.5)) !important;
     transform: scale(1.05) !important;
     /* transform-origin set by JavaScript for proper positioning */
     vector-effect: non-scaling-stroke !important;
