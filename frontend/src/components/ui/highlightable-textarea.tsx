@@ -120,8 +120,8 @@ export const HighlightableTextarea = React.forwardRef<
     textareaRef.current = node;
     if (typeof ref === 'function') {
       ref(node);
-    } else if (ref) {
-      (ref as any).current = node;
+    } else if (ref && typeof ref !== 'function') {
+      ref.current = node;
     }
   };
 
