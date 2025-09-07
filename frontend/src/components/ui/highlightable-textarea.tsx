@@ -106,7 +106,8 @@ export const HighlightableTextarea = React.forwardRef<
         const highlighted = content.slice(adjustedStart, adjustedEnd);
         const after = content.slice(adjustedEnd);
         
-        const highlightSpan = `<span style="background-color: rgba(59, 130, 246, 0.3); padding: 1px 2px; border-radius: 2px;">${highlighted}</span>`;
+        // Important: do not add padding/border that would alter text layout compared to the textarea
+        const highlightSpan = `<span style="background-color: rgba(59, 130, 246, 0.3);">${highlighted}</span>`;
         
         content = before + highlightSpan + after;
         offset += highlightSpan.length - highlighted.length;
