@@ -16,8 +16,12 @@ export const HighlightableTextarea = React.forwardRef<
 
   // Sync textarea styles with highlight layer
   useEffect(() => {
-    if (textareaRef.current) {
-      const computedStyle = window.getComputedStyle(textareaRef.current);
+    if (!textareaRef.current) return;
+
+    const textarea = textareaRef.current;
+
+    const updateStylesFromComputed = () => {
+      const computedStyle = window.getComputedStyle(textarea);
       setTextareaStyle({
         fontFamily: computedStyle.fontFamily,
         fontSize: computedStyle.fontSize,
@@ -28,8 +32,28 @@ export const HighlightableTextarea = React.forwardRef<
         whiteSpace: 'pre-wrap',
         wordWrap: 'break-word',
         overflow: 'hidden',
+        boxSizing: computedStyle.boxSizing as any,
       });
-    }
+    };
+
+    updateStylesFromComputed();
+
+    // Keep styles in sync on resize/layout changes
+    const resizeObserver = new ResizeObserver(() => {
+      updateStylesFromComputed();
+    });
+    resizeObserver.observe(textarea);
+
+    // Also handle font-size/line-height changes due to class toggles
+    const mutationObserver = new MutationObserver(() => {
+      updateStylesFromComputed();
+    });
+    mutationObserver.observe(textarea, { attributes: true, attributeFilter: ['class', 'style'] });
+
+    return () => {
+      resizeObserver.disconnect();
+      mutationObserver.disconnect();
+    };
   }, []);
 
   // Auto-scroll to highlighted ranges when they change
@@ -97,7 +121,7 @@ export const HighlightableTextarea = React.forwardRef<
     if (typeof ref === 'function') {
       ref(node);
     } else if (ref) {
-      ref.current = node;
+      (ref as any).current = node;
     }
   };
 
@@ -114,9 +138,11 @@ export const HighlightableTextarea = React.forwardRef<
           ...textareaStyle,
           zIndex: 1,
           background: 'transparent',
-          border: 'none',
+          // Important: mirror textarea's border/box model to keep wrapping identical
           color: 'transparent',
           resize: 'none',
+          width: '100%',
+          height: '100%'
         }}
         dangerouslySetInnerHTML={{
           __html: String(createHighlightedContent() || ''),
