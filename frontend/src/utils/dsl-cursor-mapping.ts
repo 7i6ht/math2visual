@@ -7,8 +7,6 @@ interface DSLNode {
   path: string;
   startOffset: number;
   endOffset: number;
-  type: 'operation' | 'entity' | 'property' | 'container';
-  value?: string;
   children?: DSLNode[];
 }
 
@@ -23,18 +21,14 @@ export function parseDSLWithPositions(dslText: string): DSLNode {
       path: '/',
       startOffset: 0,
       endOffset: dslText.length,
-      type: 'operation',
       children: []
     };
   }
   
-  const operationType = operationMatch[1];
   const rootNode: DSLNode = {
     path: 'operation',
     startOffset: 0,
     endOffset: dslText.length,
-    type: 'operation',
-    value: operationType,
     children: []
   };
   
@@ -77,8 +71,6 @@ function parseOperationContent(
           path: `${parentNode.path}/entities[${index}]/operation`,
           startOffset: entityStart,
           endOffset: entityEnd,
-          type: 'operation',
-          value: nestedOpMatch[1],
           children: []
         };
         parentNode.children!.push(nestedNode);
@@ -161,8 +153,6 @@ function parseEntityWithPosition(
     path: entityPath,
     startOffset,
     endOffset: startOffset + entityStr.length,
-    type: entityType === 'result_container' ? 'container' : 'entity',
-    value: entityType,
     children: []
   };
   
@@ -200,8 +190,6 @@ function parseEntityWithPosition(
         path: `${entityPath}/${key}`,
         startOffset: lineStart,
         endOffset: lineEnd,
-        type: 'property',
-        value: value,
         children: []
       };
       
@@ -217,8 +205,7 @@ function parseEntityWithPosition(
             path: `${entityPath}/${key}[${typeIndex}]`,
             startOffset: lineStart, // Use line-based range for child properties too
             endOffset: lineEnd,
-            type: 'property',
-            value: type
+            children: []
           });
           
           typeOffset = typeStart + type.length;
@@ -282,12 +269,18 @@ function findPathInNode(node: DSLNode, offset: number): string | null {
  * Print the DSL tree with a custom formatter for better readability
  */
 export function printDSLTreeFormatted(node: DSLNode, indent: string = ''): string {
-  const typeInfo = node.type === 'operation' ? `(${node.value})` : 
-                   node.type === 'entity' ? `[${node.value}]` :
-                   node.type === 'container' ? `[${node.value}]` :
-                   `"${node.value}"`;
+  // Derive a display hint from the path suffix
+  let hint = '';
+  if (node.path.endsWith('/operation') || node.path === 'operation') {
+    // operation name is not stored anymore; just mark as operation
+    hint = '(op)';
+  } else if (/\/entities\[\d+\]$/.test(node.path)) {
+    hint = '[entity]';
+  } else if (/\/(entity_name|entity_type|entity_quantity|container_name|container_type|attr_name|attr_type)(\[\d+\])?$/.test(node.path)) {
+    hint = '"prop"';
+  }
   
-  let result = `${indent}${node.path} ${typeInfo} [${node.startOffset}-${node.endOffset}]\n`;
+  let result = `${indent}${node.path} ${hint} [${node.startOffset}-${node.endOffset}]\n`;
   
   if (node.children && node.children.length > 0) {
     node.children.forEach(child => {
