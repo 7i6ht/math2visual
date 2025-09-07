@@ -30,7 +30,7 @@ export const HighlightableTextarea = React.forwardRef<
         border: computedStyle.border,
         borderRadius: computedStyle.borderRadius,
         whiteSpace: 'pre-wrap',
-        overflowWrap: 'break-word',
+        wordWrap: 'break-word',
         overflow: 'hidden',
         boxSizing: computedStyle.boxSizing as any,
       });
