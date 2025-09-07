@@ -47,7 +47,12 @@ export function parseDSLWithPositions(dslText: string): DSLNode {
 /**
  * Parse operation content and build the node tree
  */
-function parseOperationContent(contentText: string, parentNode: DSLNode, fullDslText?: string) {
+function parseOperationContent(
+  contentText: string,
+  parentNode: DSLNode,
+  fullDslText?: string,
+  baseOffset: number = 0
+) {
   // Extract content between parentheses
   const contentMatch = contentText.match(/^\w+\s*\(([\s\S]*)\)$/);
   if (!contentMatch) return;
@@ -59,8 +64,10 @@ function parseOperationContent(contentText: string, parentNode: DSLNode, fullDsl
   let currentOffset = 0; // Offset within the content string
   
   entities.forEach((entityStr, index) => {
-    const entityStart = contentStartOffset + currentOffset;
-    const entityEnd = entityStart + entityStr.length;
+    const entityStartLocal = contentStartOffset + currentOffset;
+    const entityEndLocal = entityStartLocal + entityStr.length;
+    const entityStart = baseOffset + entityStartLocal;
+    const entityEnd = baseOffset + entityEndLocal;
     
     if (isNestedOperation(entityStr)) {
       // Handle nested operation
@@ -75,7 +82,13 @@ function parseOperationContent(contentText: string, parentNode: DSLNode, fullDsl
           children: []
         };
         parentNode.children!.push(nestedNode);
-        parseOperationContent(entityStr, nestedNode, fullDslText || contentText);
+        // Recurse with absolute base offset for nested content
+        parseOperationContent(
+          entityStr,
+          nestedNode,
+          fullDslText || contentText,
+          entityStart
+        );
       }
     } else {
       // Parse regular entity
@@ -229,9 +242,16 @@ export function findDSLPathAtPosition(dslText: string, cursorOffset: number): st
   if (cursorOffset < 0 || cursorOffset >= dslText.length) {
     return null;
   }
+  
+  console.log('🔍 findDSLPathAtPosition called with cursorOffset:', cursorOffset);
+  console.log('🔍 Character at position:', JSON.stringify(dslText[cursorOffset]));
+  console.log('🔍 Text around position:', dslText.slice(Math.max(0, cursorOffset - 10), cursorOffset + 10));
+  
   const rootNode = parseDSLWithPositions(dslText);
-  //console.log(printDSLTreeFormatted(rootNode));
-  return findPathInNode(rootNode, cursorOffset);
+  const result = findPathInNode(rootNode, cursorOffset);
+  
+  console.log('🔍 Found DSL path:', result);
+  return result;
 }
 
 /**
