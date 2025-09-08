@@ -13,16 +13,8 @@ export function findDSLPathAtPosition(dslText: string, cursorOffset: number): st
     return null;
   }
   
-  console.log('🔍 findDSLPathAtPosition called with cursorOffset:', cursorOffset);
-  console.log('🔍 Character at position:', JSON.stringify(dslText[cursorOffset]));
-  console.log('🔍 Text around position:', dslText.slice(Math.max(0, cursorOffset - 10), cursorOffset + 10));
-
   const rootNode = parseDSLWithPositions(dslText);
   const result = findPathInNode(rootNode, cursorOffset);
-
-  console.log('🔍 DSL Tree:', printDSLTreeFormatted(rootNode));
-  
-  console.log('🔍 Found DSL path:', result);
   return result;
 }
 
@@ -30,41 +22,31 @@ export function findDSLPathAtPosition(dslText: string, cursorOffset: number): st
  * Recursively find the most specific path containing the cursor position
  */
 function findPathInNode(node: DSLNode, offset: number): string | null {
-  console.log(`🔍 Checking node: ${node.path} [${node.startOffset}-${node.endOffset}] against offset ${offset}`);
-  
   // Check if offset is within this node's range
   if (offset < node.startOffset || offset >= node.endOffset) {
-    console.log(`🔍 Offset ${offset} is outside range [${node.startOffset}-${node.endOffset}] for ${node.path}`);
     // Don't return null immediately - check if this node has children that might contain the offset
     if (node.children && node.children.length > 0) {
-      console.log(`🔍 Node ${node.path} is outside range but has children, checking them...`);
       for (const child of node.children) {
         const childPath = findPathInNode(child, offset);
         if (childPath) {
-          console.log(`🔍 Found child path: ${childPath}`);
           return childPath;
         }
       }
     }
     return null;
   }
-  
-  console.log(`🔍 Offset ${offset} is within range [${node.startOffset}-${node.endOffset}] for ${node.path}`);
-  
+
   // Check children for more specific match
   if (node.children && node.children.length > 0) {
-    console.log(`🔍 Checking ${node.children.length} children of ${node.path}`);
     for (const child of node.children) {
       const childPath = findPathInNode(child, offset);
       if (childPath) {
-        console.log(`🔍 Found more specific child path: ${childPath}`);
         return childPath;
       }
     }
   }
 
   // Return this node's path if no more specific child found
-  console.log(`🔍 Returning node path: ${node.path}`);
   return node.path;
 }
 
