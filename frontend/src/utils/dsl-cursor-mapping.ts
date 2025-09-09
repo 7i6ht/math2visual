@@ -1,6 +1,5 @@
 /**
  * DSL Cursor Mapping - Now using the enhanced DSL formatter
- * This replaces the old dsl-cursor-mapping.ts and makes dsl-parser-1.ts obsolete
  */
 import { DSLFormatter } from './dsl-formatter';
 import type { ComponentMapping } from './dsl-formatter';
@@ -55,7 +54,7 @@ function findDSLPathAtPositionFromMappings(componentMappings: ComponentMapping, 
 }
 
 /**
- * Print formatted tree structure similar to dsl-parser-1.ts
+ * Print formatted tree structure
  */
 export function printDSLTreeFormatted(componentMappings: ComponentMapping): string {
   // Sort mappings by start position for tree-like output
