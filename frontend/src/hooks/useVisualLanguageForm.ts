@@ -30,7 +30,14 @@ export const useVisualLanguageForm = ({
   // Update form value when vl changes
   useEffect(() => {
     if (vl !== null) {
-      form.setValue("dsl", vl);
+      // Ensure DSL is formatted on load/prop change (frontend owns formatting now)
+      try {
+        const formatter = new DSLFormatter();
+        const { formattedDSL } = formatter.processAndFormatDSL(vl);
+        form.setValue("dsl", formattedDSL);
+      } catch {
+        form.setValue("dsl", vl);
+      }
     }
   }, [vl, form]);
 
@@ -50,16 +57,16 @@ export const useVisualLanguageForm = ({
     onLoadingChange(true, abort);
 
     try {
-      // Minify the DSL (single line format)
+      // Minify the DSL (single line) for backend generation
       const minifiedDsl = DSLFormatter.minify(dslValue);
       const result = await service.generateFromDSL(minifiedDsl, controller.signal);
-      
-      // Determine which visual language value to use
+
+      // Choose the DSL to display (keep previous if generation errored)
       const visualLanguageToUse = (result.formal_error || result.intuitive_error)
         ? (vl || "")
         : result.visual_language;
-      
-      // Pass results up; App will handle MWP updates and preservation logic
+
+      // Pass results up with service-provided mappings
       onResult(
         visualLanguageToUse,
         result.svg_formal,
@@ -67,9 +74,9 @@ export const useVisualLanguageForm = ({
         result.formal_error,
         result.intuitive_error,
         result.missing_svg_entities,
-        undefined, // mwp - not changing
-        undefined, // formula - not changing
-        result.component_mappings
+        undefined, // mwp - unchanged
+        undefined, // formula - unchanged
+        result.componentMappings
       );
     } catch (error) {
       if (error instanceof Error && error.name === 'AbortError') {

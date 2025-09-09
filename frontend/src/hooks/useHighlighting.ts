@@ -443,8 +443,10 @@ export const useHighlighting = ({
     const regex = new RegExp(`\\b${escapedName}s?\\b`, 'gi'); // Word boundaries, optional 's' for plural, case-insensitive
     
     // Functional approach: map matches to ranges
-    const ranges: Array<[number, number]> = Array.from(mwpValue.matchAll(regex))
-      .map(match => [match.index, match.index + match[0].length]);
+    const matches = Array.from(mwpValue.matchAll(regex));
+    
+    const ranges: Array<[number, number]> = matches
+      .map(match => [match.index, match.index + match[0].length] as [number, number]);
     
     onMWPRangeHighlight?.(ranges);
   }, [componentMappings, mwpValue, onMWPRangeHighlight]);
@@ -495,22 +497,16 @@ export const useHighlighting = ({
    * Highlight the visual element corresponding to the current DSL path
    */
   const highlightCurrentDSLPath = useCallback(() => {
-    console.log('🎯 highlightCurrentDSLPath called with:', currentDSLPath);
-    console.log('🎯 Available component mappings:', Object.keys(componentMappings));
-    
+  
     if (!currentDSLPath) {
-      console.log('❌ No currentDSLPath, clearing highlights');
       clearVisualHighlights();
       return;
     }
 
     // Find the component mapping for the current DSL path
     const mapping = componentMappings[currentDSLPath];
-    console.log('🎯 Looking for mapping for path:', currentDSLPath);
-    console.log('🎯 Found mapping:', mapping);
     
     if (!mapping) {
-      console.log('❌ No mapping found for path:', currentDSLPath);
       clearVisualHighlights();
       return;
     }
@@ -530,15 +526,12 @@ export const useHighlighting = ({
     );
 
     if (handler) {
-      console.log('🎯 Executing handler for path:', currentDSLPath);
       handler[1](); // Execute the handler function
     } else if (currentDSLPath.includes('/entities[') && !currentDSLPath.includes('/')) {
       // Special case for entity containers (boxes)
-      console.log('🎯 Triggering box highlight for path:', currentDSLPath);
       triggerBoxHighlight(currentDSLPath);
     } else {
       // For any other path type, just clear highlights
-      console.log('🎯 No handler found, clearing highlights for path:', currentDSLPath);
       clearVisualHighlights();
     }
   }, [currentDSLPath, componentMappings, clearVisualHighlights, triggerTextHighlight, triggerContainerNameHighlight, triggerEmbeddedSvgHighlight, triggerContainerTypeHighlight, triggerBoxHighlight, triggerOperationHighlight]);

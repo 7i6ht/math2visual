@@ -23,10 +23,7 @@ export interface ApiResponse {
   intuitive_error?: string;
   error?: string;
   missing_svg_entities?: string[];
-  component_mappings?: {
-    formal: Record<string, any>;
-    intuitive: Record<string, any>;
-  };
+  componentMappings?: Record<string, any>;
 }
 
 // Application state types
@@ -84,10 +81,7 @@ export interface AppState {
   hasCompletedGeneration: boolean;
   mwp: string;
   formula: string;
-  componentMappings?: {
-    formal: Record<string, any>;
-    intuitive: Record<string, any>;
-  };
+  componentMappings?: Record<string, any>;
 }
 
 // Download types

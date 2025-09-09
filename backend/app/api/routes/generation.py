@@ -12,7 +12,6 @@ from app.services.visual_generation.formal_generator import FormalVisualGenerato
 from app.services.visual_generation.intuitive_generator import IntuitiveVisualGenerator
 from app.services.visual_generation.utils import ValidationError, VisualGenerationError
 from app.services.visual_generation.dsl_parser import DSLParser
-from app.services.visual_generation.dsl_formatter import DSLFormatter
 from app.config.storage_config import get_svg_dataset_path
 
 generation_bp = Blueprint('generation', __name__)
@@ -32,9 +31,8 @@ def generate():
     """
     body = request.json or {}
     
-    # Initialize parser and formatter
+    # Initialize parser
     dsl_parser = DSLParser()
-    dsl_formatter = DSLFormatter()
     
     # Parse DSL input
     if "dsl" in body:
@@ -43,12 +41,9 @@ def generate():
             return jsonify({"error": "Empty DSL provided."}), 400
         # Strip the prefix if present
         if raw_dsl.lower().startswith("visual_language:"):
-            formatted_dsl_input = raw_dsl.split(":", 1)[1].strip()
+            dsl = raw_dsl.split(":", 1)[1].strip()
         else:
-            formatted_dsl_input = raw_dsl
-        
-        # Normalize formatted DSL to single line for parsing
-        dsl = dsl_formatter.normalize_dsl_to_single_line(formatted_dsl_input)
+            dsl = raw_dsl
     else:
         # Generate DSL from math word problem
         mwp = body.get("mwp", "").strip()
@@ -75,20 +70,10 @@ def generate():
     except (ValueError, ValidationError) as e:
         return jsonify({"error": f"DSL parse error: {e}"}), 500
     
-    # Format DSL and calculate ranges for frontend
-    try:
-        formatted_dsl = dsl_formatter.format_with_ranges(parsed_dsl)
-    except Exception as e:
-        return jsonify({"error": f"DSL formatting error: {e}"}), 500
-    
     # Share component registry with both generators and copy parsed data
     data_formal = parsed_dsl
     data_intuitive = copy.deepcopy(parsed_dsl)  # Deep copy to avoid interference
     
-    # Copy the component registry from formatter to both generators
-    formal_generator.component_registry = copy.deepcopy(dsl_formatter.component_registry)
-    intuitive_generator.component_registry = copy.deepcopy(dsl_formatter.component_registry)
-
     # Setup output directory using new storage structure
     output_dir = os.path.join(os.path.dirname(__file__), "../../../storage/output")
     os.makedirs(output_dir, exist_ok=True)
@@ -155,16 +140,12 @@ def generate():
     # Combine missing entities and remove duplicates while preserving order
     all_missing_entities = list(dict.fromkeys(formal_missing_entities + intuitive_missing_entities))
     
-    # Return results with component mappings and formatted DSL
+    # Return results with formatted DSL (no component mappings)
     return jsonify({
-        "visual_language": formatted_dsl,  # Send formatted DSL instead of raw DSL
+        "visual_language": dsl,  # Send formatted DSL instead of raw DSL
         "svg_formal": svg_formal,
         "svg_intuitive": svg_intuitive,
         "formal_error": formal_error,
         "intuitive_error": intuitive_error,
-        "missing_svg_entities": all_missing_entities,
-        "component_mappings": {
-            "formal": formal_generator.component_registry,
-            "intuitive": intuitive_generator.component_registry
-        }
+        "missing_svg_entities": all_missing_entities
     })

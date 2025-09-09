@@ -1,8 +1,8 @@
 /**
  * Parser moved to './dsl-parser'
  */
-import type { DSLNode } from './dsl-parser';
-import { parseDSLWithPositions } from './dsl-parser';
+import type { DSLNode } from './dsl-parser-1';
+import { parseDSLWithPositions } from './dsl-parser-1';
 
 /**
  * Find the most specific DSL path for a given cursor position

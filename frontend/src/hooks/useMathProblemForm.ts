@@ -75,7 +75,7 @@ export const useMathProblemForm = ({
         result.missing_svg_entities,
         data.mwp,
         data.formula || "",
-        result.component_mappings
+        result.componentMappings
       );
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";

@@ -70,7 +70,7 @@ function App() {
     nextMissing?: string[],
     nextMWPOverride?: string,
     nextFormula?: string,
-    nextMappings?: { formal: Record<string, any>; intuitive: Record<string, any> }
+    nextMappings?: Record<string, any>
   ) => {
     // Compute MWP updates from DSL diffs when override not provided
     let nextMWP = nextMWPOverride ?? mwp;
@@ -236,7 +236,7 @@ function App() {
                   onDSLRangeHighlight={setDslHighlightRanges}
                   onMWPRangeHighlight={setMwpHighlightRanges}
                   onComponentUpdate={handleComponentUpdate}
-                                    onRegenerateAfterUpload={handleRegenerateAfterUpload}
+                  onRegenerateAfterUpload={handleRegenerateAfterUpload}
                   onAllFilesUploaded={clearMissingSVGEntities}
                   currentDSLPath={currentDSLPath}
                 />

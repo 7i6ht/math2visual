@@ -46,7 +46,7 @@ export const useAppState = () => {
     missingSvgEntities?: string[],
     mwp?: string,
     formula?: string,
-    componentMappings?: { formal: Record<string, any>; intuitive: Record<string, any> }
+    componentMappings?: Record<string, any>
   ) => {
     setState(prev => ({
       ...prev,

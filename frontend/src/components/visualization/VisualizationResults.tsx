@@ -13,16 +13,10 @@ interface VisualizationResultsProps {
   svgIntuitive: string | null;
   intuitiveError: string | null;
   missingSVGEntities?: string[];
-  componentMappings?: {
-    formal: Record<string, {
-      dsl_range: [number, number];
-      property_value?: string;
-    }>;
-    intuitive: Record<string, {
-      dsl_range: [number, number];
-      property_value?: string;
-    }>;
-  };
+  componentMappings?: Record<string, {
+    dsl_range: [number, number];
+    property_value?: string;
+  }>;
   dslValue?: string;
   mwpValue?: string;
   onDSLRangeHighlight?: (ranges: Array<[number, number]>) => void;
@@ -94,9 +88,7 @@ export const VisualizationResults = ({
   } = useEditableComponents({
     initialDSL: dslValue,
     initialMWP: mwpValue,
-    componentMappings: activeVisualizationType === 'formal' 
-      ? (componentMappings?.formal || {})
-      : (componentMappings?.intuitive || {}),
+    componentMappings: componentMappings || {},
     onUpdate: onComponentUpdate || (() => {}),
   });
 
@@ -136,7 +128,7 @@ export const VisualizationResults = ({
               title="Formal Representation"
               svgContent={svgFormal}
               error={filterMissingSvgError(formalError)}
-              componentMappings={componentMappings?.formal || {}}
+              componentMappings={componentMappings || {}}
               isOpen={openAccordionItems.includes("formal")}
               mwpValue={mwpValue}
               onDSLRangeHighlight={onDSLRangeHighlight}
@@ -151,7 +143,7 @@ export const VisualizationResults = ({
               title="Intuitive Representation"
               svgContent={svgIntuitive}
               error={filterMissingSvgError(intuitiveError)}
-              componentMappings={componentMappings?.intuitive || {}}
+              componentMappings={componentMappings || {}}
               isOpen={openAccordionItems.includes("intuitive")}
               mwpValue={mwpValue}
               onDSLRangeHighlight={onDSLRangeHighlight}

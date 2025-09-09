@@ -9,7 +9,6 @@ from .utils import (
     SVGCache, SVGEmbedder, MathParser, LayoutCalculator
 )
 from .dsl_parser import DSLParser
-from .dsl_formatter import DSLFormatter
 
 
 class BaseVisualGenerator(ABC):
@@ -21,9 +20,8 @@ class BaseVisualGenerator(ABC):
         self.svg_embedder = SVGEmbedder(self.svg_cache)
         self.math_parser = MathParser()
         
-        # Initialize parser and formatter
+        # Initialize parser
         self.dsl_parser = DSLParser()
-        self.dsl_formatter = DSLFormatter()
         
         # Default constants - can be overridden by subclasses
         self.constants = {
@@ -37,18 +35,7 @@ class BaseVisualGenerator(ABC):
         }
         self.constants["ITEM_SIZE"] = int(self.constants["UNIT_SIZE"] * self.constants["APPLE_SCALE"])
         
-        self.layout_calculator = LayoutCalculator(self.constants)
-    
-    @property
-    def component_registry(self) -> Dict[str, Any]:
-        """Get the component registry from the formatter."""
-        return self.dsl_formatter.component_registry
-    
-    @component_registry.setter 
-    def component_registry(self, value: Dict[str, Any]) -> None:
-        """Set the component registry on the formatter."""
-        self.dsl_formatter.component_registry = value
-    
+        self.layout_calculator = LayoutCalculator(self.constants)    
     
     def update_container_types_optimized(self, entities: List[Dict[str, Any]], 
                                        result_entities: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:

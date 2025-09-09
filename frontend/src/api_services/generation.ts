@@ -1,5 +1,6 @@
 import type { ApiRequest, ApiResponse } from "@/types";
 import { BACKEND_API_URL as API_BASE_URL } from "@/config/api";
+import { DSLFormatter } from "@/utils/dsl-formatter";
 
 export class ApiError extends Error {
   public status?: number;
@@ -34,11 +35,7 @@ const generationService = {
           svg_intuitive: null,
           formal_error: result.error,
           intuitive_error: undefined,
-          missing_svg_entities: [],
-          component_mappings: {
-            formal: {},
-            intuitive: {}
-          }
+          missing_svg_entities: []
         };
       }
 
@@ -46,7 +43,14 @@ const generationService = {
         throw new ApiError(result.error || "Unknown error", response.status);
       }
 
-      return result;
+      // Frontend service: ensure DSL is formatted and component mappings are computed
+      const formatter = new DSLFormatter();
+      const { formattedDSL, componentMappings } = formatter.processAndFormatDSL(result.visual_language || '');
+      return {
+        ...result,
+        visual_language: formattedDSL,
+        componentMappings
+      } as ApiResponse;
     } catch (error) {
       // Handle abort errors
       if (error instanceof DOMException && error.name === 'AbortError') {
