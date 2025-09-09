@@ -1,6 +1,6 @@
 /**
- * DSL Formatter Utility - Complete implementation transferred from backend
- * Handles DSL parsing, formatting, and range calculation for component mappings
+ * DSL Formatter Utility - Complete implementation
+ * Handles DSL parsing, formatting and range calculation for component mappings
  */
 import { parseDSL as parse } from '@/utils/dsl-parser';
 
@@ -380,10 +380,14 @@ export class DSLFormatter {
    * Parse and format DSL with component mappings
    * This is the main method to use for frontend DSL processing
    */
-  processAndFormatDSL(dslStr: string): { formattedDSL: string; componentMappings: ComponentMapping } {
+  processAndFormatDSL(dslStr: string): { 
+    formattedDSL: string; 
+    componentMappings: ComponentMapping;
+  } {
     try {
       const parsed = parse(this.normalizeDSLToSingleLine(dslStr)) as unknown as DSLOperation;
       const formatted = this.formatWithRanges(parsed);
+      
       return {
         formattedDSL: formatted,
         componentMappings: { ...this.componentRegistry }

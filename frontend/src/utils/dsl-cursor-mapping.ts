@@ -1,11 +1,13 @@
 /**
- * Parser moved to './dsl-parser'
+ * DSL Cursor Mapping - Now using the enhanced DSL formatter
+ * This replaces the old dsl-cursor-mapping.ts and makes dsl-parser-1.ts obsolete
  */
-import type { DSLNode } from './dsl-parser-1';
-import { parseDSLWithPositions } from './dsl-parser-1';
+import { DSLFormatter } from './dsl-formatter';
+import type { ComponentMapping } from './dsl-formatter';
 
 /**
  * Find the most specific DSL path for a given cursor position
+ * This function maintains the same API as the original but uses the enhanced formatter
  */
 export function findDSLPathAtPosition(dslText: string, cursorOffset: number): string | null {
   // Validate offset is within text bounds; caret at end is out-of-bounds for mapping
@@ -13,68 +15,71 @@ export function findDSLPathAtPosition(dslText: string, cursorOffset: number): st
     return null;
   }
   
-  const rootNode = parseDSLWithPositions(dslText);
-  const result = findPathInNode(rootNode, cursorOffset);
-  return result;
+  const formatter = new DSLFormatter();
+  const result = formatter.processAndFormatDSL(dslText);
+  return findDSLPathAtPositionFromMappings(result.componentMappings, cursorOffset);
 }
 
 /**
- * Recursively find the most specific path containing the cursor position
+ * Find the most specific DSL path for a given cursor position using component mappings
  */
-function findPathInNode(node: DSLNode, offset: number): string | null {
-  // Check if offset is within this node's range
-  if (offset < node.startOffset || offset >= node.endOffset) {
-    // Don't return null immediately - check if this node has children that might contain the offset
-    if (node.children && node.children.length > 0) {
-      for (const child of node.children) {
-        const childPath = findPathInNode(child, offset);
-        if (childPath) {
-          return childPath;
-        }
-      }
-    }
+function findDSLPathAtPositionFromMappings(componentMappings: ComponentMapping, cursorOffset: number): string | null {
+  // Validate offset bounds
+  if (cursorOffset < 0) {
     return null;
   }
 
-  // Check children for more specific match
-  if (node.children && node.children.length > 0) {
-    for (const child of node.children) {
-      const childPath = findPathInNode(child, offset);
-      if (childPath) {
-        return childPath;
-      }
-    }
+  // Find all ranges that contain the cursor position
+  const containingRanges = Object.entries(componentMappings)
+    .filter(([_, range]) => 
+      cursorOffset >= range.dsl_range[0] && cursorOffset < range.dsl_range[1]
+    )
+    .map(([dslPath, range]) => ({ dslPath, range }));
+
+  if (containingRanges.length === 0) {
+    return null;
   }
 
-  // Return this node's path if no more specific child found
-  return node.path;
+  // Sort by range size (smallest first) to get the most specific match
+  // In case of ties, prefer the one that starts later (more specific)
+  containingRanges.sort((a, b) => {
+    const sizeA = a.range.dsl_range[1] - a.range.dsl_range[0];
+    const sizeB = b.range.dsl_range[1] - b.range.dsl_range[0];
+    if (sizeA === sizeB) {
+      return b.range.dsl_range[0] - a.range.dsl_range[0]; // Later start is more specific
+    }
+    return sizeA - sizeB; // Smaller size is more specific
+  });
+
+  return containingRanges[0].dslPath;
 }
 
-
 /**
- * Print the DSL tree with a custom formatter for better readability
+ * Print formatted tree structure similar to dsl-parser-1.ts
  */
-export function printDSLTreeFormatted(node: DSLNode, indent: string = ''): string {
-  // Derive a display hint from the path suffix
-  let hint = '';
-  if (node.path.endsWith('/operation') || node.path === 'operation') {
-    // operation name is not stored anymore; just mark as operation
-    hint = '(op)';
-  } else if (/\/entities\[\d+\]$/.test(node.path)) {
-    hint = '[entity]';
-  } else if (/\/(entity_name|entity_type|entity_quantity|container_name|container_type|attr_name|attr_type)(\[\d+\])?$/.test(node.path)) {
-    hint = '"prop"';
-  }
+export function printDSLTreeFormatted(componentMappings: ComponentMapping): string {
+  // Sort mappings by start position for tree-like output
+  const sortedMappings = Object.entries(componentMappings)
+    .map(([dslPath, range]) => ({ dslPath, range }))
+    .sort((a, b) => a.range.dsl_range[0] - b.range.dsl_range[0]);
   
-  let result = `${indent}${node.path} ${hint} [${node.startOffset}-${node.endOffset}]\n`;
-  
-  if (node.children && node.children.length > 0) {
-    const childrenSorted = [...node.children].sort((a, b) => a.startOffset - b.startOffset);
-    childrenSorted.forEach(child => {
-      result += printDSLTreeFormatted(child, indent + '  ');
-    });
+  let result = '';
+  for (const mapping of sortedMappings) {
+    // Derive display hint from the path suffix
+    let hint = '';
+    if (mapping.dslPath.endsWith('/operation') || mapping.dslPath === 'operation') {
+      hint = '(op)';
+    } else if (/\/entities\[\d+\]$/.test(mapping.dslPath)) {
+      hint = '[entity]';
+    } else if (/\/(entity_name|entity_type|entity_quantity|container_name|container_type|attr_name|attr_type)(\[\d+\])?$/.test(mapping.dslPath)) {
+      hint = '"prop"';
+    }
+
+    const pathDepth = mapping.dslPath.split('/').length - 1;
+    const nodeIndent = '  '.repeat(pathDepth);
+    result += `${nodeIndent}${mapping.dslPath} ${hint} [${mapping.range.dsl_range[0]}-${mapping.range.dsl_range[1]}]`;
+    result += '\n';
   }
   
   return result;
 }
-
