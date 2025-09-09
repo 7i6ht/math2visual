@@ -1,28 +1,11 @@
 /**
- * DSL Cursor Mapping - Now using the enhanced DSL formatter
+ * DSL Cursor Mapping
  */
-import { DSLFormatter } from './dsl-formatter';
-import type { ComponentMapping } from './dsl-formatter';
-
-/**
- * Find the most specific DSL path for a given cursor position
- * This function maintains the same API as the original but uses the enhanced formatter
- */
-export function findDSLPathAtPosition(dslText: string, cursorOffset: number): string | null {
-  // Validate offset is within text bounds; caret at end is out-of-bounds for mapping
-  if (cursorOffset < 0 || cursorOffset >= dslText.length) {
-    return null;
-  }
-  
-  const formatter = new DSLFormatter();
-  const result = formatter.processAndFormatDSL(dslText);
-  return findDSLPathAtPositionFromMappings(result.componentMappings, cursorOffset);
-}
 
 /**
  * Find the most specific DSL path for a given cursor position using component mappings
  */
-function findDSLPathAtPositionFromMappings(componentMappings: ComponentMapping, cursorOffset: number): string | null {
+export function findDSLPathAtPosition(componentMappings: Record<string, any>, cursorOffset: number): string | null {
   // Validate offset bounds
   if (cursorOffset < 0) {
     return null;
@@ -56,7 +39,7 @@ function findDSLPathAtPositionFromMappings(componentMappings: ComponentMapping, 
 /**
  * Print formatted tree structure
  */
-export function printDSLTreeFormatted(componentMappings: ComponentMapping): string {
+export function printDSLTreeFormatted(componentMappings: Record<string, any>): string {
   // Sort mappings by start position for tree-like output
   const sortedMappings = Object.entries(componentMappings)
     .map(([dslPath, range]) => ({ dslPath, range }))

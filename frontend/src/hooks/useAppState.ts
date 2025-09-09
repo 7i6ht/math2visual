@@ -18,7 +18,7 @@ export const useAppState = () => {
     hasCompletedGeneration: false,
     mwp: "",
     formula: "",
-    componentMappings: undefined,
+    componentMappings: {},
   });
 
   const setMpFormLoading = (mpFormLoading: boolean, abortFn?: () => void) => {
@@ -104,7 +104,10 @@ export const useAppState = () => {
         result.svg_intuitive,
         result.formal_error,
         result.intuitive_error,
-        result.missing_svg_entities
+        result.missing_svg_entities,
+        undefined,
+        undefined,
+        result.componentMappings
       );
       
       // Check if regeneration was successful

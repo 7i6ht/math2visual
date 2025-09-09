@@ -207,7 +207,7 @@ function App() {
 
                   {/* Visual Language Column */}
                   <div className="flex flex-col min-h-0 md:min-h-[400px] xl:min-h-0">
-                    {vl && (
+                    {vl && componentMappings && (
                       <VisualLanguageForm
                         vl={vl}
                         onResult={handleVLResult}
@@ -216,6 +216,7 @@ function App() {
                         }}
                         highlightRanges={dslHighlightRanges}
                         onDSLPathHighlight={setCurrentDSLPath}
+                        componentMappings={componentMappings}
                       />
                     )}
                   </div>

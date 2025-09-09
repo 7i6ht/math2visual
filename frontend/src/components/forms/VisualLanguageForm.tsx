@@ -1,4 +1,5 @@
 import { SyntaxEditor } from "@/components/ui/syntax-editor";
+import { findDSLPathAtPosition } from "@/utils/dsl-cursor-mapping";
 import {
   Form,
   FormControl,
@@ -14,6 +15,7 @@ interface VisualLanguageFormProps {
   onLoadingChange: (loading: boolean, abortFn?: () => void) => void;
   highlightRanges?: Array<[number, number]>;
   onDSLPathHighlight?: (dslPath: string | null) => void;
+  componentMappings: Record<string, any>;
 }
 
 export const VisualLanguageForm = ({ 
@@ -22,6 +24,7 @@ export const VisualLanguageForm = ({
   onLoadingChange,
   highlightRanges = [],
   onDSLPathHighlight,
+  componentMappings,
 }: VisualLanguageFormProps) => {
   const { 
     form, 
@@ -53,7 +56,10 @@ export const VisualLanguageForm = ({
                     className="w-full"
                     height="100%"
                     highlightRanges={highlightRanges}
-                    onCursorPositionChange={(_position, dslPath) => {onDSLPathHighlight?.(dslPath);}}
+                    onCursorPositionChange={(position, _) => {
+                      const dslPath = findDSLPathAtPosition(componentMappings, position);
+                      onDSLPathHighlight?.(dslPath);
+                    }}
                   />
                 </FormControl>
                 <FormMessage />

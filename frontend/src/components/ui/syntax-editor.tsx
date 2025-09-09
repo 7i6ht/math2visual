@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Editor, { type Monaco } from '@monaco-editor/react';
 import { cn } from '@/lib/utils';
-import { findDSLPathAtPosition } from '@/utils/dsl-cursor-mapping';
 import './syntax-editor.css';
 
 interface SyntaxEditorProps {
@@ -12,7 +11,7 @@ interface SyntaxEditorProps {
   height?: string;
   highlightRanges?: Array<[number, number]>;
   onRangeClick?: (range: [number, number]) => void;
-  onCursorPositionChange?: (position: number, dslPath: string | null) => void;
+  onCursorPositionChange?: (position: number, modelValue: string) => void;
 }
 
 // Define the Visual Language DSL grammar and syntax highlighting
@@ -184,7 +183,7 @@ export const SyntaxEditor: React.FC<SyntaxEditorProps> = ({
     const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
     monaco.editor.setTheme(isDark ? 'vl-theme-dark' : 'vl-theme');
     
-    // Handle cursor position changes for DSL path mapping
+    // Handle cursor position changes
     // Note: We're not automatically triggering highlighting here to avoid infinite loops
     // Highlighting will happen when users interact with visual elements
     if (onCursorPositionChange) {
@@ -194,9 +193,8 @@ export const SyntaxEditor: React.FC<SyntaxEditorProps> = ({
           const offset = model.getOffsetAt(e.position);
           const modelValue = model.getValue();
           
-          // Use the model value directly since it's always up-to-date
-          const dslPath = findDSLPathAtPosition(modelValue, offset);
-          onCursorPositionChange(offset, dslPath);
+          // Provide the current model value to consumers
+          onCursorPositionChange(offset, modelValue);
         }
       });
     }
