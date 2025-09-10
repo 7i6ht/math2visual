@@ -8,9 +8,13 @@ export const BACKEND_BASE_URL =
 
 export const BACKEND_API_URL = `${BACKEND_BASE_URL}/api`;
 
+// Visualization threshold: single SVG with number vs multiple SVGs
+export const MAX_ITEM_DISPLAY = 10;
+
 export default {
   BACKEND_BASE_URL,
   BACKEND_API_URL,
+  MAX_ITEM_DISPLAY,
 };
 
 

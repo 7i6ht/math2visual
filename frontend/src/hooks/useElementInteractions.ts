@@ -6,7 +6,7 @@ interface UseElementInteractionsProps {
   highlighting: {
     clearAllHighlights: () => void;
     triggerBoxHighlight: (dslPath: string) => void;
-    triggerTextHighlight: (dslPath: string) => void;
+    triggerEntityQuantityHighlight: (dslPath: string) => void;
     triggerOperationHighlight: (dslPath: string) => void;
     triggerEmbeddedSvgHighlight: (dslPath: string) => void;
     triggerContainerTypeHighlight: (dslPath: string) => void;
@@ -14,7 +14,6 @@ interface UseElementInteractionsProps {
     triggerResultContainerHighlight: (dslPath: string) => void;
   };
   onComponentClick?: (dslPath: string, clickPosition: { x: number; y: number }) => void;
-  setHoveredComponent: (component: string | null) => void;
   setSelectedComponent: (component: string | null) => void;
 }
 
@@ -34,7 +33,6 @@ export const useElementInteractions = ({
   svgRef,
   highlighting,
   onComponentClick,
-  setHoveredComponent,
   setSelectedComponent,
 }: UseElementInteractionsProps) => {
 
@@ -42,17 +40,9 @@ export const useElementInteractions = ({
    * Clear all highlights and reset hover state
    */
   const clearHighlights = useCallback(() => {
-    setHoveredComponent(null);
     highlighting.clearAllHighlights();
-  }, [setHoveredComponent, highlighting]);
+  }, [highlighting]);
 
-  /**
-   * Trigger a highlight and update hover state
-   */
-  const triggerHighlight = useCallback((dslPath: string, highlightFn: () => void) => {
-    setHoveredComponent(dslPath);
-    highlightFn();
-  }, [setHoveredComponent]);
 
   /**
    * Setup event listeners for a specific SVG element
@@ -94,10 +84,10 @@ export const useElementInteractions = ({
       label: 'OPERATION',
       onMouseEnter: () => {
         console.log(`⚙️ OPERATION MOUSEENTER: ${dslPath}`);
-        triggerHighlight(dslPath, () => highlighting.triggerOperationHighlight(dslPath));
+        highlighting.triggerOperationHighlight(dslPath);
       }
     });
-  }, [setupElementListeners, triggerHighlight, highlighting]);
+  }, [setupElementListeners, highlighting]);
 
   /**
    * Setup box element interactions
@@ -108,10 +98,10 @@ export const useElementInteractions = ({
       label: 'BOX',
       onMouseEnter: () => {
         console.log(`📦 BOX MOUSEENTER: ${dslPath}`);
-        triggerHighlight(dslPath, () => highlighting.triggerBoxHighlight(dslPath));
+        highlighting.triggerBoxHighlight(dslPath);
       }
     });
-  }, [setupElementListeners, triggerHighlight, highlighting]);
+  }, [setupElementListeners, highlighting]);
 
   /**
    * Setup text element interactions
@@ -125,14 +115,14 @@ export const useElementInteractions = ({
       label: 'TEXT',
       onMouseEnter: () => {
         console.log(`📝 TEXT MOUSEENTER: ${quantityDslPath} -> triggering for entity: ${entityDslPath}`);
-        triggerHighlight(quantityDslPath, () => highlighting.triggerTextHighlight(quantityDslPath));
+        highlighting.triggerEntityQuantityHighlight(quantityDslPath);
       },
       onClickTarget: entityDslPath,
       extraSetup: () => {
         svgElem.style.pointerEvents = 'auto';
       }
     });
-  }, [setupElementListeners, triggerHighlight, highlighting]);
+  }, [setupElementListeners, highlighting]);
 
   /**
    * Setup embedded SVG element interactions
@@ -142,10 +132,10 @@ export const useElementInteractions = ({
       icon: '🖼️',
       label: 'EMBEDDED SVG',
       onMouseEnter: () => {
-        triggerHighlight(dslPath, () => highlighting.triggerEmbeddedSvgHighlight(dslPath));
+        highlighting.triggerEmbeddedSvgHighlight(dslPath);
       }
     });
-  }, [setupElementListeners, triggerHighlight, highlighting]);
+  }, [setupElementListeners, highlighting]);
 
   /**
    * Setup container type SVG element interactions
@@ -156,10 +146,10 @@ export const useElementInteractions = ({
       label: 'CONTAINER TYPE SVG',
       onMouseEnter: () => {
         console.log(`🏷️ CONTAINER TYPE SVG MOUSEENTER: ${dslPath}`);
-        triggerHighlight(dslPath, () => highlighting.triggerContainerTypeHighlight(dslPath));
+        highlighting.triggerContainerTypeHighlight(dslPath);
       }
     });
-  }, [setupElementListeners, triggerHighlight, highlighting]);
+  }, [setupElementListeners, highlighting]);
 
   /**
    * Setup container name text element interactions
@@ -170,10 +160,10 @@ export const useElementInteractions = ({
       label: 'CONTAINER NAME TEXT',
       onMouseEnter: () => {
         console.log(`🏷️ CONTAINER NAME TEXT MOUSEENTER: ${dslPath}`);
-        triggerHighlight(dslPath, () => highlighting.triggerContainerNameHighlight(dslPath));
+        highlighting.triggerContainerNameHighlight(dslPath);
       }
     });
-  }, [setupElementListeners, triggerHighlight, highlighting]);
+  }, [setupElementListeners, highlighting]);
 
   /**
    * Setup result container element interactions
@@ -184,10 +174,10 @@ export const useElementInteractions = ({
       label: 'RESULT CONTAINER',
       onMouseEnter: () => {
         console.log(`📦 RESULT CONTAINER MOUSEENTER: ${dslPath}`);
-        triggerHighlight(dslPath, () => highlighting.triggerResultContainerHighlight(dslPath));
+        highlighting.triggerResultContainerHighlight(dslPath);
       }
     });
-  }, [setupElementListeners, triggerHighlight, highlighting]);
+  }, [setupElementListeners, highlighting]);
 
   /**
    * Setup interactions for all SVG elements with DSL paths

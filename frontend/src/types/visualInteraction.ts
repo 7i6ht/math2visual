@@ -67,8 +67,6 @@ export interface ElementListenerConfig {
  * Provides state and control functions for managing visual interactions
  */
 export interface UseVisualInteractionReturn {
-  /** Currently hovered component DSL path */
-  hoveredComponent: string | null;
   /** Currently selected component DSL path */
   selectedComponent: string | null;
   /** Component mappings for DSL paths */

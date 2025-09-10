@@ -28,7 +28,6 @@ export const useVisualInteraction = ({
   currentDSLPath,
 }: UseVisualInteractionProps): UseVisualInteractionReturn => {
   // ===== STATE MANAGEMENT =====
-  const [hoveredComponent, setHoveredComponent] = useState<string | null>(null);
   const [selectedComponent, setSelectedComponent] = useState<string | null>(null);
   const [componentMappings, setComponentMappings] = useState<ComponentMapping>({});
 
@@ -49,7 +48,6 @@ export const useVisualInteraction = ({
     svgRef,
     highlighting,
     onComponentClick,
-    setHoveredComponent,
     setSelectedComponent,
   });
 
@@ -82,7 +80,6 @@ export const useVisualInteraction = ({
 
   return {
     // Current state
-    hoveredComponent,
     selectedComponent,
     componentMappings,
     

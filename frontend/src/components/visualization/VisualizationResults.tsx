@@ -43,7 +43,6 @@ export const VisualizationResults = ({
   onAllFilesUploaded,
   currentDSLPath,
 }: VisualizationResultsProps) => {
-  const [activeVisualizationType, setActiveVisualizationType] = useState<'formal' | 'intuitive'>('formal');
   const [openAccordionItems, setOpenAccordionItems] = useState<string[]>([]);
   
   // Auto-expand error items when they're the only ones displayed
@@ -92,9 +91,6 @@ export const VisualizationResults = ({
     onUpdate: onComponentUpdate || (() => {}),
   });
 
-  const handleVisualizationHover = (type: 'formal' | 'intuitive') => {
-    setActiveVisualizationType(type);
-  };
 
   // Detect if this is a parse error by checking error message content
   const hasParseError = (formalError && /DSL parse error/i.test(formalError)) || 
@@ -134,7 +130,6 @@ export const VisualizationResults = ({
               onDSLRangeHighlight={onDSLRangeHighlight}
               onMWPRangeHighlight={onMWPRangeHighlight}
               onComponentClick={openEditPanel}
-              onHover={() => handleVisualizationHover('formal')}
               currentDSLPath={currentDSLPath}
             />
 
@@ -149,7 +144,6 @@ export const VisualizationResults = ({
               onDSLRangeHighlight={onDSLRangeHighlight}
               onMWPRangeHighlight={onMWPRangeHighlight}
               onComponentClick={openEditPanel}
-              onHover={() => handleVisualizationHover('intuitive')}
               currentDSLPath={currentDSLPath}
             />
           </>

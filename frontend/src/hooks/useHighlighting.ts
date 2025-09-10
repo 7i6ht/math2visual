@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import type { ComponentMapping } from '../types/visualInteraction';
 import { numberToWord } from '../utils/numberUtils';
 import { createSentencePatterns, findSentencePosition, findQuantityInText, splitIntoSentences, scoreSentencesForEntity, findEntityNameInSentence, findAllEntityNameOccurrencesInText } from '../utils/mwpUtils';
+import { MAX_ITEM_DISPLAY } from '../config/api';
 
 interface UseHighlightingProps {
   svgRef: React.RefObject<HTMLDivElement | null>;
@@ -15,8 +16,8 @@ interface UseHighlightingProps {
 interface HighlightConfig {
   icon: string;
   label: string;
-  applyVisualHighlight: (mapping: any) => void;
-  applyMWPHighlight: (mapping: any) => void;
+  applyVisualHighlight: () => void;
+  applyMWPHighlight: () => void;
 }
 
 /**
@@ -117,7 +118,7 @@ export const useHighlighting = ({
     clearVisualHighlights();
 
     // Apply specific visual highlighting
-    config.applyVisualHighlight(mapping);
+    config.applyVisualHighlight();
 
     // Highlight in DSL editor using mapping (if provided)
     if (onDSLRangeHighlight) {
@@ -126,7 +127,7 @@ export const useHighlighting = ({
 
     // Apply MWP highlighting
     if (onMWPRangeHighlight) {
-      config.applyMWPHighlight(mapping);
+      config.applyMWPHighlight();
     }
   }, [clearVisualHighlights, onDSLRangeHighlight, onMWPRangeHighlight]);
 
@@ -221,38 +222,51 @@ export const useHighlighting = ({
   /**
    * Trigger highlighting for text/quantity components
    */
-  const triggerTextHighlight = useCallback((dslPath: string) => {
+  const triggerEntityQuantityHighlight = useCallback((dslPath: string) => {
     const mapping = componentMappings[dslPath];
-    triggerHighlight(mapping, {
-      icon: '📝',
-      label: 'Text',
-      applyVisualHighlight: () => {
-        const quantityTextEl = svgRef.current?.querySelector(`text[data-dsl-path="${dslPath}"]`) as SVGElement;
-        if (quantityTextEl) {
-          quantityTextEl.classList.add('highlighted-text');
-        }
-      },
-      applyMWPHighlight: (mapping) => {
-        const quantity = mapping?.property_value;
-        
-        // Early return if missing required data
-        if (!quantity || !mwpValue || !onMWPRangeHighlight) {
-          onMWPRangeHighlight?.([]);
-          return;
-        }
-        
-        // Find quantity position in text
-        const position = findQuantityInText(mwpValue, quantity);
-        
-        if (position) {
-          const [start, end] = position;
-          onMWPRangeHighlight([[start, end]]);
-        } else {
-          onMWPRangeHighlight([]);
+    const quantity = mapping?.property_value;
+    const quantityNum = quantity ? Number(quantity) : NaN;
+    
+    // Clear previous highlights
+    clearVisualHighlights();
+    
+    // Apply visual highlighting based on quantity threshold
+    if (!Number.isNaN(quantityNum) && quantityNum <= MAX_ITEM_DISPLAY) {
+      // Highlight all individual embedded SVGs for quantities below threshold
+      const entityPath = dslPath.replace(/\/entity_quantity$/, '');
+      const entityTypePath = `${entityPath}/entity_type`;
+      
+      for (let i = 0; i < quantityNum; i++) {
+        const indexedPath = `${entityTypePath}[${i}]`;
+        const embeddedSvgEl = svgRef.current?.querySelector(`svg[data-dsl-path="${indexedPath}"]`) as SVGGraphicsElement;
+        if (embeddedSvgEl) {
+          embeddedSvgEl.classList.add('highlighted-svg');
+          setSvgTransformOrigin(embeddedSvgEl);
         }
       }
-    });
-  }, [triggerHighlight, svgRef, componentMappings, mwpValue, onMWPRangeHighlight]);
+    } else {
+      // Highlight quantity text for quantities above threshold
+      const quantityTextEl = svgRef.current?.querySelector(`text[data-dsl-path="${dslPath}"]`) as SVGElement;
+      if (quantityTextEl) {
+        quantityTextEl.classList.add('highlighted-text');
+      }
+    }
+    
+    // Common DSL and MWP highlighting logic
+    if (onDSLRangeHighlight) {
+      onDSLRangeHighlight(mapping?.dsl_range ? [mapping.dsl_range] : []);
+    }
+    
+    if (onMWPRangeHighlight && quantity && mwpValue) {
+      const position = findQuantityInText(mwpValue, quantity);
+      if (position) {
+        const [start, end] = position;
+        onMWPRangeHighlight([[start, end]]);
+      } else {
+        onMWPRangeHighlight([]);
+      }
+    }
+  }, [clearVisualHighlights, setSvgTransformOrigin, svgRef, componentMappings, mwpValue, onMWPRangeHighlight, onDSLRangeHighlight]);
 
   /**
    * Trigger highlighting for operation components
@@ -366,7 +380,7 @@ export const useHighlighting = ({
       const basePath = dslPath.replace(/\/entity_type\[\d+\]$/, '/entity_type');
       mapping = componentMappings[basePath];
     }
-    
+
     triggerHighlight(mapping, {
       icon: '🖼️',
       label: 'Embedded SVG',
@@ -374,23 +388,14 @@ export const useHighlighting = ({
         // Use the indexed dslPath to find the specific SVG element
         const embeddedSvgEl = svgRef.current?.querySelector(`svg[data-dsl-path="${dslPath}"]`) as SVGGraphicsElement;
         if (embeddedSvgEl) {
-          // For embedded SVGs, use their position attributes to calculate center
-          const x = parseFloat(embeddedSvgEl.getAttribute('x') || '0');
-          const y = parseFloat(embeddedSvgEl.getAttribute('y') || '0');
-          const width = parseFloat(embeddedSvgEl.getAttribute('width') || '0');
-          const height = parseFloat(embeddedSvgEl.getAttribute('height') || '0');
-          
-          const centerX = x + width / 2;
-          const centerY = y + height / 2;
-          
           // Apply CSS class and set custom transform origin
           embeddedSvgEl.classList.add('highlighted-svg');
-          embeddedSvgEl.style.transformOrigin = `${centerX}px ${centerY}px`;
+          setSvgTransformOrigin(embeddedSvgEl);
         }
       },
       applyMWPHighlight: () => handleEmbeddedSvgMWPHighlight(dslPath)
     });
-  }, [triggerHighlight, svgRef, componentMappings, handleEmbeddedSvgMWPHighlight]);
+  }, [triggerHighlight, setSvgTransformOrigin, svgRef, componentMappings, handleEmbeddedSvgMWPHighlight]);
 
   /**
    * Trigger highlighting for container_type components (embedded SVGs on containers)
@@ -503,17 +508,18 @@ export const useHighlighting = ({
       return;
     }
 
-    // Find the component mapping for the current DSL path
-    const mapping = componentMappings[currentDSLPath];
-    
-    if (!mapping) {
-      clearVisualHighlights();
-      return;
+    // Remove indices from the end of the path for matching
+    let basePath = currentDSLPath;
+    if (basePath.endsWith(']')) {
+      const lastBracketIndex = basePath.lastIndexOf('[');
+      if (lastBracketIndex !== -1) {
+        basePath = basePath.substring(0, lastBracketIndex);
+      }
     }
 
     // Map DSL path types to their corresponding highlight functions
     const pathTypeHandlers: Record<string, () => void> = {
-      'entity_quantity': () => triggerTextHighlight(currentDSLPath),
+      'entity_quantity': () => triggerEntityQuantityHighlight(currentDSLPath),
       'container_name': () => triggerContainerNameHighlight(currentDSLPath),
       'entity_type': () => triggerEmbeddedSvgHighlight(currentDSLPath),
       'container_type': () => triggerContainerTypeHighlight(currentDSLPath),
@@ -521,27 +527,26 @@ export const useHighlighting = ({
     };
 
     // Find the matching handler for the current path
-    const handler = Object.entries(pathTypeHandlers).find(([pathType]) => 
-      currentDSLPath.endsWith(pathType)
-    );
+    const pathType = basePath.split('/').pop();
+    const handler = pathType && pathTypeHandlers[pathType];
 
     if (handler) {
-      handler[1](); // Execute the handler function
-    } else if (currentDSLPath.includes('/entities[') && !currentDSLPath.includes('/')) {
+      handler(); // Execute the handler function
+    } else if (basePath.endsWith('entities')) {
       // Special case for entity containers (boxes)
       triggerBoxHighlight(currentDSLPath);
     } else {
       // For any other path type, just clear highlights
       clearVisualHighlights();
     }
-  }, [currentDSLPath, componentMappings, clearVisualHighlights, triggerTextHighlight, triggerContainerNameHighlight, triggerEmbeddedSvgHighlight, triggerContainerTypeHighlight, triggerBoxHighlight, triggerOperationHighlight]);
+  }, [currentDSLPath, componentMappings, clearVisualHighlights, triggerEntityQuantityHighlight, triggerContainerNameHighlight, triggerEmbeddedSvgHighlight, triggerContainerTypeHighlight, triggerBoxHighlight, triggerOperationHighlight]);
 
   return {
     clearVisualHighlights,
     clearAllHighlights,
     setupTransformOrigins,
     triggerBoxHighlight,
-    triggerTextHighlight,
+    triggerEntityQuantityHighlight,
     triggerOperationHighlight,
     triggerEmbeddedSvgHighlight,
     triggerContainerTypeHighlight,

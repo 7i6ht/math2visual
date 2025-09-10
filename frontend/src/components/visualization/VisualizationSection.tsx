@@ -19,7 +19,6 @@ interface VisualizationSectionProps {
   onDSLRangeHighlight?: (ranges: Array<[number, number]>) => void;
   onMWPRangeHighlight?: (ranges: Array<[number, number]>) => void;
   onComponentClick: (dslPath: string, position: { x: number; y: number }) => void;
-  onHover: () => void;
   currentDSLPath?: string | null;
 }
 
@@ -34,7 +33,6 @@ export const VisualizationSection = ({
   onDSLRangeHighlight,
   onMWPRangeHighlight,
   onComponentClick,
-  onHover,
   currentDSLPath,
 }: VisualizationSectionProps) => {
   const svgRef = useRef<HTMLDivElement | null>(null);
@@ -50,7 +48,6 @@ export const VisualizationSection = ({
   
   // Setup visual interactions
   const {
-    hoveredComponent,
     setComponentMappings,
     setupSVGInteractions,
   } = useVisualInteraction({
@@ -62,12 +59,6 @@ export const VisualizationSection = ({
     currentDSLPath,
   });
 
-  // Notify parent when this visualization is hovered
-  useEffect(() => {
-    if (hoveredComponent) {
-      onHover();
-    }
-  }, [hoveredComponent, onHover]);
 
   // Update component mappings when they change
   useEffect(() => {
