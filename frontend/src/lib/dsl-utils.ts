@@ -151,35 +151,22 @@ export function detectDSLChanges(oldDSL: string, newDSL: string): DSLChange[] {
   oldEntities.forEach(oldEntity => {
     const newEntity = newEntities.find(e => e.dslPath === oldEntity.dslPath);
     if (newEntity) {
-      // Check entity name changes
-      if (oldEntity.entityName !== newEntity.entityName) {
-        changes.push({
-          type: 'entity_name',
-          oldValue: oldEntity.entityName,
-          newValue: newEntity.entityName,
-          entityPath: oldEntity.dslPath,
-        });
-      }
-      
-      // Check entity quantity changes
-      if (oldEntity.entityQuantity !== newEntity.entityQuantity) {
-        changes.push({
-          type: 'entity_quantity',
-          oldValue: oldEntity.entityQuantity.toString(),
-          newValue: newEntity.entityQuantity.toString(),
-          entityPath: oldEntity.dslPath,
-        });
-      }
-      
-      // Check container name changes
-      if (oldEntity.containerName !== newEntity.containerName) {
-        changes.push({
-          type: 'container_name',
-          oldValue: oldEntity.containerName,
-          newValue: newEntity.containerName,
-          entityPath: oldEntity.dslPath,
-        });
-      }
+      const fields: Array<{ type: DSLChange['type']; oldVal: unknown; newVal: unknown; stringify?: boolean }>= [
+        { type: 'entity_name', oldVal: oldEntity.entityName, newVal: newEntity.entityName },
+        { type: 'entity_quantity', oldVal: oldEntity.entityQuantity, newVal: newEntity.entityQuantity, stringify: true },
+        { type: 'container_name', oldVal: oldEntity.containerName, newVal: newEntity.containerName },
+      ];
+
+      fields.forEach(({ type, oldVal, newVal, stringify }) => {
+        if (oldVal !== newVal) {
+          changes.push({
+            type,
+            oldValue: stringify ? String(oldVal) : String(oldVal ?? ''),
+            newValue: stringify ? String(newVal) : String(newVal ?? ''),
+            entityPath: oldEntity.dslPath,
+          });
+        }
+      });
     }
   });
   
@@ -192,23 +179,14 @@ export function detectDSLChanges(oldDSL: string, newDSL: string): DSLChange[] {
 export function updateMWPText(mwpText: string, changes: DSLChange[]): string {
   let updatedText = mwpText;
   
-  changes.forEach(change => {
-    switch (change.type) {
-      case 'entity_name':
-        // Replace entity names in the text
-        updatedText = replaceEntityNames(updatedText, change.oldValue, change.newValue);
-        break;
-        
-      case 'entity_quantity':
-        // Replace quantities in the text (handles both numeric and text forms)
-        updatedText = replaceQuantities(updatedText, change.oldValue, change.newValue);
-        break;
-        
-      case 'container_name':
-        // Replace container names in the text
-        updatedText = replaceContainerNames(updatedText, change.oldValue, change.newValue);
-        break;
-    }
+  const handlers: Record<DSLChange["type"], (t: string, o: string, n: string) => string> = {
+    entity_name: (t, o, n) => replaceEntityNames(t, o, n),
+    entity_quantity: (t, o, n) => replaceQuantities(t, o, n),
+    container_name: (t, o, n) => replaceContainerNames(t, o, n),
+  };
+
+  changes.forEach(({ type, oldValue, newValue }) => {
+    updatedText = handlers[type](updatedText, oldValue, newValue);
   });
   
   return updatedText;
