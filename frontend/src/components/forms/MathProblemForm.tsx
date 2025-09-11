@@ -60,7 +60,7 @@ export const MathProblemForm = ({
             <FormItem>
               <FormControl>
                 <HighlightableTextarea
-                  className={`w-full ${largeFont ? 'text-2xl leading-relaxed' : ''}`}
+                  className={`w-full ${largeFont ? 'md:text-xl md:leading-relaxed lg:text-2xl' : ''}`}
                   placeholder="Enter your math word problem…"
                   rows={rows}
                   spellCheck={false}
@@ -80,7 +80,7 @@ export const MathProblemForm = ({
             <FormItem>
               <FormControl>
                 <Input
-                  className={`w-full ${largeFont ? 'text-xl' : ''}`}
+                  className={`w-full ${largeFont ? 'md:text-lg lg:text-xl' : ''}`}
                   placeholder="Optional formula (e.g. 9 + 7 = 16)"
                   spellCheck={false}
                   {...field}

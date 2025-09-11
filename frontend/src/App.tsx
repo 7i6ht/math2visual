@@ -186,7 +186,7 @@ function App() {
                   </div>
 
                   {/* Visual Language Column */}
-                  <div className="flex flex-col min-h-0 md:min-h-[400px] xl:min-h-0">
+                  <div className="flex flex-col min-h-[300px] md:min-h-[400px] xl:min-h-0">
                     {vl && componentMappings && (
                       <VisualLanguageForm
                         vl={vl}
