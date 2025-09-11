@@ -129,6 +129,7 @@ function App() {
                     saveInitialValues={saveInitialValues}
                     rows={5}
                     hideSubmit={mpFormLoading}
+                    largeFont={true}
                   />
                 </div>
               </div>

@@ -21,6 +21,7 @@ interface MathProblemFormProps {
   rows?: number;
   highlightRanges?: Array<[number, number]>;
   hideSubmit?: boolean;
+  largeFont?: boolean;
 }
 
 export const MathProblemForm = ({ 
@@ -33,6 +34,7 @@ export const MathProblemForm = ({
   rows = 8,
   highlightRanges = [],
   hideSubmit = false,
+  largeFont = false
 }: MathProblemFormProps) => {
   const { 
     form, 
@@ -58,7 +60,7 @@ export const MathProblemForm = ({
             <FormItem>
               <FormControl>
                 <HighlightableTextarea
-                  className={'w-full sm:text-sm md:text-md lg:text-lg'}
+                  className={`w-full ${largeFont ? 'md:text-md md:leading-relaxed lg:text-l' : ''}`}
                   placeholder="Enter your math word problem…"
                   rows={rows}
                   spellCheck={false}
@@ -78,7 +80,7 @@ export const MathProblemForm = ({
             <FormItem>
               <FormControl>
                 <Input
-                  className={'w-full sm:text-sm md:text-md lg:text-lg'}
+                  className={`w-full ${largeFont ? 'md:text-md lg:text-gl' : ''}`}
                   placeholder="Optional formula (e.g. 9 + 7 = 16)"
                   spellCheck={false}
                   {...field}
