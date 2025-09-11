@@ -96,7 +96,7 @@ function App() {
           <div className="container mx-auto px-4 py-4 lg:px-8">
             <div className="flex flex-col items-center justify-center min-h-[calc(100vh-2rem)]">
               {/* Header with enhanced visual hierarchy */}
-              <div className="text-center mb-8 space-y-4">
+              <div className="text-center space-y-4">
                 <div className="flex items-center justify-center gap-4 mb-4">
                   <div className="p-3 bg-primary/10 rounded-full">
                     <img 
@@ -117,7 +117,7 @@ function App() {
               
               {/* Centered Math Problem Form with minimal card styling */}
               <div className="w-full max-w-4xl mb-6">
-                <div className="bg-white/30 backdrop-blur-sm border border-white/20 rounded-3xl p-8 lg:p-10 shadow-sm">
+                <div className="bg-white/30 backdrop-blur-sm border border-white/20 rounded-3xl p-4 lg:p-10 shadow-sm">
                   <MathProblemForm 
                     onSuccess={setResults}
                     onLoadingChange={(loading, abortFn) => {
