@@ -21,7 +21,7 @@ const sizeConfig = {
     spacing: "mr-6"
   },
   default: {
-    container: "p-8",
+    container: "p-4",
     gearContainer: "w-16 h-11",
     gear1: "w-11 h-11",
     gear2: "w-8 h-8",
@@ -32,7 +32,7 @@ const sizeConfig = {
     spacing: "mr-8"
   },
   large: {
-    container: "p-12",
+    container: "p-6",
     gearContainer: "w-24 h-16",
     gear1: "w-16 h-16",
     gear2: "w-12 h-12",

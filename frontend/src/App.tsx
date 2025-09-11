@@ -117,7 +117,7 @@ function App() {
               
               {/* Centered Math Problem Form with minimal card styling */}
               <div className="w-full max-w-4xl mb-6">
-                <div className="bg-white/30 backdrop-blur-sm border border-white/20 rounded-3xl p-4 lg:p-10 shadow-sm">
+                <div className="bg-white/30 backdrop-blur-sm border border-white/20 rounded-3xl p-4 lg:p-6 shadow-sm">
                   <MathProblemForm 
                     onSuccess={setResults}
                     onLoadingChange={(loading, abortFn) => {
@@ -129,7 +129,6 @@ function App() {
                     saveInitialValues={saveInitialValues}
                     rows={5}
                     hideSubmit={mpFormLoading}
-                    largeFont={true}
                   />
                 </div>
               </div>
