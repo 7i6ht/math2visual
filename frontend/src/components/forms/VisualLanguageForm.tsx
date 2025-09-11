@@ -8,14 +8,15 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useVisualLanguageForm } from "@/hooks/useVisualLanguageForm";
+import type { ComponentMapping } from "@/types/visualInteraction";
 
 interface VisualLanguageFormProps {
   vl: string | null;
-  onResult: (vl: string, svgFormal: string | null, svgIntuitive: string | null, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], mwp?: string, formula?: string, componentMappings?: any) => void;
+  onResult: (vl: string, svgFormal: string | null, svgIntuitive: string | null, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], mwp?: string, formula?: string, componentMappings?: ComponentMapping) => void;
   onLoadingChange: (loading: boolean, abortFn?: () => void) => void;
   highlightRanges?: Array<[number, number]>;
   onDSLPathHighlight?: (dslPath: string | null) => void;
-  componentMappings: Record<string, any>;
+  componentMappings: ComponentMapping;
 }
 
 export const VisualLanguageForm = ({ 
@@ -56,7 +57,7 @@ export const VisualLanguageForm = ({
                     className="w-full"
                     height="100%"
                     highlightRanges={highlightRanges}
-                    onCursorPositionChange={(position, _) => {
+                    onCursorPositionChange={(position) => {
                       const dslPath = findDSLPathAtPosition(componentMappings, position);
                       onDSLPathHighlight?.(dslPath);
                     }}

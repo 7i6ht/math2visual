@@ -2,11 +2,12 @@
  * DSL Cursor Mapping
  */
 import { MAX_ITEM_DISPLAY } from '@/config/api';
+import type { ComponentMapping } from '@/types/visualInteraction';
 
 /**
  * Find the most specific DSL path for a given cursor position using component mappings
  */
-export function findDSLPathAtPosition(componentMappings: Record<string, any>, cursorOffset: number): string | null {
+export function findDSLPathAtPosition(componentMappings: ComponentMapping, cursorOffset: number): string | null {
   // Validate offset bounds
   if (cursorOffset < 0) {
     return null;
@@ -14,7 +15,7 @@ export function findDSLPathAtPosition(componentMappings: Record<string, any>, cu
 
   // Find all ranges that contain the cursor position
   const containingRanges = Object.entries(componentMappings)
-    .filter(([_, range]) => 
+    .filter(([, range]) => 
       cursorOffset >= range.dsl_range[0] && cursorOffset < range.dsl_range[1]
     )
     .map(([dslPath, range]) => ({ dslPath, range }));
@@ -57,7 +58,7 @@ export function findDSLPathAtPosition(componentMappings: Record<string, any>, cu
 /**
  * Print formatted tree structure
  */
-export function printDSLTreeFormatted(componentMappings: Record<string, any>): string {
+export function printDSLTreeFormatted(componentMappings: ComponentMapping): string {
   // Sort mappings by start position for tree-like output
   const sortedMappings = Object.entries(componentMappings)
     .map(([dslPath, range]) => ({ dslPath, range }))

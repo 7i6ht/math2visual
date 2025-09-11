@@ -3,6 +3,7 @@ import { useRef, useEffect } from "react";
 import { AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { DownloadButton } from "./DownloadButton";
 import { useVisualInteraction } from "@/hooks/useVisualInteraction";
+import type { ComponentMapping } from "@/types/visualInteraction";
 import { useSVGResponsive } from "@/hooks/useSVGResponsive";
 
 interface VisualizationSectionProps {
@@ -10,15 +11,11 @@ interface VisualizationSectionProps {
   title: string;
   svgContent: string | null;
   error: string | null;
-  componentMappings: Record<string, {
-    dsl_range: [number, number];
-    property_value?: string;
-  }>;
+  componentMappings: ComponentMapping;
   isOpen: boolean;
   mwpValue: string;
   onDSLRangeHighlight?: (ranges: Array<[number, number]>) => void;
   onMWPRangeHighlight?: (ranges: Array<[number, number]>) => void;
-  onComponentClick: (dslPath: string, position: { x: number; y: number }) => void;
   currentDSLPath?: string | null;
 }
 
@@ -32,7 +29,6 @@ export const VisualizationSection = ({
   mwpValue,
   onDSLRangeHighlight,
   onMWPRangeHighlight,
-  onComponentClick,
   currentDSLPath,
 }: VisualizationSectionProps) => {
   const svgRef = useRef<HTMLDivElement | null>(null);
@@ -55,7 +51,6 @@ export const VisualizationSection = ({
     mwpValue,
     onDSLRangeHighlight,
     onMWPRangeHighlight,
-    onComponentClick,
     currentDSLPath,
   });
 

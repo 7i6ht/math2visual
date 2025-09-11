@@ -1,3 +1,5 @@
+import type { ComponentMapping } from "@/types/visualInteraction";
+
 // Form data types
 export interface FormData {
   mwp: string;
@@ -23,7 +25,7 @@ export interface ApiResponse {
   intuitive_error?: string;
   error?: string;
   missing_svg_entities?: string[];
-  componentMappings?: Record<string, any>;
+  componentMappings?: ComponentMapping;
 }
 
 // Application state types
@@ -81,7 +83,7 @@ export interface AppState {
   hasCompletedGeneration: boolean;
   mwp: string;
   formula: string;
-  componentMappings?: Record<string, any>;
+  componentMappings?: ComponentMapping;
 }
 
 // Download types

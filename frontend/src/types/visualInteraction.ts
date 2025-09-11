@@ -24,8 +24,6 @@ export interface UseVisualInteractionProps {
   onDSLRangeHighlight?: (ranges: Array<[number, number]>) => void;
   /** Callback for highlighting ranges in the MWP text */
   onMWPRangeHighlight?: (ranges: Array<[number, number]>) => void;
-  /** Callback for component click events */
-  onComponentClick?: (dslPath: string, clickPosition: { x: number; y: number }) => void;
   /** Current DSL path from cursor position in editor */
   currentDSLPath?: string | null;
 }

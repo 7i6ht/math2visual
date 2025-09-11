@@ -6,10 +6,11 @@ import { generationService as service } from "@/api_services/generation";
 import { DSLFormatter } from "@/utils/dsl-formatter";
 import { toast } from "sonner";
 import type { VLFormData } from "@/schemas/validation";
+import type { ComponentMapping } from "@/types/visualInteraction";
 
 interface UseVisualLanguageFormProps {
   vl: string | null;
-  onResult: (vl: string, svgFormal: string | null, svgIntuitive: string | null, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], mwp?: string, formula?: string, componentMappings?: any) => void;
+  onResult: (vl: string, svgFormal: string | null, svgIntuitive: string | null, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], mwp?: string, formula?: string, componentMappings?: ComponentMapping) => void;
   onLoadingChange: (loading: boolean, abortFn?: () => void) => void;
 }
 

@@ -7,6 +7,7 @@ import { VisualizationResults } from "@/components/visualization/VisualizationRe
 import { GearLoading } from "@/components/ui/gear-loading";
 import { Toaster } from "@/components/ui/sonner";
 import { useAppState } from "@/hooks/useAppState";
+import type { ComponentMapping } from "@/types/visualInteraction";
 import { detectDSLChanges, updateMWPText } from "@/lib/dsl-utils";
 
 function App() {
@@ -38,27 +39,6 @@ function App() {
   const [dslHighlightRanges, setDslHighlightRanges] = useState<Array<[number, number]>>([]);
   const [mwpHighlightRanges, setMwpHighlightRanges] = useState<Array<[number, number]>>([]);
   const [currentDSLPath, setCurrentDSLPath] = useState<string | null>(null);
-  
-  // Handle component updates from edit panel
-  const handleComponentUpdate = (updatedDSL: string, updatedMWP: string) => {
-    // Update the visual language and initial MWP
-    saveInitialValues(updatedMWP, formula);
-    // Trigger regeneration with updated DSL
-    setVLFormLoading(true);
-    setResults(
-      updatedDSL,
-      svgFormal,  // Keep existing formal visual during regeneration
-      svgIntuitive,  // Keep existing intuitive visual during regeneration
-      formalError,
-      intuitiveError,
-      missingSVGEntities,
-      updatedMWP,
-      formula,
-      componentMappings
-    );
-    // Note: The actual regeneration would be triggered by the VisualLanguageForm
-    // when it detects the DSL change
-  };
 
   // Wrapper to handle DSL→MWP sync and SVG preservation
   const handleVLResult = (
@@ -70,7 +50,7 @@ function App() {
     nextMissing?: string[],
     nextMWPOverride?: string,
     nextFormula?: string,
-    nextMappings?: Record<string, any>
+    nextMappings?: ComponentMapping
   ) => {
     // Compute MWP updates from DSL diffs when override not provided
     let nextMWP = nextMWPOverride ?? mwp;
@@ -232,11 +212,9 @@ function App() {
                   intuitiveError={intuitiveError}
                   missingSVGEntities={missingSVGEntities}
                   componentMappings={componentMappings}
-                  dslValue={vl || ''}
                   mwpValue={mwp}
                   onDSLRangeHighlight={setDslHighlightRanges}
                   onMWPRangeHighlight={setMwpHighlightRanges}
-                  onComponentUpdate={handleComponentUpdate}
                   onRegenerateAfterUpload={handleRegenerateAfterUpload}
                   onAllFilesUploaded={clearMissingSVGEntities}
                   currentDSLPath={currentDSLPath}

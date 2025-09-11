@@ -13,7 +13,6 @@ interface UseElementInteractionsProps {
     triggerContainerNameHighlight: (dslPath: string) => void;
     triggerResultContainerHighlight: (dslPath: string) => void;
   };
-  onComponentClick?: (dslPath: string, clickPosition: { x: number; y: number }) => void;
   setSelectedComponent: (component: string | null) => void;
 }
 
@@ -32,7 +31,6 @@ interface ElementListenerConfig {
 export const useElementInteractions = ({
   svgRef,
   highlighting,
-  onComponentClick,
   setSelectedComponent,
 }: UseElementInteractionsProps) => {
 
@@ -65,15 +63,11 @@ export const useElementInteractions = ({
     svgElem.onclick = () => {
       const targetPath = config.onClickTarget || dslPath;
       setSelectedComponent(targetPath);
-      if (onComponentClick) {
-        const rect = svgElem.getBoundingClientRect();
-        onComponentClick(targetPath, { x: rect.right + 10, y: rect.top });
-      }
     };
 
     setCursorStyle(svgElem, 'pointer');
     config.extraSetup?.();
-  }, [clearHighlights, setSelectedComponent, onComponentClick]);
+  }, [clearHighlights, setSelectedComponent]);
 
   /**
    * Setup operation element interactions

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import type { AppState as AppState } from "@/types";
+import type { ComponentMapping } from "@/types/visualInteraction";
 
 export const useAppState = () => {
   const [state, setState] = useState<AppState>({
@@ -46,7 +47,7 @@ export const useAppState = () => {
     missingSvgEntities?: string[],
     mwp?: string,
     formula?: string,
-    componentMappings?: Record<string, any>
+    componentMappings?: ComponentMapping
   ) => {
     setState(prev => ({
       ...prev,

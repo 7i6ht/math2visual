@@ -4,9 +4,10 @@ import { useState, useEffect } from "react";
 import { formSchema } from "@/schemas/validation";
 import { generationService as service } from "@/api_services/generation";
 import type { FormData } from "@/schemas/validation";
+import type { ComponentMapping } from "@/types/visualInteraction";
 
 interface UseMathProblemFormProps {
-  onSuccess: (vl: string, svgFormal: string | null, svgIntuitive: string | null, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], mwp?: string, formula?: string, componentMappings?: any) => void;
+  onSuccess: (vl: string, svgFormal: string | null, svgIntuitive: string | null, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], mwp?: string, formula?: string, componentMappings?: ComponentMapping) => void;
   onLoadingChange: (loading: boolean, abortFn?: () => void) => void;
   onReset: () => void;
   mwp?: string;

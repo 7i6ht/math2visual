@@ -1,8 +1,6 @@
-
 import { Accordion } from "@/components/ui/accordion";
-import { useState, useEffect } from "react";
-import { ComponentEditPanel } from "@/components/editing/ComponentEditPanel";
-import { useEditableComponents } from "@/hooks/useEditableComponents";
+import { useState, useEffect, useCallback } from "react";
+import type { ComponentMapping } from "@/types/visualInteraction";
 import { VisualizationSection } from "./VisualizationSection";
 import { MissingSVGSection } from "./MissingSVGSection";
 import { ParseErrorSection } from "./ParseErrorSection";
@@ -13,15 +11,10 @@ interface VisualizationResultsProps {
   svgIntuitive: string | null;
   intuitiveError: string | null;
   missingSVGEntities?: string[];
-  componentMappings?: Record<string, {
-    dsl_range: [number, number];
-    property_value?: string;
-  }>;
-  dslValue?: string;
+  componentMappings?: ComponentMapping;
   mwpValue?: string;
   onDSLRangeHighlight?: (ranges: Array<[number, number]>) => void;
   onMWPRangeHighlight?: (ranges: Array<[number, number]>) => void;
-  onComponentUpdate?: (dsl: string, mwp: string) => void;
   onRegenerateAfterUpload?: (toastId: string | undefined) => Promise<void>;
   onAllFilesUploaded?: () => void;
   currentDSLPath?: string | null;
@@ -34,11 +27,9 @@ export const VisualizationResults = ({
   intuitiveError,
   missingSVGEntities = [],
   componentMappings,
-  dslValue = '',
   mwpValue = '',
   onDSLRangeHighlight,
   onMWPRangeHighlight,
-  onComponentUpdate,
   onRegenerateAfterUpload,
   onAllFilesUploaded,
   currentDSLPath,
@@ -46,7 +37,7 @@ export const VisualizationResults = ({
   const [openAccordionItems, setOpenAccordionItems] = useState<string[]>([]);
   
   // Auto-expand error items when they're the only ones displayed
-  const getDefaultAccordionItems = () => {
+  const getDefaultAccordionItems = useCallback(() => {
     // Check for parse errors first
     if (formalError && /DSL parse error/i.test(formalError)) {
       return ["parse-error"];
@@ -60,13 +51,13 @@ export const VisualizationResults = ({
     }
     // Default to formal visualization
     return ["formal"];
-  };
+  }, [formalError, intuitiveError, missingSVGEntities]);
 
   // Update accordion items when props change
   useEffect(() => {
     const defaultItems = getDefaultAccordionItems();
     setOpenAccordionItems(defaultItems);
-  }, [formalError, intuitiveError, missingSVGEntities]);
+  }, [getDefaultAccordionItems]);
   
   // Suppress generic missing-SVG errors in the accordion; these are shown
   // more helpfully in the dedicated MissingSVGSection below
@@ -75,22 +66,6 @@ export const VisualizationResults = ({
     // Backend raises FileNotFoundError as: "SVG file not found: <path>"
     return /SVG file not found/i.test(error) ? null : error;
   };
-
-  // Setup editable components
-  const {
-    editingComponent,
-    editPosition,
-    componentProperties,
-    handleComponentUpdate,
-    openEditPanel,
-    closeEditPanel
-  } = useEditableComponents({
-    initialDSL: dslValue,
-    initialMWP: mwpValue,
-    componentMappings: componentMappings || {},
-    onUpdate: onComponentUpdate || (() => {}),
-  });
-
 
   // Detect if this is a parse error by checking error message content
   const hasParseError = (formalError && /DSL parse error/i.test(formalError)) || 
@@ -129,7 +104,6 @@ export const VisualizationResults = ({
               mwpValue={mwpValue}
               onDSLRangeHighlight={onDSLRangeHighlight}
               onMWPRangeHighlight={onMWPRangeHighlight}
-              onComponentClick={openEditPanel}
               currentDSLPath={currentDSLPath}
             />
 
@@ -143,7 +117,6 @@ export const VisualizationResults = ({
               mwpValue={mwpValue}
               onDSLRangeHighlight={onDSLRangeHighlight}
               onMWPRangeHighlight={onMWPRangeHighlight}
-              onComponentClick={openEditPanel}
               currentDSLPath={currentDSLPath}
             />
           </>
@@ -157,17 +130,6 @@ export const VisualizationResults = ({
           />
         )}
       </Accordion>
-      
-      {/* Edit Panel */}
-      {editingComponent && componentProperties && (
-        <ComponentEditPanel
-          dslPath={editingComponent}
-          properties={componentProperties}
-          position={editPosition}
-          onUpdate={handleComponentUpdate}
-          onClose={closeEditPanel}
-        />
-      )}
     </div>
   );
-}; 
+};

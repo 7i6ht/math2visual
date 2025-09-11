@@ -13,7 +13,6 @@ import { useElementInteractions } from './useElementInteractions';
  * Provides comprehensive interaction capabilities including:
  * - Hover highlighting for boxes, text, and operations
  * - Cross-component highlighting (SVG ↔ DSL Editor ↔ MWP text)
- * - Click handling and component selection
  * - State management for interactive components
  * 
  * @param props - Configuration object with refs and event handlers
@@ -24,7 +23,6 @@ export const useVisualInteraction = ({
   mwpValue,
   onDSLRangeHighlight,
   onMWPRangeHighlight,
-  onComponentClick,
   currentDSLPath,
 }: UseVisualInteractionProps): UseVisualInteractionReturn => {
   // ===== STATE MANAGEMENT =====
@@ -47,7 +45,6 @@ export const useVisualInteraction = ({
   const interactions = useElementInteractions({
     svgRef,
     highlighting,
-    onComponentClick,
     setSelectedComponent,
   });
 
