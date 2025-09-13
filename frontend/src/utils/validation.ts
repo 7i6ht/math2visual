@@ -1,0 +1,85 @@
+/**
+ * Shared validation constants and utilities for entity type names
+ * These should match the backend validation rules in dsl_updater.py
+ */
+
+import { SVGDatasetService } from '@/api_services/svgDataset';
+
+export const ENTITY_TYPE_VALIDATION = {
+  MAX_LENGTH: 100,
+  ALLOWED_CHARS_PATTERN: /^[a-zA-Z\-\s]+$/,
+  CONSECUTIVE_PATTERN: /\s{2,}|-{2,}/,
+} as const;
+
+export interface ValidationResult {
+  valid: boolean;
+  error?: string;
+}
+
+/**
+ * Validates entity type name format on the frontend
+ * This should match the backend validation in DSLUpdater.validate_entity_type_name()
+ */
+const validateFormat = (name: string): ValidationResult => {
+  if (!name) {
+    return { valid: false, error: 'Entity type name cannot be empty' };
+  }
+  
+  if (name.length > ENTITY_TYPE_VALIDATION.MAX_LENGTH) {
+    return { 
+      valid: false, 
+      error: `Entity type name is too long (max ${ENTITY_TYPE_VALIDATION.MAX_LENGTH} characters)` 
+    };
+  }
+  
+  // Check if name contains only allowed characters: letters, dashes, spaces
+  if (!ENTITY_TYPE_VALIDATION.ALLOWED_CHARS_PATTERN.test(name)) {
+    return { 
+      valid: false, 
+      error: 'Entity type name can only contain letters, dashes, and spaces' 
+    };
+  }
+  
+  // Check for consecutive spaces or dashes
+  if (ENTITY_TYPE_VALIDATION.CONSECUTIVE_PATTERN.test(name)) {
+    return { 
+      valid: false, 
+      error: 'Entity type name cannot contain consecutive spaces or dashes' 
+    };
+  }
+  
+  // Check if it starts or ends with space or dash
+  if (name.startsWith(' ') || name.startsWith('-') || name.endsWith(' ') || name.endsWith('-')) {
+    return { 
+      valid: false, 
+      error: 'Entity type name cannot start or end with space or dash' 
+    };
+  }
+  
+  return { valid: true };
+};
+
+/**
+ * Validates entity type name format and uniqueness on the frontend
+ * This includes both format validation and uniqueness check against the dataset
+ */
+export const validateEntityTypeNameAsync = async (name: string): Promise<ValidationResult> => {
+  // First do format validation
+  const formatValidation = validateFormat(name);
+  if (!formatValidation.valid) {
+    return formatValidation;
+  }
+
+  // Then check uniqueness
+  try {
+    const exists = await SVGDatasetService.checkSVGNameExists(name);
+    if (exists) {
+      return { valid: false, error: 'This name already exists in the dataset' };
+    }
+  } catch (error) {
+    console.error('Uniqueness check failed:', error);
+    return { valid: false, error: 'Failed to check name uniqueness' };
+  }
+
+  return { valid: true };
+};

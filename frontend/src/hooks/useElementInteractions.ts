@@ -13,7 +13,7 @@ interface UseElementInteractionsProps {
     triggerContainerNameHighlight: (dslPath: string) => void;
     triggerResultContainerHighlight: (dslPath: string) => void;
   };
-  setSelectedComponent: (component: string | null) => void;
+  onEmbeddedSVGClick: (dslPath: string, event: MouseEvent) => void;
 }
 
 interface ElementListenerConfig {
@@ -31,7 +31,7 @@ interface ElementListenerConfig {
 export const useElementInteractions = ({
   svgRef,
   highlighting,
-  setSelectedComponent,
+  onEmbeddedSVGClick,
 }: UseElementInteractionsProps) => {
 
   /**
@@ -43,9 +43,9 @@ export const useElementInteractions = ({
 
 
   /**
-   * Setup event listeners for a specific SVG element
+   * Setup mouseenter and related listeners for a specific SVG element
    */
-  const setupElementListeners = useCallback((
+  const setupMouseEnterListener = useCallback((
     svgElem: SVGElement,
     dslPath: string,
     config: ElementListenerConfig
@@ -60,20 +60,16 @@ export const useElementInteractions = ({
     // Add event listeners
     svgElem.onmouseenter = config.onMouseEnter;
     svgElem.onmouseleave = clearHighlights;
-    svgElem.onclick = () => {
-      const targetPath = config.onClickTarget || dslPath;
-      setSelectedComponent(targetPath);
-    };
 
     setCursorStyle(svgElem, 'pointer');
     config.extraSetup?.();
-  }, [clearHighlights, setSelectedComponent]);
+  }, [clearHighlights]);
 
   /**
    * Setup operation element interactions
    */
   const setupOperationElement = useCallback((svgElem: SVGElement, dslPath: string) => {
-    setupElementListeners(svgElem, dslPath, {
+    setupMouseEnterListener(svgElem, dslPath, {
       icon: '⚙️',
       label: 'OPERATION',
       onMouseEnter: () => {
@@ -81,13 +77,13 @@ export const useElementInteractions = ({
         highlighting.triggerOperationHighlight(dslPath);
       }
     });
-  }, [setupElementListeners, highlighting]);
+  }, [setupMouseEnterListener, highlighting]);
 
   /**
    * Setup box element interactions
    */
   const setupBoxElement = useCallback((svgElem: SVGElement, dslPath: string) => {
-    setupElementListeners(svgElem, dslPath, {
+    setupMouseEnterListener(svgElem, dslPath, {
       icon: '📦',
       label: 'BOX',
       onMouseEnter: () => {
@@ -95,7 +91,7 @@ export const useElementInteractions = ({
         highlighting.triggerBoxHighlight(dslPath);
       }
     });
-  }, [setupElementListeners, highlighting]);
+  }, [setupMouseEnterListener, highlighting]);
 
   /**
    * Setup text element interactions
@@ -104,7 +100,7 @@ export const useElementInteractions = ({
     const quantityDslPath = dslPath;
     const entityDslPath = quantityDslPath.replace('/entity_quantity', '');
     
-    setupElementListeners(svgElem, dslPath, {
+    setupMouseEnterListener(svgElem, dslPath, {
       icon: '📝',
       label: 'TEXT',
       onMouseEnter: () => {
@@ -116,26 +112,31 @@ export const useElementInteractions = ({
         svgElem.style.pointerEvents = 'auto';
       }
     });
-  }, [setupElementListeners, highlighting]);
+  }, [setupMouseEnterListener, highlighting]);
 
   /**
    * Setup embedded SVG element interactions
    */
   const setupEmbeddedSvgElement = useCallback((svgElem: SVGElement, dslPath: string) => {
-    setupElementListeners(svgElem, dslPath, {
+    setupMouseEnterListener(svgElem, dslPath, {
       icon: '🖼️',
       label: 'EMBEDDED SVG',
       onMouseEnter: () => {
         highlighting.triggerEmbeddedSvgHighlight(dslPath);
       }
     });
-  }, [setupElementListeners, highlighting]);
+
+    // Add custom click handler for embedded SVGs (capture phase)
+    svgElem.addEventListener('click', (event: MouseEvent) => {
+      onEmbeddedSVGClick(dslPath, event);
+    }, { capture: true });
+  }, [setupMouseEnterListener, highlighting, onEmbeddedSVGClick]);
 
   /**
    * Setup container type SVG element interactions
    */
   const setupContainerTypeSvgElement = useCallback((svgElem: SVGElement, dslPath: string) => {
-    setupElementListeners(svgElem, dslPath, {
+    setupMouseEnterListener(svgElem, dslPath, {
       icon: '🏷️',
       label: 'CONTAINER TYPE SVG',
       onMouseEnter: () => {
@@ -143,13 +144,13 @@ export const useElementInteractions = ({
         highlighting.triggerContainerTypeHighlight(dslPath);
       }
     });
-  }, [setupElementListeners, highlighting]);
+  }, [setupMouseEnterListener, highlighting]);
 
   /**
    * Setup container name text element interactions
    */
   const setupContainerNameElement = useCallback((svgElem: SVGElement, dslPath: string) => {
-    setupElementListeners(svgElem, dslPath, {
+    setupMouseEnterListener(svgElem, dslPath, {
       icon: '🏷️',
       label: 'CONTAINER NAME TEXT',
       onMouseEnter: () => {
@@ -157,13 +158,13 @@ export const useElementInteractions = ({
         highlighting.triggerContainerNameHighlight(dslPath);
       }
     });
-  }, [setupElementListeners, highlighting]);
+  }, [setupMouseEnterListener, highlighting]);
 
   /**
    * Setup result container element interactions
    */
   const setupResultContainerElement = useCallback((svgElem: SVGElement, dslPath: string) => {
-    setupElementListeners(svgElem, dslPath, {
+    setupMouseEnterListener(svgElem, dslPath, {
       icon: '📦',
       label: 'RESULT CONTAINER',
       onMouseEnter: () => {
@@ -171,7 +172,7 @@ export const useElementInteractions = ({
         highlighting.triggerResultContainerHighlight(dslPath);
       }
     });
-  }, [setupElementListeners, highlighting]);
+  }, [setupMouseEnterListener, highlighting]);
 
   /**
    * Setup interactions for all SVG elements with DSL paths

@@ -10,7 +10,6 @@ import re
 import magic
 import logging
 from typing import Optional, Tuple, Dict, Any
-from werkzeug.utils import secure_filename
 
 # Import ClamAV scanner with graceful handling
 try:
@@ -277,18 +276,6 @@ class SVGValidator:
             return True, None, scan_info  # Assume clean on unexpected error
 
 
-    @classmethod
-    def get_secure_filename(cls, filename: str) -> str:
-        """
-        Get a secure version of the filename.
-        
-        Args:
-            filename: Original filename
-            
-        Returns:
-            Secure filename
-        """
-        return secure_filename(filename)
     
     @classmethod
     def validate_file(cls, content: bytes, expected_filename: str, 

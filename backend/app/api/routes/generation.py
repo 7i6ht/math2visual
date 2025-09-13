@@ -12,9 +12,103 @@ from app.services.visual_generation.formal_generator import FormalVisualGenerato
 from app.services.visual_generation.intuitive_generator import IntuitiveVisualGenerator
 from app.services.visual_generation.utils import ValidationError, VisualGenerationError
 from app.services.visual_generation.dsl_parser import DSLParser
+from app.services.dsl.dsl_updater import DSLUpdater
 from app.config.storage_config import get_svg_dataset_path
 
 generation_bp = Blueprint('generation', __name__)
+
+
+def generate_visualizations(parsed_dsl, output_dir=None):
+    """
+    Generate formal and intuitive visualizations from parsed DSL.
+    
+    Args:
+        parsed_dsl: Parsed DSL data structure
+        output_dir: Optional output directory path
+        
+    Returns:
+        dict: Contains svg_formal, svg_intuitive, formal_error, intuitive_error, 
+              and missing_svg_entities
+    """
+    # Setup output directory
+    if output_dir is None:
+        output_dir = os.path.join(os.path.dirname(__file__), "../../../storage/output")
+    os.makedirs(output_dir, exist_ok=True)
+    output_file = os.path.join(output_dir, "output.svg")
+    intuitive_file = os.path.join(output_dir, "intuitive.svg")
+    
+    # Initialize generators with configurable SVG path
+    resources = get_svg_dataset_path()
+    formal_generator = FormalVisualGenerator(resources)
+    intuitive_generator = IntuitiveVisualGenerator(resources)
+    
+    # Generate formal visualization
+    if os.path.exists(output_file):
+        os.remove(output_file)
+    
+    formal_error = None
+    svg_formal = None
+    ok_formal = False
+    
+    # Reset missing entities tracking
+    formal_generator.reset_missing_entities()
+    
+    try:
+        ok_formal = formal_generator.render_svgs_from_data(output_file, parsed_dsl)
+        if ok_formal and os.path.exists(output_file):
+            with open(output_file, "r") as f1:
+                svg_formal = f1.read()
+        else:
+            formal_error = "Could not generate formal visualization."
+    except (VisualGenerationError, FileNotFoundError) as e:
+        formal_error = f"Formal generation error: {str(e)}"
+    except Exception as e:
+        formal_error = f"Unexpected formal generation error: {str(e)}"
+    
+    # Generate intuitive visualization
+    if os.path.exists(intuitive_file):
+        os.remove(intuitive_file)
+    
+    intuitive_error = None
+    svg_intuitive = None
+    ok_intu = False
+    
+    # Reset missing entities tracking
+    intuitive_generator.reset_missing_entities()
+    
+    try:
+        ok_intu = intuitive_generator.render_svgs_from_data(intuitive_file, parsed_dsl)
+        if ok_intu and os.path.exists(intuitive_file):
+            with open(intuitive_file, "r") as f2:
+                svg_intuitive = f2.read()
+        else:
+            intuitive_error = "Could not generate intuitive visualization."
+    except (VisualGenerationError, FileNotFoundError) as e:
+        intuitive_error = f"Intuitive generation error: {str(e)}"
+    except Exception as e:
+        intuitive_error = f"Unexpected intuitive generation error: {str(e)}"
+
+    # Archive timestamped copies
+    ts = datetime.now().strftime("%Y%m%d%H%M%S")
+    if ok_formal and os.path.exists(output_file):
+        shutil.copy(output_file, os.path.join(output_dir, f"formal_{ts}.svg"))
+    if ok_intu and os.path.exists(intuitive_file):
+        shutil.copy(intuitive_file, os.path.join(output_dir, f"intuitive_{ts}.svg"))
+
+    # Collect missing entities from both generators
+    formal_missing_entities = formal_generator.get_missing_entities()
+    intuitive_missing_entities = intuitive_generator.get_missing_entities()
+    
+    # Combine missing entities and remove duplicates while preserving order
+    all_missing_entities = list(dict.fromkeys(formal_missing_entities + intuitive_missing_entities))
+    
+    return {
+        "svg_formal": svg_formal,
+        "svg_intuitive": svg_intuitive,
+        "formal_error": formal_error,
+        "intuitive_error": intuitive_error,
+        "missing_svg_entities": all_missing_entities
+    }
 
 
 @generation_bp.route("/api/generate", methods=["POST"])
@@ -59,93 +153,84 @@ def generate():
             return jsonify({"error": "Could not find `visual_language:` in GPT response."}), 500
         dsl = raw.split(":", 1)[1].strip() if raw.lower().startswith("visual_language:") else raw.strip()
     
-    # Initialize generators with configurable SVG path
-    resources = get_svg_dataset_path()
-    formal_generator = FormalVisualGenerator(resources)
-    intuitive_generator = IntuitiveVisualGenerator(resources)
-    
-    # Parse DSL once for both generators
+    # Parse DSL
     try:
         parsed_dsl = dsl_parser.parse_dsl(dsl)
     except (ValueError, ValidationError) as e:
         return jsonify({"error": f"DSL parse error: {e}"}), 500
     
-    # Share component registry with both generators and copy parsed data
-    data_formal = parsed_dsl
-    data_intuitive = copy.deepcopy(parsed_dsl)  # Deep copy to avoid interference
-    
-    # Setup output directory using new storage structure
-    output_dir = os.path.join(os.path.dirname(__file__), "../../../storage/output")
-    os.makedirs(output_dir, exist_ok=True)
-    output_file = os.path.join(output_dir, "output.svg")
-    intuitive_file = os.path.join(output_dir, "intuitive.svg")
-
-    # Generate formal visualization
-    if os.path.exists(output_file):
-        os.remove(output_file)
-    
-    formal_error = None
-    svg_formal = None
-    ok_formal = False
-    
-    # Reset missing entities tracking
-    formal_generator.reset_missing_entities()
-    
-    try:
-        ok_formal = formal_generator.render_svgs_from_data(output_file, data_formal)
-        if ok_formal and os.path.exists(output_file):
-            with open(output_file, "r") as f1:
-                svg_formal = f1.read()
-        else:
-            formal_error = "Could not generate formal visualization."
-    except (VisualGenerationError, FileNotFoundError) as e:
-        formal_error = f"Formal generation error: {str(e)}"
-    except Exception as e:
-        formal_error = f"Unexpected formal generation error: {str(e)}"
-    
-    # Generate intuitive visualization
-    if os.path.exists(intuitive_file):
-        os.remove(intuitive_file)
-    
-    intuitive_error = None
-    svg_intuitive = None
-    ok_intu = False
-    
-    # Reset missing entities tracking
-    intuitive_generator.reset_missing_entities()
-    
-    try:
-        ok_intu = intuitive_generator.render_svgs_from_data(intuitive_file, data_intuitive)
-        if ok_intu and os.path.exists(intuitive_file):
-            with open(intuitive_file, "r") as f2:
-                svg_intuitive = f2.read()
-        else:
-            intuitive_error = "Could not generate intuitive visualization."
-    except (VisualGenerationError, FileNotFoundError) as e:
-        intuitive_error = f"Intuitive generation error: {str(e)}"
-    except Exception as e:
-        intuitive_error = f"Unexpected intuitive generation error: {str(e)}"
-
-    # Archive timestamped copies
-    ts = datetime.now().strftime("%Y%m%d%H%M%S")
-    if ok_formal and os.path.exists(output_file):
-        shutil.copy(output_file, os.path.join(output_dir, f"formal_{ts}.svg"))
-    if ok_intu and os.path.exists(intuitive_file):
-        shutil.copy(intuitive_file, os.path.join(output_dir, f"intuitive_{ts}.svg"))
-
-    # Collect missing entities from both generators
-    formal_missing_entities = formal_generator.get_missing_entities()
-    intuitive_missing_entities = intuitive_generator.get_missing_entities()
-    
-    # Combine missing entities and remove duplicates while preserving order
-    all_missing_entities = list(dict.fromkeys(formal_missing_entities + intuitive_missing_entities))
+    # Generate visualizations using shared method
+    result = generate_visualizations(parsed_dsl)
     
     # Return results with formatted DSL (no component mappings)
     return jsonify({
         "visual_language": dsl,  # Send formatted DSL instead of raw DSL
-        "svg_formal": svg_formal,
-        "svg_intuitive": svg_intuitive,
-        "formal_error": formal_error,
-        "intuitive_error": intuitive_error,
-        "missing_svg_entities": all_missing_entities
+        "svg_formal": result["svg_formal"],
+        "svg_intuitive": result["svg_intuitive"],
+        "formal_error": result["formal_error"],
+        "intuitive_error": result["intuitive_error"],
+        "missing_svg_entities": result["missing_svg_entities"]
+    })
+
+
+@generation_bp.route("/api/update-entity-type", methods=["POST"])
+def update_entity_type():
+    """
+    Update entity type in DSL and regenerate visuals.
+    
+    Expects:
+        - dsl: Current DSL string
+        - old_entity_type: Entity type to replace
+        - new_entity_type: New entity type to use
+        
+    Returns JSON with updated DSL and regenerated SVG content.
+    """
+    body = request.json or {}
+    
+    dsl = body.get("dsl", "").strip()
+    old_entity_type = body.get("old_entity_type", "").strip()
+    new_entity_type = body.get("new_entity_type", "").strip()
+    
+    if not dsl:
+        return jsonify({"error": "DSL is required"}), 400
+    
+    if not old_entity_type:
+        return jsonify({"error": "Old entity type is required"}), 400
+    
+    if not new_entity_type:
+        return jsonify({"error": "New entity type is required"}), 400
+    
+    # Initialize DSL updater and validate new entity type
+    dsl_updater = DSLUpdater()
+    is_valid, validation_error = dsl_updater.validate_entity_type_name(new_entity_type)
+    if not is_valid:
+        return jsonify({"error": f"Invalid entity type name: {validation_error}"}), 400
+    
+    # Update the DSL
+    updated_dsl, replacement_count = dsl_updater.update_entity_types(dsl, old_entity_type, new_entity_type)
+    
+    if replacement_count == 0:
+        return jsonify({"error": f"Entity type '{old_entity_type}' not found in DSL"}), 400
+    
+    # Initialize parser
+    dsl_parser = DSLParser()
+    
+    # Parse updated DSL
+    try:
+        parsed_dsl = dsl_parser.parse_dsl(updated_dsl)
+    except (ValueError, ValidationError) as e:
+        return jsonify({"error": f"DSL parse error after update: {e}"}), 500
+    
+    # Generate visualizations using shared method
+    result = generate_visualizations(parsed_dsl)
+    
+    return jsonify({
+        "visual_language": updated_dsl,
+        "svg_formal": result["svg_formal"],
+        "svg_intuitive": result["svg_intuitive"],
+        "formal_error": result["formal_error"],
+        "intuitive_error": result["intuitive_error"],
+        "missing_svg_entities": result["missing_svg_entities"],
+        "old_entity_type": old_entity_type,
+        "new_entity_type": new_entity_type
     })

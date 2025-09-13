@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { toast } from "sonner";
-import { UploadService } from "@/api_services/upload";
+import { SVGDatasetService } from "@/api_services/svgDataset";
 import { ValidationError } from "@/types";
 import { Upload as UploadIcon } from "lucide-react";
 
@@ -47,7 +47,7 @@ export const useSVGMissingError = ({
 
       toast.loading("Uploading SVG file...", { id: uploadToastId });
 
-      const uploadResult = await UploadService.uploadSVG(file, filename);
+      const uploadResult = await SVGDatasetService.uploadSVG(file, filename);
 
       if (!uploadResult.success) {
         throw new Error(uploadResult.error || "Upload failed");

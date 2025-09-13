@@ -1,4 +1,5 @@
 import type { ApiRequest, ApiResponse } from "@/types";
+import type { ComponentMapping } from "@/types/visualInteraction";
 import { BACKEND_API_URL as API_BASE_URL } from "@/config/api";
 import { DSLFormatter } from "@/utils/dsl-formatter";
 
@@ -78,6 +79,62 @@ const generationService = {
 
   async generateFromDSL(dsl: string, abortSignal?: AbortSignal): Promise<ApiResponse> {
     return this.generateVisualization({ dsl }, abortSignal);
+  },
+
+  async updateEntityType(
+    dsl: string,
+    oldEntityType: string,
+    newEntityType: string
+  ): Promise<{
+    visual_language: string;
+    svg_formal: string | null;
+    svg_intuitive: string | null;
+    formal_error: string | null;
+    intuitive_error: string | null;
+    missing_svg_entities: string[];
+    old_entity_type: string;
+    new_entity_type: string;
+    componentMappings: ComponentMapping;
+  }> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/update-entity-type`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          dsl,
+          old_entity_type: oldEntityType,
+          new_entity_type: newEntityType,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new ApiError(errorData.error || `Update failed with status ${response.status}`, response.status);
+      }
+
+      const result = await response.json();
+      
+      // Generate component mappings from the updated DSL
+      const formatter = new DSLFormatter();
+      const { componentMappings } = formatter.processAndFormatDSL(result.visual_language || '');
+      
+      return {
+        ...result,
+        componentMappings
+      };
+    } catch (error) {
+      console.error('Entity type update error:', error);
+      
+      if (error instanceof ApiError) {
+        throw error;
+      }
+      
+      throw new ApiError(
+        error instanceof Error ? error.message : 'Failed to update entity type'
+      );
+    }
   }
 };
 

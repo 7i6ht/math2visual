@@ -3,10 +3,12 @@ import { useState } from 'react';
 import { MathProblemForm } from "@/components/forms/MathProblemForm";
 import { VisualLanguageForm } from "@/components/forms/VisualLanguageForm";
 import { VisualizationResults } from "@/components/visualization/VisualizationResults";
+import { SVGSelectorPopup } from "@/components/svg/SVGSelectorPopup";
 
 import { GearLoading } from "@/components/ui/gear-loading";
 import { Toaster } from "@/components/ui/sonner";
 import { useAppState } from "@/hooks/useAppState";
+import { useSVGSelector } from "@/hooks/useSVGSelector";
 import type { ComponentMapping } from "@/types/visualInteraction";
 import { detectDSLChanges, updateMWPText } from "@/lib/dsl-utils";
 
@@ -39,6 +41,30 @@ function App() {
   const [dslHighlightRanges, setDslHighlightRanges] = useState<Array<[number, number]>>([]);
   const [mwpHighlightRanges, setMwpHighlightRanges] = useState<Array<[number, number]>>([]);
   const [currentDSLPath, setCurrentDSLPath] = useState<string | null>(null);
+
+  // SVG Selector functionality
+  const {
+    selectorState,
+    closeSelector,
+    handleEntityTypeChange,
+    handleEmbeddedSVGClick,
+  } = useSVGSelector({
+    onVisualsUpdate: (data) => {
+      setResults(
+        data.visual_language,
+        data.svg_formal,
+        data.svg_intuitive,
+        data.formal_error,
+        data.intuitive_error,
+        data.missing_svg_entities,
+        undefined, // mwp - unchanged
+        undefined, // formula - unchanged
+        data.componentMappings // componentMappings - updated
+      );
+    },
+    currentDSL: vl || '',
+    componentMappings,
+  });
 
   // Wrapper to handle DSL→MWP sync and SVG preservation
   const handleVLResult = (
@@ -218,6 +244,7 @@ function App() {
                   onRegenerateAfterUpload={handleRegenerateAfterUpload}
                   onAllFilesUploaded={clearMissingSVGEntities}
                   currentDSLPath={currentDSLPath}
+                  onEmbeddedSVGClick={handleEmbeddedSVGClick}
                 />
 
                 {/* Loading animation below the accordions when regenerating */}
@@ -236,6 +263,16 @@ function App() {
           </div>
         )}
       </div>
+      
+      {/* SVG Selector Popup */}
+      <SVGSelectorPopup
+        isOpen={selectorState.isOpen}
+        onClose={closeSelector}
+        currentEntityType={selectorState.currentEntityType}
+        onEntityTypeChange={handleEntityTypeChange}
+        position={selectorState.position}
+      />
+      
       <Toaster/>
     </>
   );

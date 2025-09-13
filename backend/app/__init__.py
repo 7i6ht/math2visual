@@ -6,8 +6,8 @@ from flask_cors import CORS
 
 from app.config.storage_config import validate_storage_config, storage_config
 from app.api.routes.generation import generation_bp
-from app.api.routes.upload import upload_bp  
 from app.api.routes.system import system_bp
+from app.api.routes.svg_dataset import svg_dataset_bp
 from app.api.middleware.error_handlers import register_error_handlers
 
 
@@ -27,8 +27,8 @@ def create_app():
     
     # Register blueprints
     app.register_blueprint(generation_bp)
-    app.register_blueprint(upload_bp)
     app.register_blueprint(system_bp)
+    app.register_blueprint(svg_dataset_bp)
     
     # Register error handlers
     register_error_handlers(app)

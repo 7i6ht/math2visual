@@ -116,7 +116,7 @@ Generate visual representations from math word problems.
 
 ### SVG Upload API
 
-#### `POST /api/upload-svg`
+#### `POST /api/svg-dataset/upload`
 Upload SVG file to the svg_dataset directory with validation and security scanning.
 
 **Request Body (multipart/form-data):**
@@ -127,7 +127,7 @@ expected_filename: string (required) - Expected filename for validation
 
 **Example using curl:**
 ```bash
-curl -X POST http://localhost:5001/api/upload-svg \
+curl -X POST http://localhost:5001/api/svg-dataset/upload \
   -F "file=@apple.svg" \
   -F "expected_filename=apple.svg"
 ```
@@ -423,7 +423,7 @@ python -m pytest --cov=app tests/
 
 ### Adding New SVG Entities
 1. Create SVG file following naming conventions
-2. Upload via `/api/upload-svg` endpoint
+2. Upload via `/api/svg-dataset/upload` endpoint
 3. SVG will be validated and added to dataset
 
 ### Extending Visual Language

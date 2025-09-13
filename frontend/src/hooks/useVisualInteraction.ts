@@ -1,8 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import type { 
   ComponentMapping, 
-  UseVisualInteractionProps, 
-  UseVisualInteractionReturn 
+  UseVisualInteractionProps
 } from '../types/visualInteraction';
 import { useHighlighting } from './useHighlighting';
 import { useElementInteractions } from './useElementInteractions';
@@ -24,9 +23,9 @@ export const useVisualInteraction = ({
   onDSLRangeHighlight,
   onMWPRangeHighlight,
   currentDSLPath,
-}: UseVisualInteractionProps): UseVisualInteractionReturn => {
+  onEmbeddedSVGClick,
+}: UseVisualInteractionProps) => {
   // ===== STATE MANAGEMENT =====
-  const [selectedComponent, setSelectedComponent] = useState<string | null>(null);
   const [componentMappings, setComponentMappings] = useState<ComponentMapping>({});
 
   // ===== COMPOSED HOOKS =====
@@ -45,7 +44,7 @@ export const useVisualInteraction = ({
   const interactions = useElementInteractions({
     svgRef,
     highlighting,
-    setSelectedComponent,
+    onEmbeddedSVGClick,
   });
 
   // ===== SETUP LOGIC =====
@@ -77,12 +76,10 @@ export const useVisualInteraction = ({
 
   return {
     // Current state
-    selectedComponent,
     componentMappings,
     
     // State setters
     setComponentMappings,
-    setSelectedComponent,
     
     // Setup function (for manual triggering if needed)
     setupSVGInteractions: interactions.setupSVGInteractions,

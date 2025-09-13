@@ -6,6 +6,7 @@ Run with: python3 test_svg_validator.py
 """
 
 import unittest
+from werkzeug.utils import secure_filename
 from app.services.validation.svg_validator import SVGValidator
 
 
@@ -139,7 +140,7 @@ class TestSVGValidator(unittest.TestCase):
         
         for original, expected in test_cases:
             with self.subTest(original=original):
-                secure_name = SVGValidator.get_secure_filename(original)
+                secure_name = secure_filename(original)
                 # Note: werkzeug's secure_filename might have different behavior
                 # so we just check that it returns a string
                 self.assertIsInstance(secure_name, str)

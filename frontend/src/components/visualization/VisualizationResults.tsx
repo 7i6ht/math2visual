@@ -18,6 +18,7 @@ interface VisualizationResultsProps {
   onRegenerateAfterUpload?: (toastId: string | undefined) => Promise<void>;
   onAllFilesUploaded?: () => void;
   currentDSLPath?: string | null;
+  onEmbeddedSVGClick: (dslPath: string, event: MouseEvent) => void;
 }
 
 export const VisualizationResults = ({
@@ -33,6 +34,7 @@ export const VisualizationResults = ({
   onRegenerateAfterUpload,
   onAllFilesUploaded,
   currentDSLPath,
+  onEmbeddedSVGClick,
 }: VisualizationResultsProps) => {
   const [openAccordionItems, setOpenAccordionItems] = useState<string[]>([]);
   
@@ -105,6 +107,7 @@ export const VisualizationResults = ({
               onDSLRangeHighlight={onDSLRangeHighlight}
               onMWPRangeHighlight={onMWPRangeHighlight}
               currentDSLPath={currentDSLPath}
+              onEmbeddedSVGClick={onEmbeddedSVGClick}
             />
 
             <VisualizationSection
@@ -118,6 +121,7 @@ export const VisualizationResults = ({
               onDSLRangeHighlight={onDSLRangeHighlight}
               onMWPRangeHighlight={onMWPRangeHighlight}
               currentDSLPath={currentDSLPath}
+              onEmbeddedSVGClick={onEmbeddedSVGClick}
             />
           </>
         )}

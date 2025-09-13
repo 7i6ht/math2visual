@@ -26,6 +26,8 @@ export interface UseVisualInteractionProps {
   onMWPRangeHighlight?: (ranges: Array<[number, number]>) => void;
   /** Current DSL path from cursor position in editor */
   currentDSLPath?: string | null;
+  /** Callback for embedded SVG clicks */
+  onEmbeddedSVGClick: (dslPath: string, event: MouseEvent) => void;
 }
 
 /**
@@ -58,21 +60,4 @@ export interface ElementListenerConfig {
   onClickTarget?: string;
   /** Additional setup logic for the element */
   extraSetup?: () => void;
-}
-
-/**
- * Return type for the main useVisualInteraction hook
- * Provides state and control functions for managing visual interactions
- */
-export interface UseVisualInteractionReturn {
-  /** Currently selected component DSL path */
-  selectedComponent: string | null;
-  /** Component mappings for DSL paths */
-  componentMappings: ComponentMapping;
-  /** Function to update component mappings */
-  setComponentMappings: (mappings: ComponentMapping) => void;
-  /** Function to update selected component */
-  setSelectedComponent: (component: string | null) => void;
-  /** Function to manually setup SVG interactions */
-  setupSVGInteractions: () => void;
 }

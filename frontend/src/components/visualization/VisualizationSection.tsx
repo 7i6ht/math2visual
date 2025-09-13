@@ -17,6 +17,7 @@ interface VisualizationSectionProps {
   onDSLRangeHighlight?: (ranges: Array<[number, number]>) => void;
   onMWPRangeHighlight?: (ranges: Array<[number, number]>) => void;
   currentDSLPath?: string | null;
+  onEmbeddedSVGClick: (dslPath: string, event: MouseEvent) => void;
 }
 
 export const VisualizationSection = ({
@@ -30,6 +31,7 @@ export const VisualizationSection = ({
   onDSLRangeHighlight,
   onMWPRangeHighlight,
   currentDSLPath,
+  onEmbeddedSVGClick,
 }: VisualizationSectionProps) => {
   const svgRef = useRef<HTMLDivElement | null>(null);
   
@@ -52,6 +54,7 @@ export const VisualizationSection = ({
     onDSLRangeHighlight,
     onMWPRangeHighlight,
     currentDSLPath,
+    onEmbeddedSVGClick,
   });
 
 
