@@ -53,16 +53,14 @@ export const GearLoading = ({
   const config = sizeConfig[size];
 
   return (
-    <div className={`flex items-center justify-center ${config.container} bg-white/20 backdrop-blur-sm rounded-2xl border border-white/10 shadow-sm`}>
+    <div className={`flex items-center justify-center ${config.container} bg-white/20 backdrop-blur-sm rounded-2xl border border-white/10`}>
       {/* Left: Gears with subtle glow effect */}
       <div className={`relative flex items-center justify-center ${config.gearContainer} ${config.spacing}`}>
-        {/* Subtle glow effect behind gears */}
-        <div className="absolute inset-0 bg-primary/10 rounded-full blur-xl" />
         
         {/* First gear - larger */}
         <div className="absolute left-0 top-1/2 transform -translate-y-1/2">
           <svg
-            className={`gear-1 ${config.gear1} text-primary drop-shadow-lg`}
+            className={`gear-1 ${config.gear1} text-primary`}
             viewBox="0 0 24 24"
             fill="currentColor"
           >
@@ -73,7 +71,7 @@ export const GearLoading = ({
         {/* Second gear - smaller */}
         <div className={`absolute ${config.gear2Position} top-1/2 transform -translate-y-1/2 translate-y-px`}>
           <svg
-            className={`gear-2 ${config.gear2} text-muted-foreground drop-shadow-md`}
+            className={`gear-2 ${config.gear2} text-muted-foreground`}
             viewBox="0 0 24 24"
             fill="currentColor"
           >

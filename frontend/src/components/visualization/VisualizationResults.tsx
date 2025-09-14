@@ -80,7 +80,7 @@ export const VisualizationResults = ({
 
   return (
     <div className="h-full w-full">
-      <h2 className="text-xl font-semibold mb-4 text-center">Generated Visualizations</h2>
+      <h2 className="text-xl font-semibold mb-4 text-center">Visuals</h2>
       
       <Accordion 
         type="multiple" 
@@ -98,7 +98,7 @@ export const VisualizationResults = ({
           <>
             <VisualizationSection
               type="formal"
-              title="Formal Representation"
+              title="Formal"
               svgContent={svgFormal}
               error={filterMissingSvgError(formalError)}
               componentMappings={componentMappings || {}}
@@ -112,7 +112,7 @@ export const VisualizationResults = ({
 
             <VisualizationSection
               type="intuitive"
-              title="Intuitive Representation"
+              title="Intuitive"
               svgContent={svgIntuitive}
               error={filterMissingSvgError(intuitiveError)}
               componentMappings={componentMappings || {}}

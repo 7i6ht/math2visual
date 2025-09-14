@@ -98,7 +98,7 @@ export const MathProblemForm = ({
               size="lg"
               className="min-w-[200px] bg-primary text-primary-foreground"
             >
-              Generate Visualization
+              Generate
             </Button>
           )}
         </div>
