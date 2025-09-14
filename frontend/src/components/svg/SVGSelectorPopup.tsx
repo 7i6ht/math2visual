@@ -49,7 +49,12 @@ export const SVGSelectorPopup: React.FC<SVGSelectorPopupProps> = ({
     setValidationError(null);
   };
 
-  const setSearchApproach = (query?: string) => {
+  const clearAllSelectionsAndQuery = () => {
+    clearAllSelections();
+    setSearchQuery('');
+  };
+
+  const setActionToSearch = (query?: string) => {
     setLastAction('search');
     clearAllSelections();
     if (query !== undefined) {
@@ -57,9 +62,12 @@ export const SVGSelectorPopup: React.FC<SVGSelectorPopupProps> = ({
     }
   };
 
-  const setUploadApproach = (file: File, query?: string) => {
+  const setActionToUpload = () => {
     setLastAction('upload');
-    clearAllSelections();
+    clearAllSelectionsAndQuery();
+  };
+
+  const handleFileSelection = (file: File, query?: string) => {
     setUploadFile(file);
     if (query !== undefined) {
       setSearchQuery(query);
@@ -89,7 +97,7 @@ export const SVGSelectorPopup: React.FC<SVGSelectorPopupProps> = ({
     setError(null);
 
     try {
-      const data = await SVGDatasetService.searchSVGFiles(query, 8);
+      const data = await SVGDatasetService.searchSVGFiles(query, 10);
       setSearchResults(data.files || []);
       setShowPreview(data.files && data.files.length > 0);
       setCurrentPage(0); // Reset to first page when search results change
@@ -106,14 +114,15 @@ export const SVGSelectorPopup: React.FC<SVGSelectorPopupProps> = ({
   // Handle search input changes
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      if (searchQuery.trim()) {
-        setSearchApproach();
+      const isUploadModeWithFile = lastAction === 'upload' && uploadFile;
+      if (!isUploadModeWithFile && searchQuery.trim()) {
+        setActionToSearch();
+        searchSVGFiles(searchQuery);
       }
-      searchSVGFiles(searchQuery);
     }, 300);
 
     return () => clearTimeout(timeoutId);
-  }, [searchQuery, searchSVGFiles]);
+  }, [searchQuery, searchSVGFiles, lastAction, uploadFile]);
 
   // Real-time validation for search input
   useEffect(() => {
@@ -138,7 +147,7 @@ export const SVGSelectorPopup: React.FC<SVGSelectorPopupProps> = ({
 
   // Handle file selection from dataset
   const handleFileSelect = async (file: SVGFile) => {
-    setSearchApproach(file.name);
+    setActionToSearch(file.name);
     setSelectedFile(file);
     
     // Automatically trigger embedded SVG change when selecting from dataset
@@ -195,7 +204,7 @@ export const SVGSelectorPopup: React.FC<SVGSelectorPopupProps> = ({
     setError(null);
 
     try {
-      const result = await SVGDatasetService.uploadSVG(uploadFile, searchQuery.trim());
+      const result = await SVGDatasetService.uploadSVG(uploadFile, `${searchQuery.trim()}.svg`);
 
       if (!result.success) {
         throw new Error(result.error || 'Upload failed');
@@ -227,7 +236,7 @@ export const SVGSelectorPopup: React.FC<SVGSelectorPopupProps> = ({
       const nameWithoutExt = file.name.replace(/\.svg$/i, '');
       const query = searchQuery.trim() || nameWithoutExt;
       
-      setUploadApproach(file, query);
+      handleFileSelection(file, query);
     }
   };
 
@@ -247,8 +256,7 @@ export const SVGSelectorPopup: React.FC<SVGSelectorPopupProps> = ({
   // Reset state when popup closes
   useEffect(() => {
     if (!isOpen) {
-      setSearchQuery('');
-      clearAllSelections();
+      clearAllSelectionsAndQuery();
       setIsLoading(false);
       setLastAction('search');
       setIsUploading(false);
@@ -265,6 +273,8 @@ export const SVGSelectorPopup: React.FC<SVGSelectorPopupProps> = ({
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (popupRef.current && !popupRef.current.contains(event.target as Node)) {
+        clearAllSelectionsAndQuery();
+        setLastAction('search');
         onClose();
       }
     };
@@ -292,7 +302,17 @@ export const SVGSelectorPopup: React.FC<SVGSelectorPopupProps> = ({
       <div>
         <div className="flex flex-col sm:flex-row gap-2 sm:gap-0 group focus-within:ring-[3px] focus-within:ring-ring/50 focus-within:ring-offset-0 focus-within:border-ring rounded-md transition-all duration-200 border border-ring ring-[3px] ring-ring/50 ring-offset-0">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            {lastAction === 'upload' ? (
+              <button
+                onClick={() => setActionToSearch()}
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 hover:text-gray-600 bg-gray-100 hover:bg-gray-200 rounded p-0.5 transition-colors"
+                title="Switch to search mode"
+              >
+                <Search className="h-3 w-3" />
+              </button>
+            ) : (
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            )}
             <Input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -304,8 +324,13 @@ export const SVGSelectorPopup: React.FC<SVGSelectorPopupProps> = ({
           </div>
           <div className="flex">
             <Button
-              variant="outline"
-              onClick={() => fileInputRef.current?.click()}
+              variant={lastAction === 'upload' && uploadFile ? "default" : "outline"}
+              onClick={() => {
+                if (lastAction !== 'upload') {
+                  setActionToUpload();
+                }
+                fileInputRef.current?.click();
+              }}
               disabled={isUploading}
               className="px-3 rounded-l-none rounded-r-none sm:rounded-r-none border-l-0 h-9 focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none"
             >
