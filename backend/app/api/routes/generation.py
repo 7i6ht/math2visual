@@ -11,7 +11,7 @@ from app.services.language_generation.gpt_generator import generate_visual_langu
 from app.services.visual_generation.formal_generator import FormalVisualGenerator
 from app.services.visual_generation.intuitive_generator import IntuitiveVisualGenerator
 from app.services.visual_generation.utils import ValidationError, VisualGenerationError
-from app.services.visual_generation.dsl_parser import DSLParser
+from app.services.dsl.dsl_parser import DSLParser
 from app.services.dsl.dsl_updater import DSLUpdater
 from app.config.storage_config import get_svg_dataset_path
 
@@ -173,44 +173,44 @@ def generate():
     })
 
 
-@generation_bp.route("/api/update-entity-type", methods=["POST"])
-def update_entity_type():
+@generation_bp.route("/api/update-embedded-svg", methods=["POST"])
+def update_embedded_svg():
     """
-    Update entity type in DSL and regenerate visuals.
+    Update type in DSL and regenerate visuals.
     
     Expects:
         - dsl: Current DSL string
-        - old_entity_type: Entity type to replace
-        - new_entity_type: New entity type to use
+        - old_svg_name: Current type to replace
+        - new_svg_name: New type to use
         
     Returns JSON with updated DSL and regenerated SVG content.
     """
     body = request.json or {}
     
     dsl = body.get("dsl", "").strip()
-    old_entity_type = body.get("old_entity_type", "").strip()
-    new_entity_type = body.get("new_entity_type", "").strip()
+    old_svg_name = body.get("old_svg_name", "").strip()
+    new_svg_name = body.get("new_svg_name", "").strip()
     
     if not dsl:
         return jsonify({"error": "DSL is required"}), 400
     
-    if not old_entity_type:
-        return jsonify({"error": "Old entity type is required"}), 400
+    if not old_svg_name:
+        return jsonify({"error": "old_svg_name is required"}), 400
     
-    if not new_entity_type:
-        return jsonify({"error": "New entity type is required"}), 400
+    if not new_svg_name:
+        return jsonify({"error": "New type is required"}), 400
     
-    # Initialize DSL updater and validate new entity type
+    # Initialize DSL updater and validate new type
     dsl_updater = DSLUpdater()
-    is_valid, validation_error = dsl_updater.validate_entity_type_name(new_entity_type)
+    is_valid, validation_error = dsl_updater.validate_format(new_svg_name)
     if not is_valid:
-        return jsonify({"error": f"Invalid entity type name: {validation_error}"}), 400
+        return jsonify({"error": f"Invalid type name: {validation_error}"}), 400
     
-    # Update the DSL
-    updated_dsl, replacement_count = dsl_updater.update_entity_types(dsl, old_entity_type, new_entity_type)
+    # Update the DSL with new type
+    updated_dsl, replacement_count = dsl_updater.update_entity_types(dsl, old_svg_name, new_svg_name)
     
     if replacement_count == 0:
-        return jsonify({"error": f"Entity type '{old_entity_type}' not found in DSL"}), 400
+        return jsonify({"error": f"Type '{old_svg_name}' not found in DSL"}), 400
     
     # Initialize parser
     dsl_parser = DSLParser()
@@ -231,6 +231,6 @@ def update_entity_type():
         "formal_error": result["formal_error"],
         "intuitive_error": result["intuitive_error"],
         "missing_svg_entities": result["missing_svg_entities"],
-        "old_entity_type": old_entity_type,
-        "new_entity_type": new_entity_type
+        "old_svg_name": old_svg_name,
+        "new_svg_name": new_svg_name
     })

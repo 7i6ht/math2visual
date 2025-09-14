@@ -1,11 +1,11 @@
 /**
- * Shared validation constants and utilities for entity type names
+ * Shared validation constants and utilities for file names
  * These should match the backend validation rules in dsl_updater.py
  */
 
 import { SVGDatasetService } from '@/api_services/svgDataset';
 
-export const ENTITY_TYPE_VALIDATION = {
+export const FILE_NAME_VALIDATION = {
   MAX_LENGTH: 100,
   ALLOWED_CHARS_PATTERN: /^[a-zA-Z\-\s]+$/,
   CONSECUTIVE_PATTERN: /\s{2,}|-{2,}/,
@@ -17,34 +17,34 @@ export interface ValidationResult {
 }
 
 /**
- * Validates entity type name format on the frontend
+ * Validates file name format on the frontend
  * This should match the backend validation in DSLUpdater.validate_entity_type_name()
  */
 const validateFormat = (name: string): ValidationResult => {
   if (!name) {
-    return { valid: false, error: 'Entity type name cannot be empty' };
+    return { valid: false, error: 'File name cannot be empty' };
   }
   
-  if (name.length > ENTITY_TYPE_VALIDATION.MAX_LENGTH) {
+  if (name.length > FILE_NAME_VALIDATION.MAX_LENGTH) {
     return { 
       valid: false, 
-      error: `Entity type name is too long (max ${ENTITY_TYPE_VALIDATION.MAX_LENGTH} characters)` 
+      error: `File name is too long (max ${FILE_NAME_VALIDATION.MAX_LENGTH} characters)` 
     };
   }
   
   // Check if name contains only allowed characters: letters, dashes, spaces
-  if (!ENTITY_TYPE_VALIDATION.ALLOWED_CHARS_PATTERN.test(name)) {
+  if (!FILE_NAME_VALIDATION.ALLOWED_CHARS_PATTERN.test(name)) {
     return { 
       valid: false, 
-      error: 'Entity type name can only contain letters, dashes, and spaces' 
+      error: 'File name can only contain letters, dashes, and spaces' 
     };
   }
   
   // Check for consecutive spaces or dashes
-  if (ENTITY_TYPE_VALIDATION.CONSECUTIVE_PATTERN.test(name)) {
+  if (FILE_NAME_VALIDATION.CONSECUTIVE_PATTERN.test(name)) {
     return { 
       valid: false, 
-      error: 'Entity type name cannot contain consecutive spaces or dashes' 
+      error: 'File name cannot contain consecutive spaces or dashes' 
     };
   }
   
@@ -52,7 +52,7 @@ const validateFormat = (name: string): ValidationResult => {
   if (name.startsWith(' ') || name.startsWith('-') || name.endsWith(' ') || name.endsWith('-')) {
     return { 
       valid: false, 
-      error: 'Entity type name cannot start or end with space or dash' 
+      error: 'File name cannot start or end with space or dash' 
     };
   }
   
@@ -60,10 +60,10 @@ const validateFormat = (name: string): ValidationResult => {
 };
 
 /**
- * Validates entity type name format and uniqueness on the frontend
+ * Validates file name format and uniqueness on the frontend
  * This includes both format validation and uniqueness check against the dataset
  */
-export const validateEntityTypeNameAsync = async (name: string): Promise<ValidationResult> => {
+export const validateFormatAsync = async (name: string): Promise<ValidationResult> => {
   // First do format validation
   const formatValidation = validateFormat(name);
   if (!formatValidation.valid) {

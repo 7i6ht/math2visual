@@ -6,7 +6,8 @@ import type { ComponentMapping } from '@/types/visualInteraction';
 interface SVGSelectorState {
   isOpen: boolean;
   position: { x: number; y: number };
-  currentEntityType: string;
+  dslPath: string;
+  currentType: string;
 }
 
 interface UseSVGSelectorProps {
@@ -20,18 +21,17 @@ interface UseSVGSelectorProps {
     componentMappings?: ComponentMapping;
   }) => void;
   currentDSL: string;
-  componentMappings?: ComponentMapping;
 }
 
 export const useSVGSelector = ({
   onVisualsUpdate,
   currentDSL,
-  componentMappings,
 }: UseSVGSelectorProps) => {
   const [selectorState, setSelectorState] = useState<SVGSelectorState>({
     isOpen: false,
     position: { x: 0, y: 0 },
-    currentEntityType: '',
+    dslPath: '',
+    currentType: '',
   });
 
   // Close the selector
@@ -42,8 +42,8 @@ export const useSVGSelector = ({
     }));
   }, []);
 
-  // Open the selector at a specific position for a specific entity type
-  const openSelector = useCallback((entityType: string, event: MouseEvent) => {
+  // Open the selector at a specific position for a specific DSL path
+  const openSelector = useCallback((dslPath: string, currentType: string, event: MouseEvent) => {
     // Calculate position relative to viewport
     const x = event.clientX;
     const y = event.clientY;
@@ -51,21 +51,27 @@ export const useSVGSelector = ({
     setSelectorState({
       isOpen: true,
       position: { x, y },
-      currentEntityType: entityType,
+      dslPath: dslPath,
+      currentType,
     });
   }, []);
 
-  // Handle entity type change
-  const handleEntityTypeChange = useCallback(async (oldType: string, newType: string) => {
+  // Handle embedded SVG change
+  const handleEmbeddedSVGChange = useCallback(async (newType: string) => {
     if (!currentDSL) {
       toast.error('No DSL available for update');
+      return;
+    }
+
+    if (!selectorState.dslPath) {
+      toast.error('No DSL path context available');
       return;
     }
 
     try {
       const loadingToastId = toast.loading('Updating SVG and regenerating visuals...');
       
-      const result = await generationService.updateEntityType(currentDSL, oldType, newType);
+      const result = await generationService.updateEmbeddedSVG(currentDSL, selectorState.currentType, newType);
       
       // Update the visuals with the new data, including updated component mappings
       onVisualsUpdate({
@@ -87,7 +93,7 @@ export const useSVGSelector = ({
       // Close the selector
       closeSelector();
     } catch (error) {
-      console.error('Entity type change failed:', error);
+      console.error('Embedded SVG change failed:', error);
       // Dismiss any loading toast that might still be showing
       toast.dismiss();
       toast.error(
@@ -95,33 +101,12 @@ export const useSVGSelector = ({
       );
       throw error; // Re-throw so the popup can handle it
     }
-  }, [currentDSL, onVisualsUpdate, closeSelector]);
-
-  // Handle embedded SVG click
-  const handleEmbeddedSVGClick = useCallback((dslPath: string, event: MouseEvent) => {
-    // Extract entity type from DSL path
-    // The DSL path should be something like "entities[0]/entity_type" or similar
-    // We need to find the actual entity type value from the current DSL
-    
-    let entityTypeFromMapping: string | undefined;
-    if (componentMappings) {
-      const basePath = dslPath.replace(/\/entity_type(\[\d+\])?$/, '/entity_type');
-      entityTypeFromMapping = componentMappings[basePath]?.property_value;
-    }
-
-    if (entityTypeFromMapping) {
-      openSelector(entityTypeFromMapping, event);
-      return;
-    }
-    
-    toast.error('Could not determine entity type from DSL');
-  }, [currentDSL, openSelector]);
+  }, [currentDSL, selectorState.currentType, onVisualsUpdate, closeSelector]);
 
   return {
     selectorState,
     openSelector,
     closeSelector,
-    handleEntityTypeChange,
-    handleEmbeddedSVGClick,
+    handleEmbeddedSVGChange,
   };
 };

@@ -81,10 +81,10 @@ const generationService = {
     return this.generateVisualization({ dsl }, abortSignal);
   },
 
-  async updateEntityType(
+  async updateEmbeddedSVG(
     dsl: string,
-    oldEntityType: string,
-    newEntityType: string
+    oldType: string,
+    newType: string
   ): Promise<{
     visual_language: string;
     svg_formal: string | null;
@@ -92,20 +92,18 @@ const generationService = {
     formal_error: string | null;
     intuitive_error: string | null;
     missing_svg_entities: string[];
-    old_entity_type: string;
-    new_entity_type: string;
     componentMappings: ComponentMapping;
   }> {
     try {
-      const response = await fetch(`${API_BASE_URL}/update-entity-type`, {
+      const response = await fetch(`${API_BASE_URL}/update-embedded-svg`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           dsl,
-          old_entity_type: oldEntityType,
-          new_entity_type: newEntityType,
+          old_svg_name: oldType,
+          new_svg_name: newType,
         }),
       });
 
@@ -125,14 +123,14 @@ const generationService = {
         componentMappings
       };
     } catch (error) {
-      console.error('Entity type update error:', error);
+      console.error('Embedded SVG update error:', error);
       
       if (error instanceof ApiError) {
         throw error;
       }
       
       throw new ApiError(
-        error instanceof Error ? error.message : 'Failed to update entity type'
+        error instanceof Error ? error.message : 'Failed to update embedded SVG'
       );
     }
   }

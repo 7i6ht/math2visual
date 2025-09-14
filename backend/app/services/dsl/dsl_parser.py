@@ -1,11 +1,11 @@
 """
-DSL Parser for visual generation providing parsing functionality.
+DSL Parser providing parsing functionality for DSL strings.
 """
 import re
 from typing import Dict, List, Any, Optional, Tuple
 from collections import defaultdict
 
-from .utils import ValidationError, MathParser
+from app.services.visual_generation.utils import ValidationError, MathParser
 
 
 class DSLParser:

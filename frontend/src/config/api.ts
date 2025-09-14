@@ -1,10 +1,16 @@
-import pkg from "../../package.json";
-
 // Centralized backend URL configuration
-// Reads base URL from frontend/package.json (proxy field), falls back to same-origin
-const PACKAGE_PROXY = (pkg as any)?.proxy as string | undefined;
-export const BACKEND_BASE_URL =
-  (PACKAGE_PROXY && PACKAGE_PROXY.trim().replace(/\/$/, "")) || window.location.origin;
+// Uses environment variables with fallbacks for different environments
+const getBackendUrl = () => {
+  // In development, use Vite's proxy (no port needed)
+  if (import.meta.env.DEV) {
+    return window.location.origin; // Uses Vite dev server port (5173)
+  }
+  
+  // In production, use environment variable or default
+  return import.meta.env.VITE_BACKEND_URL || window.location.origin;
+};
+
+export const BACKEND_BASE_URL = getBackendUrl();
 
 export const BACKEND_API_URL = `${BACKEND_BASE_URL}/api`;
 

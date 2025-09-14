@@ -15,39 +15,8 @@ class DSLUpdater:
     def __init__(self):
         pass
     
-    def update_entity_types(self, dsl: str, old_entity_type: str, new_entity_type: str) -> Tuple[str, int]:
-        """
-        Update all occurrences of an entity type in a DSL string.
-        
-        Args:
-            dsl: The DSL string to update
-            old_entity_type: The entity type to replace
-            new_entity_type: The new entity type to use
-            
-        Returns:
-            Tuple of (updated_dsl, number_of_replacements)
-        """
-        if not dsl or not old_entity_type or not new_entity_type:
-            return dsl, 0
-        
-        # Pattern to match entity_type:value and replace only the value part
-        pattern = rf'(entity_type\s*:\s*){re.escape(old_entity_type)}(\b)'
-        replacement = rf'\g<1>{new_entity_type}\g<2>'
-        
-        # Count occurrences and replace in one go
-        matches = list(re.finditer(pattern, dsl))
-        count = len(matches)
-        
-        if count == 0:
-            return dsl, 0
-        
-        # Replace all occurrences
-        updated_dsl = re.sub(pattern, replacement, dsl)
-        
-        return updated_dsl, count
     
-    
-    def validate_entity_type_name(self, entity_type: str) -> Tuple[bool, Optional[str]]:
+    def validate_format(self, entity_type: str) -> Tuple[bool, Optional[str]]:
         """
         Validate entity type name format and uniqueness.
         
@@ -79,3 +48,35 @@ class DSLUpdater:
             return False, "Entity type name cannot start or end with space or dash"
         
         return True, None
+    
+    def update_entity_types(self, dsl: str, old_entity_type: str, new_entity_type: str) -> Tuple[str, int]:
+        """
+        Update all occurrences of an entity type in a DSL string.
+        
+        Args:
+            dsl: The DSL string to update
+            old_entity_type: The entity type to replace
+            new_entity_type: The new entity type to use
+            
+        Returns:
+            Tuple of (updated_dsl, number_of_replacements)
+        """
+        if not dsl or not old_entity_type or not new_entity_type:
+            return dsl, 0
+        
+        # Pattern to match entity_type:value and replace only the value part
+        pattern = rf'(entity_type\s*:\s*){re.escape(old_entity_type)}(\b)'
+        replacement = rf'\g<1>{new_entity_type}\g<2>'
+        
+        # Count occurrences and replace in one go
+        matches = list(re.finditer(pattern, dsl))
+        count = len(matches)
+        
+        if count == 0:
+            return dsl, 0
+        
+        # Replace all occurrences
+        updated_dsl = re.sub(pattern, replacement, dsl)
+        
+        return updated_dsl, count
+    

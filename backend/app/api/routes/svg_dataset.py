@@ -3,7 +3,7 @@ SVG Dataset API routes for fetching, searching, and uploading SVG files.
 """
 import os
 import re
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, send_file
 from typing import List, Dict, Optional
 
 from app.config.storage_config import get_svg_dataset_path
@@ -40,15 +40,23 @@ def search_svg_files():
         
         # Get all SVG files
         try:
-            svg_files = [
-                {
-                    'filename': filename,
-                    'name': filename[:-4],  # Remove .svg extension
-                    'path': os.path.join(svg_dataset_dir, filename)
-                }
-                for filename in os.listdir(svg_dataset_dir)
-                if filename.lower().endswith('.svg')
-            ]
+            all_files = os.listdir(svg_dataset_dir)
+            svg_files = []
+            
+            for filename in all_files:
+                if filename.lower().endswith('.svg'):
+                    file_path = os.path.join(svg_dataset_dir, filename)
+                    
+                    # Verify file exists and is readable
+                    if os.access(file_path, os.R_OK):
+                        svg_files.append({
+                            'filename': filename,
+                            'name': filename[:-4],  # Remove .svg extension
+                            'path': file_path
+                        })
+                    else:
+                        print(f"⚠️ Skipping unreadable file: {filename}")
+                        
         except PermissionError:
             print("Permission denied accessing SVG dataset\n");
             return jsonify({"error": "Permission denied accessing SVG dataset"}), 403
@@ -239,5 +247,59 @@ def check_svg_exists():
         
     except Exception as e:
         return jsonify({"error": f"Check failed: {str(e)}"}), 500
+
+
+@svg_dataset_bp.route("/api/svg-dataset/files/<filename>", methods=["GET"])
+def serve_svg_file(filename):
+    """
+    Serve SVG files from the dataset.
+    
+    Args:
+        filename: The SVG filename to serve
+        
+    Returns:
+        SVG file content with appropriate headers
+    """
+    try:
+        # Security check - only allow .svg files
+        if not filename.lower().endswith('.svg'):
+            print(f"❌ Invalid file extension: {filename}")
+            return jsonify({"error": "Only SVG files are allowed"}), 400
+        
+        svg_dataset_dir = get_svg_dataset_path()
+        
+        # First try the filename as-is (for files with spaces, special chars)
+        file_path = os.path.join(svg_dataset_dir, filename)
+        print(f"🔍 Looking for file: {file_path}")
+        
+        # Check if file exists
+        if not os.path.exists(file_path):
+            print(f"❌ File not found: {filename} (tried both original and secure)")
+            return jsonify({"error": "File not found"}), 404
+        
+        # Check file permissions
+        if not os.access(file_path, os.R_OK):
+            print(f"❌ File not readable: {file_path}")
+            return jsonify({"error": "File not accessible"}), 403
+        
+        # Check file size (prevent serving empty or corrupted files)
+        file_size = os.path.getsize(file_path)
+        if file_size == 0:
+            print(f"❌ Empty file: {file_path}")
+            return jsonify({"error": "Empty file"}), 400
+        
+        print(f"✅ Serving file: {filename} ({file_size} bytes)")
+        
+        # Serve the file
+        return send_file(
+            file_path,
+            mimetype='image/svg+xml',
+            as_attachment=False,
+            download_name=filename
+        )
+        
+    except Exception as e:
+        print(f"❌ Error serving {filename}: {str(e)}")
+        return jsonify({"error": f"Failed to serve file: {str(e)}"}), 500
 
 

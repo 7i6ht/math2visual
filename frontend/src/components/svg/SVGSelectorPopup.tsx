@@ -1,11 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { X, Search, Upload, Image as ImageIcon, AlertCircle } from 'lucide-react';
+import { Search, Upload, Image as ImageIcon, AlertCircle, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { validateEntityTypeNameAsync } from '@/utils/validation';
+import { validateFormatAsync } from '@/utils/validation';
 import { SVGDatasetService } from '@/api_services/svgDataset';
 
 interface SVGFile {
@@ -16,16 +14,14 @@ interface SVGFile {
 interface SVGSelectorPopupProps {
   isOpen: boolean;
   onClose: () => void;
-  currentEntityType: string;
-  onEntityTypeChange: (oldType: string, newType: string) => Promise<void>;
+  onEmbeddedSVGChange: (newType: string) => Promise<void>;
   position: { x: number; y: number };
 }
 
 export const SVGSelectorPopup: React.FC<SVGSelectorPopupProps> = ({
   isOpen,
   onClose,
-  currentEntityType,
-  onEntityTypeChange,
+  onEmbeddedSVGChange,
   position,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -34,13 +30,52 @@ export const SVGSelectorPopup: React.FC<SVGSelectorPopupProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isUploadMode, setIsUploadMode] = useState(false);
+  const [lastAction, setLastAction] = useState<'search' | 'upload'>('search');
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(0);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
+
+  // Helper methods for state management
+  const clearAllSelections = () => {
+    setSelectedFile(null);
+    setUploadFile(null);
+    setSearchResults([]);
+    setShowPreview(false);
+    setError(null);
+    setValidationError(null);
+  };
+
+  const setSearchApproach = (query?: string) => {
+    setLastAction('search');
+    clearAllSelections();
+    if (query !== undefined) {
+      setSearchQuery(query);
+    }
+  };
+
+  const setUploadApproach = (file: File, query?: string) => {
+    setLastAction('upload');
+    clearAllSelections();
+    setUploadFile(file);
+    if (query !== undefined) {
+      setSearchQuery(query);
+    }
+  };
+
+  // Calculate how many images fit in a row (assuming 64px width + 8px gap)
+  const imagesPerPage = 5; // Adjust based on your popup width
+  
+  // Calculate pagination
+  const totalPages = Math.ceil(searchResults.length / imagesPerPage);
+  const hasNextPage = currentPage < totalPages - 1;
+  const currentPageImages = searchResults.slice(
+    currentPage * imagesPerPage,
+    (currentPage + 1) * imagesPerPage
+  );
 
   // Search for SVG files
   const searchSVGFiles = useCallback(async (query: string) => {
@@ -57,6 +92,7 @@ export const SVGSelectorPopup: React.FC<SVGSelectorPopupProps> = ({
       const data = await SVGDatasetService.searchSVGFiles(query, 8);
       setSearchResults(data.files || []);
       setShowPreview(data.files && data.files.length > 0);
+      setCurrentPage(0); // Reset to first page when search results change
     } catch (err) {
       console.error('Search error:', err);
       setError('Failed to search SVG files');
@@ -70,6 +106,9 @@ export const SVGSelectorPopup: React.FC<SVGSelectorPopupProps> = ({
   // Handle search input changes
   useEffect(() => {
     const timeoutId = setTimeout(() => {
+      if (searchQuery.trim()) {
+        setSearchApproach();
+      }
       searchSVGFiles(searchQuery);
     }, 300);
 
@@ -79,8 +118,8 @@ export const SVGSelectorPopup: React.FC<SVGSelectorPopupProps> = ({
   // Real-time validation for search input
   useEffect(() => {
     const validateName = async () => {
-      if (isUploadMode && searchQuery.trim()) {
-        const validation = await validateEntityTypeNameAsync(searchQuery.trim());
+      if (lastAction === 'upload' && searchQuery.trim()) {
+        const validation = await validateFormatAsync(searchQuery.trim());
         setValidationError(validation.valid ? null : validation.error || null);
       } else {
         setValidationError(null);
@@ -89,35 +128,39 @@ export const SVGSelectorPopup: React.FC<SVGSelectorPopupProps> = ({
 
     const timeoutId = setTimeout(validateName, 500); // Debounce validation
     return () => clearTimeout(timeoutId);
-  }, [searchQuery, isUploadMode]);
+  }, [searchQuery, lastAction]);
 
-  // Check if selection is valid for the current mode
-  const isValidSelection = isUploadMode 
-    ? selectedFile && !validationError // For upload: need file + valid name
+  // Check if selection is valid for the current approach
+  const isValidSelection = lastAction === 'upload'
+    ? uploadFile && searchQuery.trim() && !validationError // For upload: need file + valid name
     : selectedFile; // For dataset selection: just need a file
   
 
-  // Handle file selection
-  const handleFileSelect = (file: SVGFile) => {
+  // Handle file selection from dataset
+  const handleFileSelect = async (file: SVGFile) => {
+    setSearchApproach(file.name);
     setSelectedFile(file);
-    if (!isUploadMode) {
-      setSearchQuery(file.name);
-      setShowPreview(false);
-      setSearchResults([]); // Clear search results when manually selecting from dataset
+    
+    // Automatically trigger embedded SVG change when selecting from dataset
+    try {
+      await onEmbeddedSVGChange(file.name);
+      onClose();
+    } catch (err) {
+      console.error('Embedded SVG change failed:', err);
+      toast.error('Failed to update type');
     }
-    setError(null);
   };
 
-  // Handle entity type change
-  const handleEntityTypeChange = async () => {
+  // Handle embedded SVG change
+  const handleEmbeddedSVGChange = async () => {
     if (!isValidSelection) {
-      setError(isUploadMode ? 'Please provide a valid and unique name' : 'Please select a file');
+      setError(lastAction === 'upload' ? 'Please provide a name' : 'Please select a file');
       return;
     }
 
-    // Frontend validation (only for upload mode, dataset selection doesn't need validation)
-    if (isUploadMode) {
-      const validation = await validateEntityTypeNameAsync(searchQuery.trim());
+    // Frontend validation (only for upload approach, dataset selection doesn't need validation)
+    if (lastAction === 'upload') {
+      const validation = await validateFormatAsync(searchQuery.trim());
       if (!validation.valid) {
         setError(validation.error!);
         return;
@@ -125,12 +168,12 @@ export const SVGSelectorPopup: React.FC<SVGSelectorPopupProps> = ({
     }
 
     try {
-      const entityName = isUploadMode ? searchQuery.trim() : selectedFile!.name;
-      await onEntityTypeChange(currentEntityType, entityName);
+      const typeName = lastAction === 'upload' ? searchQuery.trim() : selectedFile!.name;
+      await onEmbeddedSVGChange(typeName);
       onClose();
     } catch (err) {
-      console.error('Entity type change failed:', err);
-      toast.error('Failed to update entity type');
+      console.error('Embedded SVG change failed:', err);
+      toast.error('Failed to update type');
     }
   };
 
@@ -141,8 +184,8 @@ export const SVGSelectorPopup: React.FC<SVGSelectorPopupProps> = ({
       return;
     }
 
-    // Frontend validation for the entity type name
-    const validation = await validateEntityTypeNameAsync(searchQuery.trim());
+    // Frontend validation for the file name
+    const validation = await validateFormatAsync(searchQuery.trim());
     if (!validation.valid) {
       setError(validation.error!);
       return;
@@ -160,18 +203,14 @@ export const SVGSelectorPopup: React.FC<SVGSelectorPopupProps> = ({
 
       // toast.success('SVG uploaded successfully');
       
-      // Update the selected file and switch to selection mode
+      // Update the selected file and trigger embedded SVG change
       const newFile = { filename: `${searchQuery.trim()}.svg`, name: searchQuery.trim() };
       setSelectedFile(newFile);
-      setIsUploadMode(false);
-      setUploadFile(null);
-      setShowPreview(false);
-      setError(null);
       
-      // Clear file input
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
+      // Trigger embedded SVG change and close popup
+      await onEmbeddedSVGChange(searchQuery.trim());
+      onClose();
+      
     } catch (err) {
       console.error('Upload failed:', err);
       setError(err instanceof Error ? err.message : 'Upload failed');
@@ -184,22 +223,21 @@ export const SVGSelectorPopup: React.FC<SVGSelectorPopupProps> = ({
   const handleFileInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      setUploadFile(file);
       // Auto-fill name if not already set
-      if (!searchQuery.trim()) {
-        const nameWithoutExt = file.name.replace(/\.svg$/i, '');
-        setSearchQuery(nameWithoutExt);
-      }
+      const nameWithoutExt = file.name.replace(/\.svg$/i, '');
+      const query = searchQuery.trim() || nameWithoutExt;
+      
+      setUploadApproach(file, query);
     }
   };
 
   // Handle key down
   const handleKeyDown = (event: React.KeyboardEvent) => {
     if (event.key === 'Enter') {
-      if (isUploadMode) {
+      if (lastAction === 'upload') {
         handleUpload();
       } else {
-        handleEntityTypeChange();
+        handleEmbeddedSVGChange();
       }
     } else if (event.key === 'Escape') {
       onClose();
@@ -210,15 +248,11 @@ export const SVGSelectorPopup: React.FC<SVGSelectorPopupProps> = ({
   useEffect(() => {
     if (!isOpen) {
       setSearchQuery('');
-      setSearchResults([]);
-      setSelectedFile(null);
+      clearAllSelections();
       setIsLoading(false);
-      setShowPreview(false);
-      setError(null);
-      setIsUploadMode(false);
-      setUploadFile(null);
+      setLastAction('search');
       setIsUploading(false);
-      setValidationError(null);
+      setCurrentPage(0);
       
       // Clear file input
       if (fileInputRef.current) {
@@ -246,140 +280,131 @@ export const SVGSelectorPopup: React.FC<SVGSelectorPopupProps> = ({
   return (
     <div
       ref={popupRef}
-      className="fixed z-50 bg-white border border-gray-200 rounded-lg shadow-lg p-4 min-w-[400px] max-w-[90vw] max-h-[90vh] overflow-auto"
+      className="fixed z-50 bg-white border border-gray-200 rounded-lg shadow-lg min-w-[320px] max-w-[90vw] max-h-[90vh] overflow-auto p-1"
       style={{
         left: position.x,
         top: position.y,
         transform: 'translate(-50%, -50%)',
       }}
     >
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold">Change SVG Entity Type</h3>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onClose}
-          className="h-8 w-8 p-0"
-        >
-          <X className="h-4 w-4" />
-        </Button>
-      </div>
-
-      {/* Current entity type */}
-      <div className="mb-4">
-        <label className="text-sm font-medium text-gray-700">Current Entity Type:</label>
-        <Badge variant="secondary" className="ml-2">{currentEntityType}</Badge>
-      </div>
 
       {/* Search input */}
-      <div className="mb-4">
-        <label className="text-sm font-medium text-gray-700 block mb-2">
-          {isUploadMode ? 'New Entity Type Name:' : 'Search SVG Files:'}
-        </label>
-        <div className="flex gap-2">
+      <div>
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-0 group focus-within:ring-[3px] focus-within:ring-ring/50 focus-within:ring-offset-0 focus-within:border-ring rounded-md transition-all duration-200 border border-ring ring-[3px] ring-ring/50 ring-offset-0">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={isUploadMode ? 'Enter unique name for the SVG' : 'Search for SVG files...'}
-              className="pl-10"
-              disabled={isUploading || (!isUploadMode && !!selectedFile)} // Disable when file selected from dataset
+              placeholder={lastAction === 'upload' ? 'Enter unique name for the SVG' : 'Search icon...'}
+              className="pl-10 rounded-r-none sm:rounded-r-none border-r-0 h-9 focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none"
+              disabled={isUploading || (lastAction === 'search' && !!selectedFile)} // Disable when file selected from dataset
             />
           </div>
-          <Button
-            variant={isUploadMode ? "default" : "outline"}
-            size="sm"
-            onClick={() => setIsUploadMode(!isUploadMode)}
-            disabled={isUploading}
-          >
-            <Upload className="h-4 w-4 mr-1" />
-            Upload
-          </Button>
-        </div>
-      </div>
-
-      {/* Upload mode */}
-      {isUploadMode && (
-        <div className="mb-4">
-          <label className="text-sm font-medium text-gray-700 block mb-2">
-            Select SVG File:
-          </label>
-          <div className="flex gap-2">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".svg"
-              onChange={handleFileInputChange}
-              className="hidden"
-            />
+          <div className="flex">
             <Button
               variant="outline"
               onClick={() => fileInputRef.current?.click()}
               disabled={isUploading}
-              className="flex-1"
+              className="px-3 rounded-l-none rounded-r-none sm:rounded-r-none border-l-0 h-9 focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none"
             >
-              <ImageIcon className="h-4 w-4 mr-2" />
-              {uploadFile ? uploadFile.name : 'Choose File'}
+              <Upload className="h-4 w-4" />
             </Button>
             <Button
-              onClick={handleUpload}
-              disabled={!uploadFile || !searchQuery.trim() || isUploading || !!validationError}
-              className="px-6"
+              onClick={lastAction === 'upload' ? handleUpload : handleEmbeddedSVGChange}
+              disabled={lastAction === 'upload' ? (!uploadFile || !searchQuery.trim() || isUploading || !!validationError) : !isValidSelection}
+              className="px-3 rounded-l-none h-9 focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none"
             >
-              {isUploading ? 'Uploading...' : 'Upload'}
+              <ArrowRight className="h-4 w-4" />
             </Button>
           </div>
         </div>
-      )}
+      </div>
 
-      {/* Preview section */}
-      {showPreview && !isUploadMode && (
-        <div className="mb-4">
-          <label className="text-sm font-medium text-gray-700 block mb-2">
-            Preview ({searchResults.length} results):
-          </label>
-          <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
-            {searchResults.map((file, index) => (
-              <Card
+      {/* Hidden file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".svg"
+        onChange={handleFileInputChange}
+        className="hidden"
+      />
+
+      {/* Image preview row */}
+      {showPreview && lastAction === 'search' && (
+        <div className="relative mt-2">
+          {/* Left arrow button - only show if we can scroll left */}
+          {currentPage > 0 && (
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))}
+              className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 bg-white border border-gray-200 rounded-full p-1 shadow-md hover:bg-gray-50 transition-colors"
+            >
+              <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+          )}
+          
+          {/* Right arrow button - only show if we can scroll right */}
+          {hasNextPage && (
+            <button
+              onClick={() => setCurrentPage(prev => prev + 1)}
+              className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 bg-white border border-gray-200 rounded-full p-1 shadow-md hover:bg-gray-50 transition-colors"
+            >
+              <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          )}
+          
+          {/* Image row */}
+          <div className="flex gap-2 overflow-hidden">
+            {currentPageImages.map((file, index) => (
+              <div
                 key={index}
-                className={`p-3 cursor-pointer transition-colors ${
-                  selectedFile?.name === file.name
-                    ? 'ring-2 ring-blue-500 bg-blue-50'
-                    : 'hover:bg-gray-50'
-                }`}
+                className="flex-shrink-0 w-16 h-16 border border-gray-200 rounded-md cursor-pointer transition-all duration-200 hover:scale-105 relative group"
                 onClick={() => handleFileSelect(file)}
               >
-                <div className="flex items-center gap-2">
-                  <ImageIcon className="h-4 w-4 text-gray-500" />
-                  <span className="text-sm font-medium truncate">{file.name}</span>
+                {/* SVG Image */}
+                <div className="w-full h-full p-2 flex items-center justify-center">
+                  <img
+                    src={`/api/svg-dataset/files/${file.filename}`}
+                    alt={file.name}
+                    className="max-w-full max-h-full object-contain"
+                    onLoad={() => {
+                      console.log(`✅ SVG loaded successfully: ${file.filename}`);
+                    }}
+                    onError={(e) => {
+                      console.error(`❌ SVG failed to load: ${file.filename}`, e);
+                      // Fallback to icon if image fails to load
+                      e.currentTarget.style.display = 'none';
+                      const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
+                      if (nextElement) {
+                        nextElement.style.display = 'block';
+                      }
+                    }}
+                  />
+                  <ImageIcon className="h-6 w-6 text-gray-400 hidden" />
                 </div>
-              </Card>
+                
+                {/* Hover overlay */}
+                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 dark:group-hover:bg-opacity-40 rounded-md transition-all duration-200 pointer-events-none" />
+                
+                {/* Selected indicator */}
+                {selectedFile?.name === file.name && (
+                  <div className="absolute inset-0 ring-2 ring-blue-500 rounded-md pointer-events-none" />
+                )}
+              </div>
             ))}
           </div>
         </div>
       )}
 
-      {/* Selected file display */}
-      {selectedFile && !showPreview && (
-        <div className="mb-4">
-          <label className="text-sm font-medium text-gray-700 block mb-2">
-            Selected:
-          </label>
-          <Card className="p-3 bg-green-50 border-green-200">
-            <div className="flex items-center gap-2">
-              <ImageIcon className="h-4 w-4 text-green-600" />
-              <span className="text-sm font-medium text-green-800">{selectedFile.name}</span>
-            </div>
-          </Card>
-        </div>
-      )}
 
       {/* Validation error message (real-time) */}
       {validationError && (
-        <div className="mb-4 flex items-center gap-2 text-red-600 text-sm">
+        <div className="flex items-center gap-2 text-red-600 text-sm">
           <AlertCircle className="h-4 w-4" />
           {validationError}
         </div>
@@ -387,7 +412,7 @@ export const SVGSelectorPopup: React.FC<SVGSelectorPopupProps> = ({
 
       {/* Error message */}
       {error && (
-        <div className="mb-4 flex items-center gap-2 text-red-600 text-sm">
+        <div className="flex items-center gap-2 text-red-600 text-sm">
           <AlertCircle className="h-4 w-4" />
           {error}
         </div>
@@ -395,23 +420,9 @@ export const SVGSelectorPopup: React.FC<SVGSelectorPopupProps> = ({
 
       {/* Loading indicator */}
       {isLoading && (
-        <div className="mb-4 text-sm text-gray-500">Searching...</div>
+        <div className="text-sm text-gray-500">Searching...</div>
       )}
 
-      {/* Action buttons */}
-      {!isUploadMode && (
-        <div className="flex gap-2 justify-end">
-          <Button variant="outline" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button
-            onClick={handleEntityTypeChange}
-            disabled={!isValidSelection}
-          >
-            Change Entity Type
-          </Button>
-        </div>
-      )}
     </div>
   );
 };

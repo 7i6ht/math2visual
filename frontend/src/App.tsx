@@ -1,5 +1,5 @@
 import './App.css';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { MathProblemForm } from "@/components/forms/MathProblemForm";
 import { VisualLanguageForm } from "@/components/forms/VisualLanguageForm";
 import { VisualizationResults } from "@/components/visualization/VisualizationResults";
@@ -45,9 +45,9 @@ function App() {
   // SVG Selector functionality
   const {
     selectorState,
+    openSelector,
     closeSelector,
-    handleEntityTypeChange,
-    handleEmbeddedSVGClick,
+    handleEmbeddedSVGChange,
   } = useSVGSelector({
     onVisualsUpdate: (data) => {
       setResults(
@@ -63,8 +63,14 @@ function App() {
       );
     },
     currentDSL: vl || '',
-    componentMappings,
   });
+
+  // Wrapper for openSelector that extracts current type from componentMappings
+  const handleEmbeddedSVGClick = useCallback((dslPath: string, event: MouseEvent) => {
+    const typeMapping = componentMappings?.[dslPath];
+    const currentType = typeMapping?.property_value || '';
+    openSelector(dslPath, currentType, event);
+  }, [componentMappings, openSelector]);
 
   // Wrapper to handle DSL→MWP sync and SVG preservation
   const handleVLResult = (
@@ -268,8 +274,7 @@ function App() {
       <SVGSelectorPopup
         isOpen={selectorState.isOpen}
         onClose={closeSelector}
-        currentEntityType={selectorState.currentEntityType}
-        onEntityTypeChange={handleEntityTypeChange}
+        onEmbeddedSVGChange={handleEmbeddedSVGChange}
         position={selectorState.position}
       />
       

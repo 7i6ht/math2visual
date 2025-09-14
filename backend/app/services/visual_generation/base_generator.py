@@ -8,7 +8,7 @@ from lxml import etree
 from .utils import (
     SVGCache, SVGEmbedder, MathParser, LayoutCalculator
 )
-from .dsl_parser import DSLParser
+from app.services.dsl.dsl_parser import DSLParser
 
 
 class BaseVisualGenerator(ABC):
