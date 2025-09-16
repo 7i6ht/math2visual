@@ -200,11 +200,11 @@ def update_embedded_svg():
     if not new_svg_name:
         return jsonify({"error": "New type is required"}), 400
     
-    # Initialize DSL updater and validate new type
-    dsl_updater = DSLUpdater()
-    is_valid, validation_error = dsl_updater.validate_format(new_svg_name)
-    if not is_valid:
-        return jsonify({"error": f"Invalid type name: {validation_error}"}), 400
+#    # Initialize DSL updater and validate new type
+    dsl_updater = DSLUpdater() # TODO: move validation to upload endpoint
+#    is_valid, validation_error = dsl_updater.validate_format(new_svg_name)
+#    if not is_valid:
+#       return jsonify({"error": f"Invalid type name: {validation_error}"}), 400
     
     # Update the DSL with new type
     updated_dsl, replacement_count = dsl_updater.update_entity_types(dsl, old_svg_name, new_svg_name)

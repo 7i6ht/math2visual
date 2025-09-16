@@ -3,7 +3,7 @@ import { useState, useCallback } from 'react';
 import { MathProblemForm } from "@/components/forms/MathProblemForm";
 import { VisualLanguageForm } from "@/components/forms/VisualLanguageForm";
 import { VisualizationResults } from "@/components/visualization/VisualizationResults";
-import { SVGSelectorPopup } from "@/components/svg/SVGSelectorPopup";
+import { SVGActionMenu } from "@/components/svg/SVGActionMenu";
 
 import { GearLoading } from "@/components/ui/gear-loading";
 import { Toaster } from "@/components/ui/sonner";
@@ -270,10 +270,10 @@ function App() {
         )}
       </div>
       
-      {/* SVG Selector Popup */}
-      <SVGSelectorPopup
+      {/* SVG Action Menu + Popups */}
+      <SVGActionMenu
         isOpen={selectorState.isOpen}
-        onClose={closeSelector}
+        onClosePopup={closeSelector}
         onEmbeddedSVGChange={handleEmbeddedSVGChange}
         position={selectorState.position}
       />
