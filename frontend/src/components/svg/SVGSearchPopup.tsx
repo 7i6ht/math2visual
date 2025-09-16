@@ -132,9 +132,10 @@ export const SVGSearchPopup: React.FC<SVGSearchPopupProps> = ({
     }
   };
 
-  // Handle manual selection with Enter key
-  const handleKeyDown = (event: React.KeyboardEvent) => {
+  // Handle keyboard events for popup
+  const handlePopupKeyDown = (event: KeyboardEvent) => {
     if (event.key === 'Enter' && selectedFile) {
+      event.preventDefault();
       handleFileSelect(selectedFile);
     }
   };
@@ -153,7 +154,7 @@ export const SVGSearchPopup: React.FC<SVGSearchPopupProps> = ({
   }, []);
 
   return (
-    <BasePopup onClose={onClose} position={position}>
+    <BasePopup onClose={onClose} position={position} onKeyDown={handlePopupKeyDown}>
       {/* Search Input */}
       <div className="flex flex-col sm:flex-row gap-2 sm:gap-0 group focus-within:ring-[3px] focus-within:ring-ring/50 focus-within:ring-offset-0 focus-within:border-ring rounded-md transition-all duration-200 border border-ring ring-[3px] ring-ring/50 ring-offset-0">
         <div className="relative flex-1">
@@ -161,7 +162,6 @@ export const SVGSearchPopup: React.FC<SVGSearchPopupProps> = ({
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={handleKeyDown}
             placeholder="Search icon..."
             className="pl-10 rounded-r-none sm:rounded-r-none border-r-0 h-9 focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none"
             disabled={!!selectedFile}

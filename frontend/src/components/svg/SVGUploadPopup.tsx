@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Upload, ArrowRight, AlertCircle } from 'lucide-react';
+import { Upload, ArrowRight, AlertCircle, Image } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { validateFormatAsync } from '@/utils/validation';
@@ -89,9 +89,10 @@ export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
     }
   };
 
-  // Handle key down
-  const handleKeyDown = (event: React.KeyboardEvent) => {
-    if (event.key === 'Enter') {
+  // Handle keyboard events for popup
+  const handlePopupKeyDown = (event: KeyboardEvent) => {
+    if (event.key === 'Enter' && isValidSelection && !isUploading) {
+      event.preventDefault();
       handleUpload();
     }
   };
@@ -115,13 +116,13 @@ export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
   const isValidSelection = uploadFile && filename.trim() && !validationError;
 
   return (
-    <BasePopup onClose={onClose} position={position}>
+    <BasePopup onClose={onClose} position={position} onKeyDown={handlePopupKeyDown}>
       {/* Upload Form */}
       <div className="flex flex-col sm:flex-row gap-2 sm:gap-0 group focus-within:ring-[3px] focus-within:ring-ring/50 focus-within:ring-offset-0 focus-within:border-ring rounded-md transition-all duration-200 border border-ring ring-[3px] ring-ring/50 ring-offset-0">
         <div className="relative flex-1">
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 hover:text-gray-600 bg-gray-100 hover:bg-gray-200 rounded p-0.5 transition-colors"
+            className="absolute left-2 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 rounded transition-colors duration-200 flex items-center justify-center"
             title="Choose SVG file"
             disabled={isUploading}
           >
@@ -130,7 +131,6 @@ export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
           <Input
             value={filename}
             onChange={(e) => setFilename(e.target.value)}
-            onKeyDown={handleKeyDown}
             placeholder="Enter name..."
             className="pl-10 rounded-r-none sm:rounded-r-none border-r-0 h-9 focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none"
             disabled={isUploading}
@@ -139,12 +139,17 @@ export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
         <div className="flex items-center">
           {uploadFile && (
             <button
-              className="text-xs text-gray-600 px-2 py-1 border border-gray-200 rounded mr-1 truncate max-w-[90px] hover:bg-gray-50 transition-colors"
-              title={uploadFile.name}
-              onClick={() => fileInputRef.current?.click()}
+              className="text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 p-1.5 rounded mr-1 transition-colors duration-200 flex items-center justify-center"
+              title={`View ${uploadFile.name} in new tab`}
+              onClick={() => {
+                const url = URL.createObjectURL(uploadFile);
+                window.open(url, '_blank');
+                // Clean up the object URL after a short delay
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
+              }}
               disabled={isUploading}
             >
-              {uploadFile.name}
+              <Image className="h-4 w-4" />
             </button>
           )}
           <Button

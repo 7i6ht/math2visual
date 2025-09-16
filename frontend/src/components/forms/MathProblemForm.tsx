@@ -65,6 +65,12 @@ export const MathProblemForm = ({
                   rows={rows}
                   spellCheck={false}
                   highlightRanges={highlightRanges}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSubmit(e);
+                    }
+                  }}
                   {...field}
                 />
               </FormControl>

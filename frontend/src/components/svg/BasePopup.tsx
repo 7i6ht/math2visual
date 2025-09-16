@@ -6,13 +6,15 @@ interface BasePopupProps {
   position: { x: number; y: number };
   children: ReactNode;
   className?: string;
+  onKeyDown?: (event: KeyboardEvent) => void;
 }
 
 export const BasePopup: React.FC<BasePopupProps> = ({
   onClose,
   position,
   children,
-  className = "min-w-[200px] max-w-[90vw] max-h-[90vh] w-[min(90vw,240px)]"
+  className = "min-w-[200px] max-w-[90vw] max-h-[90vh] w-[min(90vw,240px)]",
+  onKeyDown
 }) => {
   const popupRef = useRef<HTMLDivElement>(null);
 
@@ -28,17 +30,24 @@ export const BasePopup: React.FC<BasePopupProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [onClose]);
 
-  // Handle escape key
+  // Handle keyboard events
   useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
+    const handleKeyDownEvent = (event: KeyboardEvent) => {
+      // First handle built-in keys
       if (event.key === 'Escape') {
         onClose();
+        return;
+      }
+      
+      // Then call custom handler if provided
+      if (onKeyDown) {
+        onKeyDown(event);
       }
     };
 
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [onClose]);
+    document.addEventListener('keydown', handleKeyDownEvent);
+    return () => document.removeEventListener('keydown', handleKeyDownEvent);
+  }, [onClose, onKeyDown]);
 
   return (
     <div
