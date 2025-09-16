@@ -29,6 +29,7 @@ export const SVGSearchPopup: React.FC<SVGSearchPopupProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [imagesPerPage, setImagesPerPage] = useState(5);
+  const [hasCalculatedInitialLayout, setHasCalculatedInitialLayout] = useState(false);
   
   const previewContainerRef = useRef<HTMLDivElement>(null);
   const thumbnailsRowRef = useRef<HTMLDivElement>(null);
@@ -42,29 +43,45 @@ export const SVGSearchPopup: React.FC<SVGSearchPopupProps> = ({
   );
   const showPreview = searchResults.length > 0;
 
-  // Dynamically calculate how many images fit in a row
+  // Calculate how many images fit in a row
+  const calculateImagesPerPage = useCallback((isInitialCalculation = false) => {
+    const container = previewContainerRef.current;
+    const row = thumbnailsRowRef.current;
+    if (!container || !row) return;
+
+    const containerWidth = row.clientWidth || container.clientWidth;
+    if (containerWidth === 0) return; // Don't calculate if container has no width
+
+    const rowStyles = getComputedStyle(row);
+    const gapValue = rowStyles.columnGap || rowStyles.gap || '0px';
+    const gap = Number.parseFloat(gapValue) || 0;
+
+    // Try to get actual thumbnail width, fallback to 64px
+    const firstChild = row.firstElementChild as HTMLElement | null;
+    let thumbWidth = 64; // Default fallback
+    
+    if (firstChild) {
+      const rect = firstChild.getBoundingClientRect();
+      if (rect.width > 0) {
+        thumbWidth = rect.width;
+      }
+    }
+
+    const computed = Math.max(1, Math.floor((containerWidth + gap) / (thumbWidth + gap)));
+    setImagesPerPage(computed);
+    
+    if (isInitialCalculation) {
+      setHasCalculatedInitialLayout(true);
+    }
+  }, []);
+
+  // Set up calculation on mount and resize
   useEffect(() => {
-    const calculateImagesPerPage = () => {
-      const container = previewContainerRef.current;
-      const row = thumbnailsRowRef.current;
-      if (!container || !row) return;
-
-      const containerWidth = row.clientWidth || container.clientWidth;
-      const rowStyles = getComputedStyle(row);
-      const gapValue = rowStyles.columnGap || rowStyles.gap || '0px';
-      const gap = Number.parseFloat(gapValue) || 0;
-
-      const firstChild = row.firstElementChild as HTMLElement | null;
-      const thumbWidth = firstChild
-        ? firstChild.getBoundingClientRect().width
-        : 64;
-
-      const computed = Math.max(1, Math.floor((containerWidth + gap) / (thumbWidth + gap)));
-      setImagesPerPage(computed);
-    };
-
+    // Calculate immediately
     calculateImagesPerPage();
-    window.addEventListener('resize', calculateImagesPerPage);
+    
+    const handleResize = () => calculateImagesPerPage();
+    window.addEventListener('resize', handleResize);
 
     const container = previewContainerRef.current;
     const row = thumbnailsRowRef.current;
@@ -75,10 +92,11 @@ export const SVGSearchPopup: React.FC<SVGSearchPopupProps> = ({
     if (observer && row) observer.observe(row);
 
     return () => {
-      window.removeEventListener('resize', calculateImagesPerPage);
+      window.removeEventListener('resize', handleResize);
       if (observer) observer.disconnect();
     };
-  }, [currentPage]);
+  }, [calculateImagesPerPage]);
+
 
   // Clamp current page when results change
   useEffect(() => {
@@ -95,6 +113,7 @@ export const SVGSearchPopup: React.FC<SVGSearchPopupProps> = ({
 
     setIsLoading(true);
     setError(null);
+    setHasCalculatedInitialLayout(false); // Reset flag for new search results
 
     try {
       const data = await SVGDatasetService.searchSVGFiles(query, 10);
@@ -181,7 +200,7 @@ export const SVGSearchPopup: React.FC<SVGSearchPopupProps> = ({
 
       {/* Image Preview Grid */}
       {showPreview && (
-        <div ref={previewContainerRef} className="relative mt-2">
+        <div ref={previewContainerRef} className="relative mt-2 overflow-visible">
           {/* Navigation Arrows */}
           {currentPage > 0 && (
             <button
@@ -206,7 +225,7 @@ export const SVGSearchPopup: React.FC<SVGSearchPopupProps> = ({
           )}
           
           {/* Image Thumbnails */}
-          <div ref={thumbnailsRowRef} className="flex gap-2 overflow-hidden justify-center">
+          <div ref={thumbnailsRowRef} className="flex gap-2 overflow-visible justify-center">
             {currentPageImages.map((file, index) => (
               <div
                 key={index}
@@ -218,6 +237,12 @@ export const SVGSearchPopup: React.FC<SVGSearchPopupProps> = ({
                     src={`/api/svg-dataset/files/${file.filename}`}
                     alt={file.name}
                     className="max-w-full max-h-full object-contain"
+                    onLoad={() => {
+                      // Only recalculate once when we haven't done the initial calculation yet
+                      if (!hasCalculatedInitialLayout) {
+                        setTimeout(() => calculateImagesPerPage(true), 0);
+                      }
+                    }}
                     onError={(e) => {
                       console.error(`Failed to load: ${file.filename}`);
                       e.currentTarget.style.display = 'none';
