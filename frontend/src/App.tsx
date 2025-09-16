@@ -68,8 +68,8 @@ function App() {
   // Wrapper for openSelector that extracts current type from componentMappings
   const handleEmbeddedSVGClick = useCallback((dslPath: string, event: MouseEvent) => {
     const typeMapping = componentMappings?.[dslPath];
-    const currentType = typeMapping?.property_value || '';
-    openSelector(dslPath, currentType, event);
+    const currentValue = typeMapping?.property_value || '';
+    openSelector(dslPath, currentValue, event);
   }, [componentMappings, openSelector]);
 
   // Wrapper to handle DSL→MWP sync and SVG preservation
@@ -271,12 +271,13 @@ function App() {
       </div>
       
       {/* SVG Action Menu + Popups */}
-      <SVGActionMenu
-        isOpen={selectorState.isOpen}
-        onClosePopup={closeSelector}
-        onEmbeddedSVGChange={handleEmbeddedSVGChange}
-        position={selectorState.position}
-      />
+      {selectorState.isOpen && (
+        <SVGActionMenu
+          onClosePopup={closeSelector}
+          onEmbeddedSVGChange={handleEmbeddedSVGChange}
+          position={selectorState.position}
+        />
+      )}
       
       <Toaster/>
     </>

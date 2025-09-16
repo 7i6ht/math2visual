@@ -7,14 +7,12 @@ import { SVGDatasetService } from '@/api_services/svgDataset';
 import { BasePopup } from './BasePopup.tsx';
 
 interface SVGUploadPopupProps {
-  isOpen: boolean;
   onClose: () => void;
   onUpload: (filename: string) => Promise<void>;
   position: { x: number; y: number };
 }
 
 export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
-  isOpen,
   onClose,
   onUpload,
   position,
@@ -100,24 +98,24 @@ export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
 
   // Reset state when popup closes
   useEffect(() => {
-    if (!isOpen) {
+    // Cleanup on unmount
+    const inputEl = fileInputRef.current;
+    return () => {
       setFilename('');
       setUploadFile(null);
       setIsUploading(false);
       setValidationError(null);
       setError(null);
-      
-      // Clear file input
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+      if (inputEl) {
+        inputEl.value = '';
       }
-    }
-  }, [isOpen]);
+    };
+  }, []);
 
   const isValidSelection = uploadFile && filename.trim() && !validationError;
 
   return (
-    <BasePopup isOpen={isOpen} onClose={onClose} position={position}>
+    <BasePopup onClose={onClose} position={position}>
       {/* Upload Form */}
       <div className="flex flex-col sm:flex-row gap-2 sm:gap-0 group focus-within:ring-[3px] focus-within:ring-ring/50 focus-within:ring-offset-0 focus-within:border-ring rounded-md transition-all duration-200 border border-ring ring-[3px] ring-ring/50 ring-offset-0">
         <div className="relative flex-1">

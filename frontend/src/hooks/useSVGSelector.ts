@@ -7,7 +7,7 @@ interface SVGSelectorState {
   isOpen: boolean;
   position: { x: number; y: number };
   dslPath: string;
-  currentType: string;
+  currentValue: string;
 }
 
 interface UseSVGSelectorProps {
@@ -31,7 +31,7 @@ export const useSVGSelector = ({
     isOpen: false,
     position: { x: 0, y: 0 },
     dslPath: '',
-    currentType: '',
+    currentValue: '',
   });
 
   // Close the selector
@@ -43,7 +43,7 @@ export const useSVGSelector = ({
   }, []);
 
   // Open the selector at a specific position for a specific DSL path
-  const openSelector = useCallback((dslPath: string, currentType: string, event: MouseEvent) => {
+  const openSelector = useCallback((dslPath: string, currentValue: string, event: MouseEvent) => {
     // Calculate position relative to viewport
     const x = event.clientX;
     const y = event.clientY;
@@ -52,7 +52,7 @@ export const useSVGSelector = ({
       isOpen: true,
       position: { x, y },
       dslPath: dslPath,
-      currentType,
+      currentValue,
     });
   }, []);
 
@@ -71,7 +71,7 @@ export const useSVGSelector = ({
     try {
       const loadingToastId = toast.loading('Updating SVG and regenerating visuals...');
       
-      const result = await generationService.updateEmbeddedSVG(currentDSL, selectorState.currentType, newType);
+      const result = await generationService.updateEmbeddedSVG(currentDSL, selectorState.currentValue, newType);
       
       // Update the visuals with the new data, including updated component mappings
       onVisualsUpdate({
@@ -101,7 +101,7 @@ export const useSVGSelector = ({
       );
       throw error; // Re-throw so the popup can handle it
     }
-  }, [currentDSL, selectorState.currentType, onVisualsUpdate, closeSelector]);
+  }, [currentDSL, selectorState.currentValue, selectorState.dslPath, onVisualsUpdate, closeSelector]);
 
   return {
     selectorState,

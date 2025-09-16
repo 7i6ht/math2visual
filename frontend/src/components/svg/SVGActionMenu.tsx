@@ -6,14 +6,12 @@ import { SVGSearchPopup } from './SVGSearchPopup';
 import { SVGUploadPopup } from './SVGUploadPopup';
 
 interface SVGActionMenuProps {
-  isOpen: boolean;
   position: { x: number; y: number };
   onClosePopup: () => void;
   onEmbeddedSVGChange: (newType: string) => Promise<void>;
 }
 
 export const SVGActionMenu: React.FC<SVGActionMenuProps> = ({ 
-  isOpen, 
   position, 
   onClosePopup, 
   onEmbeddedSVGChange 
@@ -27,7 +25,6 @@ export const SVGActionMenu: React.FC<SVGActionMenuProps> = ({
   };
 
   useEffect(() => {
-    if (!isOpen) return;
     const handler = (e: MouseEvent) => {
       const target = e.target as Node;
       if (triggerRef.current && !triggerRef.current.contains(target)) {
@@ -36,12 +33,12 @@ export const SVGActionMenu: React.FC<SVGActionMenuProps> = ({
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
-  }, [isOpen, onClosePopup]);
+  }, [onClosePopup]);
   
   return (
     <>
       {/* Action Menu Dropdown */}
-      {isOpen && !activePopup && (
+      {!activePopup && (
         <div
           className="fixed z-[60]"
           style={{ left: position.x, top: position.y, transform: 'translate(-50%, -50%)' }}
@@ -65,20 +62,22 @@ export const SVGActionMenu: React.FC<SVGActionMenuProps> = ({
       )}
 
       {/* Search Popup */}
-      <SVGSearchPopup
-        isOpen={isOpen && activePopup === 'search'}
-        onClose={handleClosePopup}
-        onSelect={onEmbeddedSVGChange}
-        position={position}
-      />
+      {activePopup === 'search' && (
+        <SVGSearchPopup
+          onClose={handleClosePopup}
+          onSelect={onEmbeddedSVGChange}
+          position={position}
+        />
+      )}
 
       {/* Upload Popup */}
-      <SVGUploadPopup
-        isOpen={isOpen && activePopup === 'upload'}
-        onClose={handleClosePopup}
-        onUpload={onEmbeddedSVGChange}
-        position={position}
-      />
+      {activePopup === 'upload' && (
+        <SVGUploadPopup
+          onClose={handleClosePopup}
+          onUpload={onEmbeddedSVGChange}
+          position={position}
+        />
+      )}
     </>
   );
 };

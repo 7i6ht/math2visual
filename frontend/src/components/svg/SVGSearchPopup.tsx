@@ -12,14 +12,12 @@ interface SVGFile {
 }
 
 interface SVGSearchPopupProps {
-  isOpen: boolean;
   onClose: () => void;
   onSelect: (filename: string) => Promise<void>;
   position: { x: number; y: number };
 }
 
 export const SVGSearchPopup: React.FC<SVGSearchPopupProps> = ({
-  isOpen,
   onClose,
   onSelect,
   position,
@@ -143,18 +141,19 @@ export const SVGSearchPopup: React.FC<SVGSearchPopupProps> = ({
 
   // Reset state when popup closes
   useEffect(() => {
-    if (!isOpen) {
+    // Reset state on mount and when closed via onClose
+    return () => {
       setSearchQuery('');
       setSearchResults([]);
       setSelectedFile(null);
       setIsLoading(false);
       setError(null);
       setCurrentPage(0);
-    }
-  }, [isOpen]);
+    };
+  }, []);
 
   return (
-    <BasePopup isOpen={isOpen} onClose={onClose} position={position}>
+    <BasePopup onClose={onClose} position={position}>
       {/* Search Input */}
       <div className="flex flex-col sm:flex-row gap-2 sm:gap-0 group focus-within:ring-[3px] focus-within:ring-ring/50 focus-within:ring-offset-0 focus-within:border-ring rounded-md transition-all duration-200 border border-ring ring-[3px] ring-ring/50 ring-offset-0">
         <div className="relative flex-1">

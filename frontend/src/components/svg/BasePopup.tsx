@@ -2,7 +2,6 @@ import React, { useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
 
 interface BasePopupProps {
-  isOpen: boolean;
   onClose: () => void;
   position: { x: number; y: number };
   children: ReactNode;
@@ -10,7 +9,6 @@ interface BasePopupProps {
 }
 
 export const BasePopup: React.FC<BasePopupProps> = ({
-  isOpen,
   onClose,
   position,
   children,
@@ -26,11 +24,9 @@ export const BasePopup: React.FC<BasePopupProps> = ({
       }
     };
 
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
-    }
-  }, [isOpen, onClose]);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [onClose]);
 
   // Handle escape key
   useEffect(() => {
@@ -40,13 +36,9 @@ export const BasePopup: React.FC<BasePopupProps> = ({
       }
     };
 
-    if (isOpen) {
-      document.addEventListener('keydown', handleKeyDown);
-      return () => document.removeEventListener('keydown', handleKeyDown);
-    }
-  }, [isOpen, onClose]);
-
-  if (!isOpen) return null;
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
 
   return (
     <div
