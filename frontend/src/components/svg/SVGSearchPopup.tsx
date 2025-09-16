@@ -231,6 +231,7 @@ export const SVGSearchPopup: React.FC<SVGSearchPopupProps> = ({
                 key={index}
                 className="flex-shrink-0 w-16 h-16 border border-gray-200 rounded-md cursor-pointer transition-all duration-200 hover:scale-105 relative group"
                 onClick={() => setSelectedFile(file)}
+                onDoubleClick={() => handleFileSelect(file)}
               >
                 <div className="w-full h-full p-2 flex items-center justify-center">
                   <img
