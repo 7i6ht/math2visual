@@ -132,6 +132,7 @@ export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
             value={filename}
             onChange={(e) => setFilename(e.target.value)}
             placeholder="Enter name..."
+            spellCheck={false}
             className="pl-10 rounded-r-none sm:rounded-r-none border-r-0 h-9 focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none"
             disabled={isUploading}
           />

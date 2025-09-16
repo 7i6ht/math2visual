@@ -163,6 +163,7 @@ export const SVGSearchPopup: React.FC<SVGSearchPopupProps> = ({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search icon..."
+            spellCheck={false}
             className="pl-10 rounded-r-none sm:rounded-r-none border-r-0 h-9 focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none"
             disabled={!!selectedFile}
           />
