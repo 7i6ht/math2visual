@@ -63,6 +63,7 @@ function App() {
       );
     },
     currentDSL: vl || '',
+    setCurrentDSLPath: setCurrentDSLPath,
   });
 
   // Wrapper for openSelector that extracts current type from componentMappings
@@ -251,6 +252,7 @@ function App() {
                   onAllFilesUploaded={clearMissingSVGEntities}
                   currentDSLPath={currentDSLPath}
                   onEmbeddedSVGClick={handleEmbeddedSVGClick}
+                  isSelectorOpen={selectorState.isOpen}
                 />
 
                 {/* Loading animation below the accordions when regenerating */}

@@ -111,7 +111,7 @@ export const useHighlighting = ({
    * Base function for triggering highlighting with common logic
    */
   const triggerHighlight = useCallback((
-    mapping: any | undefined,
+    mapping: { dsl_range?: [number, number] } | undefined,
     config: HighlightConfig
   ) => {
     // Clear previous highlights regardless of mapping
@@ -539,7 +539,7 @@ export const useHighlighting = ({
       // For any other path type, just clear highlights
       clearVisualHighlights();
     }
-  }, [currentDSLPath, componentMappings, clearVisualHighlights, triggerEntityQuantityHighlight, triggerContainerNameHighlight, triggerEmbeddedSvgHighlight, triggerContainerTypeHighlight, triggerBoxHighlight, triggerOperationHighlight]);
+  }, [currentDSLPath, clearVisualHighlights, triggerEntityQuantityHighlight, triggerContainerNameHighlight, triggerEmbeddedSvgHighlight, triggerContainerTypeHighlight, triggerBoxHighlight, triggerOperationHighlight]);
 
   return {
     clearVisualHighlights,

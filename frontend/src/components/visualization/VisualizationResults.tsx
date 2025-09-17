@@ -19,6 +19,7 @@ interface VisualizationResultsProps {
   onAllFilesUploaded?: () => void;
   currentDSLPath?: string | null;
   onEmbeddedSVGClick: (dslPath: string, event: MouseEvent) => void;
+  isSelectorOpen?: boolean;
 }
 
 export const VisualizationResults = ({
@@ -35,6 +36,7 @@ export const VisualizationResults = ({
   onAllFilesUploaded,
   currentDSLPath,
   onEmbeddedSVGClick,
+  isSelectorOpen = false,
 }: VisualizationResultsProps) => {
   const [openAccordionItems, setOpenAccordionItems] = useState<string[]>([]);
   
@@ -108,6 +110,7 @@ export const VisualizationResults = ({
               onMWPRangeHighlight={onMWPRangeHighlight}
               currentDSLPath={currentDSLPath}
               onEmbeddedSVGClick={onEmbeddedSVGClick}
+              isSelectorOpen={isSelectorOpen}
             />
 
             <VisualizationSection
@@ -122,6 +125,7 @@ export const VisualizationResults = ({
               onMWPRangeHighlight={onMWPRangeHighlight}
               currentDSLPath={currentDSLPath}
               onEmbeddedSVGClick={onEmbeddedSVGClick}
+              isSelectorOpen={isSelectorOpen}
             />
           </>
         )}

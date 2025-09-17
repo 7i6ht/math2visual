@@ -14,6 +14,7 @@ interface UseElementInteractionsProps {
     triggerResultContainerHighlight: (dslPath: string) => void;
   };
   onEmbeddedSVGClick: (dslPath: string, event: MouseEvent) => void;
+  isSelectorOpen?: boolean;
 }
 
 interface ElementListenerConfig {
@@ -32,6 +33,7 @@ export const useElementInteractions = ({
   svgRef,
   highlighting,
   onEmbeddedSVGClick,
+  isSelectorOpen = false,
 }: UseElementInteractionsProps) => {
 
   /**
@@ -57,13 +59,16 @@ export const useElementInteractions = ({
     svgElem.onmouseleave = null;
     svgElem.onclick = null;
 
+    // If selector is open, don't set up hover listeners
+    if (isSelectorOpen) { return; }
+
     // Add event listeners
     svgElem.onmouseenter = config.onMouseEnter;
     svgElem.onmouseleave = clearHighlights;
 
     setCursorStyle(svgElem, 'pointer');
     config.extraSetup?.();
-  }, [clearHighlights]);
+  }, [clearHighlights, isSelectorOpen]);
 
   /**
    * Setup operation element interactions

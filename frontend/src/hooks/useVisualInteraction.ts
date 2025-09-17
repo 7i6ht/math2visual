@@ -24,6 +24,7 @@ export const useVisualInteraction = ({
   onMWPRangeHighlight,
   currentDSLPath,
   onEmbeddedSVGClick,
+  isSelectorOpen = false,
 }: UseVisualInteractionProps) => {
   // ===== STATE MANAGEMENT =====
   const [componentMappings, setComponentMappings] = useState<ComponentMapping>({});
@@ -45,6 +46,7 @@ export const useVisualInteraction = ({
     svgRef,
     highlighting,
     onEmbeddedSVGClick,
+    isSelectorOpen,
   });
 
   // ===== SETUP LOGIC =====

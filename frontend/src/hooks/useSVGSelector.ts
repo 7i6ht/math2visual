@@ -21,11 +21,13 @@ interface UseSVGSelectorProps {
     componentMappings?: ComponentMapping;
   }) => void;
   currentDSL: string;
+  setCurrentDSLPath: (dslPath: string | null) => void;
 }
 
 export const useSVGSelector = ({
   onVisualsUpdate,
   currentDSL,
+  setCurrentDSLPath,
 }: UseSVGSelectorProps) => {
   const [selectorState, setSelectorState] = useState<SVGSelectorState>({
     isOpen: false,
@@ -34,13 +36,16 @@ export const useSVGSelector = ({
     currentValue: '',
   });
 
-  // Close the selector
+  // Close the selector and clear highlight
   const closeSelector = useCallback(() => {
+    // Reset currentDSLPath to clear highlight
+    setCurrentDSLPath(null);
+    
     setSelectorState(prev => ({
       ...prev,
       isOpen: false,
     }));
-  }, []);
+  }, [setCurrentDSLPath]);
 
   // Open the selector at a specific position for a specific DSL path
   const openSelector = useCallback((dslPath: string, currentValue: string, event: MouseEvent) => {
@@ -48,13 +53,17 @@ export const useSVGSelector = ({
     const x = event.clientX;
     const y = event.clientY;
     
+    // Set currentDSLPath to trigger highlight via existing system
+    setCurrentDSLPath(dslPath);
+    
+    // Set selector state
     setSelectorState({
       isOpen: true,
       position: { x, y },
       dslPath: dslPath,
       currentValue,
     });
-  }, []);
+  }, [setCurrentDSLPath]);
 
   // Handle embedded SVG change
   const handleEmbeddedSVGChange = useCallback(async (newType: string) => {
@@ -90,7 +99,7 @@ export const useSVGSelector = ({
         "Successfully updated SVG"
       );
       
-      // Close the selector
+      // Close the selector (this will also clear the highlight)
       closeSelector();
     } catch (error) {
       console.error('Embedded SVG change failed:', error);

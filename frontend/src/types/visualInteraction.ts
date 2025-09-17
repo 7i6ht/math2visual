@@ -28,6 +28,8 @@ export interface UseVisualInteractionProps {
   currentDSLPath?: string | null;
   /** Callback for embedded SVG clicks */
   onEmbeddedSVGClick: (dslPath: string, event: MouseEvent) => void;
+  /** Whether the SVG selector popup is currently open */
+  isSelectorOpen?: boolean;
 }
 
 /**
