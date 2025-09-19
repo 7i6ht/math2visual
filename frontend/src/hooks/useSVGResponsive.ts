@@ -1,5 +1,5 @@
 // Custom hook for handling SVG responsiveness
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 
 export const useSVGResponsive = () => {
   const toNumber = (value: string | null) => {
@@ -87,5 +87,10 @@ export const useSVGResponsive = () => {
     return () => window.removeEventListener('resize', onResize);
   }, [makeResponsive]);
 
-  return { makeResponsive, setupResizeListener };
+  const returnValue = useMemo(() => ({
+    makeResponsive,
+    setupResizeListener
+  }), [makeResponsive, setupResizeListener]);
+
+  return returnValue;
 };

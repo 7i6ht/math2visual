@@ -1,5 +1,5 @@
 import { Accordion } from "@/components/ui/accordion";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import type { ComponentMapping } from "@/types/visualInteraction";
 import { VisualizationSection } from "./VisualizationSection";
 import { MissingSVGSection } from "./MissingSVGSection";
@@ -38,6 +38,7 @@ export const VisualizationResults = ({
   onEmbeddedSVGClick,
   isSelectorOpen = false,
 }: VisualizationResultsProps) => {
+
   const [openAccordionItems, setOpenAccordionItems] = useState<string[]>([]);
   
   // Auto-expand error items when they're the only ones displayed

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { toast } from "sonner";
 import type { AppState as AppState } from "@/types";
 import type { ComponentMapping } from "@/types/visualInteraction";
@@ -22,23 +22,23 @@ export const useAppState = () => {
     componentMappings: {},
   });
 
-  const setMpFormLoading = (mpFormLoading: boolean, abortFn?: () => void) => {
+  const setMpFormLoading = useCallback((mpFormLoading: boolean, abortFn?: () => void) => {
     setState(prev => ({ 
       ...prev, 
       mpFormLoading,
       currentAbortFunction: mpFormLoading ? abortFn : undefined
     }));
-  };
+  }, []);
 
-  const setVLFormLoading = (vlFormLoading: boolean, abortFn?: () => void) => {
+  const setVLFormLoading = useCallback((vlFormLoading: boolean, abortFn?: () => void) => {
     setState(prev => ({ 
       ...prev, 
       vlFormLoading,
       currentAbortFunction: vlFormLoading ? abortFn : undefined
     }));
-  };
+  }, []);
 
-  const setResults = (
+  const setResults = useCallback((
     vl: string,
     svgFormal: string | null,
     svgIntuitive: string | null,
@@ -62,9 +62,9 @@ export const useAppState = () => {
       ...(formula !== undefined && { formula }),
       ...(componentMappings !== undefined && { componentMappings }),
     }));
-  };
+  }, []);
 
-  const resetResults = () => {
+  const resetResults = useCallback(() => {
     setState(prev => ({
       ...prev,
       vl: null,
@@ -74,17 +74,17 @@ export const useAppState = () => {
       intuitiveError: null,
       missingSVGEntities: [],
     }));
-  };
+  }, []);
 
-  const setUploadGenerating = (uploadGenerating: boolean) => {
+  const setUploadGenerating = useCallback((uploadGenerating: boolean) => {
     setState(prev => ({ ...prev, uploadGenerating }));
-  };
+  }, []);
 
-  const clearMissingSVGEntities = () => {
+  const clearMissingSVGEntities = useCallback(() => {
     setState(prev => ({ ...prev, missingSVGEntities: [] }));
-  };
+  }, []);
 
-  const handleRegenerateAfterUpload = async (toastId: string | undefined) => {
+  const handleRegenerateAfterUpload = useCallback(async (toastId: string | undefined) => {
     const generateToastId = toastId || `generate-${Date.now()}`;
 
     if (!state.vl) {
@@ -125,7 +125,6 @@ export const useAppState = () => {
           description: 'Unable to generate visualizations' 
         });
       }
-      
     } catch (error) {
       console.error('Generation failed:', error);
       const errorMessage = error instanceof Error ? error.message : 'Generation failed';
@@ -136,17 +135,17 @@ export const useAppState = () => {
     } finally {
       setUploadGenerating(false);
     }
-  };
+  }, [state.vl, setResults]);
 
-  const saveInitialValues = (mwp: string, formula: string) => {
+  const saveInitialValues = useCallback((mwp: string, formula: string) => {
     setState(prev => ({
       ...prev,
       mwp: mwp,
       formula: formula,
     }));
-  };
+  }, []);
 
-  const handleAbort = () => {
+  const handleAbort = useCallback(() => {
     // Call the current abort function if it exists
     if (state.currentAbortFunction) {
       state.currentAbortFunction();
@@ -163,17 +162,32 @@ export const useAppState = () => {
     }));
 
     toast.info('Generation cancelled');
-  };
+  }, [state.currentAbortFunction]);
 
-  return {
+  // Memoize the return object to prevent unnecessary re-renders
+  const returnValue = useMemo(() => ({
     ...state,
     setMpFormLoading,
     setVLFormLoading,
     setResults,
     resetResults,
+    setUploadGenerating,
     clearMissingSVGEntities,
     handleRegenerateAfterUpload,
     handleAbort,
     saveInitialValues,
-  };
-}; 
+  }), [
+    state,
+    setMpFormLoading,
+    setVLFormLoading,
+    setResults,
+    resetResults,
+    setUploadGenerating,
+    clearMissingSVGEntities,
+    handleRegenerateAfterUpload,
+    handleAbort,
+    saveInitialValues,
+  ]);
+
+  return returnValue;
+};

@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { isTextElement, isOperationElement, isBoxElement, isEmbeddedSvgElement, isContainerTypeSvgElement, isContainerNameElement, isResultContainerElement, getDslPath, setCursorStyle } from '../utils/elementUtils';
 
 interface UseElementInteractionsProps {
@@ -35,7 +35,6 @@ export const useElementInteractions = ({
   onEmbeddedSVGClick,
   isSelectorOpen = false,
 }: UseElementInteractionsProps) => {
-
   /**
    * Clear all highlights and reset hover state
    */
@@ -52,15 +51,15 @@ export const useElementInteractions = ({
     dslPath: string,
     config: ElementListenerConfig
   ) => {
-    console.log(`${config.icon} Setting up ${config.label} listeners for: ${dslPath}`);
-
     // Remove existing listeners
     svgElem.onmouseenter = null;
     svgElem.onmouseleave = null;
     svgElem.onclick = null;
 
     // If selector is open, don't set up hover listeners
-    if (isSelectorOpen) { return; }
+    if (isSelectorOpen) { 
+      return; 
+    }
 
     // Add event listeners
     svgElem.onmouseenter = config.onMouseEnter;
@@ -78,7 +77,6 @@ export const useElementInteractions = ({
       icon: '⚙️',
       label: 'OPERATION',
       onMouseEnter: () => {
-        console.log(`⚙️ OPERATION MOUSEENTER: ${dslPath}`);
         highlighting.triggerOperationHighlight(dslPath);
       }
     });
@@ -92,7 +90,6 @@ export const useElementInteractions = ({
       icon: '📦',
       label: 'BOX',
       onMouseEnter: () => {
-        console.log(`📦 BOX MOUSEENTER: ${dslPath}`);
         highlighting.triggerBoxHighlight(dslPath);
       }
     });
@@ -109,7 +106,6 @@ export const useElementInteractions = ({
       icon: '📝',
       label: 'TEXT',
       onMouseEnter: () => {
-        console.log(`📝 TEXT MOUSEENTER: ${quantityDslPath} -> triggering for entity: ${entityDslPath}`);
         highlighting.triggerEntityQuantityHighlight(quantityDslPath);
       },
       onClickTarget: entityDslPath,
@@ -145,7 +141,6 @@ export const useElementInteractions = ({
       icon: '🏷️',
       label: 'CONTAINER TYPE SVG',
       onMouseEnter: () => {
-        console.log(`🏷️ CONTAINER TYPE SVG MOUSEENTER: ${dslPath}`);
         highlighting.triggerContainerTypeHighlight(dslPath);
       }
     });
@@ -159,7 +154,6 @@ export const useElementInteractions = ({
       icon: '🏷️',
       label: 'CONTAINER NAME TEXT',
       onMouseEnter: () => {
-        console.log(`🏷️ CONTAINER NAME TEXT MOUSEENTER: ${dslPath}`);
         highlighting.triggerContainerNameHighlight(dslPath);
       }
     });
@@ -173,7 +167,6 @@ export const useElementInteractions = ({
       icon: '📦',
       label: 'RESULT CONTAINER',
       onMouseEnter: () => {
-        console.log(`📦 RESULT CONTAINER MOUSEENTER: ${dslPath}`);
         highlighting.triggerResultContainerHighlight(dslPath);
       }
     });
@@ -225,8 +218,10 @@ export const useElementInteractions = ({
     setupContainerTypeSvgElement
   ]);
 
-  return {
+  const returnValue = useMemo(() => ({
     setupSVGInteractions,
     clearHighlights,
-  };
+  }), [setupSVGInteractions, clearHighlights]);
+
+  return returnValue;
 };

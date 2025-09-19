@@ -36,14 +36,16 @@ export const VisualizationSection = ({
   isSelectorOpen = false,
 }: VisualizationSectionProps) => {
   const svgRef = useRef<HTMLDivElement | null>(null);
-  
+
   // Handle SVG responsiveness
   const { makeResponsive, setupResizeListener } = useSVGResponsive();
   
   // Setup resize listener for this component
   useEffect(() => {
     const cleanup = setupResizeListener([svgRef]);
-    return cleanup;
+    return () => {
+      cleanup();
+    };
   }, [setupResizeListener]);
   
   // Setup visual interactions

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import type { 
   ComponentMapping, 
   UseVisualInteractionProps
@@ -26,6 +26,7 @@ export const useVisualInteraction = ({
   onEmbeddedSVGClick,
   isSelectorOpen = false,
 }: UseVisualInteractionProps) => {
+  
   // ===== STATE MANAGEMENT =====
   const [componentMappings, setComponentMappings] = useState<ComponentMapping>({});
 
@@ -68,7 +69,6 @@ export const useVisualInteraction = ({
     if (currentDSLPath && 
         currentDSLPath !== previousPathRef.current && 
         Object.keys(componentMappings).length > 0) {
-      console.log('🔄 Path changed from', previousPathRef.current, 'to', currentDSLPath);
       previousPathRef.current = currentDSLPath;
       highlighting.highlightCurrentDSLPath();
     }
@@ -76,7 +76,7 @@ export const useVisualInteraction = ({
 
   // ===== PUBLIC API =====
 
-  return {
+  const returnValue = useMemo(() => ({
     // Current state
     componentMappings,
     
@@ -85,5 +85,7 @@ export const useVisualInteraction = ({
     
     // Setup function (for manual triggering if needed)
     setupSVGInteractions: interactions.setupSVGInteractions,
-  };
+  }), [componentMappings, setComponentMappings, interactions.setupSVGInteractions]);
+  
+  return returnValue;
 };

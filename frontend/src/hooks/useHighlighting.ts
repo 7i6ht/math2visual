@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import type { ComponentMapping } from '../types/visualInteraction';
 import { numberToWord } from '../utils/numberUtils';
 import { createSentencePatterns, findSentencePosition, findQuantityInText, splitIntoSentences, scoreSentencesForEntity, findEntityNameInSentence, findAllEntityNameOccurrencesInText } from '../utils/mwpUtils';
@@ -541,7 +541,7 @@ export const useHighlighting = ({
     }
   }, [currentDSLPath, clearVisualHighlights, triggerEntityQuantityHighlight, triggerContainerNameHighlight, triggerEmbeddedSvgHighlight, triggerContainerTypeHighlight, triggerBoxHighlight, triggerOperationHighlight]);
 
-  return {
+  const returnValue = useMemo(() => ({
     clearVisualHighlights,
     clearAllHighlights,
     setupTransformOrigins,
@@ -553,5 +553,19 @@ export const useHighlighting = ({
     triggerContainerNameHighlight,
     triggerResultContainerHighlight,
     highlightCurrentDSLPath,
-  };
+  }), [
+    clearVisualHighlights,
+    clearAllHighlights,
+    setupTransformOrigins,
+    triggerBoxHighlight,
+    triggerEntityQuantityHighlight,
+    triggerOperationHighlight,
+    triggerEmbeddedSvgHighlight,
+    triggerContainerTypeHighlight,
+    triggerContainerNameHighlight,
+    triggerResultContainerHighlight,
+    highlightCurrentDSLPath,
+  ]);
+
+  return returnValue;
 };

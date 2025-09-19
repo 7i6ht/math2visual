@@ -38,6 +38,7 @@ export const useSVGSelector = ({
 
   // Close the selector and clear highlight
   const closeSelector = useCallback(() => {
+    console.log('🎯 [closeSelector] START');
     // Reset currentDSLPath to clear highlight
     setCurrentDSLPath(null);
     
@@ -45,10 +46,12 @@ export const useSVGSelector = ({
       ...prev,
       isOpen: false,
     }));
+    console.log('🎯 [closeSelector] END');
   }, [setCurrentDSLPath]);
 
   // Open the selector at a specific position for a specific DSL path
   const openSelector = useCallback((dslPath: string, currentValue: string, event: MouseEvent) => {
+    console.log('🎯 [openSelector] START', { dslPath, currentValue, event });
     // Calculate position relative to viewport
     const x = event.clientX;
     const y = event.clientY;
@@ -63,17 +66,21 @@ export const useSVGSelector = ({
       dslPath: dslPath,
       currentValue,
     });
+    console.log('🎯 [openSelector] END');
   }, [setCurrentDSLPath]);
 
   // Handle embedded SVG change
   const handleEmbeddedSVGChange = useCallback(async (newType: string) => {
+    console.log('🎯 [handleEmbeddedSVGChange] START', { newType });
     if (!currentDSL) {
       toast.error('No DSL available for update');
+      console.log('🎯 [handleEmbeddedSVGChange] END (early return - no currentDSL)');
       return;
     }
 
     if (!selectorState.dslPath) {
       toast.error('No DSL path context available');
+      console.log('🎯 [handleEmbeddedSVGChange] END (early return - no dslPath)');
       return;
     }
 
@@ -101,6 +108,7 @@ export const useSVGSelector = ({
       
       // Close the selector (this will also clear the highlight)
       closeSelector();
+      console.log('🎯 [handleEmbeddedSVGChange] END (success)');
     } catch (error) {
       console.error('Embedded SVG change failed:', error);
       // Dismiss any loading toast that might still be showing
@@ -108,6 +116,7 @@ export const useSVGSelector = ({
       toast.error(
         error instanceof Error ? error.message : 'Failed to update SVG'
       );
+      console.log('🎯 [handleEmbeddedSVGChange] END (error)');
       throw error; // Re-throw so the popup can handle it
     }
   }, [currentDSL, selectorState.currentValue, selectorState.dslPath, onVisualsUpdate, closeSelector]);

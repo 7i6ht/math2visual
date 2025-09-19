@@ -119,7 +119,6 @@ function App() {
       mergedMappings
     );
   };
-  
 
   return (
     <>
