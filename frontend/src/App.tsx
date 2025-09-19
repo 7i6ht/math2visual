@@ -1,5 +1,5 @@
 import './App.css';
-import { useState, useCallback } from 'react';
+import { useCallback } from 'react';
 import { MathProblemForm } from "@/components/forms/MathProblemForm";
 import { VisualLanguageForm } from "@/components/forms/VisualLanguageForm";
 import { VisualizationResults } from "@/components/visualization/VisualizationResults";
@@ -9,10 +9,11 @@ import { GearLoading } from "@/components/ui/gear-loading";
 import { Toaster } from "@/components/ui/sonner";
 import { useAppState } from "@/hooks/useAppState";
 import { useSVGSelector } from "@/hooks/useSVGSelector";
+import { HighlightingProvider, useHighlightingContext } from "@/contexts/HighlightingContext";
 import type { ComponentMapping } from "@/types/visualInteraction";
 import { detectDSLChanges, updateMWPText } from "@/lib/dsl-utils";
 
-function App() {
+function AppContent() {
   const {
     vl,
     vlFormLoading,
@@ -37,10 +38,12 @@ function App() {
     saveInitialValues,
   } = useAppState();
   
-  // State for highlighting
-  const [dslHighlightRanges, setDslHighlightRanges] = useState<Array<[number, number]>>([]);
-  const [mwpHighlightRanges, setMwpHighlightRanges] = useState<Array<[number, number]>>([]);
-  const [currentDSLPath, setCurrentDSLPath] = useState<string | null>(null);
+  // Use highlighting context instead of local state
+  const {
+    dslHighlightRanges,
+    mwpHighlightRanges,
+    setCurrentDSLPath,
+  } = useHighlightingContext();
 
   // SVG Selector functionality
   const {
@@ -63,7 +66,6 @@ function App() {
       );
     },
     currentDSL: vl || '',
-    setCurrentDSLPath: setCurrentDSLPath,
   });
 
   // Wrapper for openSelector that extracts current type from componentMappings
@@ -245,11 +247,8 @@ function App() {
                   missingSVGEntities={missingSVGEntities}
                   componentMappings={componentMappings}
                   mwpValue={mwp}
-                  onDSLRangeHighlight={setDslHighlightRanges}
-                  onMWPRangeHighlight={setMwpHighlightRanges}
                   onRegenerateAfterUpload={handleRegenerateAfterUpload}
                   onAllFilesUploaded={clearMissingSVGEntities}
-                  currentDSLPath={currentDSLPath}
                   onEmbeddedSVGClick={handleEmbeddedSVGClick}
                   isSelectorOpen={selectorState.isOpen}
                 />
@@ -282,6 +281,14 @@ function App() {
       
       <Toaster/>
     </>
+  );
+}
+
+function App() {
+  return (
+    <HighlightingProvider>
+      <AppContent />
+    </HighlightingProvider>
   );
 }
 

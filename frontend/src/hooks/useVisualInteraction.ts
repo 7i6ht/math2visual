@@ -1,6 +1,5 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 import type { 
-  ComponentMapping, 
   UseVisualInteractionProps
 } from '../types/visualInteraction';
 import { useHighlighting } from './useHighlighting';
@@ -20,15 +19,13 @@ import { useElementInteractions } from './useElementInteractions';
 export const useVisualInteraction = ({
   svgRef,
   mwpValue,
+  componentMappings,
   onDSLRangeHighlight,
   onMWPRangeHighlight,
   currentDSLPath,
   onEmbeddedSVGClick,
   isSelectorOpen = false,
 }: UseVisualInteractionProps) => {
-  
-  // ===== STATE MANAGEMENT =====
-  const [componentMappings, setComponentMappings] = useState<ComponentMapping>({});
 
   // ===== COMPOSED HOOKS =====
   
@@ -77,15 +74,9 @@ export const useVisualInteraction = ({
   // ===== PUBLIC API =====
 
   const returnValue = useMemo(() => ({
-    // Current state
-    componentMappings,
-    
-    // State setters
-    setComponentMappings,
-    
     // Setup function (for manual triggering if needed)
     setupSVGInteractions: interactions.setupSVGInteractions,
-  }), [componentMappings, setComponentMappings, interactions.setupSVGInteractions]);
+  }), [interactions.setupSVGInteractions]);
   
   return returnValue;
 };

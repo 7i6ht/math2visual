@@ -1,5 +1,5 @@
 import { Accordion } from "@/components/ui/accordion";
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { ComponentMapping } from "@/types/visualInteraction";
 import { VisualizationSection } from "./VisualizationSection";
 import { MissingSVGSection } from "./MissingSVGSection";
@@ -13,11 +13,8 @@ interface VisualizationResultsProps {
   missingSVGEntities?: string[];
   componentMappings?: ComponentMapping;
   mwpValue?: string;
-  onDSLRangeHighlight?: (ranges: Array<[number, number]>) => void;
-  onMWPRangeHighlight?: (ranges: Array<[number, number]>) => void;
   onRegenerateAfterUpload?: (toastId: string | undefined) => Promise<void>;
   onAllFilesUploaded?: () => void;
-  currentDSLPath?: string | null;
   onEmbeddedSVGClick: (dslPath: string, event: MouseEvent) => void;
   isSelectorOpen?: boolean;
 }
@@ -30,11 +27,8 @@ export const VisualizationResults = ({
   missingSVGEntities = [],
   componentMappings,
   mwpValue = '',
-  onDSLRangeHighlight,
-  onMWPRangeHighlight,
   onRegenerateAfterUpload,
   onAllFilesUploaded,
-  currentDSLPath,
   onEmbeddedSVGClick,
   isSelectorOpen = false,
 }: VisualizationResultsProps) => {
@@ -107,9 +101,6 @@ export const VisualizationResults = ({
               componentMappings={componentMappings || {}}
               isOpen={openAccordionItems.includes("formal")}
               mwpValue={mwpValue}
-              onDSLRangeHighlight={onDSLRangeHighlight}
-              onMWPRangeHighlight={onMWPRangeHighlight}
-              currentDSLPath={currentDSLPath}
               onEmbeddedSVGClick={onEmbeddedSVGClick}
               isSelectorOpen={isSelectorOpen}
             />
@@ -122,9 +113,6 @@ export const VisualizationResults = ({
               componentMappings={componentMappings || {}}
               isOpen={openAccordionItems.includes("intuitive")}
               mwpValue={mwpValue}
-              onDSLRangeHighlight={onDSLRangeHighlight}
-              onMWPRangeHighlight={onMWPRangeHighlight}
-              currentDSLPath={currentDSLPath}
               onEmbeddedSVGClick={onEmbeddedSVGClick}
               isSelectorOpen={isSelectorOpen}
             />

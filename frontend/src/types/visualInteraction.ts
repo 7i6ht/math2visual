@@ -20,6 +20,8 @@ export interface UseVisualInteractionProps {
   svgRef: React.RefObject<HTMLDivElement | null>;
   /** Math Word Problem text for cross-highlighting */
   mwpValue: string;
+  /** Component mappings for DSL path to property value mapping */
+  componentMappings: ComponentMapping;
   /** Callback for highlighting ranges in the DSL editor */
   onDSLRangeHighlight?: (ranges: Array<[number, number]>) => void;
   /** Callback for highlighting ranges in the MWP text */

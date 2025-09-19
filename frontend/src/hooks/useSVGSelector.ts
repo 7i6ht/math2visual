@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
 import { generationService } from '@/api_services/generation';
 import type { ComponentMapping } from '@/types/visualInteraction';
+import { useHighlightingContext } from '@/contexts/HighlightingContext';
 
 interface SVGSelectorState {
   isOpen: boolean;
@@ -21,14 +22,15 @@ interface UseSVGSelectorProps {
     componentMappings?: ComponentMapping;
   }) => void;
   currentDSL: string;
-  setCurrentDSLPath: (dslPath: string | null) => void;
 }
 
 export const useSVGSelector = ({
   onVisualsUpdate,
   currentDSL,
-  setCurrentDSLPath,
 }: UseSVGSelectorProps) => {
+  // Use highlighting context
+  const { setCurrentDSLPath } = useHighlightingContext();
+
   const [selectorState, setSelectorState] = useState<SVGSelectorState>({
     isOpen: false,
     position: { x: 0, y: 0 },

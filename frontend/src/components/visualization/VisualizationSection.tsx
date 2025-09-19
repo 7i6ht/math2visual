@@ -5,6 +5,7 @@ import { DownloadButton } from "./DownloadButton";
 import { useVisualInteraction } from "@/hooks/useVisualInteraction";
 import type { ComponentMapping } from "@/types/visualInteraction";
 import { useSVGResponsive } from "@/hooks/useSVGResponsive";
+import { useHighlightingContext } from "@/contexts/HighlightingContext";
 
 interface VisualizationSectionProps {
   type: 'formal' | 'intuitive';
@@ -14,9 +15,6 @@ interface VisualizationSectionProps {
   componentMappings: ComponentMapping;
   isOpen: boolean;
   mwpValue: string;
-  onDSLRangeHighlight?: (ranges: Array<[number, number]>) => void;
-  onMWPRangeHighlight?: (ranges: Array<[number, number]>) => void;
-  currentDSLPath?: string | null;
   onEmbeddedSVGClick: (dslPath: string, event: MouseEvent) => void;
   isSelectorOpen?: boolean;
 }
@@ -29,13 +27,13 @@ export const VisualizationSection = ({
   componentMappings,
   isOpen,
   mwpValue,
-  onDSLRangeHighlight,
-  onMWPRangeHighlight,
-  currentDSLPath,
   onEmbeddedSVGClick,
   isSelectorOpen = false,
 }: VisualizationSectionProps) => {
   const svgRef = useRef<HTMLDivElement | null>(null);
+
+  // Use highlighting context
+  const { currentDSLPath, setDslHighlightRanges, setMwpHighlightRanges } = useHighlightingContext();
 
   // Handle SVG responsiveness
   const { makeResponsive, setupResizeListener } = useSVGResponsive();
@@ -50,23 +48,19 @@ export const VisualizationSection = ({
   
   // Setup visual interactions
   const {
-    setComponentMappings,
     setupSVGInteractions,
   } = useVisualInteraction({
     svgRef,
     mwpValue,
-    onDSLRangeHighlight,
-    onMWPRangeHighlight,
+    componentMappings,
+    onDSLRangeHighlight: setDslHighlightRanges,
+    onMWPRangeHighlight: setMwpHighlightRanges,
     currentDSLPath,
     onEmbeddedSVGClick,
     isSelectorOpen,
   });
 
 
-  // Update component mappings when they change
-  useEffect(() => {
-    setComponentMappings(componentMappings);
-  }, [componentMappings, setComponentMappings]);
 
   // Handle SVG content injection and setup when accordion opens
   useEffect(() => {
