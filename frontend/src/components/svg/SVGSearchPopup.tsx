@@ -116,7 +116,7 @@ export const SVGSearchPopup: React.FC<SVGSearchPopupProps> = ({
     setHasCalculatedInitialLayout(false); // Reset flag for new search results
 
     try {
-      const data = await SVGDatasetService.searchSVGFiles(query, 10);
+      const data = await SVGDatasetService.searchSVGFiles(query, 20);
       setSearchResults(data.files || []);
       setCurrentPage(0);
     } catch (err) {

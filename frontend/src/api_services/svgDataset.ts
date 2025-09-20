@@ -14,7 +14,7 @@ export class SVGDatasetService {
   /**
    * Search SVG files in the dataset
    */
-  static async searchSVGFiles(query: string, limit: number = 10): Promise<SVGSearchResponse> {
+  static async searchSVGFiles(query: string, limit: number = 20): Promise<SVGSearchResponse> {
     try {
       const response = await fetch(
         `${API_BASE_URL}/api/svg-dataset/search?query=${encodeURIComponent(query)}&limit=${limit}`
