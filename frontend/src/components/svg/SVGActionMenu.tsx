@@ -11,15 +11,15 @@ import { SVGSearchPopup } from "./SVGSearchPopup";
 import { SVGUploadPopup } from "./SVGUploadPopup";
 
 interface SVGActionMenuProps {
-  position: { x: number; y: number };
   onClosePopup: () => void;
   onEmbeddedSVGChange: (newType: string) => Promise<void>;
+  targetElement: Element;
 }
 
 export const SVGActionMenu: React.FC<SVGActionMenuProps> = ({
-  position,
   onClosePopup,
   onEmbeddedSVGChange,
+  targetElement,
 }) => {
   const [activePopup, setActivePopup] = useState<"search" | "upload" | null>(
     null
@@ -41,6 +41,8 @@ export const SVGActionMenu: React.FC<SVGActionMenuProps> = ({
     return () => document.removeEventListener("mousedown", handler);
   }, [activePopup, onClosePopup]);
 
+
+  const rect = targetElement.getBoundingClientRect();
   return (
     <>
       {/* Action Menu Dropdown */}
@@ -49,8 +51,8 @@ export const SVGActionMenu: React.FC<SVGActionMenuProps> = ({
           ref={containerRef}
           className="fixed z-[60]"
           style={{
-            left: position.x,
-            top: position.y,
+            left: rect.left + rect.width / 2,
+            top: rect.top + rect.height / 2,
             transform: "translate(-50%, -50%)",
           }}
         >
@@ -63,20 +65,20 @@ export const SVGActionMenu: React.FC<SVGActionMenuProps> = ({
                 •
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="center" className="min-w-[140px]">
+            <DropdownMenuContent align="center" className="min-w-[140px] sm:min-w-[160px] p-1">
               <DropdownMenuItem
-                className="cursor-pointer"
+                className="cursor-pointer px-3 py-2 sm:px-2 sm:py-1.5 text-sm touch-manipulation"
                 onMouseDown={(e) => e.stopPropagation()}
                 onClick={() => setActivePopup("search")}
               >
-                <Search className="h-4 w-4 mr-2" /> Search
+                <Search className="h-4 w-4 mr-2 flex-shrink-0" /> Search
               </DropdownMenuItem>
               <DropdownMenuItem
-                className="cursor-pointer"
+                className="cursor-pointer px-3 py-2 sm:px-2 sm:py-1.5 text-sm touch-manipulation"
                 onMouseDown={(e) => e.stopPropagation()}
                 onClick={() => setActivePopup("upload")}
               >
-                <Upload className="h-4 w-4 mr-2" /> Upload
+                <Upload className="h-4 w-4 mr-2 flex-shrink-0" /> Upload
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -88,7 +90,7 @@ export const SVGActionMenu: React.FC<SVGActionMenuProps> = ({
         <SVGSearchPopup
           onClose={handleClosePopup}
           onSelect={onEmbeddedSVGChange}
-          position={position}
+          targetElement={targetElement}
         />
       )}
 
@@ -97,7 +99,7 @@ export const SVGActionMenu: React.FC<SVGActionMenuProps> = ({
         <SVGUploadPopup
           onClose={handleClosePopup}
           onUpload={onEmbeddedSVGChange}
-          position={position}
+          targetElement={targetElement}
         />
       )}
     </>

@@ -275,7 +275,7 @@ function AppContent() {
         <SVGActionMenu
           onClosePopup={closeSelector}
           onEmbeddedSVGChange={handleEmbeddedSVGChange}
-          position={selectorState.position}
+          targetElement={selectorState.targetElement!}
         />
       )}
       

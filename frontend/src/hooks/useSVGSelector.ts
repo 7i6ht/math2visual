@@ -6,9 +6,9 @@ import { useHighlightingContext } from '@/contexts/HighlightingContext';
 
 interface SVGSelectorState {
   isOpen: boolean;
-  position: { x: number; y: number };
   dslPath: string;
   currentValue: string;
+  targetElement: Element | null;
 }
 
 interface UseSVGSelectorProps {
@@ -33,9 +33,9 @@ export const useSVGSelector = ({
 
   const [selectorState, setSelectorState] = useState<SVGSelectorState>({
     isOpen: false,
-    position: { x: 0, y: 0 },
     dslPath: '',
     currentValue: '',
+    targetElement: null,
   });
 
   // Close the selector and clear highlight
@@ -47,6 +47,7 @@ export const useSVGSelector = ({
     setSelectorState(prev => ({
       ...prev,
       isOpen: false,
+      targetElement: null,
     }));
     console.log('🎯 [closeSelector] END');
   }, [setCurrentDSLPath]);
@@ -54,9 +55,6 @@ export const useSVGSelector = ({
   // Open the selector at a specific position for a specific DSL path
   const openSelector = useCallback((dslPath: string, currentValue: string, event: MouseEvent) => {
     console.log('🎯 [openSelector] START', { dslPath, currentValue, event });
-    // Calculate position relative to viewport
-    const x = event.clientX;
-    const y = event.clientY;
     
     // Set currentDSLPath to trigger highlight via existing system
     setCurrentDSLPath(dslPath);
@@ -64,9 +62,9 @@ export const useSVGSelector = ({
     // Set selector state
     setSelectorState({
       isOpen: true,
-      position: { x, y },
       dslPath: dslPath,
       currentValue,
+      targetElement: event.target as Element,
     });
     console.log('🎯 [openSelector] END');
   }, [setCurrentDSLPath]);

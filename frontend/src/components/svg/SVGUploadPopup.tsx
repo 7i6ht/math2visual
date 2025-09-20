@@ -9,13 +9,13 @@ import { BasePopup } from './BasePopup.tsx';
 interface SVGUploadPopupProps {
   onClose: () => void;
   onUpload: (filename: string) => Promise<void>;
-  position: { x: number; y: number };
+  targetElement: Element;
 }
 
 export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
   onClose,
   onUpload,
-  position,
+  targetElement,
 }) => {
   const [filename, setFilename] = useState('');
   const [uploadFile, setUploadFile] = useState<File | null>(null);
@@ -116,31 +116,31 @@ export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
   const isValidSelection = uploadFile && filename.trim() && !validationError;
 
   return (
-    <BasePopup onClose={onClose} position={position} onKeyDown={handlePopupKeyDown}>
+    <BasePopup onClose={onClose} onKeyDown={handlePopupKeyDown} targetElement={targetElement} className="min-w-[180px] max-w-[80vw] max-h-[90vh] w-[min(80vw,240px)] sm:w-[min(70vw,220px)]">
       {/* Upload Form */}
-      <div className="flex flex-col sm:flex-row gap-2 sm:gap-0 group focus-within:ring-[3px] focus-within:ring-ring/50 focus-within:ring-offset-0 focus-within:border-ring rounded-md transition-all duration-200 border border-ring ring-[3px] ring-ring/50 ring-offset-0">
+      <div className="flex gap-0 group focus-within:ring-[3px] focus-within:ring-ring/50 focus-within:ring-offset-0 focus-within:border-ring rounded-md transition-all duration-200 border border-ring ring-[3px] ring-ring/50 ring-offset-0">
         <div className="relative flex-1">
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="absolute left-2 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 rounded transition-colors duration-200 flex items-center justify-center"
+            className="absolute left-1.5 sm:left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 rounded transition-colors duration-200 flex items-center justify-center"
             title="Choose SVG file"
             disabled={isUploading}
           >
-            <Upload className="h-3 w-3" />
+            <Upload className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
           </button>
           <Input
             value={filename}
             onChange={(e) => setFilename(e.target.value)}
             placeholder="Enter name..."
             spellCheck={false}
-            className="pl-10 rounded-r-none sm:rounded-r-none border-r-0 h-9 focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none"
+            className="pl-8 sm:pl-10 rounded-r-none border-r-0 h-9 text-sm focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation"
             disabled={isUploading}
           />
         </div>
         <div className="flex items-center">
           {uploadFile && (
             <button
-              className="text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 p-1.5 rounded mr-1 transition-colors duration-200 flex items-center justify-center"
+              className="text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 p-1 sm:p-1.5 transition-colors duration-200 flex items-center justify-center touch-manipulation"
               title={`View ${uploadFile.name} in new tab`}
               onClick={() => {
                 const url = URL.createObjectURL(uploadFile);
@@ -150,16 +150,16 @@ export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
               }}
               disabled={isUploading}
             >
-              <Image className="h-4 w-4" />
+              <Image className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             </button>
           )}
           <Button
             onClick={handleUpload}
             disabled={!isValidSelection || isUploading}
-            className="px-3 rounded-l-none h-9 focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none"
+            className="px-2 sm:px-3 rounded-l-none h-9 text-sm focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation flex-shrink-0"
           >
             {isUploading ? (
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+              <div className="animate-spin rounded-full h-3.5 w-3.5 sm:h-4 sm:w-4 border-b-2 border-white" />
             ) : (
               <ArrowRight className="h-4 w-4" />
             )}
