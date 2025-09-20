@@ -128,7 +128,12 @@ export const useElementInteractions = ({
         highlighting.triggerContainerTypeHighlight(dslPath);
       }
     });
-  }, [setupMouseEnterListener, highlighting]);
+
+    // Add custom click handler for container type SVGs (capture phase)
+    svgElem.addEventListener('click', (event: MouseEvent) => {
+      onEmbeddedSVGClick(dslPath, event);
+    }, { capture: true });
+  }, [setupMouseEnterListener, highlighting, onEmbeddedSVGClick]);
 
   /**
    * Setup container name text element interactions

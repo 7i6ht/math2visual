@@ -1,5 +1,5 @@
 """
-DSL Updater service for modifying entity types in DSL strings.
+DSL Updater service for modifying entity types and container types in DSL strings.
 """
 import re
 from typing import Dict, List, Optional, Tuple
@@ -10,7 +10,7 @@ from app.utils.validation_constants import (
 )
 
 class DSLUpdater:
-    """Service for updating entity types in DSL strings."""
+    """Service for updating entity types and container types in DSL strings."""
     
     def __init__(self):
         pass
@@ -49,24 +49,25 @@ class DSLUpdater:
         
         return True, None
     
-    def update_entity_types(self, dsl: str, old_entity_type: str, new_entity_type: str) -> Tuple[str, int]:
+    def update_types(self, dsl: str, old_type: str, new_type: str) -> Tuple[str, int]:
         """
-        Update all occurrences of an entity type in a DSL string.
+        Update all occurrences of a type value in a DSL string.
+        Handles both entity_type and container_type patterns.
         
         Args:
             dsl: The DSL string to update
-            old_entity_type: The entity type to replace
-            new_entity_type: The new entity type to use
+            old_type: The type value to replace
+            new_type: The new type value to use
             
         Returns:
             Tuple of (updated_dsl, number_of_replacements)
         """
-        if not dsl or not old_entity_type or not new_entity_type:
+        if not dsl or not old_type or not new_type:
             return dsl, 0
         
-        # Pattern to match entity_type:value and replace only the value part
-        pattern = rf'(entity_type\s*:\s*){re.escape(old_entity_type)}(\b)'
-        replacement = rf'\g<1>{new_entity_type}\g<2>'
+        # Pattern to match both entity_type:value and container_type:value
+        pattern = rf'((entity_type|container_type)\s*:\s*){re.escape(old_type)}(\b)'
+        replacement = rf'\g<1>{new_type}\g<3>'
         
         # Count occurrences and replace in one go
         matches = list(re.finditer(pattern, dsl))

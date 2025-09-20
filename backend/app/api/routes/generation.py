@@ -207,7 +207,7 @@ def update_embedded_svg():
 #       return jsonify({"error": f"Invalid type name: {validation_error}"}), 400
     
     # Update the DSL with new type
-    updated_dsl, replacement_count = dsl_updater.update_entity_types(dsl, old_svg_name, new_svg_name)
+    updated_dsl, replacement_count = dsl_updater.update_types(dsl, old_svg_name, new_svg_name)
     
     if replacement_count == 0:
         return jsonify({"error": f"Type '{old_svg_name}' not found in DSL"}), 400
