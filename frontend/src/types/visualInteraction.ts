@@ -39,10 +39,6 @@ export interface UseVisualInteractionProps {
  * Used internally by highlighting hooks
  */
 export interface HighlightConfig {
-  /** Icon for logging/debugging */
-  icon: string;
-  /** Label for logging/debugging */
-  label: string;
   /** Function to apply visual highlighting to SVG elements */
   applyVisualHighlight: (mapping: any) => void;
   /** Function to apply highlighting to MWP text */
@@ -54,14 +50,8 @@ export interface HighlightConfig {
  * Used internally by interaction hooks
  */
 export interface ElementListenerConfig {
-  /** Icon for logging/debugging */
-  icon: string;
-  /** Label for logging/debugging */
-  label: string;
   /** Mouse enter event handler */
   onMouseEnter: () => void;
-  /** Optional target path for click events (defaults to element's own path) */
-  onClickTarget?: string;
   /** Additional setup logic for the element */
   extraSetup?: () => void;
 }
