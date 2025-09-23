@@ -120,7 +120,11 @@ export const EntityQuantityPopup: React.FC<EntityQuantityPopupProps> = ({
             disabled={!isValidQuantity || isLoading}
             className="px-2 rounded-l-none h-9 text-sm focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation flex-shrink-0"
           >
-            {isLoading ? "..." : <ArrowRight className="h-4 w-4" />}
+            {isLoading ? (
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+            ) : (
+              <ArrowRight className="h-4 w-4" />
+            )}
           </Button>
         </div>
 
