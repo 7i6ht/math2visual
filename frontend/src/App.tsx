@@ -85,16 +85,16 @@ function AppContent() {
     updateEntityQuantity,
   } = useEntityQuantityPopup({
     onVisualsUpdate: (data) => {
-      setResults(
+      handleVLResult(
         data.visual_language,
         data.svg_formal,
         data.svg_intuitive,
         data.parsedDSL,
-        data.formal_error,
-        data.intuitive_error,
+        data.formal_error ?? undefined,
+        data.intuitive_error ?? undefined,
         data.missing_svg_entities,
-        undefined, // mwp - unchanged
-        undefined, // formula - unchanged
+        undefined, // mwp - will be auto-updated by handleVLResult
+        undefined, // formula - will be auto-updated by handleVLResult
         data.componentMappings
       );
     },
