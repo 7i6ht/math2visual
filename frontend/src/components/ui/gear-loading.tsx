@@ -18,7 +18,7 @@ const sizeConfig = {
     message: "text-sm",
     cancelBtn: "h-8 px-3 text-xs",
     icon: "w-3.5 h-3.5",
-    spacing: "mr-6"
+    spacing: "mr-4"
   },
   default: {
     container: "p-4",
@@ -29,7 +29,7 @@ const sizeConfig = {
     message: "text-base",
     cancelBtn: "h-9 px-4 text-sm",
     icon: "w-4 h-4",
-    spacing: "mr-8"
+    spacing: "mr-5"
   },
   large: {
     container: "p-6",
@@ -40,7 +40,7 @@ const sizeConfig = {
     message: "text-lg",
     cancelBtn: "h-10 px-5 text-base",
     icon: "w-5 h-5",
-    spacing: "mr-10"
+    spacing: "mr-6"
   }
 } as const;
 
@@ -53,9 +53,9 @@ export const GearLoading = ({
   const config = sizeConfig[size];
 
   return (
-    <div className={`flex items-center justify-center ${config.container} bg-white/20 backdrop-blur-sm rounded-2xl border border-white/10`}>
+    <div className={`flex items-center justify-center ${config.container}`}>
       {/* Left: Gears with subtle glow effect */}
-      <div className={`relative flex items-center justify-center ${config.gearContainer} ${config.spacing}`}>
+      <div className={`relative flex items-center justify-center ${config.gearContainer} ${config.spacing} -mt-2`}>
         
         {/* First gear - larger */}
         <div className="absolute left-0 top-1/2 transform -translate-y-1/2">
@@ -84,7 +84,7 @@ export const GearLoading = ({
       <div className="flex flex-col items-start space-y-4">
         {/* Message with improved typography */}
         <div className="text-left">
-          <span className={`text-foreground font-semibold tracking-wide ${config.message}`}>
+          <span className={`font-bold text-foreground tracking-wide ${config.message}`}>
             {message}
           </span>
         </div>

@@ -8,6 +8,7 @@ import { EntityQuantityPopup } from "@/components/popups/EntityQuantityPopup";
 
 import { GearLoading } from "@/components/ui/gear-loading";
 import { Toaster } from "@/components/ui/sonner";
+import { ResponsiveLogo } from "@/components/ui/ResponsiveLogo";
 import { useAppState } from "@/hooks/useAppState";
 import { useSVGSelector } from "@/hooks/useSVGSelector";
 import { useEntityQuantityPopup } from "@/hooks/useEntityQuantityPopup";
@@ -193,14 +194,8 @@ function AppContent() {
               {/* Header with enhanced visual hierarchy */}
               <div className="text-center space-y-4">
                 <div className="flex items-center justify-center gap-4 mb-4">
-                  <div className="p-3 bg-primary/10 rounded-full">
-                    <img
-                      src="/math2visual-logo.svg"
-                      alt="Math2Visual Logo"
-                      className="w-10 h-10"
-                    />
-                  </div>
-                  <h1 className="text-5xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
+                  <ResponsiveLogo className="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14" />
+                  <h1 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
                     Math2Visual
                   </h1>
                 </div>
@@ -211,23 +206,21 @@ function AppContent() {
                 <div className="w-32 h-1 bg-primary/30 mx-auto rounded-full"></div>
               </div>
 
-              {/* Centered Math Problem Form with minimal card styling */}
+              {/* Centered Math Problem Form */}
               <div className="w-full max-w-4xl mb-6">
-                <div className="bg-white/30 backdrop-blur-sm border border-white/20 rounded-3xl p-4 lg:p-6 shadow-sm">
-                  <MathProblemForm
-                    onSuccess={setResults}
-                    onLoadingChange={(loading, abortFn) => {
-                      setMpFormLoading(loading, abortFn);
-                    }}
-                    onReset={resetResults}
-                    mwp={mwp}
-                    formula={formula}
-                    saveInitialValues={saveInitialValues}
-                    rows={5}
-                    hideSubmit={mpFormLoading}
-                    largeFont={true}
-                  />
-                </div>
+                <MathProblemForm
+                  onSuccess={setResults}
+                  onLoadingChange={(loading, abortFn) => {
+                    setMpFormLoading(loading, abortFn);
+                  }}
+                  onReset={resetResults}
+                  mwp={mwp}
+                  formula={formula}
+                  saveInitialValues={saveInitialValues}
+                  rows={5}
+                  hideSubmit={mpFormLoading}
+                  largeFont={true}
+                />
               </div>
 
               {/* Loading state with minimal styling */}
@@ -256,12 +249,8 @@ function AppContent() {
                     {/* Header */}
                     <div className="text-center">
                       <div className="flex items-center justify-center gap-3 mb-3">
-                        <img
-                          src="/math2visual-logo.svg"
-                          alt="Math2Visual Logo"
-                          className="w-8 h-8"
-                        />
-                        <h1 className="text-3xl font-bold">Math2Visual</h1>
+                        <ResponsiveLogo className="w-8 h-8 sm:w-10 sm:h-10" />
+                        <h1 className="text-2xl sm:text-3xl font-bold">Math2Visual</h1>
                       </div>
                       <p className="text-muted-foreground text-sm">
                         Generating Pedagogically Meaningful Visuals for Math
