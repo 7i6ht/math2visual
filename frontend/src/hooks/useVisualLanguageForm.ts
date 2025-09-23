@@ -4,13 +4,15 @@ import { useEffect, useRef } from "react";
 import { vlFormSchema } from "@/schemas/validation";
 import { generationService as service } from "@/api_services/generation";
 import { DSLFormatter } from "@/utils/dsl-formatter";
+import { parseWithErrorHandling } from "@/utils/dsl-parser";
 import { toast } from "sonner";
 import type { VLFormData } from "@/schemas/validation";
 import type { ComponentMapping } from "@/types/visualInteraction";
+import type { ParsedOperation } from "@/utils/dsl-parser";
 
 interface UseVisualLanguageFormProps {
   vl: string | null;
-  onResult: (vl: string, svgFormal: string | null, svgIntuitive: string | null, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], mwp?: string, formula?: string, componentMappings?: ComponentMapping) => void;
+  onResult: (vl: string, svgFormal: string | null, svgIntuitive: string | null, parsedDSL: ParsedOperation, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], mwp?: string, formula?: string, componentMappings?: ComponentMapping) => void;
   onLoadingChange: (loading: boolean, abortFn?: () => void) => void;
 }
 
@@ -32,11 +34,12 @@ export const useVisualLanguageForm = ({
   useEffect(() => {
     if (vl !== null) {
       // Ensure DSL is formatted on load/prop change (frontend owns formatting now)
-      try {
-        const formatter = new DSLFormatter();
-        const { formattedDSL } = formatter.processAndFormatDSL(vl);
+      const formatter = new DSLFormatter();
+      const parsed = parseWithErrorHandling(vl);
+      if (parsed) {
+        const formattedDSL = formatter.formatWithRanges(parsed);
         form.setValue("dsl", formattedDSL);
-      } catch {
+      } else {
         form.setValue("dsl", vl);
       }
     }
@@ -58,9 +61,7 @@ export const useVisualLanguageForm = ({
     onLoadingChange(true, abort);
 
     try {
-      // Minify the DSL (single line) for backend generation
-      const minifiedDsl = DSLFormatter.minify(dslValue);
-      const result = await service.generateFromDSL(minifiedDsl, controller.signal);
+      const result = await service.generateFromDSL(dslValue, controller.signal);
 
       // Choose the DSL to display (keep previous if generation errored)
       const visualLanguageToUse = (result.formal_error || result.intuitive_error)
@@ -72,6 +73,7 @@ export const useVisualLanguageForm = ({
         visualLanguageToUse,
         result.svg_formal,
         result.svg_intuitive,
+        result.parsedDSL!,
         result.formal_error,
         result.intuitive_error,
         result.missing_svg_entities,

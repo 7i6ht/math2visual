@@ -2,29 +2,11 @@
  * DSL Formatter Utility - Complete implementation
  * Handles DSL parsing, formatting and range calculation for component mappings
  */
-import { parseDSL as parse } from '@/utils/dsl-parser';
+import { parseDSL as parse, type ParsedEntity, type ParsedOperation } from '@/utils/dsl-parser';
 
-export interface DSLEntity {
-  name: string;
-  _dsl_path?: string;
-  item?: {
-    entity_quantity?: number;
-    entity_type?: string;
-  };
-  entity_name?: string;
-  entity_type?: string;
-  entity_quantity?: number;
-  container_name?: string;
-  container_type?: string;
-  attr_name?: string;
-  attr_type?: string;
-}
-
-export interface DSLOperation {
-  operation: string;
-  entities: DSLEntity[];
-  result_container?: DSLEntity;
-}
+// Type aliases for consistency
+export type DSLEntity = ParsedEntity;
+export type DSLOperation = ParsedOperation;
 
 export interface ComponentRange {
   dsl_range: [number, number];
@@ -65,7 +47,7 @@ export class DSLFormatter {
    * Format DSL while tracking ranges during formatting process
    */
   private formatWithRangesRecursive(
-    node: DSLOperation | DSLEntity,
+    node: ParsedOperation | ParsedEntity,
     indentLevel: number,
     parentPath: string,
     currentPos: number
@@ -88,7 +70,7 @@ export class DSLFormatter {
 
       // Process entity children (operation or container)
       for (let i = 0; i < node.entities.length; i++) {
-        const entity = node.entities[i] as any;
+        const entity = node.entities[i];
         const entityPath = `${currentPath}/entities[${i}]`;
         const childOffset = i === 0 ? 1 : 0; // +1 for newline after first "operation("
 
@@ -97,7 +79,7 @@ export class DSLFormatter {
         if ('operation' in entity) {
           // Nested operation
           [childFormatted, endPos] = this.formatWithRangesRecursive(
-            entity as any,
+            entity as ParsedOperation,
             indentLevel + 1,
             entityPath,
             pos + childOffset
@@ -159,7 +141,7 @@ export class DSLFormatter {
    * Format a container while tracking ranges during formatting
    */
   private formatContainerWithRanges(
-    container: DSLEntity,
+    container: ParsedEntity,
     indentLevel: number,
     containerPath: string,
     currentPos: number
@@ -257,7 +239,7 @@ export class DSLFormatter {
   /**
    * Recursively format DSL nodes with clean logic (no ranges)
    */
-  private formatDSLRecursiveClean(node: DSLOperation | DSLEntity, indentLevel: number = 0): string {
+  private formatDSLRecursiveClean(node: ParsedOperation | ParsedEntity, indentLevel: number = 0): string {
     const indent = '  '.repeat(indentLevel);
 
     if ('operation' in node) {
@@ -269,7 +251,14 @@ export class DSLFormatter {
 
       // Add entity children
       for (const entity of node.entities) {
-        const childFormatted = this.formatContainerClean(entity, indentLevel + 1);
+        let childFormatted: string;
+        if ('operation' in entity) {
+          // Nested operation
+          childFormatted = this.formatDSLRecursiveClean(entity, indentLevel + 1);
+        } else {
+          // Container entity
+          childFormatted = this.formatContainerClean(entity, indentLevel + 1);
+        }
         children.push(childFormatted);
       }
 
@@ -295,7 +284,7 @@ export class DSLFormatter {
   /**
    * Format a container with proper indentation (no ranges)
    */
-  private formatContainerClean(container: DSLEntity, indentLevel: number): string {
+  private formatContainerClean(container: ParsedEntity, indentLevel: number): string {
     const indent = '  '.repeat(indentLevel);
     const containerName = container.name || 'container';
 
@@ -336,31 +325,6 @@ export class DSLFormatter {
   }
 
   /**
-   * Normalize formatted DSL to single line for parsing
-   */
-  normalizeDSLToSingleLine(dslStr: string): string {
-    return dslStr
-      .replace(/\n/g, ' ')         // Replace newlines with spaces
-      .replace(/\r/g, ' ')         // Replace carriage returns
-      .replace(/\t/g, ' ')         // Replace tabs
-      .replace(/  +/g, ' ')        // Collapse multiple spaces
-      .replace(/ ,/g, ',')         // Remove space before commas
-      .replace(/, /g, ',')         // Remove space after commas  
-      .replace(/ \[/g, '[')        // Remove space before brackets
-      .replace(/\[ /g, '[')        // Remove space after opening bracket
-      .replace(/ \]/g, ']')        // Remove space before closing bracket
-      .replace(/\] /g, ']')        // Remove space after closing bracket
-      .replace(/ \(/g, '(')        // Remove space before parentheses
-      .replace(/\( /g, '(')        // Remove space after opening parenthesis
-      .replace(/ \)/g, ')')        // Remove space before closing parenthesis
-      .replace(/\) /g, ')')        // Remove space after closing parenthesis
-      .replace(/ : /g, ':')        // Remove spaces around colons
-      .replace(/: /g, ':')         // Remove space after colon
-      .replace(/ :/g, ':')         // Remove space before colon
-      .trim();
-  }
-
-  /**
    * Minify formatted DSL back to single line (for API calls)
    */
   static minify(dslString: string): string {
@@ -376,29 +340,5 @@ export class DSLFormatter {
       .trim();
   }
 
-  /**
-   * Parse and format DSL with component mappings
-   * This is the main method to use for frontend DSL processing
-   */
-  processAndFormatDSL(dslStr: string): { 
-    formattedDSL: string; 
-    componentMappings: ComponentMapping;
-  } {
-    try {
-      const parsed = parse(this.normalizeDSLToSingleLine(dslStr)) as unknown as DSLOperation;
-      const formatted = this.formatWithRanges(parsed);
-      
-      return {
-        formattedDSL: formatted,
-        componentMappings: { ...this.componentRegistry }
-      };
-    } catch (error) {
-      console.error('Failed to process DSL:', error);
-      // Return original DSL with empty mappings on error
-      return {
-        formattedDSL: dslStr,
-        componentMappings: {}
-      };
-    }
-  }
+
 }

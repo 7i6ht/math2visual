@@ -2,13 +2,16 @@ import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
 import { generationService } from '@/api_services/generation';
 import type { ComponentMapping } from '@/types/visualInteraction';
+import type { ParsedOperation } from '@/utils/dsl-parser';
 import { useHighlightingContext } from '@/contexts/HighlightingContext';
+import { useDSLContext } from '@/contexts/DSLContext';
 
 interface SVGSelectorState {
   isOpen: boolean;
   dslPath: string;
   currentValue: string;
   targetElement: Element | null;
+  clickPosition: { x: number; y: number };
 }
 
 interface UseSVGSelectorProps {
@@ -20,22 +23,23 @@ interface UseSVGSelectorProps {
     intuitive_error: string | null;
     missing_svg_entities: string[];
     componentMappings?: ComponentMapping;
+    parsedDSL: ParsedOperation;
   }) => void;
-  currentDSL: string;
 }
 
 export const useSVGSelector = ({
   onVisualsUpdate,
-  currentDSL,
 }: UseSVGSelectorProps) => {
   // Use highlighting context
   const { setCurrentDSLPath } = useHighlightingContext();
+  const { formattedDSL } = useDSLContext();
 
   const [selectorState, setSelectorState] = useState<SVGSelectorState>({
     isOpen: false,
     dslPath: '',
     currentValue: '',
     targetElement: null,
+    clickPosition: { x: 0, y: 0 },
   });
 
   // Close the selector and clear highlight
@@ -48,23 +52,56 @@ export const useSVGSelector = ({
       ...prev,
       isOpen: false,
       targetElement: null,
+      clickPosition: { x: 0, y: 0 },
     }));
     console.log('🎯 [closeSelector] END');
   }, [setCurrentDSLPath]);
 
   // Open the selector at a specific position for a specific DSL path
   const openSelector = useCallback((dslPath: string, currentValue: string, event: MouseEvent) => {
-    console.log('🎯 [openSelector] START', { dslPath, currentValue, event });
+    console.log('🎯 [openSelector] START', { dslPath, currentValue, event, target: event.target });
     
     // Set currentDSLPath to trigger highlight via existing system
     setCurrentDSLPath(dslPath);
     
-    // Set selector state
+    // Find the correct SVG element using closest() method
+    // This ensures we get the actual SVG element with data-dsl-path, not a child element
+    let targetEl = (event.target as Element)?.closest('[data-dsl-path]') as Element | null;
+    
+    // Ensure we have an SVG element
+    if (targetEl && targetEl.tagName.toLowerCase() !== 'svg') {
+      targetEl = targetEl.closest('svg[data-dsl-path]') || targetEl;
+    }
+    
+    // Find element with valid dimensions
+    if (targetEl && targetEl.getBoundingClientRect().width === 0) {
+      let parent = targetEl.parentElement;
+      while (parent && parent.getBoundingClientRect().width === 0) {
+        parent = parent.parentElement;
+      }
+      if (parent) targetEl = parent;
+    }
+    
+    // Fallback to the original target if we can't find an element with data-dsl-path
+    if (!targetEl) {
+      targetEl = event.target as Element | null;
+    }
+    
+    console.log('🎯 [openSelector] Target element details:', {
+      targetElement: targetEl,
+      tagName: targetEl?.tagName,
+      id: targetEl?.id,
+      className: targetEl?.className,
+      dataDslPath: targetEl?.getAttribute('data-dsl-path'),
+      boundingRect: targetEl?.getBoundingClientRect()
+    });
+    
     setSelectorState({
       isOpen: true,
       dslPath: dslPath,
       currentValue,
-      targetElement: event.target as Element,
+      targetElement: targetEl,
+      clickPosition: { x: event.clientX, y: event.clientY },
     });
     console.log('🎯 [openSelector] END');
   }, [setCurrentDSLPath]);
@@ -72,7 +109,7 @@ export const useSVGSelector = ({
   // Handle embedded SVG change
   const handleEmbeddedSVGChange = useCallback(async (newType: string) => {
     console.log('🎯 [handleEmbeddedSVGChange] START', { newType });
-    if (!currentDSL) {
+    if (!formattedDSL) {
       toast.error('No DSL available for update');
       console.log('🎯 [handleEmbeddedSVGChange] END (early return - no currentDSL)');
       return;
@@ -87,7 +124,7 @@ export const useSVGSelector = ({
     try {
       const loadingToastId = toast.loading('Updating SVG and regenerating visuals...');
       
-      const result = await generationService.updateEmbeddedSVG(currentDSL, selectorState.currentValue, newType);
+      const result = await generationService.updateEmbeddedSVG(formattedDSL, selectorState.currentValue, newType);
       
       // Update the visuals with the new data, including updated component mappings
       onVisualsUpdate({
@@ -98,6 +135,7 @@ export const useSVGSelector = ({
         intuitive_error: result.intuitive_error,
         missing_svg_entities: result.missing_svg_entities,
         componentMappings: result.componentMappings,
+        parsedDSL: result.parsedDSL,
       });
 
       // Dismiss the loading toast and show success
@@ -119,7 +157,7 @@ export const useSVGSelector = ({
       console.log('🎯 [handleEmbeddedSVGChange] END (error)');
       throw error; // Re-throw so the popup can handle it
     }
-  }, [currentDSL, selectorState.currentValue, selectorState.dslPath, onVisualsUpdate, closeSelector]);
+  }, [formattedDSL, selectorState.currentValue, selectorState.dslPath, onVisualsUpdate, closeSelector]);
 
   return {
     selectorState,

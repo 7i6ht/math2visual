@@ -9,13 +9,13 @@ import { BasePopup } from './BasePopup.tsx';
 interface SVGUploadPopupProps {
   onClose: () => void;
   onUpload: (filename: string) => Promise<void>;
-  targetElement: Element;
+  clickPosition: { x: number; y: number };
 }
 
 export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
   onClose,
   onUpload,
-  targetElement,
+  clickPosition,
 }) => {
   const [filename, setFilename] = useState('');
   const [uploadFile, setUploadFile] = useState<File | null>(null);
@@ -116,7 +116,7 @@ export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
   const isValidSelection = uploadFile && filename.trim() && !validationError;
 
   return (
-    <BasePopup onClose={onClose} onKeyDown={handlePopupKeyDown} targetElement={targetElement} className="min-w-[180px] max-w-[80vw] max-h-[90vh] w-[min(80vw,240px)] sm:w-[min(70vw,220px)]">
+    <BasePopup onClose={onClose} onKeyDown={handlePopupKeyDown} clickPosition={clickPosition} className="min-w-[180px] max-w-[80vw] max-h-[90vh] w-[min(80vw,240px)] sm:w-[min(70vw,220px)]">
       {/* Upload Form */}
       <div className="flex gap-0 group focus-within:ring-[3px] focus-within:ring-ring/50 focus-within:ring-offset-0 focus-within:border-ring rounded-md transition-all duration-200 border border-ring ring-[3px] ring-ring/50 ring-offset-0">
         <div className="relative flex-1">

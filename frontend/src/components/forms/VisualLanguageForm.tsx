@@ -9,29 +9,31 @@ import {
 } from "@/components/ui/form";
 import { useVisualLanguageForm } from "@/hooks/useVisualLanguageForm";
 import type { ComponentMapping } from "@/types/visualInteraction";
+import type { ParsedOperation } from "@/utils/dsl-parser";
+import { useDSLContext } from "@/contexts/DSLContext";
 
 interface VisualLanguageFormProps {
-  vl: string | null;
-  onResult: (vl: string, svgFormal: string | null, svgIntuitive: string | null, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], mwp?: string, formula?: string, componentMappings?: ComponentMapping) => void;
+  onResult: (vl: string, svgFormal: string | null, svgIntuitive: string | null, parsedDSL: ParsedOperation, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], mwp?: string, formula?: string, componentMappings?: ComponentMapping) => void;
   onLoadingChange: (loading: boolean, abortFn?: () => void) => void;
   highlightRanges?: Array<[number, number]>;
   onDSLPathHighlight?: (dslPath: string | null) => void;
-  componentMappings: ComponentMapping;
+  componentMappings?: ComponentMapping;
 }
 
 export const VisualLanguageForm = ({ 
-  vl,
   onResult,
   onLoadingChange,
   highlightRanges = [],
   onDSLPathHighlight,
   componentMappings,
 }: VisualLanguageFormProps) => {
+  const { componentMappings: contextMappings, formattedDSL } = useDSLContext();
+  const effectiveMappings = componentMappings ?? contextMappings ?? {} as ComponentMapping;
   const { 
     form, 
     handleDebouncedChange,
   } = useVisualLanguageForm({
-    vl,
+    vl: formattedDSL ?? null,
     onResult,
     onLoadingChange,
   });
@@ -58,7 +60,7 @@ export const VisualLanguageForm = ({
                     height="100%"
                     highlightRanges={highlightRanges}
                     onCursorPositionChange={(position) => {
-                      const dslPath = findDSLPathAtPosition(componentMappings, position);
+                      const dslPath = findDSLPathAtPosition(effectiveMappings, position);
                       onDSLPathHighlight?.(dslPath);
                     }}
                   />

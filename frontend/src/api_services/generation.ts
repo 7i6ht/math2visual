@@ -1,7 +1,9 @@
 import type { ApiRequest, ApiResponse } from "@/types";
 import type { ComponentMapping } from "@/types/visualInteraction";
+import type { ParsedOperation } from "@/utils/dsl-parser";
 import { BACKEND_API_URL as API_BASE_URL } from "@/config/api";
 import { DSLFormatter } from "@/utils/dsl-formatter";
+import { parseWithErrorHandling } from "@/utils/dsl-parser";
 
 export class ApiError extends Error {
   public status?: number;
@@ -16,12 +18,17 @@ export class ApiError extends Error {
 const generationService = {
   async generateVisualization(request: ApiRequest, abortSignal?: AbortSignal): Promise<ApiResponse> {
     try {
+      // Ensure DSL sent to backend is compact to reduce payload and parsing ambiguity
+      const requestBody: ApiRequest = request.dsl
+        ? { ...request, dsl: DSLFormatter.minify(request.dsl) }
+        : request;
+
       const response = await fetch(`${API_BASE_URL}/generate`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json" 
         },
-        body: JSON.stringify(request),
+        body: JSON.stringify(requestBody),
         signal: abortSignal
       });
 
@@ -36,8 +43,9 @@ const generationService = {
           svg_intuitive: null,
           formal_error: result.error,
           intuitive_error: undefined,
-          missing_svg_entities: []
-        };
+          missing_svg_entities: [],
+          parsedDSL: { operation: 'unknown', entities: [] } // Empty but valid ParsedOperation for parse error case
+        } as ApiResponse & { parsedDSL: ParsedOperation };
       }
 
       if (!response.ok) {
@@ -46,12 +54,22 @@ const generationService = {
 
       // Frontend service: ensure DSL is formatted and component mappings are computed
       const formatter = new DSLFormatter();
-      const { formattedDSL, componentMappings } = formatter.processAndFormatDSL(result.visual_language || '');
+      const parsed = parseWithErrorHandling(result.visual_language || '');
+      if (!parsed) {
+        // Return original DSL with empty mappings on parse error
+        return {
+          ...result,
+          componentMappings: {}
+        } as ApiResponse;
+      }
+
+      const formattedDSL = formatter.formatWithRanges(parsed);
       return {
         ...result,
         visual_language: formattedDSL,
-        componentMappings
-      } as ApiResponse;
+        componentMappings: { ...formatter.componentRegistry },
+        parsedDSL: parsed
+      } as ApiResponse & { parsedDSL: ParsedOperation };
     } catch (error) {
       // Handle abort errors
       if (error instanceof DOMException && error.name === 'AbortError') {
@@ -86,6 +104,7 @@ const generationService = {
     oldType: string,
     newType: string
   ): Promise<{
+    parsedDSL: ParsedOperation;
     visual_language: string;
     svg_formal: string | null;
     svg_intuitive: string | null;
@@ -101,7 +120,7 @@ const generationService = {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          dsl,
+          dsl: DSLFormatter.minify(dsl),
           old_svg_name: oldType,
           new_svg_name: newType,
         }),
@@ -116,11 +135,20 @@ const generationService = {
       
       // Generate component mappings from the updated DSL
       const formatter = new DSLFormatter();
-      const { componentMappings } = formatter.processAndFormatDSL(result.visual_language || '');
-      
+      const parsed = parseWithErrorHandling(result.visual_language || '');
+      if (!parsed) {
+        // Return empty mappings on parse error
+        return {
+          ...result,
+          componentMappings: {}
+        };
+      }
+
+      formatter.formatWithRanges(parsed);
       return {
         ...result,
-        componentMappings
+        componentMappings: { ...formatter.componentRegistry },
+        parsedDSL: parsed
       };
     } catch (error) {
       console.error('Embedded SVG update error:', error);

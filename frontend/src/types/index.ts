@@ -18,6 +18,7 @@ export interface ApiRequest {
 }
 
 export interface ApiResponse {
+  parsedDSL: ParsedOperation | undefined;
   visual_language: string;
   svg_formal: string | null;
   svg_intuitive: string | null;
@@ -69,7 +70,6 @@ export class ValidationError extends Error {
 }
 
 export interface AppState {
-  vl: string | null;
   mpFormLoading: boolean;
   vlFormLoading: boolean;
   svgFormal: string | null;
@@ -83,7 +83,7 @@ export interface AppState {
   hasCompletedGeneration: boolean;
   mwp: string;
   formula: string;
-  componentMappings?: ComponentMapping;
+  // DSL string, parsed AST, and mappings are managed by DSLContext
 }
 
 // Download types

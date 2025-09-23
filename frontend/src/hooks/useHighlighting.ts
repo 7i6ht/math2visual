@@ -3,14 +3,12 @@ import type { ComponentMapping } from '../types/visualInteraction';
 import { numberToWord } from '../utils/numberUtils';
 import { createSentencePatterns, findSentencePosition, findQuantityInText, splitIntoSentences, scoreSentencesForEntity, findEntityNameInSentence, findAllEntityNameOccurrencesInText } from '../utils/mwpUtils';
 import { MAX_ITEM_DISPLAY } from '../config/api';
+import { useDSLContext } from '@/contexts/DSLContext';
+import { useHighlightingContext } from '@/contexts/HighlightingContext';
 
 interface UseHighlightingProps {
   svgRef: React.RefObject<HTMLDivElement | null>;
-  componentMappings: ComponentMapping;
   mwpValue: string;
-  onDSLRangeHighlight?: (ranges: Array<[number, number]>) => void;
-  onMWPRangeHighlight?: (ranges: Array<[number, number]>) => void;
-  currentDSLPath?: string | null;
 }
 
 interface HighlightConfig {
@@ -26,12 +24,11 @@ interface HighlightConfig {
  */
 export const useHighlighting = ({
   svgRef,
-  componentMappings,
   mwpValue,
-  onDSLRangeHighlight,
-  onMWPRangeHighlight,
-  currentDSLPath,
 }: UseHighlightingProps) => {
+  const { componentMappings } = useDSLContext();
+  const { setDslHighlightRanges: onDSLRangeHighlight, setMwpHighlightRanges: onMWPRangeHighlight, currentDSLPath } = useHighlightingContext();
+  const mappings: ComponentMapping = (componentMappings || {}) as ComponentMapping;
 
   /**
    * Clear all visual highlights from SVG elements
@@ -50,13 +47,13 @@ export const useHighlighting = ({
   /**
    * Clear all highlights (visual, DSL, and MWP)
    */
-    const clearAllHighlights = useCallback(() => {
-      clearVisualHighlights();
-  
-      // Clear DSL and MWP highlights
-      onDSLRangeHighlight?.([]);
-      onMWPRangeHighlight?.([]);
-    }, [clearVisualHighlights, onDSLRangeHighlight, onMWPRangeHighlight]);
+  const clearAllHighlights = useCallback(() => {
+    clearVisualHighlights();
+
+    // Clear DSL and MWP highlights
+    onDSLRangeHighlight([]);
+    onMWPRangeHighlight([]);
+  }, [clearVisualHighlights, onDSLRangeHighlight, onMWPRangeHighlight]);
 
   /**
    * Set transform origin for embedded SVG elements using position attributes
@@ -121,27 +118,23 @@ export const useHighlighting = ({
     config.applyVisualHighlight();
 
     // Highlight in DSL editor using mapping (if provided)
-    if (onDSLRangeHighlight) {
-      onDSLRangeHighlight(mapping?.dsl_range ? [mapping.dsl_range] : []);
-    }
+    onDSLRangeHighlight(mapping?.dsl_range ? [mapping.dsl_range] : []);
 
     // Apply MWP highlighting
-    if (onMWPRangeHighlight) {
-      config.applyMWPHighlight();
-    }
-  }, [clearVisualHighlights, onDSLRangeHighlight, onMWPRangeHighlight]);
+    config.applyMWPHighlight();
+  }, [clearVisualHighlights, onDSLRangeHighlight]);
 
   /**
    * Find and highlight the sentence containing the second operand of an operation
    */
   const highlightSecondOperandSentence = useCallback((operationDslPath: string) => {
     // Early return if missing required data
-    if (!mwpValue || !onMWPRangeHighlight) return;
+    if (!mwpValue) return;
 
     // Find the second operand's value by looking for sibling entities 
     const secondOperandPath = `${operationDslPath}/entities[1]`;
     const secondOperandQuantityPath = `${secondOperandPath}/entity_quantity`;
-    const secondOperandQuantity = componentMappings[secondOperandQuantityPath]?.property_value;
+    const secondOperandQuantity = mappings[secondOperandQuantityPath]?.property_value;
     
     // Early return if no quantity found
     if (!secondOperandQuantity) return;
@@ -168,13 +161,13 @@ export const useHighlighting = ({
         }
       }
     }
-  }, [mwpValue, componentMappings, onMWPRangeHighlight]);
+  }, [mwpValue, mappings, onMWPRangeHighlight]);
 
   /**
    * Trigger highlighting for box/container components
    */
   const triggerBoxHighlight = useCallback((dslPath: string) => {
-    const mapping = componentMappings[dslPath];
+    const mapping = mappings[dslPath];
     triggerHighlight(mapping, {
       icon: '🔲',
       label: 'Box',
@@ -189,13 +182,13 @@ export const useHighlighting = ({
         const entityNamePath = `${dslPath}/entity_name`;
         const quantityPath = `${dslPath}/entity_quantity`;
         
-        const containerName = componentMappings[containerNamePath]?.property_value;
-        const entityName = componentMappings[entityNamePath]?.property_value;
-        const quantity = componentMappings[quantityPath]?.property_value;
+        const containerName = mappings[containerNamePath]?.property_value;
+        const entityName = mappings[entityNamePath]?.property_value;
+        const quantity = mappings[quantityPath]?.property_value;
 
         // Early return if missing required data
-        if (!containerName || !mwpValue || !onMWPRangeHighlight) {
-          onMWPRangeHighlight?.([]);
+        if (!containerName || !mwpValue) {
+          onMWPRangeHighlight([]);
           return;
         }
         
@@ -217,13 +210,13 @@ export const useHighlighting = ({
         onMWPRangeHighlight([]);
       }
     });
-  }, [triggerHighlight, svgRef, componentMappings, mwpValue, onMWPRangeHighlight]);
+  }, [triggerHighlight, svgRef, mappings, mwpValue, onMWPRangeHighlight]);
 
   /**
    * Trigger highlighting for text/quantity components
    */
   const triggerEntityQuantityHighlight = useCallback((dslPath: string) => {
-    const mapping = componentMappings[dslPath];
+    const mapping = mappings[dslPath];
     const quantity = mapping?.property_value;
     const quantityNum = quantity ? Number(quantity) : NaN;
     
@@ -253,11 +246,9 @@ export const useHighlighting = ({
     }
     
     // Common DSL and MWP highlighting logic
-    if (onDSLRangeHighlight) {
-      onDSLRangeHighlight(mapping?.dsl_range ? [mapping.dsl_range] : []);
-    }
+    onDSLRangeHighlight(mapping?.dsl_range ? [mapping.dsl_range] : []);
     
-    if (onMWPRangeHighlight && quantity && mwpValue) {
+    if (quantity && mwpValue) {
       const position = findQuantityInText(mwpValue, quantity);
       if (position) {
         const [start, end] = position;
@@ -266,13 +257,13 @@ export const useHighlighting = ({
         onMWPRangeHighlight([]);
       }
     }
-  }, [clearVisualHighlights, setSvgTransformOrigin, svgRef, componentMappings, mwpValue, onMWPRangeHighlight, onDSLRangeHighlight]);
+  }, [clearVisualHighlights, setSvgTransformOrigin, svgRef, mappings, mwpValue, onMWPRangeHighlight, onDSLRangeHighlight]);
 
   /**
    * Trigger highlighting for operation components
    */
   const triggerOperationHighlight = useCallback((dslPath: string) => {
-    const mapping = componentMappings[dslPath];
+    const mapping = mappings[dslPath];
     triggerHighlight(mapping, {
       icon: '⚙️',
       label: 'Operation',
@@ -287,7 +278,7 @@ export const useHighlighting = ({
         highlightSecondOperandSentence(dslPath);
       }
     });
-  }, [triggerHighlight, svgRef, componentMappings, highlightSecondOperandSentence]);
+  }, [triggerHighlight, svgRef, mappings, highlightSecondOperandSentence]);
 
   /**
    * Handle MWP highlighting for container_type elements
@@ -298,10 +289,10 @@ export const useHighlighting = ({
     const containerPath = dslPath.replace(/\/container_type$/, '');
     const containerNamePath = `${containerPath}/container_name`;
     
-    const containerNameMapping = componentMappings[containerNamePath];
+    const containerNameMapping = mappings[containerNamePath];
     
     if (!containerNameMapping?.property_value || !mwpValue) {
-      onMWPRangeHighlight?.([]);
+      onMWPRangeHighlight([]);
       return;
     }
     
@@ -315,8 +306,8 @@ export const useHighlighting = ({
     const ranges: Array<[number, number]> = Array.from(mwpValue.matchAll(regex))
       .map(match => [match.index, match.index + match[0].length]);
     
-    onMWPRangeHighlight?.(ranges);
-  }, [componentMappings, mwpValue, onMWPRangeHighlight]);
+    onMWPRangeHighlight(ranges);
+  }, [mappings, mwpValue, onMWPRangeHighlight]);
 
   /**
    * Handle MWP highlighting for embedded SVG elements
@@ -329,12 +320,12 @@ export const useHighlighting = ({
     const containerNamePath = `${entityPath}/container_name`;
     const quantityPath = `${entityPath}/entity_quantity`;
     
-    const entityNameMapping = componentMappings[entityNamePath];
-    const containerNameMapping = componentMappings[containerNamePath];
-    const quantityMapping = componentMappings[quantityPath];
+    const entityNameMapping = mappings[entityNamePath];
+    const containerNameMapping = mappings[containerNamePath];
+    const quantityMapping = mappings[quantityPath];
     
     if (!entityNameMapping?.property_value || !containerNameMapping?.property_value || !quantityMapping?.property_value || !mwpValue) {
-      onMWPRangeHighlight?.([]);
+      onMWPRangeHighlight([]);
       return;
     }
     
@@ -358,27 +349,27 @@ export const useHighlighting = ({
       );
       
       if (ranges && ranges.length > 0) {
-        onMWPRangeHighlight?.(ranges);
+        onMWPRangeHighlight(ranges);
         return;
       }
     }
     
     // Fallback: highlight all entity_name occurrences
     const fallbackRanges = findAllEntityNameOccurrencesInText(entityName, mwpValue);
-    onMWPRangeHighlight?.(fallbackRanges);
-  }, [componentMappings, mwpValue, onMWPRangeHighlight]);
+    onMWPRangeHighlight(fallbackRanges);
+  }, [mappings, mwpValue, onMWPRangeHighlight]);
 
   /**
    * Trigger highlighting for embedded SVG components (entity_type)
    */
   const triggerEmbeddedSvgHighlight = useCallback((dslPath: string) => {
     // For embedded SVGs, get the appropriate mapping (indexed or non-indexed)
-    let mapping = componentMappings[dslPath];
+    let mapping = mappings[dslPath];
     
     // Handle indexed paths - convert to base path if needed
     if (!mapping && dslPath.includes('/entity_type[')) {
       const basePath = dslPath.replace(/\/entity_type\[\d+\]$/, '/entity_type');
-      mapping = componentMappings[basePath];
+      mapping = mappings[basePath];
     }
 
     triggerHighlight(mapping, {
@@ -395,14 +386,14 @@ export const useHighlighting = ({
       },
       applyMWPHighlight: () => handleEmbeddedSvgMWPHighlight(dslPath)
     });
-  }, [triggerHighlight, setSvgTransformOrigin, svgRef, componentMappings, handleEmbeddedSvgMWPHighlight]);
+  }, [triggerHighlight, setSvgTransformOrigin, svgRef, mappings, handleEmbeddedSvgMWPHighlight]);
 
   /**
    * Trigger highlighting for container_type components (embedded SVGs on containers)
    */
   const triggerContainerTypeHighlight = useCallback((dslPath: string) => {
     // Container_type paths are always non-indexed: /operation/entities[0]/container_type
-    const mapping = componentMappings[dslPath];
+    const mapping = mappings[dslPath];
     
     triggerHighlight(mapping, {
       icon: '🏷️',
@@ -427,17 +418,17 @@ export const useHighlighting = ({
       },
       applyMWPHighlight: () => handleContainerTypeMWPHighlight(dslPath)
     });
-  }, [triggerHighlight, svgRef, componentMappings, handleContainerTypeMWPHighlight]);
+  }, [triggerHighlight, svgRef, mappings, handleContainerTypeMWPHighlight]);
 
   /**
    * Handle MWP highlighting for container_name elements
    */
   const handleContainerNameMWPHighlight = useCallback((dslPath: string) => {
     // Get the container name mapping directly from the path
-    const containerNameMapping = componentMappings[dslPath];
+    const containerNameMapping = mappings[dslPath];
     
     if (!containerNameMapping?.property_value || !mwpValue) {
-      onMWPRangeHighlight?.([]);
+      onMWPRangeHighlight([]);
       return;
     }
     
@@ -453,15 +444,15 @@ export const useHighlighting = ({
     const ranges: Array<[number, number]> = matches
       .map(match => [match.index, match.index + match[0].length] as [number, number]);
     
-    onMWPRangeHighlight?.(ranges);
-  }, [componentMappings, mwpValue, onMWPRangeHighlight]);
+    onMWPRangeHighlight(ranges);
+  }, [mappings, mwpValue, onMWPRangeHighlight]);
 
   /**
    * Trigger highlighting for container_name components (text elements)
    */
   const triggerContainerNameHighlight = useCallback((dslPath: string) => {
     // Container_name paths are always non-indexed: /operation/entities[0]/container_name
-    const mapping = componentMappings[dslPath];
+    const mapping = mappings[dslPath];
     
     triggerHighlight(mapping, {
       icon: '🏷️',
@@ -475,13 +466,13 @@ export const useHighlighting = ({
       },
       applyMWPHighlight: () => handleContainerNameMWPHighlight(dslPath)
     });
-  }, [triggerHighlight, svgRef, componentMappings, handleContainerNameMWPHighlight]);
+  }, [triggerHighlight, svgRef, mappings, handleContainerNameMWPHighlight]);
 
   /**
    * Trigger highlighting for result container components (box elements)
    */
   const triggerResultContainerHighlight = useCallback((dslPath: string) => {
-    const mapping = componentMappings[dslPath];
+    const mapping = mappings[dslPath];
     triggerHighlight(mapping, {
       icon: '📦',
       label: 'Result Container',
@@ -493,10 +484,10 @@ export const useHighlighting = ({
       },
       applyMWPHighlight: () => {
         // For result containers, we don't highlight anything in the MWP
-        onMWPRangeHighlight?.([]);
+        onMWPRangeHighlight([]);
       }
     });
-  }, [triggerHighlight, svgRef, componentMappings, onMWPRangeHighlight]);
+  }, [triggerHighlight, svgRef, mappings, onMWPRangeHighlight]);
 
   /**
    * Highlight the visual element corresponding to the current DSL path

@@ -2,10 +2,13 @@ import { useState, useCallback, useMemo } from "react";
 import { toast } from "sonner";
 import type { AppState as AppState } from "@/types";
 import type { ComponentMapping } from "@/types/visualInteraction";
+import type { ParsedOperation } from "@/utils/dsl-parser";
+import { useDSLContext } from "@/contexts/DSLContext";
+import { generationService as service } from "@/api_services/generation";
 
 export const useAppState = () => {
+  const { setGenerationResult, formattedDSL } = useDSLContext();
   const [state, setState] = useState<AppState>({
-    vl: null,
     mpFormLoading: false,
     vlFormLoading: false,
     svgFormal: null,
@@ -19,7 +22,6 @@ export const useAppState = () => {
     hasCompletedGeneration: false,
     mwp: "",
     formula: "",
-    componentMappings: {},
   });
 
   const setMpFormLoading = useCallback((mpFormLoading: boolean, abortFn?: () => void) => {
@@ -42,6 +44,7 @@ export const useAppState = () => {
     vl: string,
     svgFormal: string | null,
     svgIntuitive: string | null,
+    parsedDSL: ParsedOperation,
     formalError?: string | null,
     intuitiveError?: string | null,
     missingSvgEntities?: string[],
@@ -51,7 +54,6 @@ export const useAppState = () => {
   ) => {
     setState(prev => ({
       ...prev,
-      vl,
       svgFormal,
       svgIntuitive,
       formalError: formalError || null,
@@ -60,14 +62,19 @@ export const useAppState = () => {
       hasCompletedGeneration: true,
       ...(mwp !== undefined && { mwp }),
       ...(formula !== undefined && { formula }),
-      ...(componentMappings !== undefined && { componentMappings }),
     }));
+
+    // Also update DSL context so consumers can read formatted DSL, mappings, and parsed AST
+    setGenerationResult({
+      visual_language: vl,
+      ...(componentMappings && { componentMappings }),
+      parsedDSL,
+    });
   }, []);
 
   const resetResults = useCallback(() => {
     setState(prev => ({
       ...prev,
-      vl: null,
       svgFormal: null,
       svgIntuitive: null,
       formalError: null,
@@ -87,7 +94,7 @@ export const useAppState = () => {
   const handleRegenerateAfterUpload = useCallback(async (toastId: string | undefined) => {
     const generateToastId = toastId || `generate-${Date.now()}`;
 
-    if (!state.vl) {
+    if (!formattedDSL) {
       toast.warning('No visual language available for regeneration');
       return;
     }
@@ -96,13 +103,13 @@ export const useAppState = () => {
       setUploadGenerating(true);
       toast.loading('Regenerating visualizations...', { id: generateToastId });
       
-      const { default: service } = await import('@/api_services/generation');
-      const result = await service.generateFromDSL(state.vl);
+      const result = await service.generateFromDSL(formattedDSL);
       
       setResults(
         result.visual_language,
         result.svg_formal,
         result.svg_intuitive,
+        result.parsedDSL!,
         result.formal_error,
         result.intuitive_error,
         result.missing_svg_entities,
@@ -135,7 +142,7 @@ export const useAppState = () => {
     } finally {
       setUploadGenerating(false);
     }
-  }, [state.vl, setResults]);
+  }, [formattedDSL, setResults]);
 
   const saveInitialValues = useCallback((mwp: string, formula: string) => {
     setState(prev => ({

@@ -14,6 +14,7 @@ interface UseElementInteractionsProps {
     triggerResultContainerHighlight: (dslPath: string) => void;
   };
   onEmbeddedSVGClick: (dslPath: string, event: MouseEvent) => void;
+  onEntityQuantityClick: (dslPath: string, event: MouseEvent) => void;
   isSelectorOpen?: boolean;
 }
 
@@ -30,6 +31,7 @@ export const useElementInteractions = ({
   svgRef,
   highlighting,
   onEmbeddedSVGClick,
+  onEntityQuantityClick,
   isSelectorOpen = false,
 }: UseElementInteractionsProps) => {
   /**
@@ -53,8 +55,8 @@ export const useElementInteractions = ({
     svgElem.onclick = null;
 
     // If selector is open, don't set up hover listeners
-    if (isSelectorOpen) { 
-      return; 
+    if (isSelectorOpen) {
+      return;
     }
 
     // Add event listeners
@@ -85,14 +87,19 @@ export const useElementInteractions = ({
         highlighting.triggerBoxHighlight(dslPath);
       }
     });
-  }, [setupMouseEnterListener, highlighting]);
+
+    // Also allow clicking on a box to trigger the entity quantity click handler
+    svgElem.addEventListener('click', (event: MouseEvent) => {
+      onEntityQuantityClick(dslPath, event);
+    }, { capture: true });
+  }, [setupMouseEnterListener, highlighting, onEntityQuantityClick]);
 
   /**
    * Setup text element interactions
    */
   const setupTextElement = useCallback((svgElem: SVGElement, dslPath: string) => {
     const quantityDslPath = dslPath;
-    
+
     setupMouseEnterListener(svgElem, {
       onMouseEnter: () => {
         highlighting.triggerEntityQuantityHighlight(quantityDslPath);
@@ -101,7 +108,14 @@ export const useElementInteractions = ({
         svgElem.style.pointerEvents = 'auto';
       }
     });
-  }, [setupMouseEnterListener, highlighting]);
+
+    // Add click handler for entity quantity editing if path ends with entity_quantity
+    if (dslPath.endsWith('/entity_quantity')) {
+      svgElem.addEventListener('click', (event: MouseEvent) => {
+        onEntityQuantityClick(dslPath, event);
+      }, { capture: true });
+    }
+  }, [setupMouseEnterListener, highlighting, onEntityQuantityClick]);
 
   /**
    * Setup embedded SVG element interactions
@@ -167,7 +181,7 @@ export const useElementInteractions = ({
 
     // Find all elements with DSL paths
     const allInteractiveElements = svgRef.current.querySelectorAll('[data-dsl-path]');
-    
+
     allInteractiveElements.forEach((element) => {
       const svgElem = element as SVGElement;
       const dslPath = getDslPath(svgElem);

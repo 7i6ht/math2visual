@@ -6,7 +6,7 @@ interface BasePopupProps {
   children: ReactNode;
   className?: string;
   onKeyDown?: (event: KeyboardEvent) => void;
-  targetElement: Element; // Element to track and position relative to
+  clickPosition: { x: number; y: number }; // Click position for positioning
 }
 
 interface AdjustedPosition {
@@ -20,69 +20,68 @@ export const BasePopup: React.FC<BasePopupProps> = ({
   children,
   className = "min-w-[200px] max-w-[95vw] max-h-[90vh] w-[min(95vw,320px)] sm:w-[min(90vw,280px)]",
   onKeyDown,
-  targetElement
+  clickPosition
 }) => {
   const popupRef = useRef<HTMLDivElement>(null);
   const [adjustedPosition, setAdjustedPosition] = useState<AdjustedPosition>(() => {
-    const rect = targetElement.getBoundingClientRect();
+    // Initialize with click position
     return {
-      x: rect.left + rect.width / 2,
-      y: rect.top + rect.height / 2,
+      x: clickPosition.x,
+      y: clickPosition.y,
       transform: 'translate(-50%, -50%)'
     };
   });
 
+
   // Calculate viewport-aware position
   useEffect(() => {
     const calculatePosition = () => {
-      if (!popupRef.current) return;
-
-      const rect = popupRef.current.getBoundingClientRect();
-      const margin = 16;
-      
-      // Get target position from element
-      const targetRect = targetElement.getBoundingClientRect();
-      const targetX = targetRect.left + targetRect.width / 2;
-      const targetY = targetRect.top + targetRect.height / 2;
-      
-      let { x, y } = { x: targetX, y: targetY };
-      let transformX = '-50%';
-      let transformY = '-50%';
-      
-      const halfWidth = rect.width / 2;
-      const halfHeight = rect.height / 2;
-      
-      // Check if centered position would overflow
-      if (targetX - halfWidth < margin) {
-        x = margin;
-        transformX = '0%';
-      } else if (targetX + halfWidth > window.innerWidth - margin) {
-        x = window.innerWidth - margin;
-        transformX = '-100%';
+      if (!popupRef.current) {
+        return;
       }
       
-      if (targetY - halfHeight < margin) {
-        y = margin;
-        transformY = '0%';
-      } else if (targetY + halfHeight > window.innerHeight - margin) {
-        y = window.innerHeight - margin;
-        transformY = '-100%';
+      try {
+        const rect = popupRef.current.getBoundingClientRect();
+        const margin = 16;
+        
+        let { x, y } = { x: clickPosition.x, y: clickPosition.y };
+        
+        const halfWidth = rect.width / 2;
+        const halfHeight = rect.height / 2;
+        
+        // Check if position would overflow viewport
+        if (x - halfWidth < margin) {
+          x = margin + halfWidth;
+        } else if (x + halfWidth > window.innerWidth - margin) {
+          x = window.innerWidth - margin - halfWidth;
+        }
+        
+        if (y - halfHeight < margin) {
+          y = margin + halfHeight;
+        } else if (y + halfHeight > window.innerHeight - margin) {
+          y = window.innerHeight - margin - halfHeight;
+        }
+        
+        setAdjustedPosition({ x, y, transform: 'translate(-50%, -50%)' });
+      } catch (error) {
+        console.error('Error calculating popup position:', error);
       }
-      
-      setAdjustedPosition({ x, y, transform: `translate(${transformX}, ${transformY})` });
     };
 
-    // Calculate position immediately - DOM is ready after useEffect
-    calculatePosition();
+    // Calculate position after DOM is rendered
+    const rafId = requestAnimationFrame(() => {
+      calculatePosition();
+    });
     
     // Recalculate on window resize
     const handleResize = () => calculatePosition();
     window.addEventListener('resize', handleResize);
     
     return () => {
+      cancelAnimationFrame(rafId);
       window.removeEventListener('resize', handleResize);
     };
-  }, [targetElement]);
+  }, [clickPosition]);
 
   // Handle click outside
   useEffect(() => {

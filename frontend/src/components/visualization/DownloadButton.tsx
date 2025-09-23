@@ -12,38 +12,50 @@ import { useState } from "react";
 import type { DownloadFormat } from "@/types";
 
 const downloadOptions = [
-  { format: 'svg' as DownloadFormat, label: 'Download as SVG', icon: FileImage },
-  { format: 'png' as DownloadFormat, label: 'Download as PNG', icon: File },
-  { format: 'pdf' as DownloadFormat, label: 'Download as PDF', icon: FileText },
+  { format: "svg" as DownloadFormat, label: "Download as SVG", icon: FileImage },
+  { format: "png" as DownloadFormat, label: "Download as PNG", icon: File },
+  { format: "pdf" as DownloadFormat, label: "Download as PDF", icon: FileText },
 ];
 
 interface DownloadButtonProps {
   svgContent: string | null;
-  type: 'formal' | 'intuitive';
+  type: "formal" | "intuitive";
   title: string;
 }
 
-export const DownloadButton = ({ svgContent, type, title }: DownloadButtonProps) => {
+export const DownloadButton = ({
+  svgContent,
+  type,
+  title,
+}: DownloadButtonProps) => {
   const [isDownloading, setIsDownloading] = useState(false);
 
-  const handleDownload = async (format: DownloadFormat, event: React.MouseEvent) => {
+  const handleDownload = async (
+    format: DownloadFormat,
+    event: React.MouseEvent
+  ) => {
     event.stopPropagation(); // Prevent accordion toggle
     if (!svgContent) return;
-    
+
     setIsDownloading(true);
-    const toastId = toast.loading(`Preparing ${format.toUpperCase()} download...`);
-    
+    const toastId = toast.loading(
+      `Preparing ${format.toUpperCase()} download...`
+    );
+
     try {
       await downloadVisualization(svgContent, format, type);
       toast.success(`${format.toUpperCase()} file downloaded successfully!`, {
         id: toastId,
-        description: `${title} has been saved to your downloads folder.`
+        description: `${title} has been saved to your downloads folder.`,
       });
     } catch (error) {
-      console.error('Download failed:', error);
+      console.error("Download failed:", error);
       toast.error(`Failed to download ${format.toUpperCase()} file`, {
         id: toastId,
-        description: error instanceof Error ? error.message : 'An unexpected error occurred.'
+        description:
+          error instanceof Error
+            ? error.message
+            : "An unexpected error occurred.",
       });
     } finally {
       setIsDownloading(false);

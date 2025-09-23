@@ -2,8 +2,8 @@
 import { useRef, useEffect } from "react";
 import { AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { DownloadButton } from "./DownloadButton";
-import { useVisualInteraction } from "@/hooks/useVisualInteraction";
-import type { ComponentMapping } from "@/types/visualInteraction";
+import { useHighlighting } from "@/hooks/useHighlighting";
+import { useElementInteractions } from "@/hooks/useElementInteractions";
 import { useSVGResponsive } from "@/hooks/useSVGResponsive";
 import { useHighlightingContext } from "@/contexts/HighlightingContext";
 
@@ -12,10 +12,10 @@ interface VisualizationSectionProps {
   title: string;
   svgContent: string | null;
   error: string | null;
-  componentMappings: ComponentMapping;
   isOpen: boolean;
   mwpValue: string;
   onEmbeddedSVGClick: (dslPath: string, event: MouseEvent) => void;
+  onEntityQuantityClick: (dslPath: string, event: MouseEvent) => void;
   isSelectorOpen?: boolean;
 }
 
@@ -24,16 +24,15 @@ export const VisualizationSection = ({
   title,
   svgContent,
   error,
-  componentMappings,
   isOpen,
   mwpValue,
   onEmbeddedSVGClick,
+  onEntityQuantityClick,
   isSelectorOpen = false,
 }: VisualizationSectionProps) => {
   const svgRef = useRef<HTMLDivElement | null>(null);
 
-  // Use highlighting context
-  const { currentDSLPath, setDslHighlightRanges, setMwpHighlightRanges } = useHighlightingContext();
+  const { currentDSLPath } = useHighlightingContext();
 
   // Handle SVG responsiveness
   const { makeResponsive, setupResizeListener } = useSVGResponsive();
@@ -46,42 +45,29 @@ export const VisualizationSection = ({
     };
   }, [setupResizeListener]);
   
-  // Setup visual interactions
-  const {
-    setupSVGInteractions,
-  } = useVisualInteraction({
+  // Setup highlighting and interactions directly
+  const highlighting = useHighlighting({ svgRef, mwpValue });
+  const interactions = useElementInteractions({
     svgRef,
-    mwpValue,
-    componentMappings,
-    onDSLRangeHighlight: setDslHighlightRanges,
-    onMWPRangeHighlight: setMwpHighlightRanges,
-    currentDSLPath,
+    highlighting,
     onEmbeddedSVGClick,
+    onEntityQuantityClick,
     isSelectorOpen,
   });
 
-
-
-  // Handle SVG content injection and setup when accordion opens
+  // Inject SVG content, make it responsive, and attach interactions
   useEffect(() => {
-    if (isOpen && svgRef.current && typeof svgContent === 'string') {
-      // Check if SVG content is missing and inject it
-      if (!svgRef.current.innerHTML.includes('<svg')) {
-        svgRef.current.innerHTML = svgContent;
-        makeResponsive(svgRef.current);
-      }
-      // Always setup interactions when accordion is open
-      setupSVGInteractions();
-    }
-  }, [isOpen, svgContent, setupSVGInteractions, makeResponsive]);
+    if (!isOpen || !svgRef.current || typeof svgContent !== 'string') return;
+    svgRef.current.innerHTML = svgContent;
+    makeResponsive(svgRef.current);
+    interactions.setupSVGInteractions();
+    highlighting.setupTransformOrigins();
+  }, [isOpen, svgContent, makeResponsive, interactions, highlighting]);
 
-  // Apply responsive styling when SVG content changes
+  // Highlight the current DSL path (on DSL editor click)
   useEffect(() => {
-    if (svgRef.current && typeof svgContent === 'string') {
-      svgRef.current.innerHTML = svgContent;
-      makeResponsive(svgRef.current);
-    }
-  }, [svgContent, makeResponsive]);
+      highlighting.highlightCurrentDSLPath();
+  }, [currentDSLPath, highlighting]);
 
   return (
     <AccordionItem value={type} className="border rounded-lg !border-b">

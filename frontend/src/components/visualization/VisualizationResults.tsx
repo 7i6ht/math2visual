@@ -1,6 +1,5 @@
 import { Accordion } from "@/components/ui/accordion";
 import { useState, useEffect, useCallback } from "react";
-import type { ComponentMapping } from "@/types/visualInteraction";
 import { VisualizationSection } from "./VisualizationSection";
 import { MissingSVGSection } from "./MissingSVGSection";
 import { ParseErrorSection } from "./ParseErrorSection";
@@ -11,11 +10,11 @@ interface VisualizationResultsProps {
   svgIntuitive: string | null;
   intuitiveError: string | null;
   missingSVGEntities?: string[];
-  componentMappings?: ComponentMapping;
   mwpValue?: string;
   onRegenerateAfterUpload?: (toastId: string | undefined) => Promise<void>;
   onAllFilesUploaded?: () => void;
   onEmbeddedSVGClick: (dslPath: string, event: MouseEvent) => void;
+  onEntityQuantityClick: (dslPath: string, event: MouseEvent) => void;
   isSelectorOpen?: boolean;
 }
 
@@ -25,16 +24,16 @@ export const VisualizationResults = ({
   svgIntuitive,
   intuitiveError,
   missingSVGEntities = [],
-  componentMappings,
   mwpValue = '',
   onRegenerateAfterUpload,
   onAllFilesUploaded,
   onEmbeddedSVGClick,
+  onEntityQuantityClick,
   isSelectorOpen = false,
 }: VisualizationResultsProps) => {
 
   const [openAccordionItems, setOpenAccordionItems] = useState<string[]>([]);
-  
+    
   // Auto-expand error items when they're the only ones displayed
   const getDefaultAccordionItems = useCallback(() => {
     // Check for parse errors first
@@ -98,10 +97,10 @@ export const VisualizationResults = ({
               title="Formal"
               svgContent={svgFormal}
               error={filterMissingSvgError(formalError)}
-              componentMappings={componentMappings || {}}
               isOpen={openAccordionItems.includes("formal")}
               mwpValue={mwpValue}
               onEmbeddedSVGClick={onEmbeddedSVGClick}
+              onEntityQuantityClick={onEntityQuantityClick}
               isSelectorOpen={isSelectorOpen}
             />
 
@@ -110,10 +109,10 @@ export const VisualizationResults = ({
               title="Intuitive"
               svgContent={svgIntuitive}
               error={filterMissingSvgError(intuitiveError)}
-              componentMappings={componentMappings || {}}
               isOpen={openAccordionItems.includes("intuitive")}
               mwpValue={mwpValue}
               onEmbeddedSVGClick={onEmbeddedSVGClick}
+              onEntityQuantityClick={onEntityQuantityClick}
               isSelectorOpen={isSelectorOpen}
             />
           </>

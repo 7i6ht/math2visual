@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Search, Upload } from "lucide-react";
 import {
   DropdownMenu,
@@ -9,53 +9,32 @@ import {
 import { Button } from "@/components/ui/button";
 import { SVGSearchPopup } from "./SVGSearchPopup";
 import { SVGUploadPopup } from "./SVGUploadPopup";
+import { BasePopup } from "./BasePopup";
 
 interface SVGActionMenuProps {
   onClosePopup: () => void;
   onEmbeddedSVGChange: (newType: string) => Promise<void>;
-  targetElement: Element;
+  clickPosition: { x: number; y: number };
 }
 
 export const SVGActionMenu: React.FC<SVGActionMenuProps> = ({
   onClosePopup,
   onEmbeddedSVGChange,
-  targetElement,
+  clickPosition,
 }) => {
   const [activePopup, setActivePopup] = useState<"search" | "upload" | null>(
     null
   );
-  const containerRef = useRef<HTMLDivElement>(null);
 
   const handleClosePopup = useCallback(() => {
     setActivePopup(null);
     onClosePopup();
   }, [onClosePopup]);
-
-  useEffect(() => {
-    const handler = () => {
-      if (!activePopup) {
-        onClosePopup();
-      }
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, [activePopup, onClosePopup]);
-
-
-  const rect = targetElement.getBoundingClientRect();
   return (
     <>
       {/* Action Menu Dropdown */}
       {!activePopup && (
-        <div
-          ref={containerRef}
-          className="fixed z-[60]"
-          style={{
-            left: rect.left + rect.width / 2,
-            top: rect.top + rect.height / 2,
-            transform: "translate(-50%, -50%)",
-          }}
-        >
+        <BasePopup onClose={onClosePopup} clickPosition={clickPosition} className="p-0 !bg-transparent border-none shadow-none backdrop-blur-0">
           <DropdownMenu open={true}>
             <DropdownMenuTrigger asChild>
               <Button
@@ -82,7 +61,7 @@ export const SVGActionMenu: React.FC<SVGActionMenuProps> = ({
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-        </div>
+        </BasePopup>
       )}
 
       {/* Search Popup */}
@@ -90,7 +69,7 @@ export const SVGActionMenu: React.FC<SVGActionMenuProps> = ({
         <SVGSearchPopup
           onClose={handleClosePopup}
           onSelect={onEmbeddedSVGChange}
-          targetElement={targetElement}
+          clickPosition={clickPosition}
         />
       )}
 
@@ -99,7 +78,7 @@ export const SVGActionMenu: React.FC<SVGActionMenuProps> = ({
         <SVGUploadPopup
           onClose={handleClosePopup}
           onUpload={onEmbeddedSVGChange}
-          targetElement={targetElement}
+          clickPosition={clickPosition}
         />
       )}
     </>

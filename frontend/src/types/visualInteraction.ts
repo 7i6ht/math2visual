@@ -15,24 +15,6 @@ export interface ComponentMapping {
  * Props for the main useVisualInteraction hook
  * Provides all necessary dependencies and callback handlers
  */
-export interface UseVisualInteractionProps {
-  /** Reference to the SVG container element */
-  svgRef: React.RefObject<HTMLDivElement | null>;
-  /** Math Word Problem text for cross-highlighting */
-  mwpValue: string;
-  /** Component mappings for DSL path to property value mapping */
-  componentMappings: ComponentMapping;
-  /** Callback for highlighting ranges in the DSL editor */
-  onDSLRangeHighlight?: (ranges: Array<[number, number]>) => void;
-  /** Callback for highlighting ranges in the MWP text */
-  onMWPRangeHighlight?: (ranges: Array<[number, number]>) => void;
-  /** Current DSL path from cursor position in editor */
-  currentDSLPath?: string | null;
-  /** Callback for embedded SVG clicks */
-  onEmbeddedSVGClick: (dslPath: string, event: MouseEvent) => void;
-  /** Whether the SVG selector popup is currently open */
-  isSelectorOpen?: boolean;
-}
 
 /**
  * Configuration for highlight behavior
@@ -40,9 +22,9 @@ export interface UseVisualInteractionProps {
  */
 export interface HighlightConfig {
   /** Function to apply visual highlighting to SVG elements */
-  applyVisualHighlight: (mapping: any) => void;
+  applyVisualHighlight: () => void;
   /** Function to apply highlighting to MWP text */
-  applyMWPHighlight: (mapping: any) => void;
+  applyMWPHighlight: () => void;
 }
 
 /**

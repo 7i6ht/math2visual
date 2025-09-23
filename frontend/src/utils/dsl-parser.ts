@@ -79,12 +79,48 @@ function parseEntity(entity: string): ParsedEntity {
       } else if (key === 'entity_type') {
         entityDict.item!.entity_type = val;
       } else {
-        (entityDict as any)[key] = val;
+        (entityDict as unknown as { [key: string]: string })[key] = val;
       }
     }
   }
 
   return entityDict;
+}
+
+/**
+ * Normalize DSL string to single line for consistent parsing
+ */
+function normalizeDSLToSingleLine(dslStr: string): string {
+  return dslStr
+    .replace(/\n/g, ' ')         // Replace newlines with spaces
+    .replace(/\r/g, ' ')         // Replace carriage returns
+    .replace(/\t/g, ' ')         // Replace tabs
+    .replace(/  +/g, ' ')        // Collapse multiple spaces
+    .replace(/ ,/g, ',')         // Remove space before commas
+    .replace(/, /g, ',')         // Remove space after commas  
+    .replace(/ \[/g, '[')        // Remove space before brackets
+    .replace(/\[ /g, '[')        // Remove space after opening bracket
+    .replace(/ \]/g, ']')        // Remove space before closing bracket
+    .replace(/\] /g, ']')        // Remove space after closing bracket
+    .replace(/ \(/g, '(')        // Remove space before parentheses
+    .replace(/\( /g, '(')        // Remove space after opening parenthesis
+    .replace(/ \)/g, ')')        // Remove space before closing parenthesis
+    .replace(/\) /g, ')')        // Remove space after closing parenthesis
+    .replace(/ :/g, ':')         // Remove space before colons
+    .replace(/: /g, ':')         // Remove space after colons
+    .trim();
+}
+
+/**
+ * Safely parse DSL string with error handling
+ */
+export function parseWithErrorHandling(dslStr: string): ParsedOperation | null {
+  try {
+    return parseDSL(normalizeDSLToSingleLine(dslStr));
+  } catch (error) {
+    console.error('Failed to parse DSL:', error);
+    return null;
+  }
 }
 
 export function parseDSL(dslStr: string, currentPath: string = ''): ParsedOperation {
@@ -110,7 +146,7 @@ export function parseDSL(dslStr: string, currentPath: string = ''): ParsedOperat
     } else {
       const entityDict = parseEntity(entity);
       entityDict._dsl_path = entityPath;
-      if ((entityDict as any).name === 'result_container') {
+      if (entityDict.name === 'result_container') {
         entityDict._dsl_path = `${operationPath}/result_container`;
         resultContainer = entityDict;
       } else {
@@ -121,7 +157,7 @@ export function parseDSL(dslStr: string, currentPath: string = ''): ParsedOperat
 
   return {
     operation,
-    entities: parsedEntities as any,
+    entities: parsedEntities as ParsedEntity[] | ParsedOperation[],
     result_container: resultContainer
   };
 }

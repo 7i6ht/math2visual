@@ -10,9 +10,10 @@ import {
 } from "@/components/ui/form";
 import { ErrorDisplay } from "@/components/ui/error-display";
 import { useMathProblemForm } from "@/hooks/useMathProblemForm";
+import type { ParsedOperation } from "@/utils/dsl-parser";
 
 interface MathProblemFormProps {
-  onSuccess: (vl: string, svgFormal: string | null, svgIntuitive: string | null, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], mwp?: string, formula?: string) => void;
+  onSuccess: (vl: string, svgFormal: string | null, svgIntuitive: string | null, parsedDSL: ParsedOperation, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], mwp?: string, formula?: string) => void;
   onLoadingChange: (loading: boolean, abortFn?: () => void) => void;
   onReset: () => void;
   mwp?: string;
