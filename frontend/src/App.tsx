@@ -50,6 +50,7 @@ function AppContent() {
   // Use DSL context for centralized DSL state
   const {
     formattedDSL,
+    parsedDSL,
     componentMappings: contextComponentMappings,
     setGenerationResult,
   } = useDSLContext();
@@ -90,6 +91,7 @@ function AppContent() {
         data.svg_formal,
         data.svg_intuitive,
         data.parsedDSL,
+        parsedDSL!, // current parsed DSL for comparison
         data.formal_error ?? undefined,
         data.intuitive_error ?? undefined,
         data.missing_svg_entities,
@@ -124,6 +126,7 @@ function AppContent() {
     nextSvgFormal: string | null,
     nextSvgIntuitive: string | null,
     nextParsedDSL: ParsedOperation,
+    currentParsedDSL: ParsedOperation,
     nextFormalError?: string,
     nextIntuitiveError?: string,
     nextMissing?: string[],
@@ -134,7 +137,7 @@ function AppContent() {
     // Compute MWP updates from DSL diffs when override not provided
     let nextMWP = nextMWPOverride ?? mwp;
     if (!nextMWPOverride) {
-      const changes = detectDSLChanges(formattedDSL ?? "", nextVL);
+      const changes = detectDSLChanges(currentParsedDSL, nextParsedDSL);
       if (changes.length > 0) {
         nextMWP = updateMWPText(mwp, changes);
       }

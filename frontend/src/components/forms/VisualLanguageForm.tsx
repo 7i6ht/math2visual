@@ -13,7 +13,7 @@ import type { ParsedOperation } from "@/utils/dsl-parser";
 import { useDSLContext } from "@/contexts/DSLContext";
 
 interface VisualLanguageFormProps {
-  onResult: (vl: string, svgFormal: string | null, svgIntuitive: string | null, parsedDSL: ParsedOperation, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], mwp?: string, formula?: string, componentMappings?: ComponentMapping) => void;
+  onResult: (vl: string, svgFormal: string | null, svgIntuitive: string | null, parsedDSL: ParsedOperation, currentParsedDSL: ParsedOperation, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], mwp?: string, formula?: string, componentMappings?: ComponentMapping) => void;
   onLoadingChange: (loading: boolean, abortFn?: () => void) => void;
   highlightRanges?: Array<[number, number]>;
   onDSLPathHighlight?: (dslPath: string | null) => void;
@@ -27,13 +27,12 @@ export const VisualLanguageForm = ({
   onDSLPathHighlight,
   componentMappings,
 }: VisualLanguageFormProps) => {
-  const { componentMappings: contextMappings, formattedDSL } = useDSLContext();
+  const { componentMappings: contextMappings } = useDSLContext();
   const effectiveMappings = componentMappings ?? contextMappings ?? {} as ComponentMapping;
   const { 
     form, 
     handleDebouncedChange,
   } = useVisualLanguageForm({
-    vl: formattedDSL ?? null,
     onResult,
     onLoadingChange,
   });

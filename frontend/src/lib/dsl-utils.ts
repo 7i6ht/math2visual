@@ -1,4 +1,5 @@
 import { numberToWord } from '@/utils/numberUtils';
+import type { ParsedOperation, ParsedEntity } from '@/utils/dsl-parser';
 
 /**
  * DSL parsing and MWP text update utilities
@@ -20,131 +21,91 @@ export interface DSLChange {
 }
 
 /**
- * Parse DSL string to extract entity information (supports nested structures)
+ * Parse DSL object to extract entity information (supports nested structures)
  */
-export function parseDSLEntities(dsl: string): EntityInfo[] {
+export function parseDSLEntities(parsedDSL: ParsedOperation): EntityInfo[] {
   const entities: EntityInfo[] = [];
   
   try {
-    // Remove the operation wrapper and extract entities (support multi-line with [\s\S]*)
-    const operationMatch = dsl.match(/^(\w+)\s*\(([\s\S]*)\)$/);
-    if (!operationMatch) return entities;
-    
-    const [, , content] = operationMatch;
-    const entityStrings = splitEntities(content);
-    
-    // Recursively parse entities, handling nested operations
-    entityStrings.forEach((entityStr, index) => {
-      if (isNestedOperation(entityStr)) {
-        // Recursively parse nested operations
-        const nestedEntities = parseDSLEntities(entityStr);
-        nestedEntities.forEach(nestedEntity => {
-          // Update the path to reflect nesting
-          nestedEntity.dslPath = `entities[${index}]/${nestedEntity.dslPath}`;
-          entities.push(nestedEntity);
-        });
-      } else {
-        // Parse regular entity
-        const entity = parseEntity(entityStr, index);
-        if (entity) {
-          entities.push(entity);
-        }
-      }
-    });
+    // Recursively extract entities from the parsed DSL object
+    extractEntitiesRecursive(parsedDSL, entities);
   } catch (error) {
-    console.warn('Failed to parse DSL:', error);
-    }
+    console.warn('Failed to parse DSL entities:', error);
+  }
   
   return entities;
 }
 
 /**
- * Check if a string represents a nested operation
+ * Recursively extract entities from parsed DSL structure
  */
-function isNestedOperation(str: string): boolean {
-  // Look for patterns like "operation(...)" 
-  return /^\w+\s*\(/.test(str.trim());
-}
-
-/**
- * Split entity strings while respecting brackets and parentheses
- */
-function splitEntities(content: string): string[] {
-  const entities: string[] = [];
-  let balance = 0;
-  let buffer = '';
+function extractEntitiesRecursive(operation: ParsedOperation, entities: EntityInfo[], parentPath: string = ''): void {
+  const operationPath = parentPath ? `${parentPath}/operation` : 'operation';
   
-  for (const char of content) {
-    if (char === '[' || char === '(') balance++;
-    if (char === ']' || char === ')') balance--;
+  // Process all entities in this operation
+  operation.entities.forEach((entity, index) => {
+    const entityPath = `${operationPath}/entities[${index}]`;
     
-    if (char === ',' && balance === 0) {
-      entities.push(buffer.trim());
-      buffer = '';
+    if ('operation' in entity) {
+      // This is a nested operation, recurse
+      extractEntitiesRecursive(entity as ParsedOperation, entities, entityPath);
     } else {
-      buffer += char;
+      // This is a regular entity
+      const parsedEntity = entity as ParsedEntity;
+      const entityInfo = extractEntityInfo(parsedEntity, entityPath);
+      if (entityInfo) {
+        entities.push(entityInfo);
+      }
+    }
+  });
+  
+  // Process result container if it exists
+  if (operation.result_container) {
+    const resultPath = `${operationPath}/result_container`;
+    const entityInfo = extractEntityInfo(operation.result_container, resultPath);
+    if (entityInfo) {
+      entities.push(entityInfo);
     }
   }
-  
-  if (buffer.trim()) {
-    entities.push(buffer.trim());
-  }
-  
-  return entities;
 }
 
 /**
- * Parse individual entity string
+ * Extract entity information from a ParsedEntity
  */
-function parseEntity(entityStr: string, index: number): EntityInfo | null {
+function extractEntityInfo(entity: ParsedEntity, dslPath: string): EntityInfo | null {
   try {
-    // Support multi-line entity blocks with [\s\S]* inside brackets
-    const entityMatch = entityStr.match(/^(\w+)\[([\s\S]*)\]$/);
-    if (!entityMatch) return null;
+    // Get entity name - try multiple possible locations
+    const entityName = entity.entity_name || entity.name || '';
     
-    const [, , content] = entityMatch;
-    const parts = content.split(',').map(p => p.trim());
+    // Get entity quantity - try multiple possible locations
+    const entityQuantity = entity.entity_quantity || entity.item?.entity_quantity || 0;
     
-    const entity: Partial<EntityInfo> = {
-      dslPath: `entities[${index}]`,
-    };
+    // Get container name
+    const containerName = entity.container_name || '';
     
-    parts.forEach(part => {
-      if (part.includes(':')) {
-        const [key, value] = part.split(':', 2).map(s => s.trim());
-        
-        switch (key) {
-          case 'entity_name':
-            entity.entityName = value;
-            break;
-          case 'entity_quantity':
-            entity.entityQuantity = parseFloat(value) || 0;
-            break;
-          case 'container_name':
-            entity.containerName = value;
-            break;
-        }
-      }
-    });
-    
-    // Ensure required fields exist
-    if (entity.entityName !== undefined) {
-      return entity as EntityInfo;
+    if (entityName) {
+      return {
+        entityName,
+        entityQuantity,
+        containerName,
+        dslPath,
+      };
     }
     
     return null;
   } catch (error) {
-    console.warn('Failed to parse entity:', entityStr, error);
+    console.warn('Failed to extract entity info:', entity, error);
     return null;
   }
 }
 
+
 /**
- * Detect changes between old and new DSL (supports nested structures)
+ * Detect changes between old and new parsed DSL objects (supports nested structures)
  */
-export function detectDSLChanges(oldDSL: string, newDSL: string): DSLChange[] {
-  const oldEntities = parseDSLEntities(oldDSL);
-  const newEntities = parseDSLEntities(newDSL);
+export function detectDSLChanges(oldParsedDSL: ParsedOperation, newParsedDSL: ParsedOperation): DSLChange[] {
+  const oldEntities = parseDSLEntities(oldParsedDSL);
+  const newEntities = parseDSLEntities(newParsedDSL);
   const changes: DSLChange[] = [];
   
   // Check for changes in existing entities
