@@ -81,7 +81,7 @@ export const GearLoading = ({
       </div>
       
       {/* Right: Content with better typography and spacing */}
-      <div className="flex flex-col items-start space-y-4">
+      <div className="flex flex-col items-start space-y-2">
         {/* Message with improved typography */}
         <div className="text-left">
           <span className={`font-bold text-foreground tracking-wide ${config.message}`}>
