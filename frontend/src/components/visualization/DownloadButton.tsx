@@ -4,6 +4,8 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Download, FileImage, File, FileText } from "lucide-react";
 import { downloadVisualization } from "@/utils/download";
@@ -12,9 +14,9 @@ import { useState } from "react";
 import type { DownloadFormat } from "@/types";
 
 const downloadOptions = [
-  { format: "svg" as DownloadFormat, label: "Download as SVG", icon: FileImage },
-  { format: "png" as DownloadFormat, label: "Download as PNG", icon: File },
-  { format: "pdf" as DownloadFormat, label: "Download as PDF", icon: FileText },
+  { format: "svg" as DownloadFormat, label: "SVG", icon: FileImage },
+  { format: "png" as DownloadFormat, label: "PNG", icon: File },
+  { format: "pdf" as DownloadFormat, label: "PDF", icon: FileText },
 ];
 
 interface DownloadButtonProps {
@@ -77,7 +79,11 @@ export const DownloadButton = ({
           <Download className="w-4 h-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48">
+      <DropdownMenuContent align="end" className="w-fit min-w-0">
+        <DropdownMenuLabel className="px-2 py-1.5 text-sm text-muted-foreground cursor-default select-none">
+          Download
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
         {downloadOptions.map((option) => (
           <DropdownMenuItem
             key={option.format}
