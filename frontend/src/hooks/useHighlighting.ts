@@ -31,17 +31,6 @@ export const useHighlighting = ({
   const mappings: ComponentMapping = (componentMappings || {}) as ComponentMapping;
 
   /**
-   * Clear all visual highlights from SVG elements
-   */
-  const clearVisualHighlights = useCallback(() => {
-    const allInteractiveElements = svgRef.current?.querySelectorAll('[data-dsl-path]');
-    allInteractiveElements?.forEach(elem => {
-      const svgElem = elem as SVGElement;
-      svgElem.classList.remove('highlighted-box', 'highlighted-text', 'highlighted-operation', 'highlighted-svg');
-    });
-  }, [svgRef]);
-
-  /**
    * Clear highlight on a specific SVG element. If className is omitted,
    * remove all our highlight classes from that element only.
    */
@@ -51,17 +40,6 @@ export const useHighlighting = ({
     onMWPRangeHighlight([]);
     onDSLRangeHighlight([]);
   }, [onMWPRangeHighlight, onDSLRangeHighlight]);
-
-  /**
-   * Clear all highlights (visual, DSL, and MWP)
-   */
-  const clearAllHighlights = useCallback(() => {
-    clearVisualHighlights();
-
-    // Clear DSL and MWP highlights
-    onDSLRangeHighlight([]);
-    onMWPRangeHighlight([]);
-  }, [clearVisualHighlights, onDSLRangeHighlight, onMWPRangeHighlight]);
 
   /**
    * Set transform origin for embedded SVG elements using position attributes
@@ -93,8 +71,6 @@ export const useHighlighting = ({
     mapping: { dsl_range?: [number, number] } | undefined,
     config: HighlightConfig
   ) => {
-    // Clear previous highlights regardless of mapping
-    clearVisualHighlights();
 
     // Apply specific visual highlighting
     config.applyVisualHighlight();
@@ -104,7 +80,7 @@ export const useHighlighting = ({
 
     // Apply MWP highlighting
     config.applyMWPHighlight();
-  }, [clearVisualHighlights, onDSLRangeHighlight]);
+  }, [onDSLRangeHighlight]);
 
   /**
    * Find and highlight the sentence containing the second operand of an operation
@@ -202,9 +178,6 @@ export const useHighlighting = ({
     const quantity = mapping?.property_value;
     const quantityNum = quantity ? Number(quantity) : NaN;
     
-    // Clear previous highlights
-    clearVisualHighlights();
-    
     // Apply visual highlighting based on quantity threshold
     if (!Number.isNaN(quantityNum) && quantityNum <= MAX_ITEM_DISPLAY) {
       // Highlight all individual embedded SVGs for quantities below threshold
@@ -239,7 +212,7 @@ export const useHighlighting = ({
         onMWPRangeHighlight([]);
       }
     }
-  }, [clearVisualHighlights, setSvgTransformOrigin, svgRef, mappings, mwpValue, onMWPRangeHighlight, onDSLRangeHighlight]);
+  }, [setSvgTransformOrigin, svgRef, mappings, mwpValue, onMWPRangeHighlight, onDSLRangeHighlight]);
 
   /**
    * Trigger highlighting for operation components
@@ -477,7 +450,6 @@ export const useHighlighting = ({
   const highlightCurrentDSLPath = useCallback(() => {
   
     if (!currentDSLPath) {
-      clearVisualHighlights();
       return;
     }
 
@@ -508,15 +480,10 @@ export const useHighlighting = ({
     } else if (basePath.endsWith('entities')) {
       // Special case for entity containers (boxes)
       triggerBoxHighlight(currentDSLPath);
-    } else {
-      // For any other path type, just clear highlights
-      clearVisualHighlights();
     }
-  }, [currentDSLPath, clearVisualHighlights, triggerEntityQuantityHighlight, triggerContainerNameHighlight, triggerEmbeddedSvgHighlight, triggerContainerTypeHighlight, triggerBoxHighlight, triggerOperationHighlight]);
+  }, [currentDSLPath, triggerEntityQuantityHighlight, triggerContainerNameHighlight, triggerEmbeddedSvgHighlight, triggerContainerTypeHighlight, triggerBoxHighlight, triggerOperationHighlight]);
 
   const returnValue = useMemo(() => ({
-    clearVisualHighlights,
-    clearAllHighlights,
     clearHighlightForElement,
     setupTransformOrigins,
     triggerBoxHighlight,
@@ -528,8 +495,6 @@ export const useHighlighting = ({
     triggerResultContainerHighlight,
     highlightCurrentDSLPath,
   }), [
-    clearVisualHighlights,
-    clearAllHighlights,
     clearHighlightForElement,
     setupTransformOrigins,
     triggerBoxHighlight,
