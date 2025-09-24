@@ -138,7 +138,7 @@ export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
         <div className="flex items-center">
           {uploadFile && (
             <button
-              className="text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 p-1 sm:p-1.5 transition-colors duration-200 flex items-center justify-center touch-manipulation"
+              className="h-9 w-9 text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 transition-colors duration-200 flex items-center justify-center touch-manipulation"
               title={`View ${uploadFile.name} in new tab`}
               onClick={() => {
                 const url = URL.createObjectURL(uploadFile);
