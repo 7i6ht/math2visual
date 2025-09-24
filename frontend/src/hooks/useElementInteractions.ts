@@ -5,6 +5,7 @@ interface UseElementInteractionsProps {
   svgRef: React.RefObject<HTMLDivElement | null>;
   highlighting: {
     clearAllHighlights: () => void;
+    clearHighlightForElement: (element: SVGElement, className: 'highlighted-box' | 'highlighted-text' | 'highlighted-operation' | 'highlighted-svg') => void;
     triggerBoxHighlight: (dslPath: string) => void;
     triggerEntityQuantityHighlight: (dslPath: string) => void;
     triggerOperationHighlight: (dslPath: string) => void;
@@ -21,6 +22,7 @@ interface UseElementInteractionsProps {
 
 interface ElementListenerConfig {
   onMouseEnter: () => void;
+  onMouseLeave: () => void;
   extraSetup?: () => void;
 }
 
@@ -37,19 +39,11 @@ export const useElementInteractions = ({
   isSelectorOpen = false,
 }: UseElementInteractionsProps) => {
   /**
-   * Clear all highlights and reset hover state
-   */
-  const clearHighlights = useCallback(() => {
-    highlighting.clearAllHighlights();
-  }, [highlighting]);
-
-
-  /**
    * Setup mouseenter and related listeners for a specific SVG element
    */
   const setupMouseEnterListener = useCallback((
     svgElem: SVGElement,
-    config: ElementListenerConfig
+    config: ElementListenerConfig,
   ) => {
     // Remove existing listeners
     svgElem.onmouseenter = null;
@@ -63,11 +57,10 @@ export const useElementInteractions = ({
 
     // Add event listeners
     svgElem.onmouseenter = config.onMouseEnter;
-    svgElem.onmouseleave = clearHighlights;
-
+    svgElem.onmouseleave = config.onMouseLeave;
     setCursorStyle(svgElem, 'pointer');
     config.extraSetup?.();
-  }, [clearHighlights, isSelectorOpen]);
+  }, [isSelectorOpen]);
 
   /**
    * Setup operation element interactions
@@ -76,6 +69,9 @@ export const useElementInteractions = ({
     setupMouseEnterListener(svgElem, {
       onMouseEnter: () => {
         highlighting.triggerOperationHighlight(dslPath);
+      },
+      onMouseLeave: () => {
+        highlighting.clearHighlightForElement(svgElem, 'highlighted-operation');
       }
     });
   }, [setupMouseEnterListener, highlighting]);
@@ -87,6 +83,9 @@ export const useElementInteractions = ({
     setupMouseEnterListener(svgElem, {
       onMouseEnter: () => {
         highlighting.triggerBoxHighlight(dslPath);
+      },
+      onMouseLeave: () => {
+        highlighting.clearHighlightForElement(svgElem, 'highlighted-box');
       }
     });
 
@@ -105,6 +104,9 @@ export const useElementInteractions = ({
     setupMouseEnterListener(svgElem, {
       onMouseEnter: () => {
         highlighting.triggerEntityQuantityHighlight(quantityDslPath);
+      },
+      onMouseLeave: () => {
+        highlighting.clearHighlightForElement(svgElem, 'highlighted-text');
       },
       extraSetup: () => {
         svgElem.style.pointerEvents = 'auto';
@@ -126,6 +128,9 @@ export const useElementInteractions = ({
     setupMouseEnterListener(svgElem, {
       onMouseEnter: () => {
         highlighting.triggerEmbeddedSvgHighlight(dslPath);
+      },
+      onMouseLeave: () => {
+        highlighting.clearHighlightForElement(svgElem, 'highlighted-svg');
       }
     });
 
@@ -142,6 +147,9 @@ export const useElementInteractions = ({
     setupMouseEnterListener(svgElem, {
       onMouseEnter: () => {
         highlighting.triggerContainerTypeHighlight(dslPath);
+      },
+      onMouseLeave: () => {
+        highlighting.clearHighlightForElement(svgElem, 'highlighted-svg');
       }
     });
 
@@ -158,6 +166,9 @@ export const useElementInteractions = ({
     setupMouseEnterListener(svgElem, {
       onMouseEnter: () => {
         highlighting.triggerContainerNameHighlight(dslPath);
+      },
+      onMouseLeave: () => {
+        highlighting.clearHighlightForElement(svgElem, 'highlighted-svg');
       }
     });
 
@@ -174,6 +185,9 @@ export const useElementInteractions = ({
     setupMouseEnterListener(svgElem, {
       onMouseEnter: () => {
         highlighting.triggerResultContainerHighlight(dslPath);
+      },
+      onMouseLeave: () => {
+        highlighting.clearHighlightForElement(svgElem, 'highlighted-box');
       }
     });
   }, [setupMouseEnterListener, highlighting]);
@@ -226,8 +240,7 @@ export const useElementInteractions = ({
 
   const returnValue = useMemo(() => ({
     setupSVGInteractions,
-    clearHighlights,
-  }), [setupSVGInteractions, clearHighlights]);
+  }), [setupSVGInteractions]);
 
   return returnValue;
 };

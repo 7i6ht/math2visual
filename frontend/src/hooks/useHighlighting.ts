@@ -42,6 +42,17 @@ export const useHighlighting = ({
   }, [svgRef]);
 
   /**
+   * Clear highlight on a specific SVG element. If className is omitted,
+   * remove all our highlight classes from that element only.
+   */
+  const clearHighlightForElement = useCallback((element: SVGElement, className: 'highlighted-box' | 'highlighted-text' | 'highlighted-operation' | 'highlighted-svg') => {
+    element.classList.remove(className);
+    // Clear DSL and MWP highlights
+    onMWPRangeHighlight([]);
+    onDSLRangeHighlight([]);
+  }, [onMWPRangeHighlight, onDSLRangeHighlight]);
+
+  /**
    * Clear all highlights (visual, DSL, and MWP)
    */
   const clearAllHighlights = useCallback(() => {
@@ -506,6 +517,7 @@ export const useHighlighting = ({
   const returnValue = useMemo(() => ({
     clearVisualHighlights,
     clearAllHighlights,
+    clearHighlightForElement,
     setupTransformOrigins,
     triggerBoxHighlight,
     triggerEntityQuantityHighlight,
@@ -518,6 +530,7 @@ export const useHighlighting = ({
   }), [
     clearVisualHighlights,
     clearAllHighlights,
+    clearHighlightForElement,
     setupTransformOrigins,
     triggerBoxHighlight,
     triggerEntityQuantityHighlight,
