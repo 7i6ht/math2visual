@@ -15,13 +15,11 @@ import { useHighlightingContext } from "@/contexts/HighlightingContext";
 interface SVGActionMenuProps {
   onClosePopup: () => void;
   onEmbeddedSVGChange: (newType: string) => Promise<void>;
-  clickPosition: { x: number; y: number };
 }
 
 export const SVGActionMenu: React.FC<SVGActionMenuProps> = ({
   onClosePopup,
   onEmbeddedSVGChange,
-  clickPosition,
 }) => {
   const [activePopup, setActivePopup] = useState<"search" | "upload" | null>(
     null
@@ -51,7 +49,7 @@ export const SVGActionMenu: React.FC<SVGActionMenuProps> = ({
     <>
       {/* Action Menu Dropdown */}
       {!activePopup && (
-        <BasePopup onClose={onClosePopup} clickPosition={clickPosition} className="p-0 !bg-transparent border-none shadow-none backdrop-blur-0">
+        <BasePopup onClose={onClosePopup} className="p-0 !bg-transparent border-none shadow-none backdrop-blur-0">
           <DropdownMenu open={true}>
             <DropdownMenuTrigger asChild>
               <Button
@@ -86,7 +84,6 @@ export const SVGActionMenu: React.FC<SVGActionMenuProps> = ({
         <SVGSearchPopup
           onClose={handleClosePopup}
           onSelect={onEmbeddedSVGChange}
-          clickPosition={clickPosition}
         />
       )}
 
@@ -95,7 +92,6 @@ export const SVGActionMenu: React.FC<SVGActionMenuProps> = ({
         <SVGUploadPopup
           onClose={handleClosePopup}
           onUpload={onEmbeddedSVGChange}
-          clickPosition={clickPosition}
         />
       )}
     </>

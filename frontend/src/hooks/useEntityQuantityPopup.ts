@@ -9,7 +9,6 @@ import type { ComponentMapping } from '@/types/visualInteraction';
 interface EntityQuantityPopupState {
   isOpen: boolean;
   dslPath: string;
-  clickPosition: { x: number; y: number };
 }
 
 interface UseEntityQuantityPopupProps {
@@ -33,7 +32,6 @@ export const useEntityQuantityPopup = ({
   const [popupState, setPopupState] = useState<EntityQuantityPopupState>({
     isOpen: false,
     dslPath: '',
-    clickPosition: { x: 0, y: 0 },
   });
 
   /**
@@ -50,7 +48,6 @@ export const useEntityQuantityPopup = ({
     setPopupState({
       isOpen: true,
       dslPath,
-      clickPosition: { x: event.clientX, y: event.clientY },
     });
   }, [setCurrentTargetElement]);
 
@@ -62,7 +59,6 @@ export const useEntityQuantityPopup = ({
     setPopupState({
       isOpen: false,
       dslPath: '',
-      clickPosition: { x: 0, y: 0 },
     });
   }, [clearCurrentTargetElement]);
 

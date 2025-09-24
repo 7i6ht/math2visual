@@ -11,14 +11,12 @@ interface ContainerNamePopupProps {
   onClose: () => void;
   onUpdate: (newContainerName: string) => Promise<void>;
   dslPath: string;
-  clickPosition: { x: number; y: number };
 }
 
 export const ContainerNamePopup: React.FC<ContainerNamePopupProps> = ({
   onClose,
   onUpdate,
   dslPath,
-  clickPosition,
 }) => {
   const [containerName, setContainerName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -80,7 +78,6 @@ export const ContainerNamePopup: React.FC<ContainerNamePopupProps> = ({
     <BasePopup
       onClose={onClose}
       onKeyDown={handlePopupKeyDown}
-      clickPosition={clickPosition}
       className="w-fit max-w-[95vw]"
     >
       <div className="flex flex-col gap-2">

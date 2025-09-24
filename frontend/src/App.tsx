@@ -361,7 +361,6 @@ function AppContent() {
         <SVGActionMenu
           onClosePopup={closeSelector}
           onEmbeddedSVGChange={handleEmbeddedSVGChange}
-          clickPosition={selectorState.clickPosition}
         />
       )}
 
@@ -371,7 +370,6 @@ function AppContent() {
           onClose={closeQuantityPopup}
           onUpdate={updateEntityQuantity}
           dslPath={quantityPopupState.dslPath}
-          clickPosition={quantityPopupState.clickPosition}
         />
       )}
 
@@ -381,7 +379,6 @@ function AppContent() {
           onClose={closeContainerNamePopup}
           onUpdate={updateContainerName}
           dslPath={containerNamePopupState.dslPath}
-          clickPosition={containerNamePopupState.clickPosition}
         />
       )}
 

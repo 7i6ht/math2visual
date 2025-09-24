@@ -10,7 +10,6 @@ interface SVGSelectorState {
   isOpen: boolean;
   dslPath: string;
   currentValue: string;
-  clickPosition: { x: number; y: number };
 }
 
 interface UseSVGSelectorProps {
@@ -37,7 +36,6 @@ export const useSVGSelector = ({
     isOpen: false,
     dslPath: '',
     currentValue: '',
-    clickPosition: { x: 0, y: 0 },
   });
 
   // Close the selector and clear highlight
@@ -50,7 +48,6 @@ export const useSVGSelector = ({
     setSelectorState(prev => ({
       ...prev,
       isOpen: false,
-      clickPosition: { x: 0, y: 0 },
     }));
     console.log('🎯 [closeSelector] END');
   }, [setCurrentDSLPath, clearCurrentTargetElement]);
@@ -73,7 +70,6 @@ export const useSVGSelector = ({
       isOpen: true,
       dslPath: dslPath,
       currentValue,
-      clickPosition: { x: event.clientX, y: event.clientY },
     });
     console.log('🎯 [openSelector] END');
   }, [setCurrentDSLPath, setCurrentTargetElement]);

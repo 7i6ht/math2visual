@@ -7,7 +7,6 @@ interface BasePopupProps {
   children: ReactNode;
   className?: string;
   onKeyDown?: (event: KeyboardEvent) => void;
-  clickPosition: { x: number; y: number }; // Click position for positioning
 }
 
 interface AdjustedPosition {
@@ -21,15 +20,25 @@ export const BasePopup: React.FC<BasePopupProps> = ({
   children,
   className = "min-w-[200px] max-w-[95vw] max-h-[90vh] w-[min(95vw,320px)] sm:w-[min(90vw,280px)]",
   onKeyDown,
-  clickPosition
+  
 }) => {
   const { currentTargetElement } = useHighlightingContext();
   const popupRef = useRef<HTMLDivElement>(null);
   const [adjustedPosition, setAdjustedPosition] = useState<AdjustedPosition>(() => {
-    // Initialize with click position
+    // Initialize using currentTargetElement position if available
+    if (currentTargetElement) {
+      const targetRect = currentTargetElement.getBoundingClientRect();
+      return {
+        x: targetRect.left + targetRect.width / 2,
+        y: targetRect.top + targetRect.height / 2,
+        transform: 'translate(-50%, -50%)'
+      };
+    }
+    
+    // Fallback to center if no target element
     return {
-      x: clickPosition.x,
-      y: clickPosition.y,
+      x: window.innerWidth / 2,
+      y: window.innerHeight / 2,
       transform: 'translate(-50%, -50%)'
     };
   });
@@ -46,7 +55,8 @@ export const BasePopup: React.FC<BasePopupProps> = ({
         const rect = popupRef.current.getBoundingClientRect();
         const margin = 16;
         
-        let { x, y } = { x: clickPosition.x, y: clickPosition.y };
+        let x = window.innerWidth / 2;
+        let y = window.innerHeight / 2;
         
         // Use target element's current position instead of click position
         if (currentTargetElement) {
@@ -56,7 +66,7 @@ export const BasePopup: React.FC<BasePopupProps> = ({
           y = targetRect.top + targetRect.height / 2;
         } else {
           // This should never happen when a popup is open - log for debugging
-          console.warn('BasePopup: No target element available for positioning, falling back to click position');
+          console.warn('BasePopup: No target element available for positioning, centering popup');
         }
         
         const halfWidth = rect.width / 2;
@@ -94,7 +104,7 @@ export const BasePopup: React.FC<BasePopupProps> = ({
       cancelAnimationFrame(rafId);
       window.removeEventListener('resize', handleResize);
     };
-  }, [clickPosition, currentTargetElement]);
+  }, [currentTargetElement]);
 
   // Handle click outside
   useEffect(() => {

@@ -11,14 +11,12 @@ interface EntityQuantityPopupProps {
   onClose: () => void;
   onUpdate: (newQuantity: number) => Promise<void>;
   dslPath: string;
-  clickPosition: { x: number; y: number };
 }
 
 export const EntityQuantityPopup: React.FC<EntityQuantityPopupProps> = ({
   onClose,
   onUpdate,
   dslPath,
-  clickPosition,
 }) => {
   const [quantity, setQuantity] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -99,7 +97,6 @@ export const EntityQuantityPopup: React.FC<EntityQuantityPopupProps> = ({
     <BasePopup
       onClose={onClose}
       onKeyDown={handlePopupKeyDown}
-      clickPosition={clickPosition}
       className="min-w-fit max-w-[95vw] w-fit"
     >
       <div className="flex flex-col gap-2">
