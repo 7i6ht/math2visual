@@ -237,11 +237,10 @@ function AppContent() {
                   Generating Pedagogically Meaningful Visuals for Math Word
                   Problems
                 </p>
-                <div className="w-32 h-1 bg-primary/30 mx-auto rounded-full"></div>
               </div>
 
               {/* Centered Math Problem Form */}
-              <div className="w-full max-w-4xl mb-6">
+              <div className="w-full max-w-4xl mt-6 mb-6">
                 <MathProblemForm
                   onSuccess={setResults}
                   onLoadingChange={(loading, abortFn) => {
