@@ -37,10 +37,7 @@ export const useHighlighting = ({
     const allInteractiveElements = svgRef.current?.querySelectorAll('[data-dsl-path]');
     allInteractiveElements?.forEach(elem => {
       const svgElem = elem as SVGElement;
-      // Remove all highlighting CSS classes
       svgElem.classList.remove('highlighted-box', 'highlighted-text', 'highlighted-operation', 'highlighted-svg');
-      // Clear transformOrigin since we still set it in JavaScript for positioning
-      svgElem.style.transformOrigin = '';
     });
   }, [svgRef]);
 
@@ -70,39 +67,13 @@ export const useHighlighting = ({
     svgElem.style.transformOrigin = `${centerX}px ${centerY}px`;
   }, []);
 
-  /**
-   * Set transform origin for group elements (operations) using getBBox for accurate positioning
-   */
-  const setGroupTransformOrigin = useCallback((groupElem: SVGElement) => {
-    try {
-      const gElement = groupElem as SVGGraphicsElement;
-      const bbox = gElement.getBBox();
-      const centerX = bbox.x + bbox.width / 2;
-      const centerY = bbox.y + bbox.height / 2;
-      
-      groupElem.style.transformOrigin = `${centerX}px ${centerY}px`;
-    } catch {
-      // Fallback to center if getBBox fails
-      groupElem.style.transformOrigin = 'center';
-    }
-  }, []);
-
-  /**
-   * Setup transform origins for all interactive elements to ensure proper scaling
-   */
   const setupTransformOrigins = useCallback(() => {
     // Handle SVG elements using position attributes
     const allSvgElements = svgRef.current?.querySelectorAll('svg[data-dsl-path]');
     allSvgElements?.forEach(elem => {
       setSvgTransformOrigin(elem as SVGElement);
     });
-    
-    // Handle group elements (operations) using getBBox
-    const allGroupElements = svgRef.current?.querySelectorAll('g[data-dsl-path]');
-    allGroupElements?.forEach(elem => {
-      setGroupTransformOrigin(elem as SVGElement);
-    });
-  }, [svgRef, setSvgTransformOrigin, setGroupTransformOrigin]);
+  }, [svgRef, setSvgTransformOrigin]);
 
   /**
    * Base function for triggering highlighting with common logic
