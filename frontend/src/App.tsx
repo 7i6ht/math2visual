@@ -285,10 +285,6 @@ function AppContent() {
                         <ResponsiveLogo className="w-8 h-8 sm:w-10 sm:h-10" />
                         <h1 className="text-2xl sm:text-3xl font-bold">Math2Visual</h1>
                       </div>
-                      <p className="text-muted-foreground text-sm">
-                        Generating Pedagogically Meaningful Visuals for Math
-                        Word Problems
-                      </p>
                     </div>
 
                     <MathProblemForm
