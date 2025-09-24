@@ -16,6 +16,7 @@ interface VisualizationSectionProps {
   mwpValue: string;
   onEmbeddedSVGClick: (dslPath: string, event: MouseEvent) => void;
   onEntityQuantityClick: (dslPath: string, event: MouseEvent) => void;
+  onContainerNameClick: (dslPath: string, event: MouseEvent) => void;
   isSelectorOpen?: boolean;
 }
 
@@ -28,6 +29,7 @@ export const VisualizationSection = ({
   mwpValue,
   onEmbeddedSVGClick,
   onEntityQuantityClick,
+  onContainerNameClick,
   isSelectorOpen = false,
 }: VisualizationSectionProps) => {
   const svgRef = useRef<HTMLDivElement | null>(null);
@@ -52,6 +54,7 @@ export const VisualizationSection = ({
     highlighting,
     onEmbeddedSVGClick,
     onEntityQuantityClick,
+    onContainerNameClick,
     isSelectorOpen,
   });
 

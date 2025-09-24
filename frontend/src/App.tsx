@@ -5,6 +5,7 @@ import { VisualLanguageForm } from "@/components/forms/VisualLanguageForm";
 import { VisualizationResults } from "@/components/visualization/VisualizationResults";
 import { SVGActionMenu } from "@/components/popups/SVGActionMenu";
 import { EntityQuantityPopup } from "@/components/popups/EntityQuantityPopup";
+import { ContainerNamePopup } from "@/components/popups/ContainerNamePopup";
 
 import { GearLoading } from "@/components/ui/gear-loading";
 import { Toaster } from "@/components/ui/sonner";
@@ -12,6 +13,7 @@ import { ResponsiveLogo } from "@/components/ui/ResponsiveLogo";
 import { useAppState } from "@/hooks/useAppState";
 import { useSVGSelector } from "@/hooks/useSVGSelector";
 import { useEntityQuantityPopup } from "@/hooks/useEntityQuantityPopup";
+import { useContainerNamePopup } from "@/hooks/useContainerNamePopup";
 import {
   HighlightingProvider,
   useHighlightingContext,
@@ -103,6 +105,30 @@ function AppContent() {
     },
   });
 
+  // Container Name Popup functionality
+  const {
+    popupState: containerNamePopupState,
+    openPopup: openContainerNamePopup,
+    closePopup: closeContainerNamePopup,
+    updateContainerName,
+  } = useContainerNamePopup({
+    onVisualsUpdate: (data) => {
+      handleVLResult(
+        data.visual_language,
+        data.svg_formal,
+        data.svg_intuitive,
+        data.parsedDSL,
+        parsedDSL!, // current parsed DSL for comparison
+        data.formal_error ?? undefined,
+        data.intuitive_error ?? undefined,
+        data.missing_svg_entities,
+        undefined, // mwp - will be auto-updated by handleVLResult
+        undefined, // formula - will be auto-updated by handleVLResult
+        data.componentMappings
+      );
+    },
+  });
+
   // Wrapper for openSelector that extracts current type from DSL context
   const handleEmbeddedSVGClick = useCallback(
     (dslPath: string, event: MouseEvent) => {
@@ -119,6 +145,14 @@ function AppContent() {
       openQuantityPopup(dslPath, event);
     },
     [openQuantityPopup]
+  );
+
+  // Wrapper for openContainerNamePopup that passes the DSL path directly
+  const handleContainerNameClick = useCallback(
+    (dslPath: string, event: MouseEvent) => {
+      openContainerNamePopup(dslPath, event);
+    },
+    [openContainerNamePopup]
   );
 
   // Wrapper to handle DSL→MWP sync and SVG preservation
@@ -302,6 +336,7 @@ function AppContent() {
                   onAllFilesUploaded={clearMissingSVGEntities}
                   onEmbeddedSVGClick={handleEmbeddedSVGClick}
                   onEntityQuantityClick={handleEntityQuantityClick}
+                  onContainerNameClick={handleContainerNameClick}
                   isSelectorOpen={selectorState.isOpen}
                 />
 
@@ -338,6 +373,16 @@ function AppContent() {
           onUpdate={updateEntityQuantity}
           dslPath={quantityPopupState.dslPath}
           clickPosition={quantityPopupState.clickPosition}
+        />
+      )}
+
+      {/* Container Name Popup */}
+      {containerNamePopupState.isOpen && (
+        <ContainerNamePopup
+          onClose={closeContainerNamePopup}
+          onUpdate={updateContainerName}
+          dslPath={containerNamePopupState.dslPath}
+          clickPosition={containerNamePopupState.clickPosition}
         />
       )}
 

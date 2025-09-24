@@ -43,6 +43,11 @@ function extractEntitiesRecursive(operation: ParsedOperation, entities: EntityIn
   const operationPath = parentPath ? `${parentPath}/operation` : 'operation';
   
   // Process all entities in this operation
+  if (!operation.entities || !Array.isArray(operation.entities)) {
+    console.warn('Operation entities is not an array:', operation);
+    return;
+  }
+  
   operation.entities.forEach((entity, index) => {
     const entityPath = `${operationPath}/entities[${index}]`;
     

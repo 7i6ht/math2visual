@@ -15,6 +15,7 @@ interface UseElementInteractionsProps {
   };
   onEmbeddedSVGClick: (dslPath: string, event: MouseEvent) => void;
   onEntityQuantityClick: (dslPath: string, event: MouseEvent) => void;
+  onContainerNameClick: (dslPath: string, event: MouseEvent) => void;
   isSelectorOpen?: boolean;
 }
 
@@ -32,6 +33,7 @@ export const useElementInteractions = ({
   highlighting,
   onEmbeddedSVGClick,
   onEntityQuantityClick,
+  onContainerNameClick,
   isSelectorOpen = false,
 }: UseElementInteractionsProps) => {
   /**
@@ -158,7 +160,12 @@ export const useElementInteractions = ({
         highlighting.triggerContainerNameHighlight(dslPath);
       }
     });
-  }, [setupMouseEnterListener, highlighting]);
+
+    // Add click handler for container name editing
+    svgElem.addEventListener('click', (event: MouseEvent) => {
+      onContainerNameClick(dslPath, event);
+    }, { capture: true });
+  }, [setupMouseEnterListener, highlighting, onContainerNameClick]);
 
   /**
    * Setup result container element interactions

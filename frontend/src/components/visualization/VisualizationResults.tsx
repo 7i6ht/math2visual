@@ -15,6 +15,7 @@ interface VisualizationResultsProps {
   onAllFilesUploaded?: () => void;
   onEmbeddedSVGClick: (dslPath: string, event: MouseEvent) => void;
   onEntityQuantityClick: (dslPath: string, event: MouseEvent) => void;
+  onContainerNameClick: (dslPath: string, event: MouseEvent) => void;
   isSelectorOpen?: boolean;
 }
 
@@ -29,6 +30,7 @@ export const VisualizationResults = ({
   onAllFilesUploaded,
   onEmbeddedSVGClick,
   onEntityQuantityClick,
+  onContainerNameClick,
   isSelectorOpen = false,
 }: VisualizationResultsProps) => {
 
@@ -101,6 +103,7 @@ export const VisualizationResults = ({
               mwpValue={mwpValue}
               onEmbeddedSVGClick={onEmbeddedSVGClick}
               onEntityQuantityClick={onEntityQuantityClick}
+              onContainerNameClick={onContainerNameClick}
               isSelectorOpen={isSelectorOpen}
             />
 
@@ -113,6 +116,7 @@ export const VisualizationResults = ({
               mwpValue={mwpValue}
               onEmbeddedSVGClick={onEmbeddedSVGClick}
               onEntityQuantityClick={onEntityQuantityClick}
+              onContainerNameClick={onContainerNameClick}
               isSelectorOpen={isSelectorOpen}
             />
           </>
