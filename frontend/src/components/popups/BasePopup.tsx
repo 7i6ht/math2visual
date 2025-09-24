@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
+import { useHighlightingContext } from '@/contexts/HighlightingContext';
 
 interface BasePopupProps {
   onClose: () => void;
@@ -22,6 +23,7 @@ export const BasePopup: React.FC<BasePopupProps> = ({
   onKeyDown,
   clickPosition
 }) => {
+  const { currentTargetElement } = useHighlightingContext();
   const popupRef = useRef<HTMLDivElement>(null);
   const [adjustedPosition, setAdjustedPosition] = useState<AdjustedPosition>(() => {
     // Initialize with click position
@@ -45,6 +47,17 @@ export const BasePopup: React.FC<BasePopupProps> = ({
         const margin = 16;
         
         let { x, y } = { x: clickPosition.x, y: clickPosition.y };
+        
+        // Use target element's current position instead of click position
+        if (currentTargetElement) {
+          const targetRect = currentTargetElement.getBoundingClientRect();
+          // Use center of target element
+          x = targetRect.left + targetRect.width / 2;
+          y = targetRect.top + targetRect.height / 2;
+        } else {
+          // This should never happen when a popup is open - log for debugging
+          console.warn('BasePopup: No target element available for positioning, falling back to click position');
+        }
         
         const halfWidth = rect.width / 2;
         const halfHeight = rect.height / 2;
@@ -81,7 +94,7 @@ export const BasePopup: React.FC<BasePopupProps> = ({
       cancelAnimationFrame(rafId);
       window.removeEventListener('resize', handleResize);
     };
-  }, [clickPosition]);
+  }, [clickPosition, currentTargetElement]);
 
   // Handle click outside
   useEffect(() => {

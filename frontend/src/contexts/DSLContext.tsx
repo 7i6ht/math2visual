@@ -2,11 +2,8 @@ import {
   createContext,
   useContext,
   useState,
-  useMemo,
   type ReactNode,
 } from "react";
-import type { EntityInfo } from "@/lib/dsl-utils";
-import { parseDSLEntities } from "@/lib/dsl-utils";
 import type { ParsedOperation } from "@/utils/dsl-parser";
 import type { ComponentMapping } from "@/types/visualInteraction";
 import type { ApiResponse } from "@/types";
@@ -15,7 +12,6 @@ interface DSLContextType {
   // Core DSL data
   formattedDSL: string | null;
   parsedDSL: ParsedOperation | null;
-  parsedEntities: EntityInfo[];
   componentMappings: ComponentMapping | null;
 
   // Actions
@@ -34,11 +30,6 @@ export function DSLProvider({ children }: DSLProviderProps) {
     useState<ComponentMapping | null>(null);
   const [parsedDSL, setParsedDSL] = useState<ParsedOperation | null>(null);
 
-  // Parse entities whenever DSL string changes
-  const parsedEntities = useMemo(() => {
-    if (!formattedDSL) return [];
-    return parseDSLEntities(formattedDSL);
-  }, [formattedDSL]);
 
   const setGenerationResult = (
     result: Partial<ApiResponse & { parsedDSL: ParsedOperation }>
@@ -57,7 +48,6 @@ export function DSLProvider({ children }: DSLProviderProps) {
   const value: DSLContextType = {
     formattedDSL,
     parsedDSL,
-    parsedEntities,
     componentMappings,
     setGenerationResult,
   };

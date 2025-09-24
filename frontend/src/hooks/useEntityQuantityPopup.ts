@@ -1,13 +1,13 @@
 import { useState, useCallback } from 'react';
 import { generationService } from '@/api_services/generation';
 import { useDSLContext } from '@/contexts/DSLContext';
+import { useHighlightingContext } from '@/contexts/HighlightingContext';
 import { DSLFormatter } from '@/utils/dsl-formatter';
 import type { ParsedOperation } from '@/utils/dsl-parser';
 import type { ComponentMapping } from '@/types/visualInteraction';
 
 interface EntityQuantityPopupState {
   isOpen: boolean;
-  targetElement: Element | null;
   dslPath: string;
   clickPosition: { x: number; y: number };
 }
@@ -29,9 +29,9 @@ export const useEntityQuantityPopup = ({
   onVisualsUpdate
 }: UseEntityQuantityPopupProps) => {
   const { parsedDSL } = useDSLContext();
+  const { setCurrentTargetElement, clearCurrentTargetElement } = useHighlightingContext();
   const [popupState, setPopupState] = useState<EntityQuantityPopupState>({
     isOpen: false,
-    targetElement: null,
     dslPath: '',
     clickPosition: { x: 0, y: 0 },
   });
@@ -42,32 +42,29 @@ export const useEntityQuantityPopup = ({
   const openPopup = useCallback((dslPath: string, event: MouseEvent) => {
     // Find the correct element using closest() method
     // This ensures we get the actual element with data-dsl-path, not a child element
-    let targetElement = (event.target as Element)?.closest('[data-dsl-path]') as Element | null;
-    
-    // Fallback to the original target if we can't find an element with data-dsl-path
-    if (!targetElement) {
-      targetElement = event.target as Element | null;
-    }
+    const targetElement = (event.target as Element).closest('[data-dsl-path]') as Element;
 
+    // Store target element in context
+    setCurrentTargetElement(targetElement);
+    
     setPopupState({
       isOpen: true,
-      targetElement,
       dslPath,
       clickPosition: { x: event.clientX, y: event.clientY },
     });
-  }, []);
+  }, [setCurrentTargetElement]);
 
   /**
    * Close the entity quantity popup
    */
   const closePopup = useCallback(() => {
+    clearCurrentTargetElement();
     setPopupState({
       isOpen: false,
-      targetElement: null,
       dslPath: '',
       clickPosition: { x: 0, y: 0 },
     });
-  }, []);
+  }, [clearCurrentTargetElement]);
 
   /**
    * Update entity quantity in DSL and regenerate visuals

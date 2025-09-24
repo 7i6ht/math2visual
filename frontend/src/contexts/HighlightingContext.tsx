@@ -3,11 +3,14 @@ import { createContext, useContext, useState, type ReactNode } from 'react';
 interface HighlightingContextType {
   // State
   currentDSLPath: string | null;
+  currentTargetElement: Element | null;
   dslHighlightRanges: Array<[number, number]>;
   mwpHighlightRanges: Array<[number, number]>;
   
   // Actions
   setCurrentDSLPath: (path: string | null) => void;
+  setCurrentTargetElement: (element: Element) => void;
+  clearCurrentTargetElement: () => void;
   setDslHighlightRanges: (ranges: Array<[number, number]>) => void;
   setMwpHighlightRanges: (ranges: Array<[number, number]>) => void;
 }
@@ -20,14 +23,22 @@ interface HighlightingProviderProps {
 
 export function HighlightingProvider({ children }: HighlightingProviderProps) {
   const [currentDSLPath, setCurrentDSLPath] = useState<string | null>(null);
+  const [currentTargetElement, setCurrentTargetElement] = useState<Element | null>(null);
   const [dslHighlightRanges, setDslHighlightRanges] = useState<Array<[number, number]>>([]);
   const [mwpHighlightRanges, setMwpHighlightRanges] = useState<Array<[number, number]>>([]);
 
+  const clearCurrentTargetElement = () => {
+    setCurrentTargetElement(null);
+  };
+
   const value: HighlightingContextType = {
     currentDSLPath,
+    currentTargetElement,
     dslHighlightRanges,
     mwpHighlightRanges,
     setCurrentDSLPath,
+    setCurrentTargetElement,
+    clearCurrentTargetElement,
     setDslHighlightRanges,
     setMwpHighlightRanges,
   };

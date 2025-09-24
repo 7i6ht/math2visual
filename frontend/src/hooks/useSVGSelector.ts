@@ -10,7 +10,6 @@ interface SVGSelectorState {
   isOpen: boolean;
   dslPath: string;
   currentValue: string;
-  targetElement: Element | null;
   clickPosition: { x: number; y: number };
 }
 
@@ -31,14 +30,13 @@ export const useSVGSelector = ({
   onVisualsUpdate,
 }: UseSVGSelectorProps) => {
   // Use highlighting context
-  const { setCurrentDSLPath } = useHighlightingContext();
+  const { setCurrentDSLPath, setCurrentTargetElement, clearCurrentTargetElement } = useHighlightingContext();
   const { formattedDSL } = useDSLContext();
 
   const [selectorState, setSelectorState] = useState<SVGSelectorState>({
     isOpen: false,
     dslPath: '',
     currentValue: '',
-    targetElement: null,
     clickPosition: { x: 0, y: 0 },
   });
 
@@ -47,15 +45,15 @@ export const useSVGSelector = ({
     console.log('🎯 [closeSelector] START');
     // Reset currentDSLPath to clear highlight
     setCurrentDSLPath(null);
+    clearCurrentTargetElement();
     
     setSelectorState(prev => ({
       ...prev,
       isOpen: false,
-      targetElement: null,
       clickPosition: { x: 0, y: 0 },
     }));
     console.log('🎯 [closeSelector] END');
-  }, [setCurrentDSLPath]);
+  }, [setCurrentDSLPath, clearCurrentTargetElement]);
 
   // Open the selector at a specific position for a specific DSL path
   const openSelector = useCallback((dslPath: string, currentValue: string, event: MouseEvent) => {
@@ -66,45 +64,19 @@ export const useSVGSelector = ({
     
     // Find the correct SVG element using closest() method
     // This ensures we get the actual SVG element with data-dsl-path, not a child element
-    let targetEl = (event.target as Element)?.closest('[data-dsl-path]') as Element | null;
+    let targetEl = (event.target as Element).closest('svg[data-dsl-path]') as Element;
     
-    // Ensure we have an SVG element
-    if (targetEl && targetEl.tagName.toLowerCase() !== 'svg') {
-      targetEl = targetEl.closest('svg[data-dsl-path]') || targetEl;
-    }
-    
-    // Find element with valid dimensions
-    if (targetEl && targetEl.getBoundingClientRect().width === 0) {
-      let parent = targetEl.parentElement;
-      while (parent && parent.getBoundingClientRect().width === 0) {
-        parent = parent.parentElement;
-      }
-      if (parent) targetEl = parent;
-    }
-    
-    // Fallback to the original target if we can't find an element with data-dsl-path
-    if (!targetEl) {
-      targetEl = event.target as Element | null;
-    }
-    
-    console.log('🎯 [openSelector] Target element details:', {
-      targetElement: targetEl,
-      tagName: targetEl?.tagName,
-      id: targetEl?.id,
-      className: targetEl?.className,
-      dataDslPath: targetEl?.getAttribute('data-dsl-path'),
-      boundingRect: targetEl?.getBoundingClientRect()
-    });
+    // Store target element in context
+    setCurrentTargetElement(targetEl);
     
     setSelectorState({
       isOpen: true,
       dslPath: dslPath,
       currentValue,
-      targetElement: targetEl,
       clickPosition: { x: event.clientX, y: event.clientY },
     });
     console.log('🎯 [openSelector] END');
-  }, [setCurrentDSLPath]);
+  }, [setCurrentDSLPath, setCurrentTargetElement]);
 
   // Handle embedded SVG change
   const handleEmbeddedSVGChange = useCallback(async (newType: string) => {

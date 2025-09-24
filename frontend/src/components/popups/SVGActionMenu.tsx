@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useLayoutEffect } from "react";
 import { Search, Upload } from "lucide-react";
 import {
   DropdownMenu,
@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { SVGSearchPopup } from "./SVGSearchPopup";
 import { SVGUploadPopup } from "./SVGUploadPopup";
 import { BasePopup } from "./BasePopup";
+import { useHighlightingContext } from "@/contexts/HighlightingContext";
 
 interface SVGActionMenuProps {
   onClosePopup: () => void;
@@ -26,10 +27,26 @@ export const SVGActionMenu: React.FC<SVGActionMenuProps> = ({
     null
   );
 
+  const { currentDSLPath, setCurrentTargetElement } = useHighlightingContext();
+
+  const recalcAndSetTargetElement = useCallback(() => {
+    if (!currentDSLPath) return;
+    const escaped = CSS.escape(currentDSLPath);
+    const el = (document.querySelector(`svg[data-dsl-path="${escaped}"]`) as Element | null);
+    if (el) setCurrentTargetElement(el);
+  }, [currentDSLPath, setCurrentTargetElement]);
+
+  // Ensure target is recalculated before the popup renders/paints
+  useLayoutEffect(() => {
+    recalcAndSetTargetElement();
+  }, [activePopup, recalcAndSetTargetElement]);
+  
+
   const handleClosePopup = useCallback(() => {
     setActivePopup(null);
     onClosePopup();
   }, [onClosePopup]);
+
   return (
     <>
       {/* Action Menu Dropdown */}
