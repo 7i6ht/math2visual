@@ -254,19 +254,19 @@ function AppContent() {
                   hideSubmit={mpFormLoading}
                   largeFont={true}
                 />
-              </div>
 
-              {/* Loading state with minimal styling */}
-              {mpFormLoading && (
-                <div className="animate-in fade-in-0 slide-in-from-bottom-4 duration-500">
-                  <GearLoading
-                    message="Generating..."
-                    onAbort={handleAbort}
-                    showAbortButton={true}
-                    size="default"
-                  />
-                </div>
-              )}
+                {/* Loading state positioned directly under the form */}
+                {mpFormLoading && (
+                  <div className="mt-4 animate-in fade-in-0 slide-in-from-bottom-4 duration-500">
+                    <GearLoading
+                      message="Generating..."
+                      onAbort={handleAbort}
+                      showAbortButton={true}
+                      size="default"
+                    />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         ) : (
