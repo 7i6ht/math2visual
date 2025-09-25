@@ -122,18 +122,9 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
             except Exception as e:
                 print(f"Error in handle_area: {e}")
                 return False
-        # This is for tvq_final, if all op contain and only contain addition and subtraction, it is tvq_final
-        elif all(op["entity_type"] in ["addition", "subtraction"] for op in operations):
-            print("Handling tvq_final")
-            try:
-                return self._handle_tvq_final(operations, containers, result_containers, svg_root)
-            except Exception as e:
-                print(f"Error in handle_tvq_final: {e}")
-                return False
         else:
-            # Default fallback
-            print("Handling default case")
-            return self._handle_tvq_final(operations, containers, result_containers, svg_root)
+            print(f"No intuitive visual if mixed with complex operation: {operations}")
+            return False
     
     def _extract_operations_and_containers(self, node: Dict[str, Any], 
                                          operations: Optional[List[Dict[str, Any]]] = None,
