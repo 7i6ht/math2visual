@@ -212,31 +212,7 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
 
         return operations, containers, result_containers
     
-    def _handle_unittrans(self, node: Dict[str, Any], containers: List[Dict[str, Any]]) -> None:
-        """Handle unit transformation operations."""
-        sub_ents = node.get("entities", [])
-        if len(sub_ents) == 2:
-            main_entity = sub_ents[0]
-            unit_entity = sub_ents[1]
-            main_entity["unittrans_unit"] = unit_entity["name"]
-            main_entity["unittrans_value"] = unit_entity["item"]["entity_quantity"]
-            containers.append(main_entity)
     
-    def _should_add_brackets(self, parent_op: Optional[str], current_op: str, 
-                           container_name: Optional[str], parent_container_name: Optional[str]) -> bool:
-        """Determine if brackets should be added based on operator precedence."""
-        if parent_op is None:
-            return False
-            
-        parent_priority = self.math_parser.get_priority(parent_op)
-        current_priority = self.math_parser.get_priority(current_op)
-        
-        if parent_priority > current_priority:
-            return True
-        elif parent_priority == current_priority:
-            return not self.math_parser.can_skip_same_precedence(parent_op, current_op)
-        
-        return False
     
     def _extract_operations_and_containers_for_comparison(self, data: Dict[str, Any]) -> Tuple:
         """Extract operations and containers for comparison operations."""
@@ -274,13 +250,6 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
         return (compare1_ops, compare1_ents, compare1_res, 
                 compare2_ops, compare2_ents, compare2_res)
     
-    def _handle_container_name_conflicts(self, containers: List[Dict[str, Any]], 
-                                       result_containers: List[Dict[str, Any]]) -> None:
-        """Handle container name conflicts between containers and result containers."""
-        if result_containers and containers:
-            last_container = result_containers[-1].get('container_name')
-            if any(e.get('container_name') == last_container for e in containers) and last_container:
-                result_containers[-1]['container_name'] = f"{last_container} (result)"
     
     def _handle_multiplication(self, operations: List[str], containers: List[Dict[str, Any]], 
                              result_containers: List[Dict[str, Any]], svg_root: etree.Element,
@@ -467,8 +436,8 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
             self.constants["ITEM_SIZE"] = 3 * self.constants["ITEM_SIZE"]
         
         # Determine layouts and calculate dimensions
-        self._determine_container_layouts(containers)
-        self._calculate_container_dimensions(containers)
+        self._determine_entity_layouts(containers)
+        self._calculate_entity_dimensions(containers)
         
         # Position containers
         self._position_containers(containers, start_x, start_y)
@@ -486,101 +455,8 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
         
         return True
     
-    def _determine_container_layouts(self, containers: List[Dict[str, Any]]) -> None:
-        """Determine layout type for each container."""
-        for e in containers:
-            q = e["item"].get("entity_quantity", 0)
-            t = e["item"].get("entity_type", "")
-            container = e.get("container_type", "")
-            attr = e.get("attr_type", "")
-            
-            if t == "multiplier":
-                e["layout"] = "multiplier"
-            elif q > self.constants["MAX_ITEM_DISPLAY"] or q % 1 != 0:
-                e["layout"] = "large"
-            else:
-                if "row" in [container, attr]:
-                    e["layout"] = "row"
-                elif "column" in [container, attr]:
-                    e["layout"] = "column"
-                else:
-                    e["layout"] = "normal"
     
-    def _calculate_container_dimensions(self, containers: List[Dict[str, Any]]) -> None:
-        """Calculate dimensions for all containers."""
-        # Calculate global layout for normal containers
-        normal_containers = [e for e in containers if e["layout"] == "normal"]
-        
-        if normal_containers:
-            largest_normal_q = max(e["item"].get("entity_quantity", 0) for e in normal_containers)
-        else:
-            largest_normal_q = 1
-        
-        if largest_normal_q > 0:
-            max_cols = int(math.ceil(math.sqrt(largest_normal_q)))
-            max_rows = (largest_normal_q + max_cols - 1) // max_cols
-        else:
-            max_cols, max_rows = 1, 1
-        
-        # Assign global dimensions to normal containers
-        for e in normal_containers:
-            e["cols"] = max_cols
-            e["rows"] = max_rows
-        
-        # Calculate individual dimensions for other layouts
-        for e in containers:
-            if e["layout"] == "large":
-                e["cols"] = 1
-                e["rows"] = 1
-            elif e["layout"] == "row":
-                q = e["item"].get("entity_quantity", 0)
-                e["cols"] = q if q > 0 else 1
-                e["rows"] = 1
-            elif e["layout"] == "column":
-                q = e["item"].get("entity_quantity", 0)
-                e["cols"] = 1
-                e["rows"] = q if q > 0 else 1
-            elif e["layout"] == "multiplier":
-                e["cols"] = 1
-                e["rows"] = 1
-        
-        # Calculate planned dimensions
-        self._calculate_planned_dimensions(containers, max_cols, max_rows)
     
-    def _calculate_planned_dimensions(self, containers: List[Dict[str, Any]], 
-                                    max_cols: int, max_rows: int) -> None:
-        """Calculate planned width and height for each container."""
-        quantities = [e["item"].get("entity_quantity", 0) for e in containers]
-        entity_types = [e["item"].get("entity_type", "") for e in containers]
-        
-        any_multiplier = any(t == "multiplier" for t in entity_types)
-        any_above_20 = any(q > self.constants["MAX_ITEM_DISPLAY"] for q in quantities)
-        
-        # Calculate box dimensions
-        normal_box_width = max_cols * (self.constants["ITEM_SIZE"] + self.constants["ITEM_PADDING"]) + self.constants["BOX_PADDING"]
-        normal_box_height = max_rows * (self.constants["ITEM_SIZE"] + self.constants["ITEM_PADDING"]) + self.constants["BOX_PADDING"]
-        
-        large_total_width = self.constants["ITEM_SIZE"] * 4
-        large_box_width = large_total_width + self.constants["BOX_PADDING"]
-        large_box_height = self.constants["ITEM_SIZE"] * 4 + self.constants["BOX_PADDING"]
-        
-        if any_multiplier or any_above_20:
-            ref_box_width = max(normal_box_width, large_box_width)
-            ref_box_height = max(normal_box_height, large_box_height)
-        else:
-            ref_box_width = normal_box_width
-            ref_box_height = normal_box_height
-        
-        # Set planned dimensions for each container
-        for e in containers:
-            w, h = self.layout_calculator.compute_box_size(
-                e, e["layout"], max_cols, max_rows, 
-                ref_box_width, ref_box_height, large_box_width, large_box_height
-            )
-            e["planned_width"] = w
-            
-            unit_trans_padding = 50 if e.get("unittrans_unit", "") else 0
-            e["planned_height"] = h + unit_trans_padding
     
     def _position_containers(self, containers: List[Dict[str, Any]], start_x: int, start_y: int) -> None:
         """Position containers in a grid layout."""
@@ -827,22 +703,6 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
                              style=f"stroke:{color}; stroke-width:2;")
         svg_root.append(line2)
     
-    def _draw_unit_transformation_circle(self, svg_root: etree.Element, 
-                                       x: float, y: float, unittrans_value: Any) -> None:
-        """Draw unit transformation circle."""
-        circle_radius = 30
-        circle_center_x = x + self.constants["ITEM_SIZE"]/2
-        circle_center_y = y - circle_radius
-        
-        etree.SubElement(svg_root, "circle", cx=str(circle_center_x), cy=str(circle_center_y),
-                        r=str(circle_radius), fill="#BBA7F4")
-        
-        unittrans_text = f"{unittrans_value}"
-        text_element = etree.SubElement(svg_root, "text",
-                                       x=str(circle_center_x-15), y=str(circle_center_y + 5),
-                                       style="font-size: 15px; pointer-events: none;", text_anchor="middle",
-                                       dominant_baseline="middle")
-        text_element.text = unittrans_text
     
     def _draw_enclosing_box(self, containers: List[Dict[str, Any]], 
                           result_container: Dict[str, Any], svg_root: etree.Element) -> None:
