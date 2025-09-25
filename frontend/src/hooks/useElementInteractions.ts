@@ -168,7 +168,7 @@ export const useElementInteractions = ({
         highlighting.triggerContainerNameHighlight(dslPath);
       },
       onMouseLeave: () => {
-        highlighting.clearHighlightForElement(svgElem, 'highlighted-svg');
+        highlighting.clearHighlightForElement(svgElem, 'highlighted-text');
       }
     });
 
