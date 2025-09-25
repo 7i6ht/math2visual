@@ -75,22 +75,64 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
         containers, result_containers = self.update_container_types_optimized(containers, result_containers)
         self._handle_container_name_conflicts(containers, result_containers)
         
-        # Choose appropriate handler based on operation type
+        # Convert operations to expected format (matching old logic)
+        operations = [{"entity_type": op["entity_type"]} for op in operations]
+        
+        print(f"Operations: {operations}")
+        print(f"containers: {containers}")
+        print(f"Result containers: {result_containers}")
+        
+        # Choose appropriate handler based on operation type (restore old complex logic)
         if not operations:
             return False
-            
-        operation_type = operations[0]["entity_type"]
         
-        if operation_type == "multiplication":
-            return self._handle_multiplication(operations, containers, result_containers, svg_root)
-        elif operation_type == "division":
-            return self._handle_division(operations, containers, result_containers, svg_root)
-        elif operation_type == "surplus":
-            return self._handle_surplus(operations, containers, result_containers, svg_root)
-        elif operation_type == "area":
-            return self._handle_area(operations, containers, result_containers, svg_root)
+        # Restore the original complex conditional logic
+        if all(op["entity_type"] in ["addition", "subtraction"] for op in operations):
+            print("Handling tvq_final")
+            try:
+                return self._handle_tvq_final(operations, containers, result_containers, svg_root)
+            except Exception as e:
+                print(f"Error in handle_tvq_final: {e}")
+                return False
+        elif all(op["entity_type"] == "multiplication" for op in operations) and len(operations) == 1:
+            print("Handling multiplication")
+            try:
+                return self._handle_multiplication(operations, containers, result_containers, svg_root)
+            except Exception as e:
+                print(f"Error in handle_multiplication: {e}")
+                return False
+        elif all(op["entity_type"] == "division" for op in operations) and len(operations) == 1:
+            print("Handling division")
+            try:
+                return self._handle_division(operations, containers, result_containers, svg_root)
+            except Exception as e:
+                print(f"Error in handle_division: {e}")
+                return False
+        elif all(op["entity_type"] == "surplus" for op in operations) and len(operations) == 1:
+            print("Handling surplus")
+            try:
+                return self._handle_surplus(operations, containers, result_containers, svg_root)
+            except Exception as e:
+                print(f"Error in handle_surplus: {e}")
+                return False
+        elif all(op["entity_type"] == "area" for op in operations) and len(operations) == 1:
+            print("Handling area")
+            try:
+                return self._handle_area(operations, containers, result_containers, svg_root)
+            except Exception as e:
+                print(f"Error in handle_area: {e}")
+                return False
+        # This is for tvq_final, if all op contain and only contain addition and subtraction, it is tvq_final
+        elif all(op["entity_type"] in ["addition", "subtraction"] for op in operations):
+            print("Handling tvq_final")
+            try:
+                return self._handle_tvq_final(operations, containers, result_containers, svg_root)
+            except Exception as e:
+                print(f"Error in handle_tvq_final: {e}")
+                return False
         else:
-            # Default handler for addition, subtraction, etc.
+            # Default fallback
+            print("Handling default case")
             return self._handle_tvq_final(operations, containers, result_containers, svg_root)
     
     def _extract_operations_and_containers(self, node: Dict[str, Any], 

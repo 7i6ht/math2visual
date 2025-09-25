@@ -42,6 +42,9 @@ def generate_visualizations(parsed_dsl, output_dir=None):
     formal_generator = FormalVisualGenerator(resources)
     intuitive_generator = IntuitiveVisualGenerator(resources)
     
+    # Create a copy for the intuitive generator BEFORE any processing
+    intuitive_parsed_dsl = copy.deepcopy(parsed_dsl)
+    
     # Generate formal visualization
     if os.path.exists(output_file):
         os.remove(output_file)
@@ -77,7 +80,7 @@ def generate_visualizations(parsed_dsl, output_dir=None):
     intuitive_generator.reset_missing_entities()
     
     try:
-        ok_intu = intuitive_generator.render_svgs_from_data(intuitive_file, parsed_dsl)
+        ok_intu = intuitive_generator.render_svgs_from_data(intuitive_file, intuitive_parsed_dsl)
         if ok_intu and os.path.exists(intuitive_file):
             with open(intuitive_file, "r") as f2:
                 svg_intuitive = f2.read()
