@@ -6,9 +6,9 @@ type Props = {
   formalError: string | null;
   svgIntuitive: string | null;
   intuitiveError: string | null;
-  missingSVGEntities: string[] | null;
+  missingSVGEntities: string[];
   mwp: string;
-  onRegenerateAfterUpload: (files: File[]) => void;
+  onRegenerateAfterUpload: (toastId: string | undefined) => Promise<void>;
   onAllFilesUploaded: () => void;
   onEmbeddedSVGClick: (dslPath: string, event: MouseEvent) => void;
   onEntityQuantityClick: (dslPath: string, event: MouseEvent) => void;
