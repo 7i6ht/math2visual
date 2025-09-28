@@ -331,6 +331,9 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
         visual_entity['attr_name'] = divisor_entity.get('attr_name', '')
         visual_entity['attr_type'] = divisor_entity.get('attr_type', '')
         
+        # Use the DSL path from the divisor_entity since the visual represents divisor containers
+        visual_entity['_dsl_path'] = divisor_entity.get('_dsl_path', '')
+        
         replicated = []
         for i in range(result_count):
             e_copy = copy.deepcopy(visual_entity)
@@ -356,6 +359,9 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
         
         visual_entity['attr_name'] = divisor_entity.get('attr_name', '')
         visual_entity['attr_type'] = divisor_entity.get('attr_type', '')
+        
+        # Use the DSL path from the divisor_entity since the visual represents divisor containers
+        visual_entity['_dsl_path'] = divisor_entity.get('_dsl_path', '')
         
         replicated = []
         for i in range(divisor_quantity):
@@ -400,6 +406,9 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
         remainder_entity["container_type"] = "row" if containers[0].get('container_type') == 'row' else "remainder"
         remainder_entity["attr_name"] = ""
         remainder_entity["attr_type"] = ""
+        # Use the result container's DSL path for the remainder
+        if result_containers and result_containers[0].get('_dsl_path'):
+            remainder_entity["_dsl_path"] = result_containers[0]['_dsl_path']
         replicated.append(remainder_entity)
         
         return self._render_container_grid(replicated, result_containers, svg_root, start_x, start_y)
