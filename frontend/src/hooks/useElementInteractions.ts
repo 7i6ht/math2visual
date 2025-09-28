@@ -4,7 +4,6 @@ import { isTextElement, isOperationElement, isBoxElement, isEmbeddedSvgElement, 
 interface UseElementInteractionsProps {
   svgRef: React.RefObject<HTMLDivElement | null>;
   highlighting: {
-    clearAllHighlights: () => void;
     clearHighlightForElement: (element: SVGElement, className: 'highlighted-box' | 'highlighted-text' | 'highlighted-operation' | 'highlighted-svg') => void;
     triggerBoxHighlight: (dslPath: string) => void;
     triggerEntityQuantityHighlight: (dslPath: string) => void;
