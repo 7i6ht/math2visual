@@ -55,12 +55,13 @@ class FormalVisualGenerator(BaseVisualGenerator):
         self._handle_container_name_conflicts(compare1_entities, compare1_result_entities)
         self._handle_container_name_conflicts(compare2_entities, compare2_result_entities)
         
-        # Operations are already in the expected format with DSL paths
+        # Get the DSL path for the comparison operation
+        comparison_dsl_path = data.get('_dsl_path', 'operation')
         
         return self._render_comparison(
             compare1_operations, compare1_entities, compare1_result_entities,
             compare2_operations, compare2_entities, compare2_result_entities,
-            svg_root
+            svg_root, comparison_dsl_path
         )
     
     def _handle_regular_operation(self, data: Dict[str, Any], svg_root: etree.Element) -> bool:
@@ -161,8 +162,8 @@ class FormalVisualGenerator(BaseVisualGenerator):
         compare1_data = data["entities"][0]
         compare2_data = data["entities"][1]
 
-        def safe_extract(data_piece):
-            ret = self._extract_operations_and_entities(data_piece)
+        def safe_extract(data_piece, current_path=""):
+            ret = self._extract_operations_and_entities(data_piece, current_path=current_path)
             if len(ret) == 2:
                 ops, ents = ret
                 res = []
@@ -172,7 +173,7 @@ class FormalVisualGenerator(BaseVisualGenerator):
 
         # Parse compare1 side
         if isinstance(compare1_data, dict) and "operation" in compare1_data:
-            compare1_ops, compare1_ents, compare1_res = safe_extract(compare1_data)
+            compare1_ops, compare1_ents, compare1_res = safe_extract(compare1_data, "operation/entities[0]")
         else:
             compare1_ops = []
             compare1_ents = [compare1_data]
@@ -180,7 +181,7 @@ class FormalVisualGenerator(BaseVisualGenerator):
 
         # Parse compare2 side
         if isinstance(compare2_data, dict) and "operation" in compare2_data:
-            compare2_ops, compare2_ents, compare2_res = safe_extract(compare2_data)
+            compare2_ops, compare2_ents, compare2_res = safe_extract(compare2_data, "operation/entities[1]")
         else:
             compare2_ops = []
             compare2_ents = [compare2_data]
@@ -196,7 +197,7 @@ class FormalVisualGenerator(BaseVisualGenerator):
                          compare2_operations: List[Dict[str, Any]], 
                          compare2_entities: List[Dict[str, Any]], 
                          compare2_result_entities: List[Dict[str, Any]],
-                         svg_root: etree.Element) -> bool:
+                         svg_root: etree.Element, comparison_dsl_path: str = 'operation') -> bool:
         """Render comparison visualization."""
         entity_boxes = [None, None]
         current_x = 50
@@ -225,7 +226,7 @@ class FormalVisualGenerator(BaseVisualGenerator):
                 return False
 
         # Draw balance scale
-        self._draw_balance_scale(svg_root, entity_boxes)
+        self._draw_balance_scale(svg_root, entity_boxes, comparison_dsl_path)
         return True
     
     def _render_regular_operation(self, operations: List[Dict[str, Any]], 
@@ -553,7 +554,7 @@ class FormalVisualGenerator(BaseVisualGenerator):
             if os.path.exists(question_mark_svg_path):
                 svg_root.append(self.svg_embedder.embed_svg(question_mark_svg_path, x=qmark_x, y=qmark_y, width=60, height=60))
     
-    def _draw_balance_scale(self, svg_root: etree.Element, entity_boxes: List[Tuple[float, float, float, float]]) -> None:
+    def _draw_balance_scale(self, svg_root: etree.Element, entity_boxes: List[Tuple[float, float, float, float]], dsl_path: str = 'operation') -> None:
         """Draw balance scale for comparison operations."""
         if len(entity_boxes) != 2 or not all(entity_boxes):
             return
@@ -565,8 +566,10 @@ class FormalVisualGenerator(BaseVisualGenerator):
         bottom_of_figures = max(left_h, right_h)
         center_x = ((left_x + left_w) + right_x) / 2.0
         
-        # Create balance scale group
+        # Create balance scale group with DSL path for comparison operation highlighting
         balance_group = etree.SubElement(svg_root, 'g', id='balance-scale')
+        balance_group.set('data-dsl-path', dsl_path)
+        balance_group.set('style', 'pointer-events: all;')
         
         # Draw plates
         self._draw_scale_plate(balance_group, left_x, left_w, bottom_of_figures + 10)

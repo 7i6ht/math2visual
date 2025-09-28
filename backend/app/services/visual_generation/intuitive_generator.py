@@ -59,12 +59,13 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
         self._handle_container_name_conflicts(compare1_containers, compare1_result_containers)
         self._handle_container_name_conflicts(compare2_containers, compare2_result_containers)
         
-        # Operations are already in the expected format with DSL paths
+        # Get the DSL path for the comparison operation
+        comparison_dsl_path = data.get('_dsl_path', 'operation')
         
         return self._render_comparison(
             compare1_operations, compare1_containers, compare1_result_containers,
             compare2_operations, compare2_containers, compare2_result_containers,
-            svg_root
+            svg_root, comparison_dsl_path
         )
     
     def _handle_regular_operation(self, data: Dict[str, Any], svg_root: etree.Element) -> bool:
@@ -213,8 +214,8 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
         compare1_data = data["entities"][0]
         compare2_data = data["entities"][1]
 
-        def safe_extract(data_piece):
-            ret = self._extract_operations_and_containers(data_piece)
+        def safe_extract(data_piece, current_path=""):
+            ret = self._extract_operations_and_containers(data_piece, current_path=current_path)
             if len(ret) == 2:
                 ops, ents = ret
                 res = []
@@ -224,7 +225,7 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
 
         # Parse compare1 side
         if isinstance(compare1_data, dict) and "operation" in compare1_data:
-            compare1_ops, compare1_ents, compare1_res = safe_extract(compare1_data)
+            compare1_ops, compare1_ents, compare1_res = safe_extract(compare1_data, "operation/entities[0]")
         else:
             compare1_ops = []
             compare1_ents = [compare1_data]
@@ -232,7 +233,7 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
 
         # Parse compare2 side
         if isinstance(compare2_data, dict) and "operation" in compare2_data:
-            compare2_ops, compare2_ents, compare2_res = safe_extract(compare2_data)
+            compare2_ops, compare2_ents, compare2_res = safe_extract(compare2_data, "operation/entities[1]")
         else:
             compare2_ops = []
             compare2_ents = [compare2_data]
@@ -788,7 +789,7 @@ class IntuitiveVisualGenerator(BaseVisualGenerator):
                          compare2_operations: List[Dict[str, Any]], 
                          compare2_containers: List[Dict[str, Any]], 
                          compare2_result_containers: List[Dict[str, Any]],
-                         svg_root: etree.Element) -> bool:
+                         svg_root: etree.Element, comparison_dsl_path: str = 'operation') -> bool:
         """Render comparison visualization."""
         # Simplified comparison rendering - would need balance scale logic
         return True
