@@ -87,6 +87,7 @@ export interface AppState {
   mwp: string;
   formula: string;
   hint: string;
+  showHint: boolean;
 }
 
 // Download types

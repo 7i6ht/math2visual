@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { ResponsiveLogo } from "@/components/ui/ResponsiveLogo";
 import { MathProblemForm } from "@/components/forms/MathProblemForm";
 import { VisualLanguageForm } from "@/components/forms/VisualLanguageForm";
@@ -28,6 +28,7 @@ export function TwoColumnView({ appState }: Props) {
     mwp,
     formula,
     hint,
+    showHint,
     setMpFormLoading,
     setVLFormLoading,
     setResults,
@@ -35,11 +36,13 @@ export function TwoColumnView({ appState }: Props) {
     clearMissingSVGEntities,
     handleRegenerateAfterUpload,
     handleAbort,
+    setShowHint,
   } = appState;
 
   const { formattedDSL, parsedDSL, componentMappings } = useDSLContext();
   const { dslHighlightRanges, mwpHighlightRanges } =
     useHighlightingContext();
+  const hintInputRef = useRef<HTMLTextAreaElement | null>(null);
 
   const { handleVLResult, onDSLPathHighlight } =
     useVisualizationHandlers({
@@ -99,16 +102,12 @@ export function TwoColumnView({ appState }: Props) {
     },
   });
 
-  // Teacher feedback loop: control visibility of the extra input
-  const [showHint, setShowHint] = useState<boolean>(false);
-  const hintInputRef = useRef<HTMLTextAreaElement | null>(null);
-
   // Ensure the field is visible whenever hint text exists
   useEffect(() => {
     if (hint?.trim()) {
       setShowHint(true);
     }
-  }, [hint]);
+  }, [hint, setShowHint]);
 
   const handleShowHint = useCallback(() => {
     setShowHint(true);
@@ -123,7 +122,7 @@ export function TwoColumnView({ appState }: Props) {
         });
       }
     }, 0);
-  }, []);
+  }, [setShowHint, hintInputRef]);
 
 
   return (

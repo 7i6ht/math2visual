@@ -23,6 +23,7 @@ export const useAppState = () => {
     mwp: "",
     formula: "",
     hint: "",
+    showHint: false,
   });
 
   const setMpFormLoading = useCallback((mpFormLoading: boolean, abortFn?: () => void) => {
@@ -154,6 +155,11 @@ export const useAppState = () => {
     }));
   }, []);
 
+  const setShowHint = useCallback((showHint: boolean) => {
+    setState(prev => ({ ...prev, showHint }));
+  }, []);
+
+
   const handleAbort = useCallback(() => {
     // Call the current abort function if it exists
     if (state.currentAbortFunction) {
@@ -171,7 +177,7 @@ export const useAppState = () => {
     }));
 
     toast.info('Generation cancelled');
-  }, [state.currentAbortFunction]);
+  }, [state]);
 
   // Memoize the return object to prevent unnecessary re-renders
   const returnValue = useMemo(() => ({
@@ -185,6 +191,7 @@ export const useAppState = () => {
     handleRegenerateAfterUpload,
     handleAbort,
     saveInitialValues,
+    setShowHint,
   }), [
     state,
     setMpFormLoading,
@@ -196,6 +203,7 @@ export const useAppState = () => {
     handleRegenerateAfterUpload,
     handleAbort,
     saveInitialValues,
+    setShowHint,
   ]);
 
   return returnValue;
