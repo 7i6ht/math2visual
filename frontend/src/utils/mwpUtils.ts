@@ -18,7 +18,11 @@ export const splitIntoSentences = (text: string): string[] => {
  * @param containerName - The container name to search for
  * @param quantity - The quantity to search for (optional)
  * @param entityName - The entity name to search for (optional)
- * @returns Array of regex patterns ordered by specificity (most specific first)
+ * @returns Array of regex patterns ordered by specificity (most specific first):
+ *   1. Container + Quantity + Entity (if entity provided)
+ *   2. Container + Quantity
+ *   3. Quantity only
+ *   4. Container only
  */
 export const createSentencePatterns = (
   containerName: string,
@@ -43,6 +47,11 @@ export const createSentencePatterns = (
     // Pattern with container + quantity (no entity requirement)
     patterns.push(
       new RegExp(`([^.!?]*${containerName}[^.!?]*${quantityPattern}[^.!?]*[.!?])`, 'i')
+    );
+    
+    // Pattern with just quantity (between container+quantity and container-only)
+    patterns.push(
+      new RegExp(`([^.!?]*${quantityPattern}[^.!?]*[.!?])`, 'i')
     );
   }
   
