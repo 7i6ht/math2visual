@@ -37,30 +37,7 @@ export const VisualizationResults = ({
 }: VisualizationResultsProps) => {
 
   const [openAccordionItems, setOpenAccordionItems] = useState<string[]>([]);
-    
-  // Auto-expand error items when they're the only ones displayed
-  const getDefaultAccordionItems = useCallback(() => {
-    // Check for parse errors first
-    if (formalError && /DSL parse error/i.test(formalError)) {
-      return ["parse-error"];
-    }
-    if (intuitiveError && /DSL parse error/i.test(intuitiveError)) {
-      return ["parse-error"];
-    }
-    // Check for missing SVG entities
-    if (missingSVGEntities.length > 0) {
-      return ["missing-svg"];
-    }
-    // Default to formal visualization
-    return ["formal"];
-  }, [formalError, intuitiveError, missingSVGEntities]);
 
-  // Update accordion items when props change
-  useEffect(() => {
-    const defaultItems = getDefaultAccordionItems();
-    setOpenAccordionItems(defaultItems);
-  }, [getDefaultAccordionItems]);
-  
   // Suppress generic missing-SVG errors in the accordion; these are shown
   // more helpfully in the dedicated MissingSVGSection below
   const filterMissingSvgError = (error: string | null): string | null => {
@@ -72,7 +49,23 @@ export const VisualizationResults = ({
   // Detect if this is a parse error by checking error message content
   const hasParseError = (formalError && /DSL parse error/i.test(formalError)) || 
                        (intuitiveError && /DSL parse error/i.test(intuitiveError));
+    
+  // Auto-expand error items when they're the only ones displayed
+  const getDefaultAccordionItems = useCallback(() => {
+    // Check for parse errors first
+    if (hasParseError) return ["parse-error"];
+    if (!formalError) return ["formal"];
+    if (!intuitiveError) return ["intuitive"];
+    if (missingSVGEntities.length > 0) return ["missing-svg"];
+    return [];
+  }, [hasParseError, formalError, intuitiveError, missingSVGEntities]);
 
+  // Update accordion items when props change
+  useEffect(() => {
+    const defaultItems = getDefaultAccordionItems();
+    setOpenAccordionItems(defaultItems);
+  }, [getDefaultAccordionItems]);
+  
   // Don't render if no content or errors at all
   if (!svgFormal && !formalError && !svgIntuitive && !intuitiveError && missingSVGEntities.length === 0) {
     return null;
@@ -134,7 +127,7 @@ export const VisualizationResults = ({
       </Accordion>
       
       {/* Teacher feedback loop trigger */}
-      {(svgFormal && !formalError || svgIntuitive && !intuitiveError) && (
+      {(svgFormal || svgIntuitive) && (
         <div className="mt-4 text-left">
           <button
             onClick={onShowHint}
