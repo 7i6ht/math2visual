@@ -21,7 +21,7 @@ def generate_response(prompt, model):
             print(f"Error {e} occurred while generating response. Retrying in 2 seconds...")
             time.sleep(2)
 
-def generate_prompt(mwp,formula=None):
+def generate_prompt(mwp, formula=None, hint=None):
     prompt_base = (f'''
     You are an expert at converting math story problem into a structured 'visual language'. Your task is to write a visual language expression based on the given math word problem. 
     **Background information**
@@ -177,21 +177,25 @@ def generate_prompt(mwp,formula=None):
 
         Once you are ready, you can do the task of converting, you can write down your thinking procedure but please make sure to give me the final visual language of the following question in this format in the end: visual_language:<the visual language result>
         Question: {mwp}
-        Formula: {formula}''')
+        Formula: {formula}
+
+        {('Additional hints: ' + hint) if (hint and len(str(hint).strip())>0) else ''}''')
     else:
         prompt_instruct = (f'''**Task**
         Good, now try to understand the above requirement step by step. 
 
         Once you are ready, you can do the task of converting, you can write down your thinking procedure but please make sure to give me the final visual language of the following question in this format in the end: visual_language:<the visual language result>
-        Question: {mwp}''')
+        Question: {mwp}
+
+        {('Additional hints: ' + hint) if (hint and len(str(hint).strip())>0) else ''}''')
 
     prompt = prompt_base + "\n\n" + prompt_instruct
     
     return prompt
 
 
-def generate_visual_language(mwp, formula, model='o3-mini'):
-    visual_language = generate_response(generate_prompt(mwp,formula),model=model)
+def generate_visual_language(mwp, formula=None, hint=None, model='o3-mini'):
+    visual_language = generate_response(generate_prompt(mwp, formula, hint), model=model)
     return visual_language
 
 # main function

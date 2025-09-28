@@ -145,11 +145,12 @@ def generate():
         # Generate DSL from math word problem
         mwp = body.get("mwp", "").strip()
         formula = body.get("formula") or None
+        hint = body.get("hint") or None
         if not mwp:
             return jsonify({"error": "Please provide a math word problem (mwp)."}), 400
 
         # Generate via GPT and extract
-        vl_response = generate_visual_language(mwp, formula)
+        vl_response = generate_visual_language(mwp, formula, hint)
         # Use parser for extraction
         raw = dsl_parser.extract_visual_language(vl_response)
         if not raw:

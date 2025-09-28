@@ -1,9 +1,11 @@
 import type { ComponentMapping } from "@/types/visualInteraction";
+import type { ParsedOperation } from "@/utils/dsl-parser";
 
 // Form data types
 export interface FormData {
   mwp: string;
   formula?: string;
+  hint?: string;
 }
 
 export interface VLFormData {
@@ -14,6 +16,7 @@ export interface VLFormData {
 export interface ApiRequest {
   mwp?: string;
   formula?: string;
+  hint?: string;
   dsl?: string;
 }
 
@@ -83,7 +86,7 @@ export interface AppState {
   hasCompletedGeneration: boolean;
   mwp: string;
   formula: string;
-  // DSL string, parsed AST, and mappings are managed by DSLContext
+  hint: string;
 }
 
 // Download types

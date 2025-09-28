@@ -1,3 +1,4 @@
+import React from "react";
 import { Button } from "@/components/ui/button";
 import { HighlightableTextarea } from "@/components/ui/highlightable-textarea";
 import { Input } from "@/components/ui/input";
@@ -18,11 +19,14 @@ interface MathProblemFormProps {
   onReset: () => void;
   mwp?: string;
   formula?: string;
-  saveInitialValues: (mwp: string, formula: string) => void;
+  hint?: string;
+  saveInitialValues: (mwp: string, formula: string, hint: string) => void;
   rows?: number;
   highlightRanges?: Array<[number, number]>;
   hideSubmit?: boolean;
   largeFont?: boolean;
+  showHint?: boolean;
+  hintInputRef?: React.RefObject<HTMLTextAreaElement | null>;
 }
 
 export const MathProblemForm = ({ 
@@ -31,11 +35,14 @@ export const MathProblemForm = ({
   onReset,
   mwp = "",
   formula = "",
+  hint = "",
   saveInitialValues,
   rows = 8,
   highlightRanges = [],
   hideSubmit = false,
-  largeFont = false
+  largeFont = false,
+  showHint = false,
+  hintInputRef,
 }: MathProblemFormProps) => {
   const { 
     form, 
@@ -48,6 +55,7 @@ export const MathProblemForm = ({
     onReset,
     mwp,
     formula,
+    hint,
     saveInitialValues,
   });
 
@@ -97,6 +105,31 @@ export const MathProblemForm = ({
             </FormItem>
           )}
         />
+
+        {showHint && (
+          <FormField
+            control={form.control}
+            name="hint"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <textarea
+                    className={`w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${largeFont ? 'md:text-md md:leading-relaxed lg:text-l' : ''}`}
+                    placeholder="Add hints about the relationships between the visual elements ..."
+                    rows={rows}
+                    spellCheck={false}
+                    {...field}
+                    ref={(el) => {
+                      if (hintInputRef) hintInputRef.current = el;
+                      if (typeof field.ref === 'function') field.ref(el);
+                    }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
 
         <div className="flex justify-center mt-6">
           {!loading && !hideSubmit && (

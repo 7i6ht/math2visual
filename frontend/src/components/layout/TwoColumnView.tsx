@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import { ResponsiveLogo } from "@/components/ui/ResponsiveLogo";
 import { MathProblemForm } from "@/components/forms/MathProblemForm";
 import { VisualLanguageForm } from "@/components/forms/VisualLanguageForm";
@@ -27,6 +27,7 @@ export function TwoColumnView({ appState }: Props) {
     uploadGenerating,
     mwp,
     formula,
+    hint,
     setMpFormLoading,
     setVLFormLoading,
     setResults,
@@ -98,6 +99,33 @@ export function TwoColumnView({ appState }: Props) {
     },
   });
 
+  // Teacher feedback loop: control visibility of the extra input
+  const [showHint, setShowHint] = useState<boolean>(false);
+  const hintInputRef = useRef<HTMLTextAreaElement | null>(null);
+
+  // Ensure the field is visible whenever hint text exists
+  useEffect(() => {
+    if (hint?.trim()) {
+      setShowHint(true);
+    }
+  }, [hint]);
+
+  const handleShowHint = useCallback(() => {
+    setShowHint(true);
+    // Focus and scroll to the hint input after DOM update
+    setTimeout(() => {
+      if (hintInputRef.current) {
+        hintInputRef.current.focus();
+        hintInputRef.current.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center',
+          inline: 'nearest'
+        });
+      }
+    }, 0);
+  }, []);
+
+
   return (
     <div className="container mx-auto px-4 py-4 lg:px-8">
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 min-h-[calc(100vh-2rem)] items-start">
@@ -119,10 +147,13 @@ export function TwoColumnView({ appState }: Props) {
                 onReset={resetResults}
                 mwp={mwp}
                 formula={formula}
+                hint={hint}
                 saveInitialValues={appState.saveInitialValues}
                 rows={8}
                 highlightRanges={mwpHighlightRanges}
                 hideSubmit={false}
+                showHint={showHint}
+                hintInputRef={hintInputRef}
               />
             </div>
 
@@ -155,6 +186,7 @@ export function TwoColumnView({ appState }: Props) {
             onEntityQuantityClick={popup.handleEntityQuantityClick}
             onContainerNameClick={popup.handleContainerNameClick}
             isSelectorOpen={selectorState.isOpen}
+            onShowHint={handleShowHint}
           />
 
           {(vlFormLoading || uploadGenerating) && (

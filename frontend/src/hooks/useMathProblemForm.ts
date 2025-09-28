@@ -13,7 +13,8 @@ interface UseMathProblemFormProps {
   onReset: () => void;
   mwp?: string;
   formula?: string;
-  saveInitialValues: (mwp: string, formula: string) => void;
+  hint?: string;
+  saveInitialValues: (mwp: string, formula: string, hint: string) => void;
 }
 
 export const useMathProblemForm = ({
@@ -22,6 +23,7 @@ export const useMathProblemForm = ({
   onReset,
   mwp = "",
   formula = "",
+  hint = "",
   saveInitialValues,
 }: UseMathProblemFormProps) => {
   const [error, setError] = useState<string | null>(null);
@@ -32,23 +34,26 @@ export const useMathProblemForm = ({
     defaultValues: {
       mwp: mwp,
       formula: formula,
+      hint: hint,
     },
   });
 
   // Update form values when initial values change (only for the two-column layout)
   useEffect(() => {
-    if (mwp || formula) {
+    if (mwp || formula || hint) {
       form.setValue("mwp", mwp);
       form.setValue("formula", formula);
+      form.setValue("hint", hint);
     }
-  }, [mwp, formula, form]);
+  }, [mwp, formula, hint, form]);
+
 
   const handleSubmit = async (data: FormData) => {
     setError(null);
     setLoading(true);
     
     // Save the form values before resetting (so they're preserved on abort)
-    saveInitialValues(data.mwp, data.formula || "");
+    saveInitialValues(data.mwp, data.formula || "", data.hint || "");
     
     onReset();
 
@@ -65,7 +70,8 @@ export const useMathProblemForm = ({
     try {
       const result = await service.generateFromMathProblem(
         data.mwp, 
-        data.formula, 
+        data.formula,
+        data.hint,
         controller.signal
       );
       onSuccess(

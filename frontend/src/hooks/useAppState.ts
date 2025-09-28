@@ -22,6 +22,7 @@ export const useAppState = () => {
     hasCompletedGeneration: false,
     mwp: "",
     formula: "",
+    hint: "",
   });
 
   const setMpFormLoading = useCallback((mpFormLoading: boolean, abortFn?: () => void) => {
@@ -70,7 +71,7 @@ export const useAppState = () => {
       ...(componentMappings && { componentMappings }),
       parsedDSL,
     });
-  }, []);
+  }, [setGenerationResult]);
 
   const resetResults = useCallback(() => {
     setState(prev => ({
@@ -142,13 +143,14 @@ export const useAppState = () => {
     } finally {
       setUploadGenerating(false);
     }
-  }, [formattedDSL, setResults]);
+  }, [formattedDSL, setResults, setUploadGenerating]);
 
-  const saveInitialValues = useCallback((mwp: string, formula: string) => {
+  const saveInitialValues = useCallback((mwp: string, formula: string, hint: string) => {
     setState(prev => ({
       ...prev,
       mwp: mwp,
       formula: formula,
+      hint: hint,
     }));
   }, []);
 

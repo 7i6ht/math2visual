@@ -4,6 +4,7 @@ import * as z from "zod";
 export const formSchema = z.object({
   mwp: z.string().min(1, "Please enter a math word problem"),
   formula: z.string().optional(),
+  hint: z.string().optional(),
 });
 
 export const vlFormSchema = z.object({

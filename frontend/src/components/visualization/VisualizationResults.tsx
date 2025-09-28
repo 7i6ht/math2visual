@@ -17,6 +17,7 @@ interface VisualizationResultsProps {
   onEntityQuantityClick: (dslPath: string, event: MouseEvent) => void;
   onContainerNameClick: (dslPath: string, event: MouseEvent) => void;
   isSelectorOpen?: boolean;
+  onShowHint: () => void;
 }
 
 export const VisualizationResults = ({
@@ -32,6 +33,7 @@ export const VisualizationResults = ({
   onEntityQuantityClick,
   onContainerNameClick,
   isSelectorOpen = false,
+  onShowHint,
 }: VisualizationResultsProps) => {
 
   const [openAccordionItems, setOpenAccordionItems] = useState<string[]>([]);
@@ -92,7 +94,7 @@ export const VisualizationResults = ({
         )}
 
         {/* Hide visualization sections entirely if SVG entities are missing or parse error exists */}
-        {!hasParseError && missingSVGEntities.length === 0 && (
+        {!hasParseError && (
           <>
             <VisualizationSection
               type="formal"
@@ -130,6 +132,18 @@ export const VisualizationResults = ({
           />
         )}
       </Accordion>
+      
+      {/* Teacher feedback loop trigger */}
+      {(svgFormal && !formalError || svgIntuitive && !intuitiveError) && (
+        <div className="mt-4 text-left">
+          <button
+            onClick={onShowHint}
+            className="text-red-500 cursor-pointer text-sm group"
+          >
+            Does not look as expected? <span className="group-hover:text-red-700 group-hover:italic">🡒 Add hints ...</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 };
