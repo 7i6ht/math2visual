@@ -130,7 +130,7 @@ export function TwoColumnView({ appState }: Props) {
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 min-h-[calc(100vh-2rem)] items-start">
         <div className="flex flex-col space-y-8 xl:sticky xl:top-6 xl:h-[calc(100vh-3rem)] xl:z-10">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 flex-1 min-h-0">
-            <div className="space-y-8">
+            <div className="space-y-4">
               <div className="text-center">
                 <div className="flex items-center justify-center gap-3 mb-3">
                   <ResponsiveLogo className="w-8 h-8 sm:w-10 sm:h-10" />
