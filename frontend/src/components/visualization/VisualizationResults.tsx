@@ -133,7 +133,7 @@ export const VisualizationResults = ({
             onClick={onShowHint}
             className="text-red-500 cursor-pointer text-sm group"
           >
-            Does not look as expected? <span className="group-hover:text-red-700 group-hover:italic">🡒 Add hints ...</span>
+            Does not look as expected? <span className="group-hover:text-red-700 group-hover:italic">🡒 Add more hints ...</span>
           </button>
         </div>
       )}
