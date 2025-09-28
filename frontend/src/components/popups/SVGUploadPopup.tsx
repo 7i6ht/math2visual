@@ -22,6 +22,7 @@ export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
   const [error, setError] = useState<string | null>(null);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const filenameInputRef = useRef<HTMLInputElement>(null);
 
   // Real-time validation for filename
   useEffect(() => {
@@ -95,8 +96,10 @@ export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
     }
   };
 
-  // Reset state when popup closes
+  // Auto-focus filename input when popup opens and reset state when popup closes
   useEffect(() => {
+    filenameInputRef.current?.focus();
+    
     // Cleanup on unmount
     const inputEl = fileInputRef.current;
     return () => {
@@ -127,6 +130,7 @@ export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
             <Upload className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
           </button>
           <Input
+            ref={filenameInputRef}
             value={filename}
             onChange={(e) => setFilename(e.target.value)}
             placeholder="Enter name..."

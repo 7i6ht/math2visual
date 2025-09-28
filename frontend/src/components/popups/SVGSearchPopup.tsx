@@ -31,6 +31,7 @@ export const SVGSearchPopup: React.FC<SVGSearchPopupProps> = ({
   
   const previewContainerRef = useRef<HTMLDivElement>(null);
   const thumbnailsRowRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Calculate pagination
   const totalPages = Math.ceil(searchResults.length / Math.max(1, imagesPerPage));
@@ -157,9 +158,11 @@ export const SVGSearchPopup: React.FC<SVGSearchPopupProps> = ({
     }
   };
 
-  // Reset state when popup closes
+  // Auto-focus search input when popup opens and reset state when popup closes
   useEffect(() => {
-    // Reset state on mount and when closed via onClose
+    searchInputRef.current?.focus();
+    
+    // Reset state when popup closes
     return () => {
       setSearchQuery('');
       setSearchResults([]);
@@ -177,6 +180,7 @@ export const SVGSearchPopup: React.FC<SVGSearchPopupProps> = ({
         <div className="relative flex-1">
           <Search className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
           <Input
+            ref={searchInputRef}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search..."
