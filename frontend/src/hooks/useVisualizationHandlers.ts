@@ -39,7 +39,7 @@ export const useVisualizationHandlers = ({
   setResults,
   openSelector,
 }: VisualizationHandlersDeps) => {
-  const { componentMappings: contextComponentMappings, setGenerationResult } =
+  const { componentMappings: contextComponentMappings } =
     useDSLContext();
   const { setCurrentDSLPath } = useHighlightingContext();
 
@@ -89,14 +89,6 @@ export const useVisualizationHandlers = ({
       mergedFormula ?? undefined,
       mergedMappings || undefined
     );
-
-    if (nextVL && mergedMappings) {
-      setGenerationResult({
-        visual_language: nextVL,
-        componentMappings: mergedMappings,
-        parsedDSL: nextParsedDSL,
-      });
-    }
   };
 
   const handleEmbeddedSVGClick = useCallback(

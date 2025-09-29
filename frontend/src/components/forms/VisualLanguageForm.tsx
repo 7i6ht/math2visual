@@ -17,7 +17,6 @@ interface VisualLanguageFormProps {
   onLoadingChange: (loading: boolean, abortFn?: () => void) => void;
   highlightRanges?: Array<[number, number]>;
   onDSLPathHighlight?: (dslPath: string | null) => void;
-  componentMappings?: ComponentMapping;
 }
 
 export const VisualLanguageForm = ({ 
@@ -25,10 +24,9 @@ export const VisualLanguageForm = ({
   onLoadingChange,
   highlightRanges = [],
   onDSLPathHighlight,
-  componentMappings,
 }: VisualLanguageFormProps) => {
   const { componentMappings: contextMappings } = useDSLContext();
-  const effectiveMappings = componentMappings ?? contextMappings ?? {} as ComponentMapping;
+  const effectiveMappings = contextMappings ?? {} as ComponentMapping;
   const { 
     form, 
     handleDebouncedChange,

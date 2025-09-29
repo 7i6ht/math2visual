@@ -1,10 +1,8 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useRef } from "react";
+import { useRef, useEffect } from "react";
 import { vlFormSchema } from "@/schemas/validation";
 import { generationService as service } from "@/api_services/generation";
-import { DSLFormatter } from "@/utils/dsl-formatter";
-import { parseWithErrorHandling } from "@/utils/dsl-parser";
 import { toast } from "sonner";
 import { useDSLContext } from "@/contexts/DSLContext";
 import type { VLFormData } from "@/schemas/validation";
@@ -33,21 +31,13 @@ export const useVisualLanguageForm = ({
   // Update form value when formattedDSL changes
   useEffect(() => {
     if (formattedDSL !== null) {
-      // Ensure DSL is formatted on load/prop change (frontend owns formatting now)
-      const formatter = new DSLFormatter();
-      const parsed = parseWithErrorHandling(formattedDSL);
-      if (parsed) {
-        const formatted = formatter.formatWithRanges(parsed);
-        form.setValue("dsl", formatted);
-      } else {
-        form.setValue("dsl", formattedDSL);
-      }
+      form.setValue("dsl", formattedDSL);
     }
   }, [formattedDSL, form]);
 
   const handleVLChange = async (dslValue: string) => {
     // Don't regenerate if the value is empty or hasn't changed
-    if (!dslValue.trim() || dslValue === formattedDSL) {
+    if (!dslValue.trim()) {
       return;
     }
 
@@ -95,13 +85,12 @@ export const useVisualLanguageForm = ({
 
   // Debounced change handler managed by the hook
   const handleDebouncedChange = (value: string, delayMs = 800) => {
+
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
     timeoutRef.current = setTimeout(() => {
-      if (value && value.trim() && value !== formattedDSL) {
-        void handleVLChange(value);
-      }
+      void handleVLChange(value);
     }, delayMs);
   };
 
