@@ -105,22 +105,16 @@ h1 {
     filter: drop-shadow(0 2px 4px rgba(59, 130, 246, 0.3)) !important;
   }
   
-  [data-dsl-path].highlighted-operation {
-    filter: drop-shadow(0 8px 16px rgba(59, 130, 246, 0.4)) !important;
+  [data-dsl-path].highlighted-svg {
+    /* merged: drop-shadow from former highlighted-svg and scale from highlighted-operation */
+    filter: drop-shadow(0 12px 24px rgba(59, 130, 246, 0.5)) !important;
     transform: scale(1.1) !important;
     /* transform-origin set by JavaScript for proper positioning */
     vector-effect: non-scaling-stroke !important;
   }
   
-  [data-dsl-path].highlighted-svg {
-    filter: drop-shadow(0 12px 24px rgba(59, 130, 246, 0.5)) !important;
-    transform: scale(1.05) !important;
-    /* transform-origin set by JavaScript for proper positioning */
-    vector-effect: non-scaling-stroke !important;
-  }
-  
   /* Enhanced hover effects */
-  [data-dsl-path]:hover:not(.highlighted-box):not(.highlighted-text):not(.highlighted-operation):not(.highlighted-svg) {
+  [data-dsl-path]:hover:not(.highlighted-box):not(.highlighted-text):not(.highlighted-svg) {
     stroke: #60a5fa !important;
     stroke-width: 2 !important;
     filter: drop-shadow(0 2px 4px rgba(96, 165, 250, 0.2)) !important;
@@ -133,13 +127,13 @@ h1 {
   }
   
   /* SVG hover effects - use JavaScript-calculated transform origin */
-  svg[data-dsl-path]:hover:not(.highlighted-svg):not(.highlighted-operation) {
+  svg[data-dsl-path]:hover:not(.highlighted-svg) {
     transform: scale(1.02) !important;
     filter: drop-shadow(0 2px 4px rgba(96, 165, 250, 0.2)) !important;
   }
   
   /* Group element hover effects (operations) - use JavaScript-calculated transform origin */
-  g[data-dsl-path]:hover:not(.highlighted-svg):not(.highlighted-operation) {
+  g[data-dsl-path]:hover:not(.highlighted-svg) {
     transform: scale(1.02) !important;
     filter: drop-shadow(0 2px 4px rgba(96, 165, 250, 0.2)) !important;
   }

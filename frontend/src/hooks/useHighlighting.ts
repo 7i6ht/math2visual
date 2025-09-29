@@ -34,7 +34,7 @@ export const useHighlighting = ({
    * Clear highlight on a specific SVG element. If className is omitted,
    * remove all our highlight classes from that element only.
    */
-  const clearHighlightForElement = useCallback((element: SVGElement, className: 'highlighted-box' | 'highlighted-text' | 'highlighted-operation' | 'highlighted-svg') => {
+  const clearHighlightForElement = useCallback((element: SVGElement, className: 'highlighted-box' | 'highlighted-text' | 'highlighted-svg') => {
     element.classList.remove(className);
     // Clear DSL and MWP highlights
     onMWPRangeHighlight([]);
@@ -226,7 +226,7 @@ export const useHighlighting = ({
         const operationEl = svgRef.current?.querySelector(`g[data-dsl-path="${dslPath}"]`) as SVGGraphicsElement;
         if (operationEl) {
           // Apply CSS class - transform origin is already set by setupSvgTransformOrigins
-          operationEl.classList.add('highlighted-operation');
+          operationEl.classList.add('highlighted-svg');
         }
       },
       applyMWPHighlight: () => {

@@ -4,7 +4,7 @@ import { isTextElement, isOperationElement, isBoxElement, isEmbeddedSvgElement, 
 interface UseElementInteractionsProps {
   svgRef: React.RefObject<HTMLDivElement | null>;
   highlighting: {
-    clearHighlightForElement: (element: SVGElement, className: 'highlighted-box' | 'highlighted-text' | 'highlighted-operation' | 'highlighted-svg') => void;
+    clearHighlightForElement: (element: SVGElement, className: 'highlighted-box' | 'highlighted-text' | 'highlighted-svg') => void;
     triggerBoxHighlight: (dslPath: string) => void;
     triggerEntityQuantityHighlight: (dslPath: string) => void;
     triggerOperationHighlight: (dslPath: string) => void;
@@ -70,7 +70,7 @@ export const useElementInteractions = ({
         highlighting.triggerOperationHighlight(dslPath);
       },
       onMouseLeave: () => {
-        highlighting.clearHighlightForElement(svgElem, 'highlighted-operation');
+        highlighting.clearHighlightForElement(svgElem, 'highlighted-svg');
       }
     });
   }, [setupMouseEnterListener, highlighting]);
