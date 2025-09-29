@@ -144,9 +144,10 @@ const generationService = {
         };
       }
 
-      formatter.formatWithRanges(parsed);
+      const formattedDSL = formatter.formatWithRanges(parsed);
       return {
         ...result,
+        visual_language: formattedDSL,
         componentMappings: { ...formatter.componentRegistry },
         parsedDSL: parsed
       };

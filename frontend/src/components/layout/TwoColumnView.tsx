@@ -53,8 +53,7 @@ export function TwoColumnView({ appState }: Props) {
       missingSVGEntities,
       mwp,
       formula,
-      setResults,
-      openSelector: () => {},
+      setResults
     });
 
   const { selectorState, openSelector, closeSelector, handleEmbeddedSVGChange } =
@@ -77,7 +76,9 @@ export function TwoColumnView({ appState }: Props) {
 
   const handleEmbeddedSVGClickWithSelector = useCallback(
     (dslPath: string, event: MouseEvent) => {
-      const typeMapping = componentMappings?.[dslPath];
+      const normalizedPath = dslPath.endsWith("]") ? dslPath.slice(0, -3) : dslPath;
+
+      const typeMapping = componentMappings?.[normalizedPath];
       const currentValue = typeMapping?.property_value || "";
       openSelector(dslPath, currentValue, event);
     },

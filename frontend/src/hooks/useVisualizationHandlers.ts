@@ -1,4 +1,3 @@
-import { useCallback } from "react";
 import { useDSLContext } from "@/contexts/DSLContext";
 import { useHighlightingContext } from "@/contexts/HighlightingContext";
 import type { ParsedOperation } from "@/utils/dsl-parser";
@@ -24,8 +23,7 @@ export type VisualizationHandlersDeps = {
     mwp?: string,
     formula?: string | undefined,
     componentMappings?: ComponentMapping | undefined
-  ) => void;
-  openSelector: (dslPath: string, currentValue: string, event: MouseEvent) => void;
+  ) => void
 };
 
 export const useVisualizationHandlers = ({
@@ -37,7 +35,6 @@ export const useVisualizationHandlers = ({
   mwp,
   formula,
   setResults,
-  openSelector,
 }: VisualizationHandlersDeps) => {
   const { componentMappings: contextComponentMappings } =
     useDSLContext();
@@ -91,20 +88,10 @@ export const useVisualizationHandlers = ({
     );
   };
 
-  const handleEmbeddedSVGClick = useCallback(
-    (dslPath: string, event: MouseEvent) => {
-      const typeMapping = contextComponentMappings?.[dslPath];
-      const currentValue = typeMapping?.property_value || "";
-      openSelector(dslPath, currentValue, event);
-    },
-    [contextComponentMappings, openSelector]
-  );
-
   const onDSLPathHighlight = setCurrentDSLPath;
 
   return {
     handleVLResult,
-    handleEmbeddedSVGClick,
     onDSLPathHighlight,
   };
 };
