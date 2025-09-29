@@ -186,7 +186,8 @@ function replaceQuantities(text: string, oldQuantity: string, newQuantity: strin
   
   // Convert numbers to text form for better MWP readability
   const oldText = numberToWord(oldNum);
-  const newText = numberToWord(newNum);
+  // Ensure replacement word is lower case for inline prose
+  const newText = numberToWord(newNum).toLowerCase();
   
   // Replace both numeric and text forms
   let updatedText = text;
