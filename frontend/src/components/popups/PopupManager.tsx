@@ -7,11 +7,11 @@ type Props = {
   onCloseSelector: () => void;
   onEmbeddedSVGChange: (newType: string) => Promise<void>;
 
-  quantityPopupState: { isOpen: boolean; dslPath: string };
+  quantityPopupState: { isOpen: boolean; initialQuantity: number };
   closeQuantityPopup: () => void;
   updateEntityQuantity: (newQuantity: number) => Promise<void>;
 
-  containerNamePopupState: { isOpen: boolean; dslPath: string };
+  containerNamePopupState: { isOpen: boolean; initialContainerName: string };
   closeContainerNamePopup: () => void;
   updateContainerName: (newContainerName: string) => Promise<void>;
 };
@@ -36,19 +36,19 @@ export function PopupManager({
         />
       )}
 
-      {quantityPopupState.isOpen && quantityPopupState.dslPath && (
+      {quantityPopupState.isOpen && (
         <EntityQuantityPopup
           onClose={closeQuantityPopup}
           onUpdate={updateEntityQuantity}
-          dslPath={quantityPopupState.dslPath}
+          initialQuantity={quantityPopupState.initialQuantity}
         />
       )}
 
-      {containerNamePopupState.isOpen && containerNamePopupState.dslPath && (
+      {containerNamePopupState.isOpen && (
         <ContainerNamePopup
           onClose={closeContainerNamePopup}
           onUpdate={updateContainerName}
-          dslPath={containerNamePopupState.dslPath}
+          initialContainerName={containerNamePopupState.initialContainerName}
         />
       )}
     </>

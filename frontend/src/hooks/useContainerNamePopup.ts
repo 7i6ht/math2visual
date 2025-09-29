@@ -9,6 +9,7 @@ import type { ComponentMapping } from '@/types/visualInteraction';
 interface ContainerNamePopupState {
   isOpen: boolean;
   dslPath: string;
+  initialContainerName: string;
 }
 
 interface UseContainerNamePopupProps {
@@ -27,11 +28,12 @@ interface UseContainerNamePopupProps {
 export const useContainerNamePopup = ({
   onVisualsUpdate
 }: UseContainerNamePopupProps) => {
-  const { parsedDSL } = useDSLContext();
+  const { parsedDSL, componentMappings } = useDSLContext();
   const { setCurrentTargetElement, clearCurrentTargetElement } = useHighlightingContext();
   const [popupState, setPopupState] = useState<ContainerNamePopupState>({
     isOpen: false,
     dslPath: '',
+    initialContainerName: '',
   });
 
   /**
@@ -45,11 +47,16 @@ export const useContainerNamePopup = ({
     // Store target element in context
     setCurrentTargetElement(targetElement);
     
+    // Normalize to the concrete field path
+    const normalizedPath = dslPath.endsWith('/container_name') ? dslPath : `${dslPath}/container_name`;
+    const currentName = getContainerNameValue(componentMappings, normalizedPath) || '';
+
     setPopupState({
       isOpen: true,
-      dslPath,
+      dslPath: normalizedPath,
+      initialContainerName: currentName,
     });
-  }, [setCurrentTargetElement]);
+  }, [setCurrentTargetElement, componentMappings]);
 
   /**
    * Close the container name popup
@@ -59,6 +66,7 @@ export const useContainerNamePopup = ({
     setPopupState({
       isOpen: false,
       dslPath: '',
+      initialContainerName: '',
     });
   }, [clearCurrentTargetElement]);
 
@@ -91,7 +99,7 @@ export const useContainerNamePopup = ({
         intuitive_error: data.intuitive_error ?? null,
         missing_svg_entities: data.missing_svg_entities || [],
         componentMappings: data.componentMappings || {},
-        parsedDSL: data.parsedDSL,
+        parsedDSL: data.parsedDSL!,
       });
 
     } catch (error) {

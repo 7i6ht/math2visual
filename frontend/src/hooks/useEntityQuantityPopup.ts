@@ -9,6 +9,7 @@ import type { ComponentMapping } from '@/types/visualInteraction';
 interface EntityQuantityPopupState {
   isOpen: boolean;
   dslPath: string;
+  initialQuantity: number;
 }
 
 interface UseEntityQuantityPopupProps {
@@ -28,10 +29,12 @@ export const useEntityQuantityPopup = ({
   onVisualsUpdate
 }: UseEntityQuantityPopupProps) => {
   const { parsedDSL } = useDSLContext();
+  const { componentMappings } = useDSLContext();
   const { setCurrentTargetElement, clearCurrentTargetElement } = useHighlightingContext();
   const [popupState, setPopupState] = useState<EntityQuantityPopupState>({
     isOpen: false,
     dslPath: '',
+    initialQuantity: 1,
   });
 
   /**
@@ -45,11 +48,19 @@ export const useEntityQuantityPopup = ({
     // Store target element in context
     setCurrentTargetElement(targetElement);
     
+    // Normalize and store a concrete path that points to the quantity field
+    const normalizedPath = dslPath.endsWith('/entity_quantity')
+      ? dslPath
+      : `${dslPath}/entity_quantity`;
+
+    const currentQty = getEntityQuantityValue(componentMappings, normalizedPath) || 1;
+
     setPopupState({
       isOpen: true,
-      dslPath,
+      dslPath: normalizedPath,
+      initialQuantity: currentQty,
     });
-  }, [setCurrentTargetElement]);
+  }, [setCurrentTargetElement, componentMappings]);
 
   /**
    * Close the entity quantity popup
@@ -59,6 +70,7 @@ export const useEntityQuantityPopup = ({
     setPopupState({
       isOpen: false,
       dslPath: '',
+      initialQuantity: 1,
     });
   }, [clearCurrentTargetElement]);
 
@@ -91,7 +103,7 @@ export const useEntityQuantityPopup = ({
         intuitive_error: data.intuitive_error ?? null,
         missing_svg_entities: data.missing_svg_entities || [],
         componentMappings: data.componentMappings || {},
-        parsedDSL: data.parsedDSL,
+        parsedDSL: data.parsedDSL!,
       });
 
     } catch (error) {

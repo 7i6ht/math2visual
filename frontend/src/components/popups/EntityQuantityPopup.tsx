@@ -4,31 +4,21 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { BasePopup } from "./BasePopup";
-import { useDSLContext } from "@/contexts/DSLContext";
-import { getEntityQuantityValue } from "@/hooks/useEntityQuantityPopup";
 
 interface EntityQuantityPopupProps {
   onClose: () => void;
   onUpdate: (newQuantity: number) => Promise<void>;
-  dslPath: string;
+  initialQuantity: number;
 }
 
 export const EntityQuantityPopup: React.FC<EntityQuantityPopupProps> = ({
   onClose,
   onUpdate,
-  dslPath,
+  initialQuantity,
 }) => {
-  const [quantity, setQuantity] = useState("");
+  const [quantity, setQuantity] = useState(initialQuantity.toString());
   const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const { componentMappings } = useDSLContext();
-
-  // Initialize with current value from DSL context
-  useEffect(() => {
-    const currentValue =
-      getEntityQuantityValue(componentMappings, dslPath) || 1;
-    setQuantity(currentValue.toString());
-  }, [dslPath, componentMappings]);
 
   // Focus input on mount
   useEffect(() => {
@@ -63,9 +53,7 @@ export const EntityQuantityPopup: React.FC<EntityQuantityPopupProps> = ({
     }
 
     // Don't update if value hasn't changed
-    const currentValue =
-      getEntityQuantityValue(componentMappings, dslPath) || 1;
-    if (numericQuantity === currentValue) {
+    if (numericQuantity === initialQuantity) {
       onClose();
       return;
     }

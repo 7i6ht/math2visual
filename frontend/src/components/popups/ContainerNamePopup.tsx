@@ -4,30 +4,21 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { BasePopup } from "./BasePopup";
-import { useDSLContext } from "@/contexts/DSLContext";
-import { getContainerNameValue } from "@/hooks/useContainerNamePopup";
 
 interface ContainerNamePopupProps {
   onClose: () => void;
   onUpdate: (newContainerName: string) => Promise<void>;
-  dslPath: string;
+  initialContainerName: string;
 }
 
 export const ContainerNamePopup: React.FC<ContainerNamePopupProps> = ({
   onClose,
   onUpdate,
-  dslPath,
+  initialContainerName,
 }) => {
-  const [containerName, setContainerName] = useState("");
+  const [containerName, setContainerName] = useState(initialContainerName);
   const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const { componentMappings } = useDSLContext();
-
-  // Initialize with current value from DSL context
-  useEffect(() => {
-    const currentValue = getContainerNameValue(componentMappings, dslPath) || "";
-    setContainerName(currentValue);
-  }, [dslPath, componentMappings]);
 
   // Focus input on mount
   useEffect(() => {
@@ -45,8 +36,7 @@ export const ContainerNamePopup: React.FC<ContainerNamePopupProps> = ({
     }
 
     // Don't update if value hasn't changed
-    const currentValue = getContainerNameValue(componentMappings, dslPath) || "";
-    if (containerName.trim() === currentValue) {
+    if (containerName.trim() === initialContainerName) {
       onClose();
       return;
     }
