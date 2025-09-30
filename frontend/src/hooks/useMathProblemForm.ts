@@ -85,10 +85,13 @@ export const useMathProblemForm = ({
       );
     } catch (error) {
       console.error('Generation failed:', error);
-      const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-      toast.error(errorMessage, {
-        description: "Failed to generate visualizations"
-      });
+      // Only show toast if it's not an abort error
+      if (error instanceof Error && error.name !== 'AbortError') {
+        const errorMessage = error.message || "An unknown error occurred";
+        toast.error("Failed to generate visualizations", {
+          description: errorMessage
+        });
+      }
     } finally {
       setLoading(false);
       onLoadingChange(false);
