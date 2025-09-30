@@ -3,7 +3,7 @@ import { generationService } from '@/api_services/generation';
 import { useDSLContext } from '@/contexts/DSLContext';
 import { useHighlightingContext } from '@/contexts/HighlightingContext';
 import { DSLFormatter } from '@/utils/dsl-formatter';
-import type { ParsedOperation } from '@/utils/dsl-parser';
+import type { ParsedOperation, ParsedEntity } from '@/utils/dsl-parser';
 import type { ComponentMapping } from '@/types/visualInteraction';
 
 interface EntityQuantityPopupState {
@@ -166,14 +166,16 @@ function updateQuantityInParsedDSL(
  * Recursively navigate through the DSL structure using the path and update the quantity
  */
 function updateQuantityAtPath(
-  obj: any,
+  obj: ParsedOperation | ParsedEntity,
   dslPath: string,
   newQuantity: number
 ): boolean {
+  const isRecord = (value: unknown): value is Record<string, unknown> =>
+    typeof value === 'object' && value !== null;
   // Remove leading slash and split path into segments
   const pathSegments = dslPath.replace(/^\//, '').split('/');
 
-  let current = obj;
+  let current: unknown = obj;
 
   // Navigate through all segments except the last one
   for (let i = 0; i < pathSegments.length - 1; i++) {
@@ -185,15 +187,20 @@ function updateQuantityAtPath(
       const [, arrayName, indexStr] = arrayMatch;
       const index = parseInt(indexStr, 10);
 
-      if (!current[arrayName] || !Array.isArray(current[arrayName])) {
+      if (!isRecord(current)) {
         return false;
       }
 
-      if (index >= current[arrayName].length) {
+      const arrayValue = current[arrayName];
+      if (!Array.isArray(arrayValue)) {
         return false;
       }
 
-      current = current[arrayName][index];
+      if (index >= arrayValue.length) {
+        return false;
+      }
+
+      current = arrayValue[index];
     } else {
       // Handle regular property access
       // Skip the first "operation" segment since the obj is already the operation
@@ -201,10 +208,13 @@ function updateQuantityAtPath(
         continue;
       }
 
-      if (!current[segment]) {
+      if (!isRecord(current)) {
         return false;
       }
-      current = current[segment];
+      if (!(segment in current)) {
+        return false;
+      }
+      current = (current as Record<string, unknown>)[segment];
     }
   }
 
@@ -213,11 +223,16 @@ function updateQuantityAtPath(
 
   if (finalSegment === 'entity_quantity') {
     // Update entity_quantity in the item object or directly
-    if (current.item && typeof current.item === 'object') {
-      current.item.entity_quantity = newQuantity;
+    if (!isRecord(current)) {
+      return false;
+    }
+
+    const currentRecord = current as Record<string, unknown>;
+    if (isRecord(currentRecord.item)) {
+      (currentRecord.item as Record<string, unknown>).entity_quantity = newQuantity as unknown as number;
       return true;
-    } else if ('entity_quantity' in current) {
-      current.entity_quantity = newQuantity;
+    } else if ('entity_quantity' in currentRecord) {
+      (currentRecord as unknown as { entity_quantity: number }).entity_quantity = newQuantity;
       return true;
     }
   }
