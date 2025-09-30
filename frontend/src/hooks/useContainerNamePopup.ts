@@ -158,15 +158,20 @@ function updateContainerNameInParsedDSL(
 /**
  * Recursively navigate through the DSL structure using the path and update the container name
  */
+// Narrowing helpers
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
 function updateContainerNameAtPath(
-  obj: any,
+  obj: Record<string, unknown>,
   dslPath: string,
   newContainerName: string
 ): boolean {
   // Remove leading slash and split path into segments
   const pathSegments = dslPath.replace(/^\//, '').split('/');
 
-  let current = obj;
+  let current: unknown = obj;
 
   // Navigate through all segments except the last one
   for (let i = 0; i < pathSegments.length - 1; i++) {
@@ -178,15 +183,20 @@ function updateContainerNameAtPath(
       const [, arrayName, indexStr] = arrayMatch;
       const index = parseInt(indexStr, 10);
 
-      if (!current[arrayName] || !Array.isArray(current[arrayName])) {
+      if (!isRecord(current)) {
         return false;
       }
 
-      if (index >= current[arrayName].length) {
+      const arrayCandidate = current[arrayName];
+      if (!Array.isArray(arrayCandidate)) {
         return false;
       }
 
-      current = current[arrayName][index];
+      if (index < 0 || index >= arrayCandidate.length) {
+        return false;
+      }
+
+      current = arrayCandidate[index];
     } else {
       // Handle regular property access
       // Skip the first "operation" segment since the obj is already the operation
@@ -194,7 +204,7 @@ function updateContainerNameAtPath(
         continue;
       }
 
-      if (!current[segment]) {
+      if (!isRecord(current) || !(segment in current)) {
         return false;
       }
       current = current[segment];
@@ -206,8 +216,8 @@ function updateContainerNameAtPath(
 
   if (finalSegment === 'container_name') {
     // Update container_name directly (not in item - that's only for entity_quantity and entity_type)
-    if ('container_name' in current) {
-      current.container_name = newContainerName;
+    if (isRecord(current) && 'container_name' in current) {
+      (current as Record<string, unknown>).container_name = newContainerName;
       return true;
     }
   }
