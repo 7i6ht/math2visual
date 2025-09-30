@@ -6,6 +6,7 @@ interface HighlightingContextType {
   currentTargetElement: Element | null;
   dslHighlightRanges: Array<[number, number]>;
   mwpHighlightRanges: Array<[number, number]>;
+  formulaHighlightRanges: Array<[number, number]>;
   
   // Actions
   setCurrentDSLPath: (path: string | null) => void;
@@ -13,6 +14,7 @@ interface HighlightingContextType {
   clearCurrentTargetElement: () => void;
   setDslHighlightRanges: (ranges: Array<[number, number]>) => void;
   setMwpHighlightRanges: (ranges: Array<[number, number]>) => void;
+  setFormulaHighlightRanges: (ranges: Array<[number, number]>) => void;
 }
 
 const HighlightingContext = createContext<HighlightingContextType | undefined>(undefined);
@@ -26,6 +28,7 @@ export function HighlightingProvider({ children }: HighlightingProviderProps) {
   const [currentTargetElement, setCurrentTargetElement] = useState<Element | null>(null);
   const [dslHighlightRanges, setDslHighlightRanges] = useState<Array<[number, number]>>([]);
   const [mwpHighlightRanges, setMwpHighlightRanges] = useState<Array<[number, number]>>([]);
+  const [formulaHighlightRanges, setFormulaHighlightRanges] = useState<Array<[number, number]>>([]);
 
   const clearCurrentTargetElement = () => {
     setCurrentTargetElement(null);
@@ -36,11 +39,13 @@ export function HighlightingProvider({ children }: HighlightingProviderProps) {
     currentTargetElement,
     dslHighlightRanges,
     mwpHighlightRanges,
+    formulaHighlightRanges,
     setCurrentDSLPath,
     setCurrentTargetElement,
     clearCurrentTargetElement,
     setDslHighlightRanges,
     setMwpHighlightRanges,
+    setFormulaHighlightRanges,
   };
 
   return (

@@ -14,6 +14,7 @@ interface VisualizationSectionProps {
   error: string | null;
   isOpen: boolean;
   mwpValue: string;
+  formulaValue?: string;
   onEmbeddedSVGClick: (dslPath: string, event: MouseEvent) => void;
   onEntityQuantityClick: (dslPath: string, event: MouseEvent) => void;
   onContainerNameClick: (dslPath: string, event: MouseEvent) => void;
@@ -27,6 +28,7 @@ export const VisualizationSection = ({
   error,
   isOpen,
   mwpValue,
+  formulaValue,
   onEmbeddedSVGClick,
   onEntityQuantityClick,
   onContainerNameClick,
@@ -48,7 +50,7 @@ export const VisualizationSection = ({
   }, [setupResizeListener]);
   
   // Setup highlighting and interactions directly
-  const highlighting = useHighlighting({ svgRef, mwpValue });
+  const highlighting = useHighlighting({ svgRef, mwpValue, formulaValue });
   const interactions = useElementInteractions({
     svgRef,
     highlighting,

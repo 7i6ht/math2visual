@@ -110,27 +110,28 @@ export const findSentencePosition = (
 export const findQuantityInText = (
   text: string,
   quantity: string | number
-): [number, number] | null => {
+): [number, number][] | null => {
   const numericQuantity = quantity.toString();
   const wordQuantity = numberToWord(parseInt(quantity.toString()));
   
-  // Try numeric form first
-  let regex = new RegExp(`\\b${numericQuantity}\\b`);
-  let match = regex.exec(text);
-  
-  if (match) {
-    return [match.index, match.index + match[0].length];
+  // Collect matches for numeric form
+  const ranges: [number, number][] = [];
+  let regex = new RegExp(`\\b${numericQuantity}\\b`, 'g');
+  for (const m of text.matchAll(regex)) {
+    ranges.push([m.index!, m.index! + m[0].length]);
   }
-  
-  // Try word form if numeric not found
-  regex = new RegExp(`\\b${wordQuantity}\\b`, 'i'); // case-insensitive
-  match = regex.exec(text);
-  
-  if (match) {
-    return [match.index, match.index + match[0].length];
+
+  if (ranges.length > 0) {
+    return ranges;
   }
-  
-  return null;
+
+  // Collect matches for word form (case-insensitive)
+  regex = new RegExp(`\\b${wordQuantity}\\b`, 'gi');
+  for (const m of text.matchAll(regex)) {
+    ranges.push([m.index!, m.index! + m[0].length]);
+  }
+
+  return ranges.length > 0 ? ranges : null;
 };
 
 /**

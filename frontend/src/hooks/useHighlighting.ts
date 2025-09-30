@@ -9,6 +9,7 @@ import { useHighlightingContext } from '@/contexts/HighlightingContext';
 interface UseHighlightingProps {
   svgRef: React.RefObject<HTMLDivElement | null>;
   mwpValue: string;
+  formulaValue?: string;
 }
 
 interface HighlightConfig {
@@ -23,9 +24,10 @@ interface HighlightConfig {
 export const useHighlighting = ({
   svgRef,
   mwpValue,
+  formulaValue,
 }: UseHighlightingProps) => {
   const { componentMappings } = useDSLContext();
-  const { setDslHighlightRanges: onDSLRangeHighlight, setMwpHighlightRanges: onMWPRangeHighlight, currentDSLPath } = useHighlightingContext();
+  const { setDslHighlightRanges: onDSLRangeHighlight, setMwpHighlightRanges: onMWPRangeHighlight, setFormulaHighlightRanges, currentDSLPath } = useHighlightingContext();
   const mappings: ComponentMapping = useMemo(() => (componentMappings || {}) as ComponentMapping, [componentMappings]);
 
   /**
@@ -200,15 +202,16 @@ export const useHighlighting = ({
     onDSLRangeHighlight(mapping?.dsl_range ? [mapping.dsl_range] : []);
     
     if (quantity && mwpValue) {
-      const position = findQuantityInText(mwpValue, quantity);
-      if (position) {
-        const [start, end] = position;
-        onMWPRangeHighlight([[start, end]]);
-      } else {
-        onMWPRangeHighlight([]);
-      }
+      const positions = findQuantityInText(mwpValue, quantity);
+      onMWPRangeHighlight(positions ?? []);
     }
-  }, [setSvgTransformOrigin, svgRef, mappings, mwpValue, onMWPRangeHighlight, onDSLRangeHighlight]);
+
+    // Highlight in formula (optional) — analogous to MWP highlighting
+    if (quantity && formulaValue) {
+      const positions = findQuantityInText(formulaValue, quantity);
+      setFormulaHighlightRanges(positions ?? []);
+    }
+  }, [setSvgTransformOrigin, svgRef, mappings, mwpValue, onMWPRangeHighlight, onDSLRangeHighlight, formulaValue, setFormulaHighlightRanges]);
 
   /**
    * Trigger highlighting for operation components

@@ -1,7 +1,6 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { HighlightableTextarea } from "@/components/ui/highlightable-textarea";
-import { Input } from "@/components/ui/input";
 import {
   Form,
   FormControl,
@@ -23,6 +22,7 @@ interface MathProblemFormProps {
   saveInitialValues: (mwp: string, formula: string, hint: string) => void;
   rows?: number;
   highlightRanges?: Array<[number, number]>;
+  formulaHighlightRanges?: Array<[number, number]>;
   hideSubmit?: boolean;
   largeFont?: boolean;
   showHint?: boolean;
@@ -39,6 +39,7 @@ export const MathProblemForm = ({
   saveInitialValues,
   rows = 8,
   highlightRanges = [],
+  formulaHighlightRanges = [],
   hideSubmit = false,
   largeFont = false,
   showHint = false,
@@ -94,10 +95,12 @@ export const MathProblemForm = ({
           render={({ field }) => (
             <FormItem>
               <FormControl>
-                <Input
+                <HighlightableTextarea
                   className={`w-full ${largeFont ? 'md:text-md lg:text-gl' : ''}`}
                   placeholder="Optional formula (e.g. 9 + 7 = 16)"
+                  rows={1}
                   spellCheck={false}
+                  highlightRanges={formulaHighlightRanges}
                   {...field}
                 />
               </FormControl>

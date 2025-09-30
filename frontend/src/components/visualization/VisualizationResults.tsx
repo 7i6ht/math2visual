@@ -11,6 +11,7 @@ interface VisualizationResultsProps {
   intuitiveError: string | null;
   missingSVGEntities?: string[];
   mwpValue?: string;
+  formulaValue?: string;
   onRegenerateAfterUpload?: (toastId: string | undefined) => Promise<void>;
   onAllFilesUploaded?: () => void;
   onEmbeddedSVGClick: (dslPath: string, event: MouseEvent) => void;
@@ -27,6 +28,7 @@ export const VisualizationResults = ({
   intuitiveError,
   missingSVGEntities = [],
   mwpValue = '',
+  formulaValue = '',
   onRegenerateAfterUpload,
   onAllFilesUploaded,
   onEmbeddedSVGClick,
@@ -96,6 +98,7 @@ export const VisualizationResults = ({
               error={filterMissingSvgError(formalError)}
               isOpen={openAccordionItems.includes("formal")}
               mwpValue={mwpValue}
+              formulaValue={formulaValue}
               onEmbeddedSVGClick={onEmbeddedSVGClick}
               onEntityQuantityClick={onEntityQuantityClick}
               onContainerNameClick={onContainerNameClick}
@@ -109,6 +112,7 @@ export const VisualizationResults = ({
               error={filterMissingSvgError(intuitiveError)}
               isOpen={openAccordionItems.includes("intuitive")}
               mwpValue={mwpValue}
+              formulaValue={formulaValue}
               onEmbeddedSVGClick={onEmbeddedSVGClick}
               onEntityQuantityClick={onEntityQuantityClick}
               onContainerNameClick={onContainerNameClick}
