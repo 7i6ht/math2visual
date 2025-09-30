@@ -23,7 +23,7 @@ export class DSLFormatter {
   /**
    * Track component metadata for frontend mapping
    */
-  trackComponent(dslPath: string, dslRange: [number, number], propertyValue?: any): void {
+  trackComponent(dslPath: string, dslRange: [number, number], propertyValue?: string | number): void {
     const entry: ComponentRange = { dsl_range: dslRange };
     if (propertyValue !== undefined) {
       entry.property_value = String(propertyValue);
@@ -164,15 +164,10 @@ export class DSLFormatter {
     const propertyOrder = [
       'entity_name', 'entity_type', 'entity_quantity',
       'container_name', 'container_type', 'attr_name', 'attr_type'
-    ];
+    ] as const;
 
     for (const prop of propertyOrder) {
-      let value: any = undefined;
-      if (prop in container) {
-        value = (container as any)[prop];
-      } else if (container.item && prop in container.item) {
-        value = (container.item as any)[prop];
-      }
+      const value = this.getContainerPropertyValue(container, prop);
 
       if (value !== undefined && value !== null) {
         // Format value properly (remove .0 for integers)
@@ -220,6 +215,40 @@ export class DSLFormatter {
     this.trackComponent(containerPath, [containerStart, containerEnd]);
 
     return [formatted, finalPos];
+  }
+
+  /**
+   * Resolve a property value from a container, handling fallbacks consistently
+   */
+  private getContainerPropertyValue(
+    container: ParsedEntity,
+    prop:
+      | 'entity_name'
+      | 'entity_type'
+      | 'entity_quantity'
+      | 'container_name'
+      | 'container_type'
+      | 'attr_name'
+      | 'attr_type'
+  ): string | number | undefined {
+    switch (prop) {
+      case 'entity_quantity':
+        return container.entity_quantity ?? container.item?.entity_quantity;
+      case 'entity_type':
+        return container.entity_type ?? container.item?.entity_type;
+      case 'entity_name':
+        return container.entity_name;
+      case 'container_name':
+        return container.container_name;
+      case 'container_type':
+        return container.container_type;
+      case 'attr_name':
+        return container.attr_name;
+      case 'attr_type':
+        return container.attr_type;
+      default:
+        return undefined;
+    }
   }
 
   /**
@@ -293,15 +322,10 @@ export class DSLFormatter {
     const propertyOrder = [
       'entity_name', 'entity_type', 'entity_quantity',
       'container_name', 'container_type', 'attr_name', 'attr_type'
-    ];
+    ] as const;
 
     for (const prop of propertyOrder) {
-      let value: any = undefined;
-      if (prop in container) {
-        value = (container as any)[prop];
-      } else if (container.item && prop in container.item) {
-        value = (container.item as any)[prop];
-      }
+      const value = this.getContainerPropertyValue(container, prop);
 
       if (value !== undefined && value !== null) {
         // Format numeric values properly (remove .0 for integers)
