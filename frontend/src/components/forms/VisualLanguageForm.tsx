@@ -17,20 +17,23 @@ import { useDSLContext } from "@/contexts/DSLContext";
 interface VisualLanguageFormProps {
   onResult: (vl: string, svgFormal: string | null, svgIntuitive: string | null, parsedDSL: ParsedOperation, currentParsedDSL: ParsedOperation, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], mwp?: string, formula?: string, componentMappings?: ComponentMapping) => void;
   onLoadingChange: (loading: boolean, abortFn?: () => void) => void;
+  isDisabled?: boolean;
 }
 
 export const VisualLanguageForm = ({ 
   onResult,
-  onLoadingChange
+  onLoadingChange,
+  isDisabled = false,
 }: VisualLanguageFormProps) => {
   const { dslHighlightRanges, setCurrentDSLPath } = useHighlightingContext();
   const { componentMappings: contextMappings } = useDSLContext();
   const effectiveMappings = useMemo(() => (contextMappings ?? {}) as ComponentMapping, [contextMappings]);
   
   const handleCursorPositionChange = useCallback((position: number) => {
+    if (isDisabled) return;
     const dslPath = findDSLPathAtPosition(effectiveMappings, position);
     setCurrentDSLPath(dslPath);
-  }, [effectiveMappings, setCurrentDSLPath]);
+  }, [effectiveMappings, setCurrentDSLPath, isDisabled]);
 
   const { 
     form, 
@@ -45,7 +48,7 @@ export const VisualLanguageForm = ({
       <h2 className="text-xl font-semibold mb-3 flex-shrink-0">Visual Language</h2>
       
       <Form {...form}>
-        <div className="flex flex-col min-h-0 flex-1">
+        <div className={`flex flex-col min-h-0 flex-1 ${isDisabled ? 'pointer-events-none overflow-hidden' : ''}`}>
           <FormField
             control={form.control}
             name="dsl"

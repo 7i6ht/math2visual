@@ -5,7 +5,6 @@ import { VisualLanguageForm } from "@/components/forms/VisualLanguageForm";
 import { VisualizationResults } from "@/components/visualization/VisualizationResults";
 import { GearLoading } from "@/components/ui/gear-loading";
 import { useDSLContext } from "@/contexts/DSLContext";
-import { useHighlightingContext } from "@/contexts/HighlightingContext";
 import { useSVGSelector } from "@/hooks/useSVGSelector";
 import { useVisualizationHandlers } from "@/hooks/useVisualizationHandlers";
 import { usePopupManagement } from "@/hooks/usePopupManagement";
@@ -19,6 +18,7 @@ type Props = {
 export function TwoColumnView({ appState }: Props) {
   const {
     vlFormLoading,
+    mpFormLoading,
     svgFormal,
     svgIntuitive,
     formalError,
@@ -137,37 +137,66 @@ export function TwoColumnView({ appState }: Props) {
                 </div>
               </div>
 
-              <MathProblemForm
-                onSuccess={setResults}
-                onLoadingChange={(loading, abortFn) => {
-                  setMpFormLoading(loading, abortFn);
-                }}
-                onReset={resetResults}
-                mwp={mwp}
-                formula={formula}
-                hint={hint}
-                saveInitialValues={appState.saveInitialValues}
-                rows={8}
-                hideSubmit={false}
-                showHint={showHint}
-                hintInputRef={hintInputRef}
-              />
+              <div className="flex flex-col">
+                <MathProblemForm
+                  onSuccess={setResults}
+                  onLoadingChange={(loading, abortFn) => {
+                    setMpFormLoading(loading, abortFn);
+                  }}
+                  onReset={resetResults}
+                  mwp={mwp}
+                  formula={formula}
+                  hint={hint}
+                  saveInitialValues={appState.saveInitialValues}
+                  rows={8}
+                  hideSubmit={false}
+                  showHint={showHint}
+                  hintInputRef={hintInputRef}
+                />
+                {mpFormLoading && (
+                  <div className="animate-in fade-in-0 duration-300">
+                    <GearLoading
+                      message={"Generating..."}
+                      onAbort={handleAbort}
+                      showAbortButton={true}
+                      size="small"
+                    />
+                  </div>
+                )}
+              </div>
             </div>
 
-            <div className="flex flex-col min-h-[300px] md:min_h-[400px] xl:min-h-0">
+            <div className="relative flex flex-col min-h-[300px] md:min_h-[400px] xl:min-h-0">
               {formattedDSL && (
                 <VisualLanguageForm
                   onResult={handleVLResult}
                   onLoadingChange={(loading, abortFn) => {
                     setVLFormLoading(loading, abortFn);
                   }}
+                  isDisabled={mpFormLoading}
+                />
+              )}
+              {(vlFormLoading || uploadGenerating) && (
+                <div className="mt-8 animate-in fade-in-0 duration-300">
+                  <GearLoading
+                    message={"Regenerating..."}
+                    onAbort={handleAbort}
+                    showAbortButton={true}
+                    size="small"
+                  />
+                </div>
+              )}
+              {mpFormLoading && (
+                <div
+                  className="absolute inset-0 bg-background/50 dark:bg-black/30 backdrop-blur-[1px] rounded-md pointer-events-none"
+                  aria-hidden="true"
                 />
               )}
             </div>
           </div>
         </div>
 
-        <div className="flex flex-col w-full">
+        <div className="relative flex flex-col w-full">
           <VisualizationResults
             svgFormal={svgFormal}
             formalError={formalError}
@@ -183,17 +212,13 @@ export function TwoColumnView({ appState }: Props) {
             onContainerNameClick={popup.handleContainerNameClick}
             isSelectorOpen={selectorState.isOpen}
             onShowHint={handleShowHint}
+            isDisabled={mpFormLoading}
           />
-
-          {(vlFormLoading || uploadGenerating) && (
-            <div className="mt-8 animate-in fade-in-0 duration-300">
-              <GearLoading
-                message="Regenerating..."
-                onAbort={handleAbort}
-                showAbortButton={true}
-                size="small"
-              />
-            </div>
+          { (mpFormLoading || vlFormLoading || uploadGenerating) && (
+            <div
+              className="absolute inset-0 bg-background/60 dark:bg-black/40 backdrop-blur-[1px] rounded-md pointer-events-none"
+              aria-hidden="true"
+            />
           )}
         </div>
       </div>

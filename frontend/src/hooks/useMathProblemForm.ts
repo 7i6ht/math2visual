@@ -1,6 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 import { formSchema } from "@/schemas/validation";
 import { generationService as service } from "@/api_services/generation";
 import type { FormData } from "@/schemas/validation";
@@ -11,7 +12,6 @@ import { useHighlightingContext } from "@/contexts/HighlightingContext";
 interface UseMathProblemFormProps {
   onSuccess: (vl: string, svgFormal: string | null, svgIntuitive: string | null, parsedDSL: ParsedOperation, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], mwp?: string, formula?: string, componentMappings?: ComponentMapping) => void;
   onLoadingChange: (loading: boolean, abortFn?: () => void) => void;
-  onReset: () => void;
   mwp?: string;
   formula?: string;
   hint?: string;
@@ -21,13 +21,11 @@ interface UseMathProblemFormProps {
 export const useMathProblemForm = ({
   onSuccess,
   onLoadingChange,
-  onReset,
   mwp = "",
   formula = "",
   hint = "",
   saveInitialValues,
 }: UseMathProblemFormProps) => {
-  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const { clearHighlighting } = useHighlightingContext();
   
@@ -52,20 +50,16 @@ export const useMathProblemForm = ({
 
   const handleSubmit = async (data: FormData) => {
     clearHighlighting();
-    setError(null);
     setLoading(true);
     
-    // Save the form values before resetting (so they're preserved on abort)
+    // Save the form values before generating (so they're preserved on abort)
     saveInitialValues(data.mwp, data.formula || "", data.hint || "");
-    
-    onReset();
 
     // Create abort controller for this request
     const controller = new AbortController();
     const abort = () => {
       controller.abort();
       setLoading(false);
-      setError("Generation cancelled");
     };
     
     onLoadingChange(true, abort);
@@ -90,8 +84,11 @@ export const useMathProblemForm = ({
         result.componentMappings
       );
     } catch (error) {
+      console.error('Generation failed:', error);
       const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-      setError(errorMessage);
+      toast.error(errorMessage, {
+        description: "Failed to generate visualizations"
+      });
     } finally {
       setLoading(false);
       onLoadingChange(false);
@@ -100,7 +97,6 @@ export const useMathProblemForm = ({
 
   return {
     form,
-    error,
     loading,
     handleSubmit: form.handleSubmit(handleSubmit),
   };

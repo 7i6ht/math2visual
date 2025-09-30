@@ -169,7 +169,6 @@ export const useAppState = () => {
     // Reset to initial layout while preserving MWP and formula values
     setState(prev => ({
       ...prev,
-      hasCompletedGeneration: false,
       mpFormLoading: false,
       vlFormLoading: false,
       currentAbortFunction: undefined,

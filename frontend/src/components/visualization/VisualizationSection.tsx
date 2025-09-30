@@ -19,6 +19,7 @@ interface VisualizationSectionProps {
   onEntityQuantityClick: (dslPath: string, event: MouseEvent) => void;
   onContainerNameClick: (dslPath: string, event: MouseEvent) => void;
   isSelectorOpen?: boolean;
+  isDisabled?: boolean;
 }
 
 export const VisualizationSection = ({
@@ -33,6 +34,7 @@ export const VisualizationSection = ({
   onEntityQuantityClick,
   onContainerNameClick,
   isSelectorOpen = false,
+  isDisabled = false,
 }: VisualizationSectionProps) => {
   const svgRef = useRef<HTMLDivElement | null>(null);
 
@@ -58,6 +60,7 @@ export const VisualizationSection = ({
     onEntityQuantityClick,
     onContainerNameClick,
     isSelectorOpen,
+    isDisabled,
   });
 
   // Inject SVG content, make it responsive, and attach interactions

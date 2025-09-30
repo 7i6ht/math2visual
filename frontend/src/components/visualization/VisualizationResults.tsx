@@ -18,6 +18,7 @@ interface VisualizationResultsProps {
   onEntityQuantityClick: (dslPath: string, event: MouseEvent) => void;
   onContainerNameClick: (dslPath: string, event: MouseEvent) => void;
   isSelectorOpen?: boolean;
+  isDisabled?: boolean;
   onShowHint: () => void;
 }
 
@@ -35,6 +36,7 @@ export const VisualizationResults = ({
   onEntityQuantityClick,
   onContainerNameClick,
   isSelectorOpen = false,
+  isDisabled = false,
   onShowHint,
 }: VisualizationResultsProps) => {
 
@@ -103,6 +105,7 @@ export const VisualizationResults = ({
               onEntityQuantityClick={onEntityQuantityClick}
               onContainerNameClick={onContainerNameClick}
               isSelectorOpen={isSelectorOpen}
+              isDisabled={isDisabled}
             />
 
             <VisualizationSection
@@ -117,6 +120,7 @@ export const VisualizationResults = ({
               onEntityQuantityClick={onEntityQuantityClick}
               onContainerNameClick={onContainerNameClick}
               isSelectorOpen={isSelectorOpen}
+              isDisabled={isDisabled}
             />
           </>
         )}

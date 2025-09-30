@@ -10,7 +10,7 @@ interface GearLoadingProps {
 
 const sizeConfig = {
   small: {
-    container: "p-6",
+    container: "p-2",
     gearContainer: "w-12 h-8",
     gear1: "w-8 h-8",
     gear2: "w-6 h-6",

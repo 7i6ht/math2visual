@@ -50,7 +50,7 @@ export function InitialView({ appState }: Props) {
           />
 
           {mpFormLoading && (
-            <div className="mt-4 animate-in fade-in-0 slide-in-from-bottom-4 duration-500">
+            <div className="animate-in fade-in-0 slide-in-from-bottom-4 duration-500">
               <GearLoading
                 message="Generating..."
                 onAbort={handleAbort}

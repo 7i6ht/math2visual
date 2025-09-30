@@ -9,7 +9,6 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { ErrorDisplay } from "@/components/ui/error-display";
 import { useMathProblemForm } from "@/hooks/useMathProblemForm";
 import type { ParsedOperation } from "@/utils/dsl-parser";
 import { useHighlightingContext } from "@/contexts/HighlightingContext";
@@ -17,7 +16,6 @@ import { useHighlightingContext } from "@/contexts/HighlightingContext";
 interface MathProblemFormProps {
   onSuccess: (vl: string, svgFormal: string | null, svgIntuitive: string | null, parsedDSL: ParsedOperation, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], mwp?: string, formula?: string) => void;
   onLoadingChange: (loading: boolean, abortFn?: () => void) => void;
-  onReset: () => void;
   mwp?: string;
   formula?: string;
   hint?: string;
@@ -32,7 +30,6 @@ interface MathProblemFormProps {
 export const MathProblemForm = ({ 
   onSuccess, 
   onLoadingChange, 
-  onReset,
   mwp = "",
   formula = "",
   hint = "",
@@ -47,13 +44,11 @@ export const MathProblemForm = ({
 
   const { 
     form, 
-    error,
     loading,
     handleSubmit,
   } = useMathProblemForm({
     onSuccess,
     onLoadingChange,
-    onReset,
     mwp,
     formula,
     hint,
@@ -145,8 +140,6 @@ export const MathProblemForm = ({
           )}
         </div>
       </form>
-
-      {error && <ErrorDisplay error={error} />}
     </Form>
   );
 }; 

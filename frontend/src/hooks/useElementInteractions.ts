@@ -17,6 +17,7 @@ interface UseElementInteractionsProps {
   onEntityQuantityClick: (dslPath: string, event: MouseEvent) => void;
   onContainerNameClick: (dslPath: string, event: MouseEvent) => void;
   isSelectorOpen?: boolean;
+  isDisabled?: boolean;
 }
 
 interface ElementListenerConfig {
@@ -36,6 +37,7 @@ export const useElementInteractions = ({
   onEntityQuantityClick,
   onContainerNameClick,
   isSelectorOpen = false,
+  isDisabled = false,
 }: UseElementInteractionsProps) => {
   /**
    * Setup mouseenter and related listeners for a specific SVG element
@@ -49,8 +51,8 @@ export const useElementInteractions = ({
     svgElem.onmouseleave = null;
     svgElem.onclick = null;
 
-    // If selector is open, don't set up hover listeners
-    if (isSelectorOpen) {
+    // If selector is open or disabled, don't set up hover listeners
+    if (isSelectorOpen || isDisabled) {
       return;
     }
 
@@ -59,7 +61,7 @@ export const useElementInteractions = ({
     svgElem.onmouseleave = config.onMouseLeave;
     setCursorStyle(svgElem, 'pointer');
     config.extraSetup?.();
-  }, [isSelectorOpen]);
+  }, [isSelectorOpen, isDisabled]);
 
   /**
    * Setup operation element interactions
@@ -208,6 +210,15 @@ export const useElementInteractions = ({
 
       if (!dslPath) return;
 
+      // If disabled, clear all listeners and return
+      if (isDisabled) {
+        svgElem.onmouseenter = null;
+        svgElem.onmouseleave = null;
+        svgElem.onclick = null;
+        svgElem.style.cursor = 'default';
+        return;
+      }
+
       // Determine element type and setup appropriate interactions
       // Check smaller/internal elements first, then containers, to avoid event blocking
       if (isOperationElement(svgElem)) {
@@ -228,6 +239,7 @@ export const useElementInteractions = ({
     });
   }, [
     svgRef,
+    isDisabled,
     setupOperationElement,
     setupResultContainerElement,
     setupBoxElement,
