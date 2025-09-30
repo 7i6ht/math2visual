@@ -6,6 +6,7 @@ import { generationService as service } from "@/api_services/generation";
 import type { FormData } from "@/schemas/validation";
 import type { ComponentMapping } from "@/types/visualInteraction";
 import type { ParsedOperation } from "@/utils/dsl-parser";
+import { useHighlightingContext } from "@/contexts/HighlightingContext";
 
 interface UseMathProblemFormProps {
   onSuccess: (vl: string, svgFormal: string | null, svgIntuitive: string | null, parsedDSL: ParsedOperation, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], mwp?: string, formula?: string, componentMappings?: ComponentMapping) => void;
@@ -28,6 +29,7 @@ export const useMathProblemForm = ({
 }: UseMathProblemFormProps) => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const { clearHighlighting } = useHighlightingContext();
   
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -49,6 +51,7 @@ export const useMathProblemForm = ({
 
 
   const handleSubmit = async (data: FormData) => {
+    clearHighlighting();
     setError(null);
     setLoading(true);
     
