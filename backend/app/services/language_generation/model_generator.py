@@ -5,7 +5,7 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 from peft import PeftModel
 
 # --- Prompt construction ---
-def create_prompt(mwp: str, formula: str = None) -> str:
+def create_prompt(mwp: str, formula: str = None, hint: str = None) -> str:
     prompt_text = (
     '''You are an expert at converting math story problem into a structured 'visual language'. Your task is to write a visual language expression based on the given math story problem. 
     **Background information**
@@ -23,6 +23,7 @@ def create_prompt(mwp: str, formula: str = None) -> str:
     Once you are ready, you can do the task of converting, please make sure to give me the final visual language of the following question in this format only: visual_language:<the visual language result>'''
     f"Question: {mwp}\n"
     f"Formula: {formula}\n"
+    f"Hint: {hint}\n"
     "Answer in visual language:")
 
     return prompt_text
@@ -69,12 +70,13 @@ class VisualLanguageGenerator:
     def generate(self,
                  mwp: str,
                  formula: str = None,
+                 hint: str = None,
                  max_length: int = 2048,
                  max_new_tokens: int = 2048,
                  temperature: float = 0.7,
                  repetition_penalty: float = 1.15
     ) -> str:
-        prompt = create_prompt(mwp, formula)
+        prompt = create_prompt(mwp, formula, hint)
         inputs = self.tokenizer(
             prompt,
             return_tensors="pt",
@@ -101,13 +103,14 @@ if __name__ == "__main__":
     # Default parameters (edit as needed)
     mwp = "Janet has nine oranges, and Sharon has seven oranges. How many oranges do Janet and Sharon have together?"
     formula = "9 + 7 = 16" 
+    hint = None
     base_model_id = "./base_model/models--meta-llama--Llama-3.1-8B/snapshots/d04e592bb4f6aa9cfee91e2e20afa771667e1d4b"
     adapter_dir = "./check-point"
     max_length = 2048
     max_new_tokens = 2048
     # Generate visual language
     gen = VisualLanguageGenerator(base_model_id, adapter_dir)
-    vl = gen.generate(mwp, formula, max_length, max_new_tokens)
+    vl = gen.generate(mwp, formula, hint, max_length, max_new_tokens)
 
     # Save to file
     current_dir = os.path.dirname(os.path.abspath(__file__))
