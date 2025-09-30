@@ -1,5 +1,4 @@
 import { useDSLContext } from "@/contexts/DSLContext";
-import { useHighlightingContext } from "@/contexts/HighlightingContext";
 import type { ParsedOperation } from "@/utils/dsl-parser";
 import type { ComponentMapping } from "@/types/visualInteraction";
 import { detectDSLChanges, updateMWPText } from "@/lib/dsl-utils";
@@ -38,7 +37,6 @@ export const useVisualizationHandlers = ({
 }: VisualizationHandlersDeps) => {
   const { componentMappings: contextComponentMappings } =
     useDSLContext();
-  const { setCurrentDSLPath } = useHighlightingContext();
 
   const handleVLResult = (
     nextVL: string,
@@ -88,11 +86,8 @@ export const useVisualizationHandlers = ({
     );
   };
 
-  const onDSLPathHighlight = setCurrentDSLPath;
-
   return {
-    handleVLResult,
-    onDSLPathHighlight,
+    handleVLResult
   };
 };
 

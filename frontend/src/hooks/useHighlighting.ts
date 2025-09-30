@@ -12,8 +12,6 @@ interface UseHighlightingProps {
 }
 
 interface HighlightConfig {
-  icon: string;
-  label: string;
   applyVisualHighlight: () => void;
   applyMWPHighlight: () => void;
 }
@@ -28,7 +26,7 @@ export const useHighlighting = ({
 }: UseHighlightingProps) => {
   const { componentMappings } = useDSLContext();
   const { setDslHighlightRanges: onDSLRangeHighlight, setMwpHighlightRanges: onMWPRangeHighlight, currentDSLPath } = useHighlightingContext();
-  const mappings: ComponentMapping = (componentMappings || {}) as ComponentMapping;
+  const mappings: ComponentMapping = useMemo(() => (componentMappings || {}) as ComponentMapping, [componentMappings]);
 
   /**
    * Clear highlight on a specific SVG element. If className is omitted,
@@ -127,8 +125,6 @@ export const useHighlighting = ({
   const triggerBoxHighlight = useCallback((dslPath: string) => {
     const mapping = mappings[dslPath];
     triggerHighlight(mapping, {
-      icon: '🔲',
-      label: 'Box',
       applyVisualHighlight: () => {
         const targetBox = svgRef.current?.querySelector(`[data-dsl-path="${dslPath}"]:not(text)`) as SVGElement;
         if (targetBox) {
@@ -220,8 +216,6 @@ export const useHighlighting = ({
   const triggerOperationHighlight = useCallback((dslPath: string) => {
     const mapping = mappings[dslPath];
     triggerHighlight(mapping, {
-      icon: '⚙️',
-      label: 'Operation',
       applyVisualHighlight: () => {
         const operationEl = svgRef.current?.querySelector(`g[data-dsl-path="${dslPath}"]`) as SVGGraphicsElement;
         if (operationEl) {
@@ -328,8 +322,6 @@ export const useHighlighting = ({
     }
 
     triggerHighlight(mapping, {
-      icon: '🖼️',
-      label: 'Embedded SVG',
       applyVisualHighlight: () => {
         // Use the indexed dslPath to find the specific SVG element
         const embeddedSvgEl = svgRef.current?.querySelector(`svg[data-dsl-path="${dslPath}"]`) as SVGGraphicsElement;
@@ -351,8 +343,6 @@ export const useHighlighting = ({
     const mapping = mappings[dslPath];
     
     triggerHighlight(mapping, {
-      icon: '🏷️',
-      label: 'Container Type',
       applyVisualHighlight: () => {
         // Use the dslPath to find the specific SVG element
         const containerTypeSvgEl = svgRef.current?.querySelector(`svg[data-dsl-path="${dslPath}"]`) as SVGElement;
@@ -410,8 +400,6 @@ export const useHighlighting = ({
     const mapping = mappings[dslPath];
     
     triggerHighlight(mapping, {
-      icon: '🏷️',
-      label: 'Container Name',
       applyVisualHighlight: () => {
         // Use the dslPath to find the specific text element
         const containerNameTextEl = svgRef.current?.querySelector(`text[data-dsl-path="${dslPath}"]`) as SVGElement;
@@ -429,8 +417,6 @@ export const useHighlighting = ({
   const triggerResultContainerHighlight = useCallback((dslPath: string) => {
     const mapping = mappings[dslPath];
     triggerHighlight(mapping, {
-      icon: '📦',
-      label: 'Result Container',
       applyVisualHighlight: () => {
         const targetBox = svgRef.current?.querySelector(`[data-dsl-path="${dslPath}"]:not(text)`) as SVGElement;
         if (targetBox) {
@@ -454,13 +440,7 @@ export const useHighlighting = ({
     }
 
     // Remove indices from the end of the path for matching
-    let basePath = currentDSLPath;
-    if (basePath.endsWith(']')) {
-      const lastBracketIndex = basePath.lastIndexOf('[');
-      if (lastBracketIndex !== -1) {
-        basePath = basePath.substring(0, lastBracketIndex);
-      }
-    }
+    const basePath = currentDSLPath.endsWith(']') ? currentDSLPath.slice(0, -3) : currentDSLPath;
 
     // Map DSL path types to their corresponding highlight functions
     const pathTypeHandlers: Record<string, () => void> = {

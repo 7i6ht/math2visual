@@ -40,11 +40,11 @@ export function TwoColumnView({ appState }: Props) {
   } = appState;
 
   const { formattedDSL, parsedDSL, componentMappings } = useDSLContext();
-  const { dslHighlightRanges, mwpHighlightRanges } =
+  const { dslHighlightRanges, mwpHighlightRanges, setCurrentDSLPath } =
     useHighlightingContext();
   const hintInputRef = useRef<HTMLTextAreaElement | null>(null);
 
-  const { handleVLResult, onDSLPathHighlight } =
+  const { handleVLResult } =
     useVisualizationHandlers({
       svgFormal,
       svgIntuitive,
@@ -165,7 +165,7 @@ export function TwoColumnView({ appState }: Props) {
                     setVLFormLoading(loading, abortFn);
                   }}
                   highlightRanges={dslHighlightRanges}
-                  onDSLPathHighlight={onDSLPathHighlight}
+                  onDSLPathHighlight={setCurrentDSLPath}
                 />
               )}
             </div>

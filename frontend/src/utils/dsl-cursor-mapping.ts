@@ -39,16 +39,30 @@ export function findDSLPathAtPosition(componentMappings: ComponentMapping, curso
 
   // If the selected path points to an entity_type, decide whether to point to its first item
   // based on the entity_quantity and MAX_ITEM_DISPLAY threshold
-  if (/(^|\/)entity_type(\[\d+\])?$/.test(selectedPath)) {
-    const containerPath = selectedPath.replace(/\/(entity_type)(\[\d+\])?$/, '');
-    const quantityPath = `${containerPath}/entity_quantity`;
-    const quantityVal = componentMappings[quantityPath]?.property_value;
-    const quantity = quantityVal !== undefined ? Number(quantityVal) : NaN;
+  {
+    const lastSlash = selectedPath.lastIndexOf('/');
+    const lastSegment = lastSlash >= 0 ? selectedPath.slice(lastSlash + 1) : selectedPath;
 
-    if (!Number.isNaN(quantity) && quantity <= MAX_ITEM_DISPLAY) {
-      // Use first item index for single-icon representation
-      if (!/entity_type\[\d+\]$/.test(selectedPath)) {
-        selectedPath = `${selectedPath}[0]`;
+    const isEntityTypeSegment = (() => {
+      if (lastSegment === 'entity_type') return true;
+      if (!lastSegment.startsWith('entity_type[') || !lastSegment.endsWith(']')) return false;
+      const idx = lastSegment.indexOf('[');
+      const inside = lastSegment.slice(idx + 1, -1);
+      return inside.length > 0 && inside.split('').every((ch) => ch >= '0' && ch <= '9');
+    })();
+
+    if (isEntityTypeSegment) {
+      const containerPath = lastSlash >= 0 ? selectedPath.slice(0, lastSlash) : '';
+      const quantityPath = (containerPath ? containerPath : '') + '/entity_quantity';
+      const quantityVal = componentMappings[quantityPath]?.property_value;
+      const quantity = quantityVal !== undefined ? Number(quantityVal) : NaN;
+
+      if (!Number.isNaN(quantity) && quantity <= MAX_ITEM_DISPLAY) {
+        // Use first item index for single-icon representation
+        const hasIndex = lastSegment !== 'entity_type' && lastSegment.endsWith(']');
+        if (!hasIndex) {
+          selectedPath = `${selectedPath}[0]`;
+        }
       }
     }
   }

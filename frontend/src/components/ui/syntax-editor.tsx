@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Editor, { type Monaco } from '@monaco-editor/react';
+import type { editor as MonacoEditor } from 'monaco-editor';
 import { cn } from '@/lib/utils';
 import './syntax-editor.css';
 
@@ -10,7 +11,6 @@ interface SyntaxEditorProps {
   rows?: number;
   height?: string;
   highlightRanges?: Array<[number, number]>;
-  onRangeClick?: (range: [number, number]) => void;
   onCursorPositionChange?: (position: number, modelValue: string) => void;
 }
 
@@ -44,7 +44,7 @@ const setupVLLanguage = (monaco: Monaco) => {
         
         // Delimiters (single character matches, very fast)
         [/[()]/, 'delimiter.parenthesis'],
-        [/[\[\]]/, 'delimiter.bracket'],
+        [/\[\]/, 'delimiter.bracket'],
         [/[,:]/, { cases: { ',': 'delimiter.comma', ':': 'delimiter.colon' } }],
         
         // Operations (grouped with word boundaries for efficiency)
@@ -156,13 +156,13 @@ export const SyntaxEditor: React.FC<SyntaxEditorProps> = ({
   rows = 6,
   height,
   highlightRanges = [],
-  onRangeClick,
   onCursorPositionChange,
 }) => {
   const isLanguageSetup = useRef(false);
   const [formattedValue, setFormattedValue] = useState(value);
-  const editorRef = useRef<any>(null);
+  const editorRef = useRef<MonacoEditor.IStandaloneCodeEditor | null>(null);
   const decorationsRef = useRef<string[]>([]);
+  const monacoRef = useRef<Monaco | null>(null);
 
   // Update formatted value when value changes externally (no formatting needed since backend sends formatted DSL)
   useEffect(() => {
@@ -171,8 +171,12 @@ export const SyntaxEditor: React.FC<SyntaxEditorProps> = ({
     }
   }, [value, formattedValue]);
 
-  const handleEditorDidMount = (editor: any, monaco: Monaco) => {
+  const handleEditorDidMount = (
+    editor: MonacoEditor.IStandaloneCodeEditor,
+    monaco: Monaco
+  ) => {
     editorRef.current = editor;
+    monacoRef.current = monaco;
     
     if (!isLanguageSetup.current) {
       setupVLLanguage(monaco);
@@ -187,7 +191,7 @@ export const SyntaxEditor: React.FC<SyntaxEditorProps> = ({
     // Note: We're not automatically triggering highlighting here to avoid infinite loops
     // Highlighting will happen when users interact with visual elements
     if (onCursorPositionChange) {
-      editor.onDidChangeCursorPosition((e: any) => {
+      editor.onDidChangeCursorPosition((e: MonacoEditor.ICursorPositionChangedEvent) => {
         const model = editor.getModel();
         if (model) {
           const offset = model.getOffsetAt(e.position);
@@ -198,32 +202,12 @@ export const SyntaxEditor: React.FC<SyntaxEditorProps> = ({
         }
       });
     }
-    
-    // Handle range clicks if callback provided
-    if (onRangeClick) {
-      editor.onMouseDown((e: any) => {
-        if (e.target.type === monaco.editor.MouseTargetType.CONTENT_TEXT) {
-          const position = e.target.position;
-          const model = editor.getModel();
-          if (model && position) {
-            const offset = model.getOffsetAt(position);
-            // Find which highlight range was clicked
-            for (const range of highlightRanges) {
-              if (offset >= range[0] && offset <= range[1]) {
-                onRangeClick(range);
-                break;
-              }
-            }
-          }
-        }
-      });
-    }
   };
   
   // Add highlighting functionality
   useEffect(() => {
     if (editorRef.current && highlightRanges.length > 0) {
-      const monaco = (window as any).monaco;
+      const monaco = monacoRef.current;
       if (!monaco) return;
       
       const model = editorRef.current.getModel();

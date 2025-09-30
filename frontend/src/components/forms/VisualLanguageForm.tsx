@@ -1,4 +1,5 @@
 import { SyntaxEditor } from "@/components/ui/syntax-editor";
+import { useCallback, useMemo } from "react";
 import { findDSLPathAtPosition } from "@/utils/dsl-cursor-mapping";
 import {
   Form,
@@ -26,7 +27,13 @@ export const VisualLanguageForm = ({
   onDSLPathHighlight,
 }: VisualLanguageFormProps) => {
   const { componentMappings: contextMappings } = useDSLContext();
-  const effectiveMappings = contextMappings ?? {} as ComponentMapping;
+  const effectiveMappings = useMemo(() => (contextMappings ?? {}) as ComponentMapping, [contextMappings]);
+  
+  const handleCursorPositionChange = useCallback((position: number) => {
+    const dslPath = findDSLPathAtPosition(effectiveMappings, position);
+    onDSLPathHighlight?.(dslPath);
+  }, [effectiveMappings, onDSLPathHighlight]);
+
   const { 
     form, 
     handleDebouncedChange,
@@ -56,10 +63,7 @@ export const VisualLanguageForm = ({
                     className="w-full"
                     height="100%"
                     highlightRanges={highlightRanges}
-                    onCursorPositionChange={(position) => {
-                      const dslPath = findDSLPathAtPosition(effectiveMappings, position);
-                      onDSLPathHighlight?.(dslPath);
-                    }}
+                    onCursorPositionChange={handleCursorPositionChange}
                   />
                 </FormControl>
                 <FormMessage/>
