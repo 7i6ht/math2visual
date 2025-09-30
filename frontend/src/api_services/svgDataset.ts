@@ -1,4 +1,5 @@
 import { BACKEND_BASE_URL as API_BASE_URL } from '@/config/api';
+import type { SVGUploadResponse } from '@/types';
 
 export interface SVGFile {
   filename: string;
@@ -55,12 +56,7 @@ export class SVGDatasetService {
   /**
    * Upload SVG file to the dataset
    */
-  static async uploadSVG(file: File, expectedFilename: string): Promise<{
-    success: boolean;
-    message?: string;
-    error?: string;
-    validation_details?: any;
-  }> {
+  static async uploadSVG(file: File, expectedFilename: string): Promise<SVGUploadResponse> {
     try {
       const formData = new FormData();
       formData.append('file', file);
