@@ -39,7 +39,8 @@ export const useHighlighting = ({
     // Clear DSL and MWP highlights
     onMWPRangeHighlight([]);
     onDSLRangeHighlight([]);
-  }, [onMWPRangeHighlight, onDSLRangeHighlight]);
+    setFormulaHighlightRanges([]);
+  }, [onMWPRangeHighlight, onDSLRangeHighlight, setFormulaHighlightRanges]);
 
   /**
    * Set transform origin for embedded SVG elements using position attributes
@@ -437,6 +438,7 @@ export const useHighlighting = ({
    * Highlight the visual element corresponding to the current DSL path
    */
   const highlightCurrentDSLPath = useCallback(() => {
+    setFormulaHighlightRanges([])
   
     if (!currentDSLPath) {
       return;
@@ -464,7 +466,7 @@ export const useHighlighting = ({
       // Special case for entity containers (boxes)
       triggerBoxHighlight(currentDSLPath);
     }
-  }, [currentDSLPath, triggerEntityQuantityHighlight, triggerContainerNameHighlight, triggerEmbeddedSvgHighlight, triggerContainerTypeHighlight, triggerBoxHighlight, triggerOperationHighlight]);
+  }, [currentDSLPath, setFormulaHighlightRanges, triggerEntityQuantityHighlight, triggerContainerNameHighlight, triggerEmbeddedSvgHighlight, triggerContainerTypeHighlight, triggerBoxHighlight, triggerOperationHighlight]);
 
   const returnValue = useMemo(() => ({
     clearHighlightForElement,

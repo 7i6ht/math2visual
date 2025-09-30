@@ -1,6 +1,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { HighlightableTextarea } from "@/components/ui/highlightable-textarea";
+import { HighlightableInput } from "@/components/ui/highlightable-input";
 import {
   Form,
   FormControl,
@@ -94,10 +95,9 @@ export const MathProblemForm = ({
           render={({ field }) => (
             <FormItem>
               <FormControl>
-                <HighlightableTextarea
+                <HighlightableInput
                   className={`w-full ${largeFont ? 'md:text-md lg:text-gl' : ''}`}
                   placeholder="Optional formula (e.g. 9 + 7 = 16)"
-                  rows={1}
                   spellCheck={false}
                   highlightRanges={formulaHighlightRanges}
                   {...field}
