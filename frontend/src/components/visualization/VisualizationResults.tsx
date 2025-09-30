@@ -58,10 +58,8 @@ export const VisualizationResults = ({
   const getDefaultAccordionItems = useCallback(() => {
     // Check for parse errors first
     if (hasParseError) return ["parse-error"];
-    if (!formalError) return ["formal"];
-    if (!intuitiveError) return ["intuitive"];
-    if (missingSVGEntities.length > 0) return ["missing-svg"];
-    return [];
+    if (formalError && intuitiveError && missingSVGEntities.length > 0) return ["missing-svg"];
+    return ["formal", "intuitive"];
   }, [hasParseError, formalError, intuitiveError, missingSVGEntities]);
 
   // Update accordion items when props change
