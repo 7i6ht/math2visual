@@ -40,8 +40,6 @@ export function TwoColumnView({ appState }: Props) {
   } = appState;
 
   const { formattedDSL, parsedDSL, componentMappings } = useDSLContext();
-  const { dslHighlightRanges, mwpHighlightRanges, formulaHighlightRanges, setCurrentDSLPath } =
-    useHighlightingContext();
   const hintInputRef = useRef<HTMLTextAreaElement | null>(null);
 
   const { handleVLResult } =
@@ -150,8 +148,6 @@ export function TwoColumnView({ appState }: Props) {
                 hint={hint}
                 saveInitialValues={appState.saveInitialValues}
                 rows={8}
-                highlightRanges={mwpHighlightRanges}
-                formulaHighlightRanges={formulaHighlightRanges}
                 hideSubmit={false}
                 showHint={showHint}
                 hintInputRef={hintInputRef}
@@ -165,8 +161,6 @@ export function TwoColumnView({ appState }: Props) {
                   onLoadingChange={(loading, abortFn) => {
                     setVLFormLoading(loading, abortFn);
                   }}
-                  highlightRanges={dslHighlightRanges}
-                  onDSLPathHighlight={setCurrentDSLPath}
                 />
               )}
             </div>

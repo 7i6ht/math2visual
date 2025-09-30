@@ -11,6 +11,7 @@ import {
 import { ErrorDisplay } from "@/components/ui/error-display";
 import { useMathProblemForm } from "@/hooks/useMathProblemForm";
 import type { ParsedOperation } from "@/utils/dsl-parser";
+import { useHighlightingContext } from "@/contexts/HighlightingContext";
 
 interface MathProblemFormProps {
   onSuccess: (vl: string, svgFormal: string | null, svgIntuitive: string | null, parsedDSL: ParsedOperation, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], mwp?: string, formula?: string) => void;
@@ -21,8 +22,6 @@ interface MathProblemFormProps {
   hint?: string;
   saveInitialValues: (mwp: string, formula: string, hint: string) => void;
   rows?: number;
-  highlightRanges?: Array<[number, number]>;
-  formulaHighlightRanges?: Array<[number, number]>;
   hideSubmit?: boolean;
   largeFont?: boolean;
   showHint?: boolean;
@@ -38,13 +37,13 @@ export const MathProblemForm = ({
   hint = "",
   saveInitialValues,
   rows = 8,
-  highlightRanges = [],
-  formulaHighlightRanges = [],
   hideSubmit = false,
   largeFont = false,
   showHint = false,
   hintInputRef,
 }: MathProblemFormProps) => {
+  const { mwpHighlightRanges, formulaHighlightRanges } = useHighlightingContext();
+
   const { 
     form, 
     error,
@@ -74,7 +73,7 @@ export const MathProblemForm = ({
                   placeholder="Enter your math word problem…"
                   rows={rows}
                   spellCheck={false}
-                  highlightRanges={highlightRanges}
+                  highlightRanges={mwpHighlightRanges}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();

@@ -11,28 +11,26 @@ import {
 import { useVisualLanguageForm } from "@/hooks/useVisualLanguageForm";
 import type { ComponentMapping } from "@/types/visualInteraction";
 import type { ParsedOperation } from "@/utils/dsl-parser";
+import { useHighlightingContext } from "@/contexts/HighlightingContext";
 import { useDSLContext } from "@/contexts/DSLContext";
 
 interface VisualLanguageFormProps {
   onResult: (vl: string, svgFormal: string | null, svgIntuitive: string | null, parsedDSL: ParsedOperation, currentParsedDSL: ParsedOperation, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], mwp?: string, formula?: string, componentMappings?: ComponentMapping) => void;
   onLoadingChange: (loading: boolean, abortFn?: () => void) => void;
-  highlightRanges?: Array<[number, number]>;
-  onDSLPathHighlight?: (dslPath: string | null) => void;
 }
 
 export const VisualLanguageForm = ({ 
   onResult,
-  onLoadingChange,
-  highlightRanges = [],
-  onDSLPathHighlight,
+  onLoadingChange
 }: VisualLanguageFormProps) => {
+  const { dslHighlightRanges, setCurrentDSLPath } = useHighlightingContext();
   const { componentMappings: contextMappings } = useDSLContext();
   const effectiveMappings = useMemo(() => (contextMappings ?? {}) as ComponentMapping, [contextMappings]);
   
   const handleCursorPositionChange = useCallback((position: number) => {
     const dslPath = findDSLPathAtPosition(effectiveMappings, position);
-    onDSLPathHighlight?.(dslPath);
-  }, [effectiveMappings, onDSLPathHighlight]);
+    setCurrentDSLPath(dslPath);
+  }, [effectiveMappings, setCurrentDSLPath]);
 
   const { 
     form, 
@@ -62,7 +60,7 @@ export const VisualLanguageForm = ({
                     }}
                     className="w-full"
                     height="100%"
-                    highlightRanges={highlightRanges}
+                    highlightRanges={dslHighlightRanges}
                     onCursorPositionChange={handleCursorPositionChange}
                   />
                 </FormControl>
