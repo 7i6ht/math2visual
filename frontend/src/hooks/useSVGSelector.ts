@@ -10,6 +10,7 @@ interface SVGSelectorState {
   isOpen: boolean;
   dslPath: string;
   currentValue: string;
+  visualType: 'formal' | 'intuitive';
 }
 
 interface UseSVGSelectorProps {
@@ -36,6 +37,7 @@ export const useSVGSelector = ({
     isOpen: false,
     dslPath: '',
     currentValue: '',
+    visualType: 'formal',
   });
 
   // Close the selector and clear highlight
@@ -53,7 +55,7 @@ export const useSVGSelector = ({
   }, [setCurrentDSLPath, clearCurrentTargetElement]);
 
   // Open the selector at a specific position for a specific DSL path
-  const openSelector = useCallback((dslPath: string, currentValue: string, event: MouseEvent) => {
+  const openSelector = useCallback((dslPath: string, currentValue: string, event: MouseEvent, visualType: 'formal' | 'intuitive') => {
     console.log('🎯 [openSelector] START', { dslPath, currentValue, event, target: event.target });
     
     // Set currentDSLPath to trigger highlight via existing system
@@ -61,7 +63,7 @@ export const useSVGSelector = ({
     
     // Find the correct SVG element using closest() method
     // This ensures we get the actual SVG element with data-dsl-path, not a child element
-    let targetEl = (event.target as Element).closest('svg[data-dsl-path]') as Element;
+    const targetEl = (event.target as Element).closest('svg[data-dsl-path]') as Element;
     
     // Store target element in context
     setCurrentTargetElement(targetEl);
@@ -70,6 +72,7 @@ export const useSVGSelector = ({
       isOpen: true,
       dslPath: dslPath,
       currentValue,
+      visualType,
     });
     console.log('🎯 [openSelector] END');
   }, [setCurrentDSLPath, setCurrentTargetElement]);

@@ -73,12 +73,12 @@ export function TwoColumnView({ appState }: Props) {
     });
 
   const handleEmbeddedSVGClickWithSelector = useCallback(
-    (dslPath: string, event: MouseEvent) => {
+    (dslPath: string, event: MouseEvent, visualType: 'formal' | 'intuitive') => {
       const normalizedPath = dslPath.endsWith("]") ? dslPath.slice(0, -3) : dslPath;
 
       const typeMapping = componentMappings?.[normalizedPath];
       const currentValue = typeMapping?.property_value || "";
-      openSelector(dslPath, currentValue, event);
+      openSelector(dslPath, currentValue, event, visualType);
     },
     [componentMappings, openSelector]
   );
@@ -225,6 +225,7 @@ export function TwoColumnView({ appState }: Props) {
 
       <PopupManager
         isSelectorOpen={selectorState.isOpen}
+        visualType={selectorState.visualType}
         onCloseSelector={closeSelector}
         onEmbeddedSVGChange={handleEmbeddedSVGChange}
         quantityPopupState={popup.quantityPopupState}

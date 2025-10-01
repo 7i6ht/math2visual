@@ -4,6 +4,7 @@ import { ContainerNamePopup } from "@/components/popups/ContainerNamePopup";
 
 type Props = {
   isSelectorOpen: boolean;
+  visualType: 'formal' | 'intuitive';
   onCloseSelector: () => void;
   onEmbeddedSVGChange: (newType: string) => Promise<void>;
 
@@ -18,6 +19,7 @@ type Props = {
 
 export function PopupManager({
   isSelectorOpen,
+  visualType,
   onCloseSelector,
   onEmbeddedSVGChange,
   quantityPopupState,
@@ -31,6 +33,7 @@ export function PopupManager({
     <>
       {isSelectorOpen && (
         <SVGActionMenu
+          visualType={visualType}
           onClosePopup={onCloseSelector}
           onEmbeddedSVGChange={onEmbeddedSVGChange}
         />

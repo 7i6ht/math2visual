@@ -13,11 +13,13 @@ import { BasePopup } from "./BasePopup";
 import { useHighlightingContext } from "@/contexts/HighlightingContext";
 
 interface SVGActionMenuProps {
+  visualType: 'formal' | 'intuitive';
   onClosePopup: () => void;
   onEmbeddedSVGChange: (newType: string) => Promise<void>;
 }
 
 export const SVGActionMenu: React.FC<SVGActionMenuProps> = ({
+  visualType,
   onClosePopup,
   onEmbeddedSVGChange,
 }) => {
@@ -30,9 +32,11 @@ export const SVGActionMenu: React.FC<SVGActionMenuProps> = ({
   const recalcAndSetTargetElement = useCallback(() => {
     if (!currentDSLPath) return;
     const escaped = CSS.escape(currentDSLPath);
-    const el = (document.querySelector(`svg[data-dsl-path="${escaped}"]`) as Element | null);
-    if (el) setCurrentTargetElement(el);
-  }, [currentDSLPath, setCurrentTargetElement]);
+    const elements = document.querySelectorAll(`svg[data-dsl-path="${escaped}"]`);
+    if (elements.length > 0) {
+      setCurrentTargetElement(elements[visualType === 'intuitive' ? 1 : 0]);
+    }
+  }, [currentDSLPath, setCurrentTargetElement, visualType]);
 
   // Ensure target is recalculated before the popup renders/paints
   useLayoutEffect(() => {
