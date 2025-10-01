@@ -52,8 +52,6 @@ export const BasePopup: React.FC<BasePopupProps> = ({
       }
       
       try {
-        const rect = popupRef.current.getBoundingClientRect();
-        const margin = 16;
         
         let x = window.innerWidth / 2;
         let y = window.innerHeight / 2;
@@ -61,28 +59,12 @@ export const BasePopup: React.FC<BasePopupProps> = ({
         // Use target element's current position instead of click position
         if (currentTargetElement) {
           const targetRect = currentTargetElement.getBoundingClientRect();
-          // Use center of target element
+          // Use center of target element - stay exactly over it regardless of viewport
           x = targetRect.left + targetRect.width / 2;
           y = targetRect.top + targetRect.height / 2;
         } else {
           // This should never happen when a popup is open - log for debugging
           console.warn('BasePopup: No target element available for positioning, centering popup');
-        }
-        
-        const halfWidth = rect.width / 2;
-        const halfHeight = rect.height / 2;
-        
-        // Check if position would overflow viewport
-        if (x - halfWidth < margin) {
-          x = margin + halfWidth;
-        } else if (x + halfWidth > window.innerWidth - margin) {
-          x = window.innerWidth - margin - halfWidth;
-        }
-        
-        if (y - halfHeight < margin) {
-          y = margin + halfHeight;
-        } else if (y + halfHeight > window.innerHeight - margin) {
-          y = window.innerHeight - margin - halfHeight;
         }
         
         setAdjustedPosition({ x, y, transform: 'translate(-50%, -50%)' });
@@ -96,13 +78,54 @@ export const BasePopup: React.FC<BasePopupProps> = ({
       calculatePosition();
     });
     
-    // Recalculate on window resize
+    // Recalculate on window resize and scroll events
     const handleResize = () => calculatePosition();
+    
+    // Throttle scroll events for better performance
+    let scrollTimeout: NodeJS.Timeout | null = null;
+    const handleScroll = () => {
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout);
+      }
+      scrollTimeout = setTimeout(() => {
+        calculatePosition();
+        scrollTimeout = null;
+      }, 16); // ~60fps throttling
+    };
+    
     window.addEventListener('resize', handleResize);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    
+    // Also listen for scroll events on any scrollable parent containers
+    // This includes the document and any elements that might contain the SVG
+    document.addEventListener('scroll', handleScroll, { passive: true });
+    
+    // Find and listen to scroll events on the SVG container and its parents
+    if (currentTargetElement) {
+      let parent = currentTargetElement.parentElement;
+      while (parent) {
+        parent.addEventListener('scroll', handleScroll, { passive: true });
+        parent = parent.parentElement;
+      }
+    }
     
     return () => {
       cancelAnimationFrame(rafId);
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout);
+      }
       window.removeEventListener('resize', handleResize);
+      window.removeEventListener('scroll', handleScroll);
+      document.removeEventListener('scroll', handleScroll);
+      
+      // Clean up parent scroll listeners
+      if (currentTargetElement) {
+        let parent = currentTargetElement.parentElement;
+        while (parent) {
+          parent.removeEventListener('scroll', handleScroll);
+          parent = parent.parentElement;
+        }
+      }
     };
   }, [currentTargetElement]);
 
