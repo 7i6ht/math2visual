@@ -166,7 +166,7 @@ export function TwoColumnView({ appState }: Props) {
               </div>
             </div>
 
-            <div className="relative flex flex-col min-h-[300px] md:min_h-[400px] xl:min-h-0">
+            <div className="relative flex flex-col min-h-[300px] md:min-h-[400px] xl:min-h-0">
               {formattedDSL && (
                 <VisualLanguageForm
                   onResult={handleVLResult}
@@ -188,7 +188,7 @@ export function TwoColumnView({ appState }: Props) {
               )}
               {mpFormLoading && (
                 <div
-                  className="absolute inset-0 bg-background/50 dark:bg-black/30 backdrop-blur-[1px] rounded-md pointer-events-none"
+                  className="absolute inset-0 z-10 bg-background/50 dark:bg-black/30 backdrop-blur-[1px] rounded-md pointer-events-none"
                   aria-hidden="true"
                 />
               )}
