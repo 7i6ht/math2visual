@@ -25,6 +25,7 @@ interface MathProblemFormProps {
   largeFont?: boolean;
   showHint?: boolean;
   hintInputRef?: React.RefObject<HTMLTextAreaElement | null>;
+  onReset?: () => void;
 }
 
 export const MathProblemForm = ({ 
