@@ -86,7 +86,7 @@ export const useMathProblemForm = ({
     } catch (error) {
       console.error('Generation failed:', error);
       // Only show toast if it's not an abort error
-      if (error instanceof Error && error.message.includes("Request was cancelled")) {
+      if (error instanceof Error && !error.message.includes("Request was cancelled")) {
         const errorMessage = error.message || "An unknown error occurred";
         toast.error("Failed to generate visualizations", {
           description: errorMessage
