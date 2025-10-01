@@ -12,7 +12,6 @@ from app.services.visual_generation.formal_generator import FormalVisualGenerato
 from app.services.visual_generation.intuitive_generator import IntuitiveVisualGenerator
 from app.services.visual_generation.utils import ValidationError, VisualGenerationError
 from app.services.dsl.dsl_parser import DSLParser
-from app.services.dsl.dsl_updater import DSLUpdater
 from app.config.storage_config import get_svg_dataset_path
 
 generation_bp = Blueprint('generation', __name__)
@@ -177,64 +176,3 @@ def generate():
     })
 
 
-@generation_bp.route("/api/update-embedded-svg", methods=["POST"])
-def update_embedded_svg():
-    """
-    Update type in DSL and regenerate visuals.
-    
-    Expects:
-        - dsl: Current DSL string
-        - old_svg_name: Current type to replace
-        - new_svg_name: New type to use
-        
-    Returns JSON with updated DSL and regenerated SVG content.
-    """
-    body = request.json or {}
-    
-    dsl = body.get("dsl", "").strip()
-    old_svg_name = body.get("old_svg_name", "").strip()
-    new_svg_name = body.get("new_svg_name", "").strip()
-    
-    if not dsl:
-        return jsonify({"error": "DSL is required"}), 400
-    
-    if not old_svg_name:
-        return jsonify({"error": "old_svg_name is required"}), 400
-    
-    if not new_svg_name:
-        return jsonify({"error": "New type is required"}), 400
-    
-#    # Initialize DSL updater and validate new type
-    dsl_updater = DSLUpdater() # TODO: move validation to upload endpoint
-#    is_valid, validation_error = dsl_updater.validate_format(new_svg_name)
-#    if not is_valid:
-#       return jsonify({"error": f"Invalid type name: {validation_error}"}), 400
-    
-    # Update the DSL with new type
-    updated_dsl, replacement_count = dsl_updater.update_types(dsl, old_svg_name, new_svg_name)
-    
-    if replacement_count == 0:
-        return jsonify({"error": f"Type '{old_svg_name}' not found in DSL"}), 400
-    
-    # Initialize parser
-    dsl_parser = DSLParser()
-    
-    # Parse updated DSL
-    try:
-        parsed_dsl = dsl_parser.parse_dsl(updated_dsl)
-    except (ValueError, ValidationError) as e:
-        return jsonify({"error": f"DSL parse error after update: {e}"}), 500
-    
-    # Generate visualizations using shared method
-    result = generate_visualizations(parsed_dsl)
-    
-    return jsonify({
-        "visual_language": updated_dsl,
-        "svg_formal": result["svg_formal"],
-        "svg_intuitive": result["svg_intuitive"],
-        "formal_error": result["formal_error"],
-        "intuitive_error": result["intuitive_error"],
-        "missing_svg_entities": result["missing_svg_entities"],
-        "old_svg_name": old_svg_name,
-        "new_svg_name": new_svg_name
-    })

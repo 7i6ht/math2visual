@@ -1,5 +1,4 @@
 import type { ApiRequest, ApiResponse } from "@/types";
-import type { ComponentMapping } from "@/types/visualInteraction";
 import type { ParsedOperation } from "@/utils/dsl-parser";
 import { BACKEND_API_URL as API_BASE_URL } from "@/config/api";
 import { DSLFormatter } from "@/utils/dsl-formatter";
@@ -99,70 +98,6 @@ const generationService = {
     return this.generateVisualization({ dsl }, abortSignal);
   },
 
-  async updateEmbeddedSVG(
-    dsl: string,
-    oldType: string,
-    newType: string
-  ): Promise<{
-    parsedDSL: ParsedOperation;
-    visual_language: string;
-    svg_formal: string | null;
-    svg_intuitive: string | null;
-    formal_error: string | null;
-    intuitive_error: string | null;
-    missing_svg_entities: string[];
-    componentMappings: ComponentMapping;
-  }> {
-    try {
-      const response = await fetch(`${API_BASE_URL}/update-embedded-svg`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          dsl: DSLFormatter.minify(dsl),
-          old_svg_name: oldType,
-          new_svg_name: newType,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new ApiError(errorData.error || `Update failed with status ${response.status}`, response.status);
-      }
-
-      const result = await response.json();
-      
-      // Generate component mappings from the updated DSL
-      const formatter = new DSLFormatter();
-      const parsed = parseWithErrorHandling(result.visual_language || '');
-      if (!parsed) {
-        // Return empty mappings on parse error
-        return {
-          ...result,
-          componentMappings: {}
-        };
-      }
-
-      const formattedDSL = formatter.formatWithRanges(parsed);
-      return {
-        ...result,
-        visual_language: formattedDSL,
-        componentMappings: { ...formatter.componentRegistry },
-        parsedDSL: parsed
-      };
-    } catch (error) {
-      console.error('Embedded SVG update error:', error);
-      
-      if (error instanceof ApiError) {
-        throw error;
-      }
-      
-      throw new ApiError(
-        error instanceof Error ? error.message : 'Failed to update embedded SVG'
-      );
-    }
-  }
 };
 
 export { generationService as generationService };

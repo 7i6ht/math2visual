@@ -1,6 +1,6 @@
 /**
  * Shared validation constants and utilities for file names
- * These should match the backend validation rules in dsl_updater.py
+ * These should match the backend validation rules in validation_constants
  */
 
 import { SVGDatasetService } from '@/api_services/svgDataset';
@@ -18,7 +18,7 @@ export interface ValidationResult {
 
 /**
  * Validates file name format on the frontend
- * This should match the backend validation in DSLUpdater.validate_entity_type_name()
+ * This should match the backend validation in validation_constants
  */
 const validateFormat = (name: string): ValidationResult => {
   if (!name) {

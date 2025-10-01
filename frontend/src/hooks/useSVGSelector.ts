@@ -42,7 +42,6 @@ export const useSVGSelector = ({
 
   // Close the selector and clear highlight
   const closeSelector = useCallback(() => {
-    console.log('🎯 [closeSelector] START');
     // Reset currentDSLPath to clear highlight
     setCurrentDSLPath(null);
     clearCurrentTargetElement();
@@ -51,13 +50,10 @@ export const useSVGSelector = ({
       ...prev,
       isOpen: false,
     }));
-    console.log('🎯 [closeSelector] END');
   }, [setCurrentDSLPath, clearCurrentTargetElement]);
 
   // Open the selector at a specific position for a specific DSL path
   const openSelector = useCallback((dslPath: string, currentValue: string, event: MouseEvent, visualType: 'formal' | 'intuitive') => {
-    console.log('🎯 [openSelector] START', { dslPath, currentValue, event, target: event.target });
-    
     // Set currentDSLPath to trigger highlight via existing system
     setCurrentDSLPath(dslPath);
     
@@ -74,50 +70,43 @@ export const useSVGSelector = ({
       currentValue,
       visualType,
     });
-    console.log('🎯 [openSelector] END');
   }, [setCurrentDSLPath, setCurrentTargetElement]);
 
   // Handle embedded SVG change
   const handleEmbeddedSVGChange = useCallback(async (newType: string) => {
-    console.log('🎯 [handleEmbeddedSVGChange] START', { newType });
-    if (!formattedDSL) {
-      toast.error('No DSL available for update');
-      console.log('🎯 [handleEmbeddedSVGChange] END (early return - no currentDSL)');
-      return;
-    }
-
-    if (!selectorState.dslPath) {
-      toast.error('No DSL path context available');
-      console.log('🎯 [handleEmbeddedSVGChange] END (early return - no dslPath)');
+    if (!formattedDSL || !selectorState.currentValue) {
+      toast.error('No DSL or path context available');
       return;
     }
 
     try {
       const loadingToastId = toast.loading('Updating SVG and regenerating visuals...');
       
-      const result = await generationService.updateEmbeddedSVG(formattedDSL, selectorState.currentValue, newType);
-      
-      // Update the visuals with the new data, including updated component mappings
+      // Use regex to replace all occurrences of the old type with the new type
+      const updatedDSL = replaceEntityTypeInDSL(formattedDSL, selectorState.currentValue, newType, selectorState.dslPath);
+
+      // Generate new visuals with updated DSL
+      const abortController = new AbortController();
+      const data = await generationService.generateFromDSL(updatedDSL, abortController.signal);
+
+      // Update the application state with new results
       onVisualsUpdate({
-        visual_language: result.visual_language,
-        svg_formal: result.svg_formal,
-        svg_intuitive: result.svg_intuitive,
-        formal_error: result.formal_error,
-        intuitive_error: result.intuitive_error,
-        missing_svg_entities: result.missing_svg_entities,
-        componentMappings: result.componentMappings,
-        parsedDSL: result.parsedDSL,
+        visual_language: data.visual_language,
+        svg_formal: data.svg_formal,
+        svg_intuitive: data.svg_intuitive,
+        formal_error: data.formal_error ?? null,
+        intuitive_error: data.intuitive_error ?? null,
+        missing_svg_entities: data.missing_svg_entities || [],
+        componentMappings: data.componentMappings || {},
+        parsedDSL: data.parsedDSL!,
       });
 
       // Dismiss the loading toast and show success
       toast.dismiss(loadingToastId);
-      toast.success(
-        "Successfully updated SVG"
-      );
+      toast.success("Successfully updated SVG");
       
       // Close the selector (this will also clear the highlight)
       closeSelector();
-      console.log('🎯 [handleEmbeddedSVGChange] END (success)');
     } catch (error) {
       console.error('Embedded SVG change failed:', error);
       // Dismiss any loading toast that might still be showing
@@ -125,7 +114,6 @@ export const useSVGSelector = ({
       toast.error(
         error instanceof Error ? error.message : 'Failed to update SVG'
       );
-      console.log('🎯 [handleEmbeddedSVGChange] END (error)');
       throw error; // Re-throw so the popup can handle it
     }
   }, [formattedDSL, selectorState.currentValue, selectorState.dslPath, onVisualsUpdate, closeSelector]);
@@ -137,3 +125,37 @@ export const useSVGSelector = ({
     handleEmbeddedSVGChange,
   };
 };
+
+/**
+ * Replace all occurrences of an entity type in DSL string using regex
+ * Uses the DSL path to determine whether to match entity_type or container_type
+ */
+function replaceEntityTypeInDSL(dsl: string, oldType: string, newType: string, dslPath: string): string {
+  if (!dsl || !oldType || !newType || !dslPath) {
+    return dsl;
+  }
+
+  // Determine the type pattern based on DSL path
+  const typePattern = dslPath.endsWith('container_type') ? 'container_type' : 'entity_type';
+  
+  // Pattern to match the specific type: value pattern
+  // Using word boundaries to avoid partial replacements
+  const pattern = new RegExp(`(${typePattern}\\s*:\\s*)${escapeRegex(oldType)}(\\b)`, 'g');
+  const replacement = `$1${newType}$2`;
+  
+  const updatedDSL = dsl.replace(pattern, replacement);
+  
+  // Check if any replacements were made
+  if (updatedDSL === dsl) {
+    throw new Error(`Could not find ${typePattern} '${oldType}' in DSL`);
+  }
+  
+  return updatedDSL;
+}
+
+/**
+ * Escape special regex characters
+ */
+function escapeRegex(string: string): string {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
