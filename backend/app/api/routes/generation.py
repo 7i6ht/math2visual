@@ -10,39 +10,92 @@ from datetime import datetime
 from app.services.language_generation.gpt_generator import generate_visual_language
 from app.services.visual_generation.formal_generator import FormalVisualGenerator
 from app.services.visual_generation.intuitive_generator import IntuitiveVisualGenerator
-from app.services.visual_generation.utils import ValidationError, VisualGenerationError
-from app.services.dsl.dsl_parser import DSLParser
+from app.services.visual_generation.dsl_parser import DSLParser
 from app.config.storage_config import get_svg_dataset_path
 
 generation_bp = Blueprint('generation', __name__)
+output_dir = os.path.join(os.path.dirname(__file__), "../../../storage/output")
+resources = get_svg_dataset_path()
 
+class ValidationError(Exception):
+    """Raised when DSL validation fails."""
+    pass
 
-def generate_visualizations(parsed_dsl, output_dir=None):
+class VisualGenerationError(Exception):
+    """Raised when visual generation fails."""
+    pass
+
+def extract_visual_language(text):
     """
-    Generate formal and intuitive visualizations from parsed DSL.
+    Extracts the visual_language expression from the given text.
+    It finds the last occurrence of 'visual_language:' and extracts everything after it.
+    """
+    keyword = "visual_language:"
+    last_index = text.rfind(keyword)  # Find the last occurrence of 'visual_language:'
+
+    if last_index != -1:
+        return text[last_index:].strip()  # Extract and return everything after the last occurrence
+    else:
+        return None  # Return None if no match is found
+
+@generation_bp.route("/api/generate", methods=["POST"])
+def generate():
+    """
+    Generate visual representations from math word problems.
     
-    Args:
-        parsed_dsl: Parsed DSL data structure
-        output_dir: Optional output directory path
-        
-    Returns:
-        dict: Contains svg_formal, svg_intuitive, formal_error, intuitive_error, 
-              and missing_svg_entities
+    Accepts either:
+    - mwp: Math word problem text
+    - formula: Optional formula  
+    - dsl: Direct DSL input (overrides mwp/formula)
+    
+    Returns JSON with SVG content for both formal and intuitive representations.
     """
+    body = request.json or {}
+    
+    # Parse DSL input
+    if "dsl" in body:
+        raw_dsl = body["dsl"].strip()
+        if not raw_dsl:
+            return jsonify({"error": "Empty DSL provided."}), 400
+        # Strip the prefix if present
+        if raw_dsl.lower().startswith("visual_language:"):
+            dsl = raw_dsl.split(":", 1)[1].strip()
+        else:
+            dsl = raw_dsl
+    else:
+        # Generate DSL from math word problem
+        mwp = body.get("mwp", "").strip()
+        formula = body.get("formula") or None
+        hint = body.get("hint") or None
+        if not mwp:
+            return jsonify({"error": "Please provide a math word problem (mwp)."}), 400
+
+        # Generate via GPT and extract
+        vl_response = generate_visual_language(mwp, formula, hint)
+        # Use parser for extraction
+        raw = extract_visual_language(vl_response)
+        if not raw:
+            return jsonify({"error": "Could not find `visual_language:` in GPT response."}), 500
+        dsl = raw.split(":", 1)[1].strip() if raw.lower().startswith("visual_language:") else raw.strip()
+    
+    # Generate visualizations using shared method
     # Setup output directory
-    if output_dir is None:
-        output_dir = os.path.join(os.path.dirname(__file__), "../../../storage/output")
     os.makedirs(output_dir, exist_ok=True)
     output_file = os.path.join(output_dir, "output.svg")
     intuitive_file = os.path.join(output_dir, "intuitive.svg")
     
-    # Initialize generators with configurable SVG path
-    resources = get_svg_dataset_path()
-    formal_generator = FormalVisualGenerator(resources)
-    intuitive_generator = IntuitiveVisualGenerator(resources)
-    
-    # Create a copy for the intuitive generator BEFORE any processing
-    intuitive_parsed_dsl = copy.deepcopy(parsed_dsl)
+    # Initialize generators and DSL parser
+    formal_generator = FormalVisualGenerator()
+    intuitive_generator = IntuitiveVisualGenerator()
+    dsl_parser = DSLParser()
+
+    # Parse DSL once using the shared parser
+    try:
+        data_formal = dsl_parser.parse_dsl(dsl)
+        # Create deep copy to avoid mutations
+        data_intuitive = copy.deepcopy(data_formal)
+    except ValueError as e:
+        return jsonify({"error": f"DSL parse error: {e}"}), 500
     
     # Generate formal visualization
     if os.path.exists(output_file):
@@ -52,11 +105,9 @@ def generate_visualizations(parsed_dsl, output_dir=None):
     svg_formal = None
     ok_formal = False
     
-    # Reset missing entities tracking
-    formal_generator.reset_missing_entities()
-    
     try:
-        ok_formal = formal_generator.render_svgs_from_data(output_file, parsed_dsl)
+        extraced_svg_file = os.path.join(output_dir, "extracted_svg.svg")
+        ok_formal = formal_generator.render_svgs_from_data(output_file, resources, data_formal)
         if ok_formal and os.path.exists(output_file):
             with open(output_file, "r") as f1:
                 svg_formal = f1.read()
@@ -75,11 +126,8 @@ def generate_visualizations(parsed_dsl, output_dir=None):
     svg_intuitive = None
     ok_intu = False
     
-    # Reset missing entities tracking
-    intuitive_generator.reset_missing_entities()
-    
     try:
-        ok_intu = intuitive_generator.render_svgs_from_data(intuitive_file, intuitive_parsed_dsl)
+        ok_intu = intuitive_generator.render_svgs_from_data(intuitive_file, resources, data_intuitive)
         if ok_intu and os.path.exists(intuitive_file):
             with open(intuitive_file, "r") as f2:
                 svg_intuitive = f2.read()
@@ -104,75 +152,14 @@ def generate_visualizations(parsed_dsl, output_dir=None):
     # Combine missing entities and remove duplicates while preserving order
     all_missing_entities = list(dict.fromkeys(formal_missing_entities + intuitive_missing_entities))
     
-    return {
+    # Return results with formatted DSL (no component mappings)
+    return jsonify({
+        "visual_language": dsl,  # Send formatted DSL instead of raw DSL
         "svg_formal": svg_formal,
         "svg_intuitive": svg_intuitive,
         "formal_error": formal_error,
         "intuitive_error": intuitive_error,
         "missing_svg_entities": all_missing_entities
-    }
-
-
-@generation_bp.route("/api/generate", methods=["POST"])
-def generate():
-    """
-    Generate visual representations from math word problems.
-    
-    Accepts either:
-    - mwp: Math word problem text
-    - formula: Optional formula  
-    - dsl: Direct DSL input (overrides mwp/formula)
-    
-    Returns JSON with SVG content for both formal and intuitive representations.
-    """
-    body = request.json or {}
-    
-    # Initialize parser
-    dsl_parser = DSLParser()
-    
-    # Parse DSL input
-    if "dsl" in body:
-        raw_dsl = body["dsl"].strip()
-        if not raw_dsl:
-            return jsonify({"error": "Empty DSL provided."}), 400
-        # Strip the prefix if present
-        if raw_dsl.lower().startswith("visual_language:"):
-            dsl = raw_dsl.split(":", 1)[1].strip()
-        else:
-            dsl = raw_dsl
-    else:
-        # Generate DSL from math word problem
-        mwp = body.get("mwp", "").strip()
-        formula = body.get("formula") or None
-        hint = body.get("hint") or None
-        if not mwp:
-            return jsonify({"error": "Please provide a math word problem (mwp)."}), 400
-
-        # Generate via GPT and extract
-        vl_response = generate_visual_language(mwp, formula, hint)
-        # Use parser for extraction
-        raw = dsl_parser.extract_visual_language(vl_response)
-        if not raw:
-            return jsonify({"error": "Could not find `visual_language:` in GPT response."}), 500
-        dsl = raw.split(":", 1)[1].strip() if raw.lower().startswith("visual_language:") else raw.strip()
-    
-    # Parse DSL
-    try:
-        parsed_dsl = dsl_parser.parse_dsl(dsl)
-    except (ValueError, ValidationError) as e:
-        return jsonify({"error": f"DSL parse error: {e}"}), 500
-    
-    # Generate visualizations using shared method
-    result = generate_visualizations(parsed_dsl)
-    
-    # Return results with formatted DSL (no component mappings)
-    return jsonify({
-        "visual_language": dsl,  # Send formatted DSL instead of raw DSL
-        "svg_formal": result["svg_formal"],
-        "svg_intuitive": result["svg_intuitive"],
-        "formal_error": result["formal_error"],
-        "intuitive_error": result["intuitive_error"],
-        "missing_svg_entities": result["missing_svg_entities"]
     })
 
 
