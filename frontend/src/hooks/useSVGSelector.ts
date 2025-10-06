@@ -128,7 +128,7 @@ export const useSVGSelector = ({
 
 /**
  * Replace all occurrences of an entity type in DSL string using regex
- * Uses the DSL path to determine whether to match entity_type or container_type
+ * Uses the DSL path to determine whether to match entity_type, container_type, or attr_type
  */
 function replaceEntityTypeInDSL(dsl: string, oldType: string, newType: string, dslPath: string): string {
   if (!dsl || !oldType || !newType || !dslPath) {
@@ -136,7 +136,14 @@ function replaceEntityTypeInDSL(dsl: string, oldType: string, newType: string, d
   }
 
   // Determine the type pattern based on DSL path
-  const typePattern = dslPath.endsWith('container_type') ? 'container_type' : 'entity_type';
+  let typePattern: string;
+  if (dslPath.endsWith('container_type')) {
+    typePattern = 'container_type';
+  } else if (dslPath.endsWith('attr_type')) {
+    typePattern = 'attr_type';
+  } else {
+    typePattern = 'entity_type';
+  }
   
   // Pattern to match the specific type: value pattern
   // Using word boundaries to avoid partial replacements

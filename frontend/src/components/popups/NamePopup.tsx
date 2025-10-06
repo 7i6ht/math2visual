@@ -5,18 +5,18 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { BasePopup } from "./BasePopup";
 
-interface ContainerNamePopupProps {
+interface NamePopupProps {
   onClose: () => void;
-  onUpdate: (newContainerName: string) => Promise<void>;
-  initialContainerName: string;
+  onUpdate: (newValue: string) => Promise<void>;
+  initialValue: string;
 }
 
-export const ContainerNamePopup: React.FC<ContainerNamePopupProps> = ({
+export const NamePopup: React.FC<NamePopupProps> = ({
   onClose,
   onUpdate,
-  initialContainerName,
+  initialValue,
 }) => {
-  const [containerName, setContainerName] = useState(initialContainerName);
+  const [value, setValue] = useState(initialValue);
   const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -28,27 +28,27 @@ export const ContainerNamePopup: React.FC<ContainerNamePopupProps> = ({
     }
   }, []);
 
-  // Handle container name update
+  // Handle value update
   const handleUpdate = async () => {
-    if (!containerName.trim()) {
-      toast.error("Please enter a container name");
+    if (!value.trim()) {
+      toast.error(`Please enter a name`);
       return;
     }
 
     // Don't update if value hasn't changed
-    if (containerName.trim() === initialContainerName) {
+    if (value.trim() === initialValue) {
       onClose();
       return;
     }
 
     setIsLoading(true);
     try {
-      await onUpdate(containerName.trim());
+      await onUpdate(value.trim());
       onClose();
-      toast.success(`Container name updated to "${containerName.trim()}"`);
+      toast.success(`Name updated to "${value.trim()}"`);
     } catch (err) {
-      console.error("Failed to update container name:", err);
-      toast.error("Failed to update container name. Please try again.");
+      console.error(`Failed to update name:`, err);
+      toast.error(`Failed to update name. Please try again.`);
     } finally {
       setIsLoading(false);
     }
@@ -56,13 +56,13 @@ export const ContainerNamePopup: React.FC<ContainerNamePopupProps> = ({
 
   // Handle keyboard events for popup
   const handlePopupKeyDown = (event: KeyboardEvent) => {
-    if (event.key === "Enter" && containerName.trim() && !isLoading) {
+    if (event.key === "Enter" && value.trim() && !isLoading) {
       event.preventDefault();
       handleUpdate();
     }
   };
 
-  const isValidContainerName = containerName.trim().length > 0;
+  const isValidValue = value.trim().length > 0;
 
   return (
     <BasePopup
@@ -75,16 +75,16 @@ export const ContainerNamePopup: React.FC<ContainerNamePopupProps> = ({
         <div className="flex gap-0 group focus-within:ring-[3px] focus-within:ring-ring/50 focus-within:ring-offset-0 focus-within:border-ring rounded-md transition-all duration-200 border border-ring ring-[3px] ring-ring/50 ring-offset-0">
           <Input
             ref={inputRef}
-            value={containerName}
-            onChange={(e) => setContainerName(e.target.value)}
-            placeholder="Enter container name..."
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            placeholder={"Enter name..."}
             spellCheck={false}
             className="rounded-r-none border-r-0 h-9 text-sm focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation text-center w-20 px-2"
             disabled={isLoading}
           />
           <Button
             onClick={handleUpdate}
-            disabled={!isValidContainerName || isLoading}
+            disabled={!isValidValue || isLoading}
             className="px-2 rounded-l-none h-9 text-sm focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation flex-shrink-0"
           >
             {isLoading ? (
@@ -96,12 +96,13 @@ export const ContainerNamePopup: React.FC<ContainerNamePopupProps> = ({
         </div>
 
         {/* Validation hint */}
-        {containerName && !isValidContainerName && (
+        {value && !isValidValue && (
           <div className="text-xs text-red-600 px-1">
-            Please enter a container name
+            Please enter a name
           </div>
         )}
       </div>
     </BasePopup>
   );
 };
+

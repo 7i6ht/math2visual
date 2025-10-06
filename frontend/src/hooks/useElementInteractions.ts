@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from 'react';
-import { isTextElement, isOperationElement, isBoxElement, isEmbeddedSvgElement, isContainerTypeSvgElement, isContainerNameElement, isResultContainerElement, getDslPath, setCursorStyle } from '../utils/elementUtils';
+import { isTextElement, isOperationElement, isBoxElement, isEmbeddedSvgElement, isContainerTypeSvgElement, isAttrTypeSvgElement, isContainerNameElement, isAttrNameElement, isResultContainerElement, getDslPath, setCursorStyle } from '../utils/elementUtils';
 
 interface UseElementInteractionsProps {
   svgRef: React.RefObject<HTMLDivElement | null>;
@@ -10,12 +10,14 @@ interface UseElementInteractionsProps {
     triggerOperationHighlight: (dslPath: string) => void;
     triggerEmbeddedSvgHighlight: (dslPath: string) => void;
     triggerContainerTypeHighlight: (dslPath: string) => void;
+    triggerAttrTypeHighlight: (dslPath: string) => void;
     triggerContainerNameHighlight: (dslPath: string) => void;
+    triggerAttrNameHighlight: (dslPath: string) => void;
     triggerResultContainerHighlight: (dslPath: string) => void;
   };
   onEmbeddedSVGClick: (dslPath: string, event: MouseEvent) => void;
   onEntityQuantityClick: (dslPath: string, event: MouseEvent) => void;
-  onContainerNameClick: (dslPath: string, event: MouseEvent) => void;
+  onNameClick: (dslPath: string, event: MouseEvent) => void;
   isSelectorOpen?: boolean;
   isDisabled?: boolean;
 }
@@ -35,7 +37,7 @@ export const useElementInteractions = ({
   highlighting,
   onEmbeddedSVGClick,
   onEntityQuantityClick,
-  onContainerNameClick,
+  onNameClick,
   isSelectorOpen = false,
   isDisabled = false,
 }: UseElementInteractionsProps) => {
@@ -161,6 +163,25 @@ export const useElementInteractions = ({
   }, [setupMouseEnterListener, highlighting, onEmbeddedSVGClick]);
 
   /**
+   * Setup attribute type SVG element interactions
+   */
+  const setupAttrTypeSvgElement = useCallback((svgElem: SVGElement, dslPath: string) => {
+    setupMouseEnterListener(svgElem, {
+      onMouseEnter: () => {
+        highlighting.triggerAttrTypeHighlight(dslPath);
+      },
+      onMouseLeave: () => {
+        highlighting.clearHighlightForElement(svgElem, 'highlighted-svg');
+      }
+    });
+
+    // Add custom click handler for attribute type SVGs (capture phase)
+    svgElem.addEventListener('click', (event: MouseEvent) => {
+      onEmbeddedSVGClick(dslPath, event);
+    }, { capture: true });
+  }, [setupMouseEnterListener, highlighting, onEmbeddedSVGClick]);
+
+  /**
    * Setup container name text element interactions
    */
   const setupContainerNameElement = useCallback((svgElem: SVGElement, dslPath: string) => {
@@ -175,9 +196,28 @@ export const useElementInteractions = ({
 
     // Add click handler for container name editing
     svgElem.addEventListener('click', (event: MouseEvent) => {
-      onContainerNameClick(dslPath, event);
+      onNameClick(dslPath, event);
     }, { capture: true });
-  }, [setupMouseEnterListener, highlighting, onContainerNameClick]);
+  }, [setupMouseEnterListener, highlighting, onNameClick]);
+
+  /**
+   * Setup attribute name text element interactions
+   */
+  const setupAttrNameElement = useCallback((svgElem: SVGElement, dslPath: string) => {
+    setupMouseEnterListener(svgElem, {
+      onMouseEnter: () => {
+        highlighting.triggerAttrNameHighlight(dslPath);
+      },
+      onMouseLeave: () => {
+        highlighting.clearHighlightForElement(svgElem, 'highlighted-text');
+      }
+    });
+
+    // Add click handler for attribute name editing
+    svgElem.addEventListener('click', (event: MouseEvent) => {
+      onNameClick(dslPath, event);
+    }, { capture: true });
+  }, [setupMouseEnterListener, highlighting, onNameClick]);
 
   /**
    * Setup result container element interactions
@@ -225,12 +265,16 @@ export const useElementInteractions = ({
         setupOperationElement(svgElem, dslPath);
       } else if (isContainerNameElement(svgElem)) {
         setupContainerNameElement(svgElem, dslPath);
+      } else if (isAttrNameElement(svgElem)) {
+        setupAttrNameElement(svgElem, dslPath);
       } else if (isTextElement(svgElem)) {
         setupTextElement(svgElem, dslPath);
       } else if (isEmbeddedSvgElement(svgElem)) {
         setupEmbeddedSvgElement(svgElem, dslPath);
       } else if (isContainerTypeSvgElement(svgElem)) {
         setupContainerTypeSvgElement(svgElem, dslPath);
+      } else if (isAttrTypeSvgElement(svgElem)) {
+        setupAttrTypeSvgElement(svgElem, dslPath);
       } else if (isBoxElement(svgElem)) {
         setupBoxElement(svgElem, dslPath);
       } else if (isResultContainerElement(svgElem)) {
@@ -244,9 +288,11 @@ export const useElementInteractions = ({
     setupResultContainerElement,
     setupBoxElement,
     setupContainerNameElement,
+    setupAttrNameElement,
     setupTextElement,
     setupEmbeddedSvgElement,
-    setupContainerTypeSvgElement
+    setupContainerTypeSvgElement,
+    setupAttrTypeSvgElement
   ]);
 
   const returnValue = useMemo(() => ({

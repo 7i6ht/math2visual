@@ -1,6 +1,6 @@
 import { SVGActionMenu } from "@/components/popups/SVGActionMenu";
 import { EntityQuantityPopup } from "@/components/popups/EntityQuantityPopup";
-import { ContainerNamePopup } from "@/components/popups/ContainerNamePopup";
+import { NamePopup } from "@/components/popups/NamePopup";
 
 type Props = {
   isSelectorOpen: boolean;
@@ -12,9 +12,9 @@ type Props = {
   closeQuantityPopup: () => void;
   updateEntityQuantity: (newQuantity: number) => Promise<void>;
 
-  containerNamePopupState: { isOpen: boolean; initialContainerName: string };
-  closeContainerNamePopup: () => void;
-  updateContainerName: (newContainerName: string) => Promise<void>;
+  namePopupState: { isOpen: boolean; initialValue: string; fieldType: 'container_name' | 'attr_name' };
+  closeNamePopup: () => void;
+  updateName: (newValue: string) => Promise<void>;
 };
 
 export function PopupManager({
@@ -25,9 +25,9 @@ export function PopupManager({
   quantityPopupState,
   closeQuantityPopup,
   updateEntityQuantity,
-  containerNamePopupState,
-  closeContainerNamePopup,
-  updateContainerName,
+  namePopupState,
+  closeNamePopup,
+  updateName,
 }: Props) {
   return (
     <>
@@ -47,11 +47,11 @@ export function PopupManager({
         />
       )}
 
-      {containerNamePopupState.isOpen && (
-        <ContainerNamePopup
-          onClose={closeContainerNamePopup}
-          onUpdate={updateContainerName}
-          initialContainerName={containerNamePopupState.initialContainerName}
+      {namePopupState.isOpen && (
+        <NamePopup
+          onClose={closeNamePopup}
+          onUpdate={updateName}
+          initialValue={namePopupState.initialValue}
         />
       )}
     </>

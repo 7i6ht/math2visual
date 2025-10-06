@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { useEntityQuantityPopup } from "@/hooks/useEntityQuantityPopup";
-import { useContainerNamePopup } from "@/hooks/useContainerNamePopup";
+import { useNamePopup } from "@/hooks/useNamePopup";
 import type { ComponentMapping } from "@/types/visualInteraction";
 import type { ParsedOperation } from "@/utils/dsl-parser";
 
@@ -26,11 +26,11 @@ export const usePopupManagement = ({ onVisualsUpdate }: PopupManagementDeps) => 
   } = useEntityQuantityPopup({ onVisualsUpdate });
 
   const {
-    popupState: containerNamePopupState,
-    openPopup: openContainerNamePopup,
-    closePopup: closeContainerNamePopup,
-    updateContainerName,
-  } = useContainerNamePopup({ onVisualsUpdate });
+    popupState: namePopupState,
+    openPopup: openNamePopup,
+    closePopup: closeNamePopup,
+    updateFieldValue: updateName,
+  } = useNamePopup({ onVisualsUpdate });
 
   const handleEntityQuantityClick = useCallback(
     (dslPath: string, event: MouseEvent) => {
@@ -39,22 +39,22 @@ export const usePopupManagement = ({ onVisualsUpdate }: PopupManagementDeps) => 
     [openQuantityPopup]
   );
 
-  const handleContainerNameClick = useCallback(
+  const handleNameClick = useCallback(
     (dslPath: string, event: MouseEvent) => {
-      openContainerNamePopup(dslPath, event);
+      openNamePopup(dslPath, event);
     },
-    [openContainerNamePopup]
+    [openNamePopup]
   );
 
   return {
     quantityPopupState,
     closeQuantityPopup,
     updateEntityQuantity,
-    containerNamePopupState,
-    closeContainerNamePopup,
-    updateContainerName,
+    namePopupState,
+    closeNamePopup,
+    updateName,
     handleEntityQuantityClick,
-    handleContainerNameClick,
+    handleNameClick,
   };
 };
 

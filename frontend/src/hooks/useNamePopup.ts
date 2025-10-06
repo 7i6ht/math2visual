@@ -6,13 +6,13 @@ import { DSLFormatter } from '@/utils/dsl-formatter';
 import type { ParsedOperation } from '@/utils/dsl-parser';
 import type { ComponentMapping } from '@/types/visualInteraction';
 
-interface ContainerNamePopupState {
+interface NamePopupState {
   isOpen: boolean;
   dslPath: string;
-  initialContainerName: string;
+  initialValue: string;
 }
 
-interface UseContainerNamePopupProps {
+interface UseNamePopupProps {
   onVisualsUpdate: (data: {
     visual_language: string;
     svg_formal: string | null;
@@ -25,19 +25,19 @@ interface UseContainerNamePopupProps {
   }) => void;
 }
 
-export const useContainerNamePopup = ({
+export const useNamePopup = ({
   onVisualsUpdate
-}: UseContainerNamePopupProps) => {
+}: UseNamePopupProps) => {
   const { parsedDSL, componentMappings } = useDSLContext();
   const { setCurrentTargetElement, clearCurrentTargetElement } = useHighlightingContext();
-  const [popupState, setPopupState] = useState<ContainerNamePopupState>({
+  const [popupState, setPopupState] = useState<NamePopupState>({
     isOpen: false,
     dslPath: '',
-    initialContainerName: '',
+    initialValue: ''
   });
 
   /**
-   * Open the container name popup
+   * Open the popup for editing container_name or attr_name
    */
   const openPopup = useCallback((dslPath: string, event: MouseEvent) => {
     // Find the correct element using closest() method
@@ -48,39 +48,38 @@ export const useContainerNamePopup = ({
     setCurrentTargetElement(targetElement);
     
     // Normalize to the concrete field path
-    const normalizedPath = dslPath.endsWith('/container_name') ? dslPath : `${dslPath}/container_name`;
-    const currentName = getContainerNameValue(componentMappings, normalizedPath) || '';
+    const currentValue = getFieldValue(componentMappings, dslPath) || '';
 
     setPopupState({
       isOpen: true,
-      dslPath: normalizedPath,
-      initialContainerName: currentName,
+      dslPath: dslPath,
+      initialValue: currentValue,
     });
   }, [setCurrentTargetElement, componentMappings]);
 
   /**
-   * Close the container name popup
+   * Close the popup
    */
   const closePopup = useCallback(() => {
     clearCurrentTargetElement();
     setPopupState({
       isOpen: false,
       dslPath: '',
-      initialContainerName: '',
+      initialValue: '',
     });
   }, [clearCurrentTargetElement]);
 
   /**
-   * Update container name in DSL and regenerate visuals
+   * Update field value in DSL and regenerate visuals
    */
-  const updateContainerName = useCallback(async (newContainerName: string) => {
+  const updateFieldValue = useCallback(async (newValue: string) => {
     if (!parsedDSL || !popupState.dslPath) {
       throw new Error('Missing parsed DSL or DSL path');
     }
 
     try {
       // Update the parsed DSL object
-      const updatedParsedDSL = updateContainerNameInParsedDSL(parsedDSL, popupState.dslPath, newContainerName);
+      const updatedParsedDSL = updateFieldValueInParsedDSL(parsedDSL, popupState.dslPath, newValue);
 
       // Format the updated parsed DSL back to string
       const formatter = new DSLFormatter();
@@ -103,7 +102,7 @@ export const useContainerNamePopup = ({
       });
 
     } catch (error) {
-      console.error('Container name update failed:', error);
+      console.error('Field value update failed:', error);
       throw error;
     }
   }, [parsedDSL, popupState.dslPath, onVisualsUpdate]);
@@ -112,61 +111,60 @@ export const useContainerNamePopup = ({
     popupState,
     openPopup,
     closePopup,
-    updateContainerName,
+    updateFieldValue,
   };
 };
 
 /**
- * Helper to read current container name from component mappings
+ * Helper to read current field value from component mappings
  */
-export function getContainerNameValue(
+export function getFieldValue(
   componentMappings: ComponentMapping | null,
   dslPath: string
 ): string | null {
   if (!componentMappings) return null;
 
-  // Normalize path: ensure it ends with '/container_name'
-  const normalizedPath = dslPath.endsWith('/container_name')
-    ? dslPath
-    : `${dslPath}/container_name`;
-
-  const mapping = componentMappings[normalizedPath];
+  const mapping = componentMappings[dslPath];
   return mapping?.property_value || null;
 }
 
 /**
- * Helper function to update container name value in parsed DSL object using DSL path
+ * Helper function to update field value in parsed DSL object using DSL path
  */
-function updateContainerNameInParsedDSL(
+function updateFieldValueInParsedDSL(
   parsedDSL: ParsedOperation,
   dslPath: string,
-  newContainerName: string
+  newValue: string,
 ): ParsedOperation {
   // Create a deep clone to avoid mutating the original
   const clonedDSL = JSON.parse(JSON.stringify(parsedDSL));
 
   // Navigate through the DSL path to find and update the target value
-  const success = updateContainerNameAtPath(clonedDSL, dslPath, newContainerName);
-
+  let success = false;
+  const fieldType = dslPath.split('/').pop();
+  if (fieldType) {
+    success = updateFieldValueAtPath(clonedDSL, dslPath, newValue, fieldType);
+  }
   if (!success) {
-    throw new Error(`Could not find or update container name at DSL path: ${dslPath}`);
+    throw new Error(`Could not find or update ${fieldType}`);
   }
 
   return clonedDSL;
 }
 
 /**
- * Recursively navigate through the DSL structure using the path and update the container name
+ * Recursively navigate through the DSL structure using the path and update the field value
  */
 // Narrowing helpers
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
 }
 
-function updateContainerNameAtPath(
+function updateFieldValueAtPath(
   obj: Record<string, unknown>,
   dslPath: string,
-  newContainerName: string
+  newValue: string,
+  fieldType: string
 ): boolean {
   // Remove leading slash and split path into segments
   const pathSegments = dslPath.replace(/^\//, '').split('/');
@@ -214,13 +212,14 @@ function updateContainerNameAtPath(
   // Handle the final segment (the property to update)
   const finalSegment = pathSegments[pathSegments.length - 1];
 
-  if (finalSegment === 'container_name') {
-    // Update container_name directly (not in item - that's only for entity_quantity and entity_type)
-    if (isRecord(current) && 'container_name' in current) {
-      (current as Record<string, unknown>).container_name = newContainerName;
+  if (finalSegment === fieldType) {
+    // Update the field directly (not in item - that's only for entity_quantity and entity_type)
+    if (isRecord(current) && fieldType in current) {
+      (current as Record<string, unknown>)[fieldType] = newValue;
       return true;
     }
   }
 
   return false;
 }
+

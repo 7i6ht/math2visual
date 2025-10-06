@@ -17,7 +17,7 @@ interface VisualizationSectionProps {
   formulaValue?: string;
   onEmbeddedSVGClick: (dslPath: string, event: MouseEvent) => void;
   onEntityQuantityClick: (dslPath: string, event: MouseEvent) => void;
-  onContainerNameClick: (dslPath: string, event: MouseEvent) => void;
+  onNameClick: (dslPath: string, event: MouseEvent) => void;
   isSelectorOpen?: boolean;
   isDisabled?: boolean;
 }
@@ -32,7 +32,7 @@ export const VisualizationSection = ({
   formulaValue,
   onEmbeddedSVGClick,
   onEntityQuantityClick,
-  onContainerNameClick,
+  onNameClick,
   isSelectorOpen = false,
   isDisabled = false,
 }: VisualizationSectionProps) => {
@@ -58,7 +58,7 @@ export const VisualizationSection = ({
     highlighting,
     onEmbeddedSVGClick,
     onEntityQuantityClick,
-    onContainerNameClick,
+    onNameClick,
     isSelectorOpen,
     isDisabled,
   });

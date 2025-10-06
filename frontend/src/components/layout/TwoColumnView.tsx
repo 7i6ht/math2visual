@@ -209,7 +209,7 @@ export function TwoColumnView({ appState }: Props) {
             onAllFilesUploaded={clearMissingSVGEntities}
             onEmbeddedSVGClick={handleEmbeddedSVGClickWithSelector}
             onEntityQuantityClick={popup.handleEntityQuantityClick}
-            onContainerNameClick={popup.handleContainerNameClick}
+            onNameClick={popup.handleNameClick}
             isSelectorOpen={selectorState.isOpen}
             onShowHint={handleShowHint}
             isDisabled={mpFormLoading}
@@ -231,9 +231,9 @@ export function TwoColumnView({ appState }: Props) {
         quantityPopupState={popup.quantityPopupState}
         closeQuantityPopup={popup.closeQuantityPopup}
         updateEntityQuantity={popup.updateEntityQuantity}
-        containerNamePopupState={popup.containerNamePopupState}
-        closeContainerNamePopup={popup.closeContainerNamePopup}
-        updateContainerName={popup.updateContainerName}
+        namePopupState={popup.namePopupState}
+        closeNamePopup={popup.closeNamePopup}
+        updateName={popup.updateName}
       />
     </div>
   );

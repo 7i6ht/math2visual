@@ -16,7 +16,7 @@ interface VisualizationResultsProps {
   onAllFilesUploaded?: () => void;
   onEmbeddedSVGClick: (dslPath: string, event: MouseEvent, visualType: 'formal' | 'intuitive') => void;
   onEntityQuantityClick: (dslPath: string, event: MouseEvent) => void;
-  onContainerNameClick: (dslPath: string, event: MouseEvent) => void;
+  onNameClick: (dslPath: string, event: MouseEvent) => void;
   isSelectorOpen?: boolean;
   isDisabled?: boolean;
   onShowHint: () => void;
@@ -34,7 +34,7 @@ export const VisualizationResults = ({
   onAllFilesUploaded,
   onEmbeddedSVGClick,
   onEntityQuantityClick,
-  onContainerNameClick,
+  onNameClick,
   isSelectorOpen = false,
   isDisabled = false,
   onShowHint,
@@ -111,7 +111,7 @@ export const VisualizationResults = ({
               formulaValue={formulaValue}
               onEmbeddedSVGClick={handleFormalEmbeddedSVGClick}
               onEntityQuantityClick={onEntityQuantityClick}
-              onContainerNameClick={onContainerNameClick}
+              onNameClick={onNameClick}
               isSelectorOpen={isSelectorOpen}
               isDisabled={isDisabled}
             />
@@ -126,7 +126,7 @@ export const VisualizationResults = ({
               formulaValue={formulaValue}
               onEmbeddedSVGClick={handleIntuitiveEmbeddedSVGClick}
               onEntityQuantityClick={onEntityQuantityClick}
-              onContainerNameClick={onContainerNameClick}
+              onNameClick={onNameClick}
               isSelectorOpen={isSelectorOpen}
               isDisabled={isDisabled}
             />
