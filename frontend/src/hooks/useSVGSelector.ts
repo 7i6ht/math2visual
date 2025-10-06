@@ -9,6 +9,7 @@ import { useDSLContext } from '@/contexts/DSLContext';
 interface SVGSelectorState {
   isOpen: boolean;
   dslPath: string;
+  dslElementPath: string;
   currentValue: string;
   visualType: 'formal' | 'intuitive';
 }
@@ -36,6 +37,7 @@ export const useSVGSelector = ({
   const [selectorState, setSelectorState] = useState<SVGSelectorState>({
     isOpen: false,
     dslPath: '',
+    dslElementPath: '',
     currentValue: '',
     visualType: 'formal',
   });
@@ -60,13 +62,15 @@ export const useSVGSelector = ({
     // Find the correct SVG element using closest() method
     // This ensures we get the actual SVG element with data-dsl-path, not a child element
     const targetEl = (event.target as Element).closest('svg[data-dsl-path]') as Element;
-    
+    const dslElementPath = targetEl.getAttribute('data-dsl-element-path') || '';
+
     // Store target element in context
     setCurrentTargetElement(targetEl);
     
     setSelectorState({
       isOpen: true,
       dslPath: dslPath,
+      dslElementPath: dslElementPath,
       currentValue,
       visualType,
     });

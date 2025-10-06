@@ -901,10 +901,12 @@ class FormalVisualGenerator:
                             if v == container_type and container_type:
                                 container_type_dsl_path = f"{entity_dsl_path}/container_type"
                                 svg_el.set('data-dsl-path', container_type_dsl_path)
+                                svg_el.set('data-dsl-element-path', container_type_dsl_path)
                                 svg_el.set('style', 'pointer-events: all;')
                             elif v == attr_entity_type and attr_entity_type:
                                 attr_type_dsl_path = f"{entity_dsl_path}/attr_type"
                                 svg_el.set('data-dsl-path', attr_type_dsl_path)
+                                svg_el.set('data-dsl-element-path', attr_type_dsl_path)
                                 svg_el.set('style', 'pointer-events: all;')
                             # Append the returned svg element to the group
                             group.append(svg_el)
@@ -1045,6 +1047,7 @@ class FormalVisualGenerator:
                     # Add DSL path metadata for entity_type highlighting
                     entity_type_dsl_path = f"{entity_dsl_path}/entity_type"
                     embedded_svg.set('data-dsl-path', entity_type_dsl_path)
+                    embedded_svg.set('data-dsl-element-path', entity_type_dsl_path)
                     embedded_svg.set('style', 'pointer-events: all;')
                     svg_root.append(embedded_svg)
                     
@@ -1111,6 +1114,7 @@ class FormalVisualGenerator:
                             # Add DSL path metadata for entity_type highlighting
                             entity_type_dsl_path = f"{entity_dsl_path}/entity_type[{i}]"
                             embedded_svg.set('data-dsl-path', entity_type_dsl_path)
+                            embedded_svg.set('data-dsl-element-path', entity_type_dsl_path)
                             embedded_svg.set('style', 'pointer-events: all;')
                             svg_root.append(embedded_svg)
                             

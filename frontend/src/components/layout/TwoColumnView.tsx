@@ -225,6 +225,7 @@ export function TwoColumnView({ appState }: Props) {
 
       <PopupManager
         isSelectorOpen={selectorState.isOpen}
+        visualElementPath={selectorState.dslElementPath}
         visualType={selectorState.visualType}
         onCloseSelector={closeSelector}
         onEmbeddedSVGChange={handleEmbeddedSVGChange}

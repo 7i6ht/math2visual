@@ -4,6 +4,7 @@ import { NamePopup } from "@/components/popups/NamePopup";
 
 type Props = {
   isSelectorOpen: boolean;
+  visualElementPath: string;
   visualType: 'formal' | 'intuitive';
   onCloseSelector: () => void;
   onEmbeddedSVGChange: (newType: string) => Promise<void>;
@@ -12,13 +13,14 @@ type Props = {
   closeQuantityPopup: () => void;
   updateEntityQuantity: (newQuantity: number) => Promise<void>;
 
-  namePopupState: { isOpen: boolean; initialValue: string; fieldType: 'container_name' | 'attr_name' };
+  namePopupState: { isOpen: boolean; initialValue: string; };
   closeNamePopup: () => void;
   updateName: (newValue: string) => Promise<void>;
 };
 
 export function PopupManager({
   isSelectorOpen,
+  visualElementPath,
   visualType,
   onCloseSelector,
   onEmbeddedSVGChange,
@@ -33,6 +35,7 @@ export function PopupManager({
     <>
       {isSelectorOpen && (
         <SVGActionMenu
+          visualElementPath={visualElementPath}
           visualType={visualType}
           onClosePopup={onCloseSelector}
           onEmbeddedSVGChange={onEmbeddedSVGChange}
