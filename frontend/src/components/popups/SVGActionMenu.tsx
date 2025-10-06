@@ -34,7 +34,8 @@ export const SVGActionMenu: React.FC<SVGActionMenuProps> = ({
     const escaped = CSS.escape(currentDSLPath);
     const elements = document.querySelectorAll(`svg[data-dsl-path="${escaped}"]`);
     if (elements.length > 0) {
-      setCurrentTargetElement(elements[visualType === 'intuitive' ? 1 : 0]);
+      const index = visualType === 'intuitive' && elements.length > 1 ? 1 : 0;
+      setCurrentTargetElement(elements[index]);
     }
   }, [currentDSLPath, setCurrentTargetElement, visualType]);
 
