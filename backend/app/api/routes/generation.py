@@ -106,7 +106,6 @@ def generate():
     ok_formal = False
     
     try:
-        extraced_svg_file = os.path.join(output_dir, "extracted_svg.svg")
         ok_formal = formal_generator.render_svgs_from_data(output_file, resources, data_formal)
         if ok_formal and os.path.exists(output_file):
             with open(output_file, "r") as f1:
