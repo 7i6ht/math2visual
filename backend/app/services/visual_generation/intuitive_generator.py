@@ -18,6 +18,19 @@ class IntuitiveVisualGenerator():
         self._missing_svg_entities = []
         self.p = inflect.engine()
 
+    def _strip_trailing_index(self, path: str) -> str:
+        """Remove a trailing bracketed numeric index from a DSL element path.
+        Example: "operation/entities[3]" -> "operation/entities". If no
+        trailing numeric index is present, returns the input unchanged.
+        """
+        if not path:
+            return path
+        if path.endswith(']'):
+            left_bracket_index = path.rfind('[')
+            if left_bracket_index != -1 and path[left_bracket_index+1:-1].isdigit():
+                return path[:left_bracket_index]
+        return path
+
     def get_missing_entities(self):
         """Return a de-duplicated list of missing SVG entity base names (preserve order)."""
         print("get_missing_entities")
@@ -408,7 +421,7 @@ class IntuitiveVisualGenerator():
                 base_entity = containers[0]
                 # Derive base DSL paths from the original base entity (left operand)
                 multiplicand_base_element_path = base_entity.get("_dsl_element_path", "operation/entities")
-                multiplicand_element_prefix = re.sub(r"\[\d+\]$", "", multiplicand_base_element_path)
+                multiplicand_element_prefix = self._strip_trailing_index(multiplicand_base_element_path)
 
                 replicated = []
                 for i in range(multiplier_val):
@@ -1206,7 +1219,7 @@ class IntuitiveVisualGenerator():
                 # Derive base DSL paths from the original divisor entity when available
                 divisor_base_path = divisor_entity.get("_dsl_path", "operation/entities[1]")
                 divisor_base_element_path = divisor_entity.get("_dsl_element_path", "operation/entities")
-                divisor_element_prefix = re.sub(r"\[\d+\]$", "", divisor_base_element_path)
+                divisor_element_prefix = self._strip_trailing_index(divisor_base_element_path)
 
                 replicated = []
                 for i in range(result_count):
@@ -1239,7 +1252,7 @@ class IntuitiveVisualGenerator():
                 # Derive base DSL paths from the original divisor entity when available
                 divisor_base_path = divisor_entity.get("_dsl_path", "operation/entities[1]")
                 divisor_base_element_path = divisor_entity.get("_dsl_element_path", "operation/entities")
-                divisor_element_prefix = re.sub(r"\[\d+\]$", "", divisor_base_element_path)
+                divisor_element_prefix = self._strip_trailing_index(divisor_base_element_path)
 
                 replicated = []
                 for i in range(divisor_entity_quantity):
@@ -2070,7 +2083,7 @@ class IntuitiveVisualGenerator():
                 divisor_base_path = divisor_entity.get("_dsl_path", "operation/entities[1]")
                 divisor_base_element_path = divisor_entity.get("_dsl_element_path", "operation/entities")
                 # Trim trailing bracketed index using regex
-                divisor_element_prefix = re.sub(r"\[\d+\]$", "", divisor_base_element_path)
+                divisor_element_prefix = self._strip_trailing_index(divisor_base_element_path)
 
                 replicated = []
                 for i in range(result_count):
@@ -2097,7 +2110,7 @@ class IntuitiveVisualGenerator():
                 # Derive base DSL paths from the original divisor entity when available
                 divisor_base_path = divisor_entity.get("_dsl_path", "operation/entities[1]")
                 divisor_base_element_path = divisor_entity.get("_dsl_element_path", "operation/entities")
-                divisor_element_prefix = re.sub(r"\[\d+\]$", "", divisor_base_element_path)
+                divisor_element_prefix = self._strip_trailing_index(divisor_base_element_path)
 
                 replicated = []
                 for i in range(divisor_entity_quantity):
