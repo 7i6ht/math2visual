@@ -2849,6 +2849,8 @@ class IntuitiveVisualGenerator():
             result_e = result_containers[0]
             container_type = result_e.get("container_type", "").strip()  
             container_name = result_e.get("container_name", "").strip()
+            result_dsl_path = result_e.get('_dsl_path', '')
+            result_dsl_element_path = result_e.get('_dsl_element_path', '')
 
             # 3. Basic constants
             UNIT_SIZE = 40
@@ -2972,6 +2974,10 @@ class IntuitiveVisualGenerator():
                 print('shape_display_height', shape_display_height)
                 shape_svg = embed_svg(clean_shape_path, shape_x, shape_y, 
                                     shape_display_width, shape_display_height)
+                # Annotate shape with DSL metadata for entity_type hover
+                shape_svg.set('data-dsl-path', f"{result_dsl_path}/container_type")
+                shape_svg.set('data-dsl-element-path', f"{result_dsl_element_path}/container_type")
+                shape_svg.set('style', 'pointer-events: all;')
                 svg_root.append(shape_svg)
             else:
                 # If the SVG does not exist, draw an orange rectangle
@@ -2984,6 +2990,10 @@ class IntuitiveVisualGenerator():
                                             fill="orange",
                                             stroke="black",
                                             stroke_width="2")
+                # Annotate fallback rectangle similarly
+                rectangle.set('data-dsl-path', f"{result_dsl_path}/container_type")
+                rectangle.set('data-dsl-element-path', f"{result_dsl_element_path}/container_type")
+                rectangle.set('style', 'pointer-events: all;')
             update_max_dimensions(shape_x + shape_display_width, shape_y + shape_display_height)
             # 10. Place text for length and width
             length = float(length)
@@ -3005,8 +3015,9 @@ class IntuitiveVisualGenerator():
             container_text_el = etree.SubElement(svg_root, "text", 
                                             x=str(container_text_x),
                                             y=str(container_text_y),
-                                            style="font-size: 20px; text-anchor: middle;")
+                                            style="font-size: 20px; text-anchor: middle; pointer-events: auto;")
             container_text_el.text = f"{container_name}"
+            container_text_el.set('data-dsl-path', f"{result_dsl_path}/container_name")
 
             # Length at lower top-center
             length_text_x = shape_x + shape_display_width / 2
@@ -3014,8 +3025,11 @@ class IntuitiveVisualGenerator():
             length_text_el = etree.SubElement(svg_root, "text", 
                                             x=str(length_text_x),
                                             y=str(length_text_y),
-                                            style="font-size: 20px; text-anchor: middle;")
+                                            style="font-size: 20px; text-anchor: middle; pointer-events: auto;")
             length_text_el.text = f"{length_str}"
+            # Annotate length with the DSL path of the first operand's entity_quantity
+            length_dsl_path = f"{length_entity.get('_dsl_path', '')}/entity_quantity"
+            length_text_el.set('data-dsl-path', length_dsl_path)
 
             # Width at left-center
             width_text_x = shape_x - 35
@@ -3023,8 +3037,11 @@ class IntuitiveVisualGenerator():
             width_text_el = etree.SubElement(svg_root, "text",
                                             x=str(width_text_x),
                                             y=str(width_text_y),
-                                            style="font-size: 20px; text-anchor: end; dominant-baseline: middle;")
+                                            style="font-size: 20px; text-anchor: end; dominant-baseline: middle; pointer-events: auto;")
             width_text_el.text = f"{width_str}"
+            # Annotate width with the DSL path of the second operand's entity_quantity
+            width_dsl_path = f"{width_entity.get('_dsl_path', '')}/entity_quantity"
+            width_text_el.set('data-dsl-path', width_dsl_path)
 
 
             # handle unittrans
