@@ -25,7 +25,7 @@ class IntuitiveVisualGenerator():
         return list(dict.fromkeys(self._missing_svg_entities))
 
 
-    def remove_svg_blanks(svg_path, output_path):
+    def remove_svg_blanks(self, svg_path, output_path):
         print("remove_svg_blanks")
 
         # Parse the SVG
@@ -2967,7 +2967,7 @@ class IntuitiveVisualGenerator():
             shape_path = get_figure_svg_path(container_type)
             clean_shape_path = get_figure_svg_path(container_type + "_clean")
             if shape_path and os.path.exists(shape_path):
-                remove_svg_blanks(shape_path, clean_shape_path)
+                self.remove_svg_blanks(shape_path, clean_shape_path)
                 print('shape_display_width', shape_display_width)
                 print('shape_display_height', shape_display_height)
                 shape_svg = embed_svg(clean_shape_path, shape_x, shape_y, 
