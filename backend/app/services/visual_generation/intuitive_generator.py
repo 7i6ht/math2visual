@@ -1142,6 +1142,7 @@ class IntuitiveVisualGenerator():
             except ValueError:
                 # If conversion fails, it's not a valid number
                 return False
+                
         def handle_division(operations, containers, svg_root, resources_path,result_containers,start_x = 50 ,start_y = 150):
             print("handle_division")
             # Ensure exactly two containers: the dividend and divisor
@@ -1196,13 +1197,18 @@ class IntuitiveVisualGenerator():
                     visual_entity['container_type'] = divisor_entity['item']['entity_type']
                 visual_entity['attr_name'] = divisor_entity['attr_name']
                 visual_entity['attr_type'] = divisor_entity['attr_type']
+                # Derive base DSL paths from the original divisor entity when available
+                divisor_base_path = divisor_entity.get("_dsl_path", "operation/entities[1]")
+                divisor_base_element_path = divisor_entity.get("_dsl_element_path", "operation/entities")
+                divisor_element_prefix = re.sub(r"\[\d+\]$", "", divisor_base_element_path)
+
                 replicated = []
                 for i in range(result_count):
                     e_copy = copy.deepcopy(visual_entity)
                     e_copy["replica_index"] = i
-                    # All non-last containers should have entities[1]
-                    e_copy["_dsl_path"] = "operation/entities[1]"
-                    e_copy["_dsl_element_path"] = f"operation/entities[{i}]"
+                    # Anchor replicas to the divisor slot while giving each a unique element index
+                    e_copy["_dsl_path"] = divisor_base_path
+                    e_copy["_dsl_element_path"] = f"{divisor_element_prefix}[{i}]"
                     replicated.append(e_copy)
 
                 containers = replicated
@@ -1224,10 +1230,17 @@ class IntuitiveVisualGenerator():
                     visual_entity['container_type'] = divisor_entity['container_type']
                 visual_entity['attr_name'] = divisor_entity['attr_name']
                 visual_entity['attr_type'] = divisor_entity['attr_type']
+                # Derive base DSL paths from the original divisor entity when available
+                divisor_base_path = divisor_entity.get("_dsl_path", "operation/entities[1]")
+                divisor_base_element_path = divisor_entity.get("_dsl_element_path", "operation/entities")
+                divisor_element_prefix = re.sub(r"\[\d+\]$", "", divisor_base_element_path)
+
                 replicated = []
                 for i in range(divisor_entity_quantity):
                     e_copy = copy.deepcopy(visual_entity)
                     e_copy["replica_index"] = i
+                    e_copy["_dsl_path"] = divisor_base_path
+                    e_copy["_dsl_element_path"] = f"{divisor_element_prefix}[{i}]"
                     replicated.append(e_copy)
 
                 containers = replicated
@@ -2047,13 +2060,18 @@ class IntuitiveVisualGenerator():
                     visual_entity['container_type'] = divisor_entity['item']['entity_type']
                 visual_entity['attr_name'] = divisor_entity['attr_name']
                 visual_entity['attr_type'] = divisor_entity['attr_type']
+                # Derive base DSL paths from the original divisor entity when available
+                divisor_base_path = divisor_entity.get("_dsl_path", "operation/entities[1]")
+                divisor_base_element_path = divisor_entity.get("_dsl_element_path", "operation/entities")
+                # Trim trailing bracketed index using regex
+                divisor_element_prefix = re.sub(r"\[\d+\]$", "", divisor_base_element_path)
+
                 replicated = []
                 for i in range(result_count):
                     e_copy = copy.deepcopy(visual_entity)
                     e_copy["replica_index"] = i
-                    # All non-last containers should have entities[1]
-                    e_copy["_dsl_path"] = "operation/entities[1]"
-                    e_copy["_dsl_element_path"] = f"operation/entities[{i}]"
+                    e_copy["_dsl_path"] = divisor_base_path
+                    e_copy["_dsl_element_path"] = f"{divisor_element_prefix}[{i}]"
                     replicated.append(e_copy)
 
             elif(dividend_entity["item"].get("entity_type", "") != divisor_entity["item"].get("entity_type", "") and dividend_entity["item"].get("entity_type", "") and divisor_entity["item"].get("entity_type", "")):
@@ -2070,10 +2088,17 @@ class IntuitiveVisualGenerator():
                     visual_entity['container_type'] = divisor_entity['container_type']
                 visual_entity['attr_name'] = divisor_entity['attr_name']
                 visual_entity['attr_type'] = divisor_entity['attr_type']
+                # Derive base DSL paths from the original divisor entity when available
+                divisor_base_path = divisor_entity.get("_dsl_path", "operation/entities[1]")
+                divisor_base_element_path = divisor_entity.get("_dsl_element_path", "operation/entities")
+                divisor_element_prefix = re.sub(r"\[\d+\]$", "", divisor_base_element_path)
+
                 replicated = []
                 for i in range(divisor_entity_quantity):
                     e_copy = copy.deepcopy(visual_entity)
                     e_copy["replica_index"] = i
+                    e_copy["_dsl_path"] = divisor_base_path
+                    e_copy["_dsl_element_path"] = f"{divisor_element_prefix}[{i}]"
                     replicated.append(e_copy)
 
                 containers = replicated
