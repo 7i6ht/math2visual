@@ -1,4 +1,5 @@
 import { numberToWord } from './numberUtils';
+import pluralize from 'pluralize';
 
 /**
  * Utility functions for Math Word Problem (MWP) text processing and highlighting
@@ -25,11 +26,12 @@ export const splitIntoSentences = (text: string): string[] => {
  *   4. Container only
  */
 export const createSentencePatterns = (
-  containerName: string,
+  entityName: string,
   quantity?: string,
-  entityName?: string
+  containerName?: string,
 ): RegExp[] => {
   const patterns: RegExp[] = [];
+  const entityNamePattern = createNamePattern(entityName);
   
   if (quantity) {
     // Convert quantity to both numeric and word forms for pattern matching
@@ -37,27 +39,32 @@ export const createSentencePatterns = (
     const wordQuantity = numberToWord(parseInt(quantity.toString()));
     const quantityPattern = `(${numericQuantity}|${wordQuantity})`;
     
-    if (entityName) {
-      // Pattern with container + quantity + entity (most specific)
+    if (containerName) {
       patterns.push(
-        new RegExp(`([^.!?]*${containerName}[^.!?]*${quantityPattern}[^.!?]*${entityName}[^.!?]*[.!?])`, 'i')
+        new RegExp(`([^.!?]*${containerName}[^.!?]*${quantityPattern}[^.!?]*${entityNamePattern}[^.!?]*[.!?])`, 'i')
+      );
+    
+      // Pattern with container + quantity (no entity requirement)
+      patterns.push(
+        new RegExp(`([^.!?]*${containerName}[^.!?]*${quantityPattern}[^.!?]*[.!?])`, 'i')
       );
     }
-    
-    // Pattern with container + quantity (no entity requirement)
-    patterns.push(
-      new RegExp(`([^.!?]*${containerName}[^.!?]*${quantityPattern}[^.!?]*[.!?])`, 'i')
-    );
-    
+
     // Pattern with just quantity (between container+quantity and container-only)
     patterns.push(
       new RegExp(`([^.!?]*${quantityPattern}[^.!?]*[.!?])`, 'i')
     );
   }
-  
+
+  if (containerName) {
+    patterns.push(
+      new RegExp(`([^.!?]*${containerName}[^.!?]*[.!?])`, 'i')
+    );
+  }
+
   // Fallback pattern with just container
   patterns.push(
-    new RegExp(`([^.!?]*${containerName}[^.!?]*[.!?])`, 'i')
+    new RegExp(`([^.!?]*${entityNamePattern}[^.!?]*[.!?])`, 'i')
   );
   
   return patterns;
@@ -135,15 +142,15 @@ export const findQuantityInText = (
 };
 
 /**
- * Create a flexible regex pattern for entity names that handles singular/plural variations
- * Only the last word (typically the noun) gets the optional 's' for pluralization
- * @param entityName - The entity name to create a pattern for (e.g., "colorful flower")
+ * Create a flexible regex pattern for names that handles singular/plural variations
+ * Uses pluralize library for accurate pluralization with support for irregular plurals
+ * @param name - The name to create a pattern for (e.g., "colorful flower")
  * @returns A regex pattern string that matches both singular and plural forms
  * @example "colorful flower" → matches "colorful flower" and "colorful flowers"
  */
-export const createEntityNamePattern = (entityName: string): string => {
+export const createNamePattern = (name: string): string => {
   // Escape special regex characters
-  const escapedName = entityName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   
   // Split into words
   const words = escapedName.split(/\s+/);
@@ -151,8 +158,17 @@ export const createEntityNamePattern = (entityName: string): string => {
   // Handle pluralization for the last word only (typically the noun)
   if (words.length > 0) {
     const lastWord = words[words.length - 1];
-    if (!lastWord.toLowerCase().endsWith('s')) {
-      words[words.length - 1] = `${lastWord}s?`;
+    
+    // Get the plural form using pluralize library
+    const pluralForm = pluralize(lastWord);
+    
+    // Create pattern that matches both singular and plural forms
+    if (pluralForm !== lastWord) {
+      // Both forms are different, create an alternation pattern
+      words[words.length - 1] = `(${lastWord}|${pluralForm})`;
+    } else {
+      // Forms are the same (already plural or irregular), just use the word
+      words[words.length - 1] = lastWord;
     }
   }
   
@@ -164,98 +180,18 @@ export const createEntityNamePattern = (entityName: string): string => {
 };
 
 /**
- * Score sentences based on container name and quantity matches
- * @param sentences - Array of sentences to score
- * @param containerName - The container name to search for
- * @param quantity - The quantity to search for (numeric)
- * @returns Array of scored sentences sorted by relevance (highest score first)
- */
-export const scoreSentencesForEntity = (
-  sentences: string[], 
-  containerName: string, 
-  quantity: string
-): Array<{ index: number; score: number; sentence: string }> => {
-  const sentenceScores: Array<{ index: number; score: number; sentence: string }> = [];
-  
-  for (let i = 0; i < sentences.length; i++) {
-    const sentence = sentences[i].trim();
-    let score = 0;
-    
-    // Check if sentence contains container name
-    const containerRegex = new RegExp(`\\b${containerName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
-    if (containerRegex.test(sentence)) score++;
-    
-    // Check if sentence contains quantity (numeric or word form)
-    const numericQuantity = quantity.toString();
-    const wordQuantity = numberToWord(parseInt(quantity.toString()));
-    const quantityRegex = new RegExp(`\\b(${numericQuantity}|${wordQuantity})\\b`, 'i');
-    if (quantityRegex.test(sentence)) score++;
-    
-    // Only consider sentences with at least one match
-    if (score > 0) {
-      sentenceScores.push({ index: i, score, sentence });
-    }
-  }
-  
-  // Sort by score (descending) and then by index (ascending) for ties
-  sentenceScores.sort((a, b) => {
-    if (a.score !== b.score) return b.score - a.score; // Higher score first
-    return a.index - b.index; // Earlier sentence first for ties
-  });
-  
-  return sentenceScores;
-};
-
-/**
- * Find entity name matches in a sentence and convert to absolute positions
- * @param entityName - The entity name to search for
- * @param sentence - The sentence to search within
- * @param sentenceIndex - Index of the sentence in the sentences array
- * @param sentences - Array of all sentences for position calculation
- * @param mwpText - The full MWP text for absolute positioning
- * @returns Array of [start, end] ranges or null if no matches found
- */
-export const findEntityNameInSentence = (
-  entityName: string,
-  sentence: string,
-  sentenceIndex: number,
-  sentences: string[],
-  mwpText: string
-): [number, number][] | null => {
-  const entityNamePattern = createEntityNamePattern(entityName);
-  const entityNameRegex = new RegExp(entityNamePattern, 'gi');
-  const entityNameMatches = Array.from(sentence.matchAll(entityNameRegex));
-  
-  if (entityNameMatches.length === 0) return null;
-  
-  // Calculate the absolute position in the full text
-  const sentencePosition = findSentencePosition(mwpText, sentences, sentenceIndex, sentence);
-  if (!sentencePosition) return null;
-  
-  const [sentenceStart] = sentencePosition;
-  
-  return entityNameMatches.map(match => {
-    const relativeStart = match.index!;
-    const relativeEnd = relativeStart + match[0].length;
-    const absoluteStart = sentenceStart + relativeStart;
-    const absoluteEnd = sentenceStart + relativeEnd;
-    return [absoluteStart, absoluteEnd] as [number, number];
-  });
-};
-
-/**
- * Find all occurrences of entity name in the text (fallback function)
- * @param entityName - The entity name to search for
+ * Find all occurrences of name in the text (fallback function)
+ * @param name - The name to search for
  * @param mwpText - The full MWP text to search within
  * @returns Array of [start, end] ranges for all occurrences
  */
-export const findAllEntityNameOccurrencesInText = (
-  entityName: string,
+export const findAllNameOccurrencesInText = (
+  name: string,
   mwpText: string
 ): [number, number][] => {
-  const entityNamePattern = createEntityNamePattern(entityName);
-  const entityNameRegex = new RegExp(entityNamePattern, 'gi');
-  const allMatches = Array.from(mwpText.matchAll(entityNameRegex));
+  const namePattern = createNamePattern(name);
+  const nameRegex = new RegExp(namePattern, 'gi');
+  const allMatches = Array.from(mwpText.matchAll(nameRegex));
   
   return allMatches.map(match => [match.index!, match.index! + match[0].length] as [number, number]);
 };

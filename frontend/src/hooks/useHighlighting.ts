@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import type { ComponentMapping } from '../types/visualInteraction';
 import { numberToWord } from '../utils/numberUtils';
-import { createSentencePatterns, findSentencePosition, findQuantityInText, splitIntoSentences, scoreSentencesForEntity, findEntityNameInSentence, findAllEntityNameOccurrencesInText } from '../utils/mwpUtils';
+import { createSentencePatterns, findSentencePosition, findQuantityInText, splitIntoSentences, findAllNameOccurrencesInText } from '../utils/mwpUtils';
 import { MAX_ITEM_DISPLAY } from '../config/api';
 import { useDSLContext } from '@/contexts/DSLContext';
 import { useHighlightingContext } from '@/contexts/HighlightingContext';
@@ -144,13 +144,13 @@ export const useHighlighting = ({
         const quantity = mappings[quantityPath]?.property_value;
 
         // Early return if missing required data
-        if (!containerName || !mwpValue) {
+        if (!entityName || !mwpValue) {
           onMWPRangeHighlight([]);
           return;
         }
         
         // Use utility function to create sentence patterns
-        const sentencePatterns = createSentencePatterns(containerName, quantity, entityName);
+        const sentencePatterns = createSentencePatterns(entityName, quantity, containerName);
 
         for (let i = 0; i < sentencePatterns.length; i++) {
           const pattern = sentencePatterns[i] as RegExp;
@@ -233,57 +233,6 @@ export const useHighlighting = ({
     });
   }, [triggerHighlight, svgRef, mappings, highlightSecondOperandSentence]);
 
-
-  /**
-   * Handle MWP highlighting for embedded SVG elements
-   */
-  const handleEmbeddedSvgMWPHighlight = useCallback((dslPath: string) => {
-    // Get the component mappings for this entity
-    // Handle both indexed format (/entity_type[0]) and non-indexed format (/entity_type)
-    const entityPath = dslPath.replace(/\/entity_type(\[\d+\])?$/, '');
-    const entityNamePath = `${entityPath}/entity_name`;
-    const containerNamePath = `${entityPath}/container_name`;
-    const quantityPath = `${entityPath}/entity_quantity`;
-    
-    const entityNameMapping = mappings[entityNamePath];
-    const containerNameMapping = mappings[containerNamePath];
-    const quantityMapping = mappings[quantityPath];
-    
-    if (!entityNameMapping?.property_value || !containerNameMapping?.property_value || !quantityMapping?.property_value || !mwpValue) {
-      onMWPRangeHighlight([]);
-      return;
-    }
-    
-    const entityName = entityNameMapping.property_value;
-    const containerName = containerNameMapping.property_value;
-    const quantity = quantityMapping.property_value;
-    
-    // Split text into sentences and score them
-    const sentences = splitIntoSentences(mwpValue);
-    const sentenceScores = scoreSentencesForEntity(sentences, containerName, quantity);
-    
-    // Try to highlight entity_name in the best matching sentence
-    if (sentenceScores.length > 0) {
-      const bestMatch = sentenceScores[0];
-      const ranges = findEntityNameInSentence(
-        entityName, 
-        bestMatch.sentence, 
-        bestMatch.index, 
-        sentences, 
-        mwpValue
-      );
-      
-      if (ranges && ranges.length > 0) {
-        onMWPRangeHighlight(ranges);
-        return;
-      }
-    }
-    
-    // Fallback: highlight all entity_name occurrences
-    const fallbackRanges = findAllEntityNameOccurrencesInText(entityName, mwpValue);
-    onMWPRangeHighlight(fallbackRanges);
-  }, [mappings, mwpValue, onMWPRangeHighlight]);
-
   /**
    * Trigger highlighting for embedded SVG components (entity_type)
    */
@@ -307,9 +256,17 @@ export const useHighlighting = ({
           setSvgTransformOrigin(embeddedSvgEl);
         }
       },
-      applyMWPHighlight: () => handleEmbeddedSvgMWPHighlight(dslPath)
+      applyMWPHighlight: () => {
+        if (!mapping?.property_value || !mwpValue) {
+          onMWPRangeHighlight([]);
+          return;
+        }
+        const entityName = mapping.property_value;
+        const fallbackRanges = findAllNameOccurrencesInText(entityName, mwpValue);
+        onMWPRangeHighlight(fallbackRanges);
+      }
     });
-  }, [triggerHighlight, setSvgTransformOrigin, svgRef, mappings, handleEmbeddedSvgMWPHighlight]);
+  }, [triggerHighlight, setSvgTransformOrigin, svgRef, mappings, mwpValue, onMWPRangeHighlight]);
 
   /**
    * Generic function to handle MWP highlighting for text-based elements
@@ -323,16 +280,7 @@ export const useHighlighting = ({
     }
     
     const textValue = mapping.property_value;
-    
-    // Find all occurrences using regex with word boundaries and plural support
-    const escapedText = textValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // Escape regex special chars
-    const regex = new RegExp(`\\b${escapedText}s?\\b`, 'gi'); // Word boundaries, optional 's' for plural, case-insensitive
-    
-    // Functional approach: map matches to ranges
-    const matches = Array.from(mwpValue.matchAll(regex));
-    
-    const ranges: Array<[number, number]> = matches
-      .map(match => [match.index, match.index + match[0].length] as [number, number]);
+    const ranges = findAllNameOccurrencesInText(textValue, mwpValue);
     
     onMWPRangeHighlight(ranges);
   }, [mappings, mwpValue, onMWPRangeHighlight]);
