@@ -406,11 +406,17 @@ class IntuitiveVisualGenerator():
 
                 # Make copies of the first entity
                 base_entity = containers[0]
+                # Derive base DSL paths from the original base entity (left operand)
+                multiplicand_base_element_path = base_entity.get("_dsl_element_path", "operation/entities")
+                multiplicand_element_prefix = re.sub(r"\[\d+\]$", "", multiplicand_base_element_path)
+
                 replicated = []
                 for i in range(multiplier_val):
                     e_copy = copy.deepcopy(base_entity)
                     # Optionally tag each copy for debugging
                     e_copy["replica_index"] = i
+                    # Assign DSL paths for each replicated multiplicand
+                    e_copy["_dsl_element_path"] = f"{multiplicand_element_prefix}[{i}]"
                     replicated.append(e_copy)
 
                 containers = replicated
