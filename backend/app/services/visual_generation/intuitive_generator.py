@@ -4005,8 +4005,7 @@ class IntuitiveVisualGenerator():
             resources_path,
             start_x=50,
             start_y=150,
-            comparison_dsl_path='operation',
-            comparison_dsl_element_path='operation'):
+            comparison_dsl_path='operation'):
             print("handle_comparison")
 
             print("Handling comparison start")
@@ -4028,12 +4027,18 @@ class IntuitiveVisualGenerator():
                 result_i = comp_result_container_list[i]
                 svg_width = 0
                 svg_height = 0
+                print(f"handle_comparison loop, operations_i: {operations_i}")
+                print(f"handle_comparison loop, containers_i: {containers_i}")
+                print(f"handle_comparison, result_i: {result_i}")
 
                 if all(op["entity_type"] in ["addition", "subtraction"] for op in operations_i):
                     print("Handling tvq_final")
                     try:
                         created, w, h = handle_tvq_final(operations_i,containers_i,svg_root,resources_path,result_i,start_x=current_x,start_y=current_y)
-                    except:
+                    except Exception as e:
+                        print(f"Error in handle_tvq_final: {e}")
+                        import traceback
+                        traceback.print_exc()
                         return
                     svg_width, svg_height = int(float(w)), int(float(h))
                 elif all(op["entity_type"] == "multiplication" for op in operations_i) and len(operations_i) == 1:
@@ -4047,7 +4052,10 @@ class IntuitiveVisualGenerator():
                         result_i,
                         start_x=current_x,
                         start_y=current_y)
-                    except:
+                    except Exception as e:
+                        print(f"Error in handle_multiplication: {e}")
+                        import traceback
+                        traceback.print_exc()
                         return
                     svg_width, svg_height = int(float(w)), int(float(h))
                 elif all(op["entity_type"] == "division" for op in operations_i) and len(operations_i) == 1:
@@ -4061,7 +4069,10 @@ class IntuitiveVisualGenerator():
                         result_i,
                         start_x=current_x,
                         start_y=current_y)
-                    except:
+                    except Exception as e:
+                        print(f"Error in handle_division: {e}")
+                        import traceback
+                        traceback.print_exc()
                         return
                     svg_width, svg_height = int(float(w)), int(float(h))
                 elif all(op["entity_type"] == "surplus" for op in operations_i) and len(operations_i) == 1:
@@ -4075,7 +4086,10 @@ class IntuitiveVisualGenerator():
                             result_i,
                             start_x=current_x,
                             start_y=current_y)
-                    except:
+                    except Exception as e:
+                        print(f"Error in handle_surplus: {e}")
+                        import traceback
+                        traceback.print_exc()
                         return
                     svg_width, svg_height = int(float(w)), int(float(h))
                 elif all(op["entity_type"] == "area" for op in operations_i) and len(operations_i) == 1:
@@ -4089,7 +4103,10 @@ class IntuitiveVisualGenerator():
                             result_i,
                             start_x=current_x,
                             start_y=current_y)
-                    except:
+                    except Exception as e:
+                        print(f"Error in handle_area: {e}")
+                        import traceback
+                        traceback.print_exc()
                         return
                     svg_width, svg_height = int(float(w)), int(float(h))
                 elif all(op["entity_type"] in ["addition", "subtraction"] for op in operations_i):
@@ -4103,21 +4120,25 @@ class IntuitiveVisualGenerator():
                         result_i,
                         start_x=current_x,
                         start_y=current_y)
-                    except:
+                    except Exception as e:
+                        print(f"Error in handle_tvq_final (mixed add/sub): {e}")
+                        import traceback
+                        traceback.print_exc()
                         return
                     svg_width, svg_height = int(float(w)), int(float(h))
                 entity_boxes[i] = (current_x, current_y, svg_width, svg_height)
 
                 current_x += svg_width + 110  # spacing
 
+            print(f"handle_comparison, entity_box: {entity_boxes}")
             # draw balance scale
-            draw_balance_scale(svg_root, entity_boxes, comparison_dsl_path, comparison_dsl_element_path)
+            draw_balance_scale(svg_root, entity_boxes, comparison_dsl_path)
 
             # return True, str(float(svg_root.attrib["width"]) - start_x), str(float(svg_root.attrib["height"]) - MARGIN + 15)
             return created, svg_root.attrib["width"], svg_root.attrib["height"]
             
 
-        def draw_balance_scale(svg_root, entity_boxes, comparison_dsl_path='operation', comparison_dsl_element_path='operation'):
+        def draw_balance_scale(svg_root, entity_boxes, comparison_dsl_path='operation'):
             print("draw_balance_scale")
             """
             Draws a balance scale below two figures whose bounding boxes are given
@@ -4360,8 +4381,8 @@ class IntuitiveVisualGenerator():
 
             # compare1_operations = compare1_operations[::-1]
             # compare2_operations = compare2_operations[::-1]
-            compare1_operations = [{"entity_type": op} for op in compare1_operations]
-            compare2_operations = [{"entity_type": op} for op in compare2_operations]
+            # compare1_operations = [{"entity_type": op} for op in compare1_operations]
+            # compare2_operations = [{"entity_type": op} for op in compare2_operations]
             print(f"compare 1 operations: {compare1_operations}")
             print(f"compare 1 containers: {compare1_containers}")
             print(f"compare 1 result containers: {compare1_result_containers}")
@@ -4372,7 +4393,7 @@ class IntuitiveVisualGenerator():
             try:
                 created, svg_width, svg_height = handle_comparison(compare1_operations, compare1_containers, compare1_result_containers,
                             compare2_operations, compare2_containers, compare2_result_containers,
-                            svg_root,resources_path, comparison_dsl_path=comparison_dsl_path, comparison_dsl_element_path=comparison_dsl_element_path)
+                            svg_root,resources_path, comparison_dsl_path=comparison_dsl_path)
             except Exception as e:
                 print("Error in handle_comparison: ",e)
                 self.error_message = "Error in handle_comparison"
