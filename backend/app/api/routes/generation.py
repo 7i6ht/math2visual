@@ -5,6 +5,7 @@ from flask import Blueprint, request, jsonify
 import os
 import shutil
 import copy
+import uuid
 from datetime import datetime
 
 from app.services.language_generation.gpt_generator import generate_visual_language
@@ -12,6 +13,9 @@ from app.services.visual_generation.formal_generator import FormalVisualGenerato
 from app.services.visual_generation.intuitive_generator import IntuitiveVisualGenerator
 from app.services.visual_generation.dsl_parser import DSLParser
 from app.config.storage_config import get_svg_dataset_path
+
+# Check if running in debug mode
+DEBUG_MODE = os.getenv('FLASK_DEBUG', 'false').lower() in ('true', '1', 'yes', 'on')
 
 generation_bp = Blueprint('generation', __name__)
 output_dir = os.path.join(os.path.dirname(__file__), "../../../storage/output")
@@ -79,10 +83,11 @@ def generate():
         dsl = raw.split(":", 1)[1].strip() if raw.lower().startswith("visual_language:") else raw.strip()
     
     # Generate visualizations using shared method
-    # Setup output directory
+    # Setup output directory with unique file names for parallel requests
     os.makedirs(output_dir, exist_ok=True)
-    output_file = os.path.join(output_dir, "output.svg")
-    intuitive_file = os.path.join(output_dir, "intuitive.svg")
+    request_id = str(uuid.uuid4())
+    output_file = os.path.join(output_dir, f"formal_{request_id}.svg")
+    intuitive_file = os.path.join(output_dir, f"intuitive_{request_id}.svg")
     
     # Initialize generators and DSL parser
     formal_generator = FormalVisualGenerator()
@@ -97,9 +102,6 @@ def generate():
     except ValueError as e:
         return jsonify({"error": f"DSL parse error: {e}"}), 500
     
-    # Generate formal visualization
-    if os.path.exists(output_file):
-        os.remove(output_file)
     
     formal_error = None
     svg_formal = None
@@ -117,10 +119,7 @@ def generate():
     except Exception as e:
         formal_error = f"Unexpected formal generation error: {str(e)}"
     
-    # Generate intuitive visualization
-    if os.path.exists(intuitive_file):
-        os.remove(intuitive_file)
-    
+
     intuitive_error = None
     svg_intuitive = None
     ok_intu = False
@@ -137,12 +136,13 @@ def generate():
     except Exception as e:
         intuitive_error = f"Unexpected intuitive generation error: {str(e)}"
 
-    # Archive timestamped copies
-    ts = datetime.now().strftime("%Y%m%d%H%M%S")
-    if ok_formal and os.path.exists(output_file):
-        shutil.copy(output_file, os.path.join(output_dir, f"formal_{ts}.svg"))
-    if ok_intu and os.path.exists(intuitive_file):
-        shutil.copy(intuitive_file, os.path.join(output_dir, f"intuitive_{ts}.svg"))
+    # Archive timestamped copies (only in debug mode)
+    if DEBUG_MODE:
+        ts = datetime.now().strftime("%Y%m%d%H%M%S")
+        if ok_formal and os.path.exists(output_file):
+            shutil.copy(output_file, os.path.join(output_dir, f"formal_{ts}_{request_id}.svg"))
+        if ok_intu and os.path.exists(intuitive_file):
+            shutil.copy(intuitive_file, os.path.join(output_dir, f"intuitive_{ts}_{request_id}.svg"))
 
     # Collect missing entities from both generators
     formal_missing_entities = formal_generator.get_missing_entities()
@@ -151,7 +151,7 @@ def generate():
     # Combine missing entities and remove duplicates while preserving order
     all_missing_entities = list(dict.fromkeys(formal_missing_entities + intuitive_missing_entities))
     
-    # Return results with formatted DSL (no component mappings)
+    # Return response immediately - cleanup handled by periodic job
     return jsonify({
         "visual_language": dsl,  # Send formatted DSL instead of raw DSL
         "svg_formal": svg_formal,
