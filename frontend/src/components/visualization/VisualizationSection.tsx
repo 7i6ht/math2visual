@@ -15,10 +15,10 @@ interface VisualizationSectionProps {
   isOpen: boolean;
   mwpValue: string;
   formulaValue?: string;
-  onEmbeddedSVGClick: (dslPath: string, event: MouseEvent) => void;
-  onEntityQuantityClick: (dslPath: string, event: MouseEvent) => void;
-  onNameClick: (dslPath: string, event: MouseEvent) => void;
-  isSelectorOpen?: boolean;
+  onEmbeddedSVGClick: (event: MouseEvent) => void;
+  onEntityQuantityClick: (event: MouseEvent) => void;
+  onNameClick: (event: MouseEvent) => void;
+  isPopupOpen?: boolean;
   isDisabled?: boolean;
 }
 
@@ -33,11 +33,10 @@ export const VisualizationSection = ({
   onEmbeddedSVGClick,
   onEntityQuantityClick,
   onNameClick,
-  isSelectorOpen = false,
+  isPopupOpen = false,
   isDisabled = false,
 }: VisualizationSectionProps) => {
   const svgRef = useRef<HTMLDivElement | null>(null);
-
   const { currentDSLPath } = useHighlightingContext();
 
   // Handle SVG responsiveness
@@ -55,27 +54,33 @@ export const VisualizationSection = ({
   const highlighting = useHighlighting({ svgRef, mwpValue, formulaValue });
   const interactions = useElementInteractions({
     svgRef,
-    highlighting,
     onEmbeddedSVGClick,
     onEntityQuantityClick,
     onNameClick,
-    isSelectorOpen,
+    isPopupOpen,
     isDisabled,
   });
-
+  
   // Inject SVG content, make it responsive, and attach interactions
   useEffect(() => {
     if (!isOpen || !svgRef.current || typeof svgContent !== 'string') return;
+    
     svgRef.current.innerHTML = svgContent;
     makeResponsive(svgRef.current);
-    interactions.setupSVGInteractions();
     highlighting.setupTransformOrigins();
-  }, [isOpen, svgContent, makeResponsive, interactions, highlighting]);
+  }, [isOpen, svgContent, makeResponsive, highlighting.setupTransformOrigins]);
+
+  // Setup interactions when popup state changes (separate effect to avoid SVG content replacement)
+  useEffect(() => {
+    if (svgRef.current && isOpen) {
+      interactions.setupSVGInteractions();
+    }
+  }, [isPopupOpen, interactions.setupSVGInteractions, isOpen]);
 
   // Highlight the current DSL path (on DSL editor click)
   useEffect(() => {
       highlighting.highlightCurrentDSLPath();
-  }, [currentDSLPath, highlighting]);
+  }, [currentDSLPath]);
 
   return (
     <AccordionItem value={type} className="border rounded-lg !border-b">

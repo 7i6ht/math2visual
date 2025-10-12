@@ -9,9 +9,7 @@ import { useDSLContext } from '@/contexts/DSLContext';
 interface SVGSelectorState {
   isOpen: boolean;
   dslPath: string;
-  dslElementPath: string;
   currentValue: string;
-  visualType: 'formal' | 'intuitive';
 }
 
 interface UseSVGSelectorProps {
@@ -22,7 +20,7 @@ interface UseSVGSelectorProps {
     formal_error: string | null;
     intuitive_error: string | null;
     missing_svg_entities: string[];
-    componentMappings?: ComponentMapping;
+    componentMappings: ComponentMapping;
     parsedDSL: ParsedOperation;
   }) => void;
 }
@@ -31,15 +29,13 @@ export const useSVGSelector = ({
   onVisualsUpdate,
 }: UseSVGSelectorProps) => {
   // Use highlighting context
-  const { setCurrentDSLPath, setCurrentTargetElement, clearCurrentTargetElement } = useHighlightingContext();
-  const { formattedDSL } = useDSLContext();
+  const { setCurrentTargetElement, clearCurrentTargetElement, setCurrentDSLPath } = useHighlightingContext();
+  const { formattedDSL, componentMappings } = useDSLContext();
 
   const [selectorState, setSelectorState] = useState<SVGSelectorState>({
     isOpen: false,
     dslPath: '',
-    dslElementPath: '',
     currentValue: '',
-    visualType: 'formal',
   });
 
   // Close the selector and clear highlight
@@ -52,32 +48,35 @@ export const useSVGSelector = ({
       ...prev,
       isOpen: false,
     }));
-  }, [setCurrentDSLPath, clearCurrentTargetElement]);
+  }, [clearCurrentTargetElement, setCurrentDSLPath]);
 
   // Open the selector at a specific position for a specific DSL path
-  const openSelector = useCallback((dslPath: string, currentValue: string, event: MouseEvent, visualType: 'formal' | 'intuitive') => {
-    // Set currentDSLPath to trigger highlight via existing system
-    setCurrentDSLPath(dslPath);
-    
+  const openSelector = useCallback((event: MouseEvent) => {    
     // Find the correct SVG element using closest() method
     // This ensures we get the actual SVG element with data-dsl-path, not a child element
-    const targetEl = (event.target as Element).closest('svg[data-dsl-path]') as Element;
-    const dslElementPath = targetEl.getAttribute('data-dsl-element-path') || '';
+    const el = event.target as Element;
+    const targetEl = el.closest('svg[data-dsl-path]') as Element;
+    const dslPath = targetEl.getAttribute('data-dsl-path') || '';
+    const normalizedDslPath = dslPath.endsWith("]") ? dslPath.slice(0, -3) : dslPath;
+
+    // Trigger highlight via existing system
+    setCurrentDSLPath(dslPath);
 
     // Store target element in context
     setCurrentTargetElement(targetEl);
-    
+
+    const typeMapping = componentMappings?.[normalizedDslPath];
+    const currentValue = typeMapping?.property_value || "";
+
     setSelectorState({
       isOpen: true,
-      dslPath: dslPath,
-      dslElementPath: dslElementPath,
+      dslPath: normalizedDslPath,
       currentValue,
-      visualType,
     });
-  }, [setCurrentDSLPath, setCurrentTargetElement]);
+  }, [setCurrentTargetElement, componentMappings, setCurrentDSLPath]);
 
   // Handle embedded SVG change
-  const handleEmbeddedSVGChange = useCallback(async (newType: string) => {
+  const updateEmbeddedSVG = useCallback(async (newType: string) => {
     if (!formattedDSL || !selectorState.currentValue) {
       toast.error('No DSL or path context available');
       return;
@@ -126,7 +125,7 @@ export const useSVGSelector = ({
     selectorState,
     openSelector,
     closeSelector,
-    handleEmbeddedSVGChange,
+    updateEmbeddedSVG,
   };
 };
 

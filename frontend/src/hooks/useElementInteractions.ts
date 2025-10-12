@@ -1,31 +1,14 @@
-import { useCallback, useMemo } from 'react';
-import { isTextElement, isOperationElement, isBoxElement, isEmbeddedSvgElement, isContainerTypeSvgElement, isAttrTypeSvgElement, isContainerNameElement, isAttrNameElement, isResultContainerElement, getDslPath, setCursorStyle } from '../utils/elementUtils';
+import { useCallback, useMemo, useRef, useEffect } from 'react';
+import { isTextElement, isBoxElement, isEmbeddedSvgElement, isContainerTypeSvgElement, isAttrTypeSvgElement, isContainerNameElement, isAttrNameElement } from '../utils/elementUtils';
+import { useHighlightingContext } from '@/contexts/HighlightingContext';
 
 interface UseElementInteractionsProps {
   svgRef: React.RefObject<HTMLDivElement | null>;
-  highlighting: {
-    clearHighlightForElement: (element: SVGElement, className: 'highlighted-box' | 'highlighted-text' | 'highlighted-svg') => void;
-    triggerBoxHighlight: (dslPath: string) => void;
-    triggerEntityQuantityHighlight: (dslPath: string) => void;
-    triggerOperationHighlight: (dslPath: string) => void;
-    triggerEmbeddedSvgHighlight: (dslPath: string) => void;
-    triggerContainerTypeHighlight: (dslPath: string) => void;
-    triggerAttrTypeHighlight: (dslPath: string) => void;
-    triggerContainerNameHighlight: (dslPath: string) => void;
-    triggerAttrNameHighlight: (dslPath: string) => void;
-    triggerResultContainerHighlight: (dslPath: string) => void;
-  };
-  onEmbeddedSVGClick: (dslPath: string, event: MouseEvent) => void;
-  onEntityQuantityClick: (dslPath: string, event: MouseEvent) => void;
-  onNameClick: (dslPath: string, event: MouseEvent) => void;
-  isSelectorOpen?: boolean;
+  onEmbeddedSVGClick: (event: MouseEvent) => void;
+  onEntityQuantityClick: (event: MouseEvent) => void;
+  onNameClick: (event: MouseEvent) => void;
+  isPopupOpen?: boolean;
   isDisabled?: boolean;
-}
-
-interface ElementListenerConfig {
-  onMouseEnter: () => void;
-  onMouseLeave: () => void;
-  extraSetup?: () => void;
 }
 
 /**
@@ -34,205 +17,19 @@ interface ElementListenerConfig {
  */
 export const useElementInteractions = ({
   svgRef,
-  highlighting,
   onEmbeddedSVGClick,
   onEntityQuantityClick,
   onNameClick,
-  isSelectorOpen = false,
+  isPopupOpen = false,
   isDisabled = false,
 }: UseElementInteractionsProps) => {
-  /**
-   * Setup mouseenter and related listeners for a specific SVG element
-   */
-  const setupMouseEnterListener = useCallback((
-    svgElem: SVGElement,
-    config: ElementListenerConfig,
-  ) => {
-    // Remove existing listeners
-    svgElem.onmouseenter = null;
-    svgElem.onmouseleave = null;
-    svgElem.onclick = null;
-
-    // If selector is open or disabled, don't set up hover listeners
-    if (isSelectorOpen || isDisabled) {
-      return;
-    }
-
-    // Add event listeners
-    svgElem.onmouseenter = config.onMouseEnter;
-    svgElem.onmouseleave = config.onMouseLeave;
-    setCursorStyle(svgElem, 'pointer');
-    config.extraSetup?.();
-  }, [isSelectorOpen, isDisabled]);
-
-  /**
-   * Setup operation element interactions
-   */
-  const setupOperationElement = useCallback((svgElem: SVGElement, dslPath: string) => {
-    setupMouseEnterListener(svgElem, {
-      onMouseEnter: () => {
-        highlighting.triggerOperationHighlight(dslPath);
-      },
-      onMouseLeave: () => {
-        highlighting.clearHighlightForElement(svgElem, 'highlighted-svg');
-      }
-    });
-  }, [setupMouseEnterListener, highlighting]);
-
-  /**
-   * Setup box element interactions
-   */
-  const setupBoxElement = useCallback((svgElem: SVGElement, dslPath: string) => {
-    setupMouseEnterListener(svgElem, {
-      onMouseEnter: () => {
-        highlighting.triggerBoxHighlight(dslPath);
-      },
-      onMouseLeave: () => {
-        highlighting.clearHighlightForElement(svgElem, 'highlighted-box');
-      }
-    });
-
-    // Also allow clicking on a box to trigger the entity quantity click handler
-    svgElem.addEventListener('click', (event: MouseEvent) => {
-      onEntityQuantityClick(dslPath, event);
-    }, { capture: true });
-  }, [setupMouseEnterListener, highlighting, onEntityQuantityClick]);
-
-  /**
-   * Setup text element interactions
-   */
-  const setupTextElement = useCallback((svgElem: SVGElement, dslPath: string) => {
-    const quantityDslPath = dslPath;
-
-    setupMouseEnterListener(svgElem, {
-      onMouseEnter: () => {
-        highlighting.triggerEntityQuantityHighlight(quantityDslPath);
-      },
-      onMouseLeave: () => {
-        highlighting.clearHighlightForElement(svgElem, 'highlighted-text');
-      },
-      extraSetup: () => {
-        svgElem.style.pointerEvents = 'auto';
-      }
-    });
-
-    // Add click handler for entity quantity editing if path ends with entity_quantity
-    if (dslPath.endsWith('/entity_quantity')) {
-      svgElem.addEventListener('click', (event: MouseEvent) => {
-        onEntityQuantityClick(dslPath, event);
-      }, { capture: true });
-    }
-  }, [setupMouseEnterListener, highlighting, onEntityQuantityClick]);
-
-  /**
-   * Setup embedded SVG element interactions
-   */
-  const setupEmbeddedSvgElement = useCallback((svgElem: SVGElement, dslPath: string) => {
-    setupMouseEnterListener(svgElem, {
-      onMouseEnter: () => {
-        highlighting.triggerEmbeddedSvgHighlight(dslPath);
-      },
-      onMouseLeave: () => {
-        highlighting.clearHighlightForElement(svgElem, 'highlighted-svg');
-      }
-    });
-
-    // Add custom click handler for embedded SVGs (capture phase)
-    svgElem.addEventListener('click', (event: MouseEvent) => {
-      onEmbeddedSVGClick(dslPath, event);
-    }, { capture: true });
-  }, [setupMouseEnterListener, highlighting, onEmbeddedSVGClick]);
-
-  /**
-   * Setup container type SVG element interactions
-   */
-  const setupContainerTypeSvgElement = useCallback((svgElem: SVGElement, dslPath: string) => {
-    setupMouseEnterListener(svgElem, {
-      onMouseEnter: () => {
-        highlighting.triggerContainerTypeHighlight(dslPath);
-      },
-      onMouseLeave: () => {
-        highlighting.clearHighlightForElement(svgElem, 'highlighted-svg');
-      }
-    });
-
-    // Add custom click handler for container type SVGs (capture phase)
-    svgElem.addEventListener('click', (event: MouseEvent) => {
-      onEmbeddedSVGClick(dslPath, event);
-    }, { capture: true });
-  }, [setupMouseEnterListener, highlighting, onEmbeddedSVGClick]);
-
-  /**
-   * Setup attribute type SVG element interactions
-   */
-  const setupAttrTypeSvgElement = useCallback((svgElem: SVGElement, dslPath: string) => {
-    setupMouseEnterListener(svgElem, {
-      onMouseEnter: () => {
-        highlighting.triggerAttrTypeHighlight(dslPath);
-      },
-      onMouseLeave: () => {
-        highlighting.clearHighlightForElement(svgElem, 'highlighted-svg');
-      }
-    });
-
-    // Add custom click handler for attribute type SVGs (capture phase)
-    svgElem.addEventListener('click', (event: MouseEvent) => {
-      onEmbeddedSVGClick(dslPath, event);
-    }, { capture: true });
-  }, [setupMouseEnterListener, highlighting, onEmbeddedSVGClick]);
-
-  /**
-   * Setup container name text element interactions
-   */
-  const setupContainerNameElement = useCallback((svgElem: SVGElement, dslPath: string) => {
-    setupMouseEnterListener(svgElem, {
-      onMouseEnter: () => {
-        highlighting.triggerContainerNameHighlight(dslPath);
-      },
-      onMouseLeave: () => {
-        highlighting.clearHighlightForElement(svgElem, 'highlighted-text');
-      }
-    });
-
-    // Add click handler for container name editing
-    svgElem.addEventListener('click', (event: MouseEvent) => {
-      onNameClick(dslPath, event);
-    }, { capture: true });
-  }, [setupMouseEnterListener, highlighting, onNameClick]);
-
-  /**
-   * Setup attribute name text element interactions
-   */
-  const setupAttrNameElement = useCallback((svgElem: SVGElement, dslPath: string) => {
-    setupMouseEnterListener(svgElem, {
-      onMouseEnter: () => {
-        highlighting.triggerAttrNameHighlight(dslPath);
-      },
-      onMouseLeave: () => {
-        highlighting.clearHighlightForElement(svgElem, 'highlighted-text');
-      }
-    });
-
-    // Add click handler for attribute name editing
-    svgElem.addEventListener('click', (event: MouseEvent) => {
-      onNameClick(dslPath, event);
-    }, { capture: true });
-  }, [setupMouseEnterListener, highlighting, onNameClick]);
-
-  /**
-   * Setup result container element interactions
-   */
-  const setupResultContainerElement = useCallback((svgElem: SVGElement, dslPath: string) => {
-    setupMouseEnterListener(svgElem, {
-      onMouseEnter: () => {
-        highlighting.triggerResultContainerHighlight(dslPath);
-      },
-      onMouseLeave: () => {
-        highlighting.clearHighlightForElement(svgElem, 'highlighted-box');
-      }
-    });
-  }, [setupMouseEnterListener, highlighting]);
-
+  const { setCurrentTargetElement, setCurrentDSLPath, currentDSLPath } = useHighlightingContext();
+  const currentDSLPathRef = useRef(currentDSLPath);
+  
+  // Keep the ref in sync with the current value
+  useEffect(() => {
+    currentDSLPathRef.current = currentDSLPath;
+  }, [currentDSLPath]);
   /**
    * Setup interactions for all SVG elements with DSL paths
    */
@@ -246,53 +43,69 @@ export const useElementInteractions = ({
 
     allInteractiveElements.forEach((element) => {
       const svgElem = element as SVGElement;
-      const dslPath = getDslPath(svgElem);
+      const dslPath = svgElem.getAttribute('data-dsl-path');
 
       if (!dslPath) return;
 
-      // If disabled, clear all listeners and return
-      if (isDisabled) {
-        svgElem.onmouseenter = null;
-        svgElem.onmouseleave = null;
-        svgElem.onclick = null;
-        svgElem.style.cursor = 'default';
+      svgElem.onmouseenter = null;
+      svgElem.onmouseleave = null;
+      svgElem.onclick = null;
+      svgElem.style.cursor = 'default';
+
+      // If popup is open or disabled, don't set up hover listeners
+      if (isPopupOpen || isDisabled) {
         return;
       }
+  
+      // Add event listeners
+      svgElem.onmouseenter = () => {
+        const currentPath = currentDSLPathRef.current;
+        if (currentPath !== dslPath) {
+          setCurrentTargetElement(svgElem);
+          setCurrentDSLPath(dslPath);
+        }
+      };
+      svgElem.onmouseleave = () => {
+        setCurrentTargetElement(null as unknown as Element);
+        setCurrentDSLPath(null);
+      };
+      svgElem.style.cursor = 'pointer';
 
       // Determine element type and setup appropriate interactions
       // Check smaller/internal elements first, then containers, to avoid event blocking
-      if (isOperationElement(svgElem)) {
-        setupOperationElement(svgElem, dslPath);
-      } else if (isContainerNameElement(svgElem)) {
-        setupContainerNameElement(svgElem, dslPath);
+      if (isContainerNameElement(svgElem)) {
+        svgElem.addEventListener('click', (event: MouseEvent) => {
+          onNameClick(event);
+        }, { capture: true });
       } else if (isAttrNameElement(svgElem)) {
-        setupAttrNameElement(svgElem, dslPath);
+        svgElem.addEventListener('click', (event: MouseEvent) => {
+          onNameClick(event);
+        }, { capture: true });
       } else if (isTextElement(svgElem)) {
-        setupTextElement(svgElem, dslPath);
+        svgElem.style.pointerEvents = 'auto';
+        // Add click handler for entity quantity editing if path ends with entity_quantity
+        if (dslPath.endsWith('/entity_quantity')) {
+          svgElem.addEventListener('click', (event: MouseEvent) => onEntityQuantityClick(event), { capture: true });
+        }
       } else if (isEmbeddedSvgElement(svgElem)) {
-        setupEmbeddedSvgElement(svgElem, dslPath);
+        svgElem.addEventListener('click', (event: MouseEvent) => onEmbeddedSVGClick(event), { capture: true });
       } else if (isContainerTypeSvgElement(svgElem)) {
-        setupContainerTypeSvgElement(svgElem, dslPath);
+        svgElem.addEventListener('click', (event: MouseEvent) => onEmbeddedSVGClick(event), { capture: true });
       } else if (isAttrTypeSvgElement(svgElem)) {
-        setupAttrTypeSvgElement(svgElem, dslPath);
+        svgElem.addEventListener('click', (event: MouseEvent) => onEmbeddedSVGClick(event), { capture: true });
       } else if (isBoxElement(svgElem)) {
-        setupBoxElement(svgElem, dslPath);
-      } else if (isResultContainerElement(svgElem)) {
-        setupResultContainerElement(svgElem, dslPath);
+        svgElem.addEventListener('click', (event: MouseEvent) => onEntityQuantityClick(event), { capture: true });
       }
     });
   }, [
     svgRef,
     isDisabled,
-    setupOperationElement,
-    setupResultContainerElement,
-    setupBoxElement,
-    setupContainerNameElement,
-    setupAttrNameElement,
-    setupTextElement,
-    setupEmbeddedSvgElement,
-    setupContainerTypeSvgElement,
-    setupAttrTypeSvgElement
+    setCurrentTargetElement,
+    setCurrentDSLPath,
+    onEmbeddedSVGClick,
+    onEntityQuantityClick,
+    onNameClick,
+    isPopupOpen
   ]);
 
   const returnValue = useMemo(() => ({

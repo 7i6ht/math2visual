@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from 'react';
-import type { ComponentMapping } from '../types/visualInteraction';
+import type { ComponentMapping, ComponentMappingEntry } from '../types/visualInteraction';
 import { numberToWord } from '../utils/numberUtils';
 import { createSentencePatterns, findSentencePosition, findQuantityInText, splitIntoSentences, findAllNameOccurrencesInText } from '../utils/mwpUtils';
 import { MAX_ITEM_DISPLAY } from '../config/api';
@@ -13,8 +13,8 @@ interface UseHighlightingProps {
 }
 
 interface HighlightConfig {
-  applyVisualHighlight: () => void;
-  applyMWPHighlight: () => void;
+  applyVisualHighlight: (mapping: ComponentMappingEntry | undefined) => void;
+  applyMWPHighlight: (mapping: ComponentMappingEntry | undefined) => void;
 }
 
 /**
@@ -27,20 +27,9 @@ export const useHighlighting = ({
   formulaValue,
 }: UseHighlightingProps) => {
   const { componentMappings } = useDSLContext();
-  const { setDslHighlightRanges: onDSLRangeHighlight, setMwpHighlightRanges: onMWPRangeHighlight, setFormulaHighlightRanges, currentDSLPath } = useHighlightingContext();
+  const { setDslHighlightRanges: onDSLRangeHighlight, setMwpHighlightRanges: onMWPRangeHighlight, setFormulaHighlightRanges, currentDSLPath, currentTargetElement, clearHighlighting } = useHighlightingContext();
   const mappings: ComponentMapping = useMemo(() => (componentMappings || {}) as ComponentMapping, [componentMappings]);
 
-  /**
-   * Clear highlight on a specific SVG element. If className is omitted,
-   * remove all our highlight classes from that element only.
-   */
-  const clearHighlightForElement = useCallback((element: SVGElement, className: 'highlighted-box' | 'highlighted-text' | 'highlighted-svg') => {
-    element.classList.remove(className);
-    // Clear DSL and MWP highlights
-    onMWPRangeHighlight([]);
-    onDSLRangeHighlight([]);
-    setFormulaHighlightRanges([]);
-  }, [onMWPRangeHighlight, onDSLRangeHighlight, setFormulaHighlightRanges]);
 
   /**
    * Set transform origin for embedded SVG elements using position attributes
@@ -69,18 +58,18 @@ export const useHighlighting = ({
    * Base function for triggering highlighting with common logic
    */
   const triggerHighlight = useCallback((
-    mapping: { dsl_range?: [number, number] } | undefined,
+    mapping: ComponentMappingEntry | undefined,
     config: HighlightConfig
   ) => {
 
     // Apply specific visual highlighting
-    config.applyVisualHighlight();
+    config.applyVisualHighlight(mapping);
 
     // Highlight in DSL editor using mapping (if provided)
     onDSLRangeHighlight(mapping?.dsl_range ? [mapping.dsl_range] : []);
 
     // Apply MWP highlighting
-    config.applyMWPHighlight();
+    config.applyMWPHighlight(mapping);
   }, [onDSLRangeHighlight]);
 
   /**
@@ -125,14 +114,11 @@ export const useHighlighting = ({
   /**
    * Trigger highlighting for box/container components
    */
-  const triggerBoxHighlight = useCallback((dslPath: string) => {
-    const mapping = mappings[dslPath];
+  const triggerBoxHighlight = useCallback((mapping: ComponentMappingEntry | undefined, dslPath: string) => {
     triggerHighlight(mapping, {
       applyVisualHighlight: () => {
-        const targetBox = svgRef.current?.querySelector(`[data-dsl-path="${dslPath}"]:not(text)`) as SVGElement;
-        if (targetBox) {
-          targetBox.classList.add('highlighted-box');
-        }
+        const targetBox = currentTargetElement as SVGElement;
+        targetBox.classList.add('highlighted-box');
       },
       applyMWPHighlight: () => {
         const containerNamePath = `${dslPath}/container_name`;
@@ -167,13 +153,12 @@ export const useHighlighting = ({
         onMWPRangeHighlight([]);
       }
     });
-  }, [triggerHighlight, svgRef, mappings, mwpValue, onMWPRangeHighlight]);
+  }, [triggerHighlight, mappings, mwpValue, onMWPRangeHighlight, currentTargetElement]);
 
   /**
    * Trigger highlighting for text/quantity components
    */
-  const triggerEntityQuantityHighlight = useCallback((dslPath: string) => {
-    const mapping = mappings[dslPath];
+  const triggerEntityQuantityHighlight = useCallback((mapping: ComponentMappingEntry | undefined, dslPath: string) => {
     const quantity = mapping?.property_value;
     const quantityNum = quantity ? Number(quantity) : NaN;
     
@@ -193,10 +178,8 @@ export const useHighlighting = ({
       }
     } else {
       // Highlight quantity text for quantities above threshold
-      const quantityTextEl = svgRef.current?.querySelector(`text[data-dsl-path="${dslPath}"]`) as SVGElement;
-      if (quantityTextEl) {
-        quantityTextEl.classList.add('highlighted-text');
-      }
+      const quantityTextEl = currentTargetElement as SVGElement;
+      quantityTextEl.classList.add('highlighted-text');
     }
     
     // Common DSL and MWP highlighting logic
@@ -212,49 +195,34 @@ export const useHighlighting = ({
       const positions = findQuantityInText(formulaValue, quantity);
       setFormulaHighlightRanges(positions ?? []);
     }
-  }, [setSvgTransformOrigin, svgRef, mappings, mwpValue, onMWPRangeHighlight, onDSLRangeHighlight, formulaValue, setFormulaHighlightRanges]);
+  }, [setSvgTransformOrigin, svgRef, mwpValue, onMWPRangeHighlight, onDSLRangeHighlight, formulaValue, setFormulaHighlightRanges, currentTargetElement]);
 
   /**
    * Trigger highlighting for operation components
    */
-  const triggerOperationHighlight = useCallback((dslPath: string) => {
-    const mapping = mappings[dslPath];
+  const triggerOperationHighlight = useCallback((mapping: ComponentMappingEntry | undefined, dslPath: string) => {
     triggerHighlight(mapping, {
       applyVisualHighlight: () => {
-        const operationEl = svgRef.current?.querySelector(`g[data-dsl-path="${dslPath}"]`) as SVGGraphicsElement;
-        if (operationEl) {
-          // Apply CSS class - transform origin is already set by setupSvgTransformOrigins
-          operationEl.classList.add('highlighted-svg');
-        }
+        const operationEl = currentTargetElement as SVGGraphicsElement;
+        // Apply CSS class - transform origin is already set by setupSvgTransformOrigins
+        operationEl.classList.add('highlighted-svg');
       },
       applyMWPHighlight: () => {
         highlightSecondOperandSentence(dslPath);
       }
     });
-  }, [triggerHighlight, svgRef, mappings, highlightSecondOperandSentence]);
+  }, [triggerHighlight, highlightSecondOperandSentence, currentTargetElement]);
 
   /**
    * Trigger highlighting for embedded SVG components (entity_type)
    */
-  const triggerEmbeddedSvgHighlight = useCallback((dslPath: string) => {
-    // For embedded SVGs, get the appropriate mapping (indexed or non-indexed)
-    let mapping = mappings[dslPath];
-    
-    // Handle indexed paths - convert to base path if needed
-    if (!mapping && dslPath.includes('/entity_type[')) {
-      const basePath = dslPath.replace(/\/entity_type\[\d+\]$/, '/entity_type');
-      mapping = mappings[basePath];
-    }
-
+  const triggerEmbeddedSvgHighlight = useCallback((mapping: ComponentMappingEntry | undefined) => {
     triggerHighlight(mapping, {
       applyVisualHighlight: () => {
-        // Use the indexed dslPath to find the specific SVG element
-        const embeddedSvgEl = svgRef.current?.querySelector(`svg[data-dsl-path="${dslPath}"]`) as SVGGraphicsElement;
-        if (embeddedSvgEl) {
-          // Apply CSS class and set custom transform origin
-          embeddedSvgEl.classList.add('highlighted-svg');
-          setSvgTransformOrigin(embeddedSvgEl);
-        }
+        const embeddedSvgEl = currentTargetElement as SVGGraphicsElement;
+        // Apply CSS class and set custom transform origin
+        embeddedSvgEl.classList.add('highlighted-svg');
+        setSvgTransformOrigin(embeddedSvgEl);
       },
       applyMWPHighlight: () => {
         if (!mapping?.property_value || !mwpValue) {
@@ -266,14 +234,12 @@ export const useHighlighting = ({
         onMWPRangeHighlight(fallbackRanges);
       }
     });
-  }, [triggerHighlight, setSvgTransformOrigin, svgRef, mappings, mwpValue, onMWPRangeHighlight]);
+  }, [triggerHighlight, setSvgTransformOrigin, mwpValue, onMWPRangeHighlight, currentTargetElement]);
 
   /**
    * Generic function to handle MWP highlighting for text-based elements
    */
-  const handleTextElementMWPHighlight = useCallback((dslPath: string) => {
-    const mapping = mappings[dslPath];
-    
+  const handleTextElementMWPHighlight = useCallback((mapping: ComponentMappingEntry | undefined) => {
     if (!mapping?.property_value || !mwpValue) {
       onMWPRangeHighlight([]);
       return;
@@ -283,134 +249,134 @@ export const useHighlighting = ({
     const ranges = findAllNameOccurrencesInText(textValue, mwpValue);
     
     onMWPRangeHighlight(ranges);
-  }, [mappings, mwpValue, onMWPRangeHighlight]);
+  }, [mwpValue, onMWPRangeHighlight]);
 
   /**
    * Generic function to handle visual highlighting for SVG elements with position attributes
    */
-  const applySVGVisualHighlight = useCallback((dslPath: string) => {
-    const svgEl = svgRef.current?.querySelector(`svg[data-dsl-path="${dslPath}"]`) as SVGElement;
-    if (svgEl) {
-      // For SVG elements, use their position attributes to calculate center
-      const x = parseFloat(svgEl.getAttribute('x') || '0');
-      const y = parseFloat(svgEl.getAttribute('y') || '0');
-      const width = parseFloat(svgEl.getAttribute('width') || '0');
-      const height = parseFloat(svgEl.getAttribute('height') || '0');
-      
-      const centerX = x + width / 2;
-      const centerY = y + height / 2;
-      
-      // Apply CSS class and set custom transform origin
-      svgEl.classList.add('highlighted-svg');
-      svgEl.style.transformOrigin = `${centerX}px ${centerY}px`;
-    }
-  }, [svgRef]);
+  const applySVGVisualHighlight = useCallback((_mapping: ComponentMappingEntry | undefined) => {
+    const svgEl = currentTargetElement as SVGElement;
+    // For SVG elements, use their position attributes to calculate center
+    const x = parseFloat(svgEl.getAttribute('x') || '0');
+    const y = parseFloat(svgEl.getAttribute('y') || '0');
+    const width = parseFloat(svgEl.getAttribute('width') || '0');
+    const height = parseFloat(svgEl.getAttribute('height') || '0');
+    
+    const centerX = x + width / 2;
+    const centerY = y + height / 2;
+    
+    // Apply CSS class and set custom transform origin
+    svgEl.classList.add('highlighted-svg');
+    svgEl.style.transformOrigin = `${centerX}px ${centerY}px`;
+  }, [currentTargetElement]);
 
   /**
    * Generic function to handle visual highlighting for text elements
    */
-  const applyTextVisualHighlight = useCallback((dslPath: string) => {
-    const textEl = svgRef.current?.querySelector(`text[data-dsl-path="${dslPath}"]`) as SVGElement;
-    if (textEl) {
-      textEl.classList.add('highlighted-text');
-    }
-  }, [svgRef]);
+  const applyTextVisualHighlight = useCallback((_mapping: ComponentMappingEntry | undefined) => {
+    const textEl = currentTargetElement as SVGElement;
+    textEl.classList.add('highlighted-text');
+  }, [currentTargetElement]);
 
 
   /**
    * Trigger highlighting for container_type components (embedded SVGs on containers)
    */
-  const triggerContainerTypeHighlight = useCallback((dslPath: string) => {
-    // Container_type paths are always non-indexed: /operation/entities[0]/container_type
-    const mapping = mappings[dslPath];
-    
+  const triggerContainerTypeHighlight = useCallback((mapping: ComponentMappingEntry | undefined) => {
     triggerHighlight(mapping, {
-      applyVisualHighlight: () => applySVGVisualHighlight(dslPath),
-      applyMWPHighlight: () => handleTextElementMWPHighlight(dslPath)
+      applyVisualHighlight: (mapping) => applySVGVisualHighlight(mapping),
+      applyMWPHighlight: (mapping) => handleTextElementMWPHighlight(mapping)
     });
-  }, [triggerHighlight, mappings, applySVGVisualHighlight, handleTextElementMWPHighlight]);
+  }, [triggerHighlight, applySVGVisualHighlight, handleTextElementMWPHighlight]);
 
   /**
    * Trigger highlighting for attr_name components (text elements for attribute names)
    */
-  const triggerAttrNameHighlight = useCallback((dslPath: string) => {
-    // Attr_name paths are always non-indexed: /operation/entities[0]/attr_name
-    const mapping = mappings[dslPath];
-    
+  const triggerAttrNameHighlight = useCallback((mapping: ComponentMappingEntry | undefined) => {
     triggerHighlight(mapping, {
-      applyVisualHighlight: () => applyTextVisualHighlight(dslPath),
-      applyMWPHighlight: () => handleTextElementMWPHighlight(dslPath)
+      applyVisualHighlight: (mapping) => applyTextVisualHighlight(mapping),
+      applyMWPHighlight: (mapping) => handleTextElementMWPHighlight(mapping)
     });
-  }, [triggerHighlight, mappings, applyTextVisualHighlight, handleTextElementMWPHighlight]);
+  }, [triggerHighlight, applyTextVisualHighlight, handleTextElementMWPHighlight]);
 
   /**
    * Trigger highlighting for attr_type components (embedded SVGs for attributes)
    */
-  const triggerAttrTypeHighlight = useCallback((dslPath: string) => {
-    // Attr_type paths are always non-indexed: /operation/entities[0]/attr_type
-    const mapping = mappings[dslPath];
-    
+  const triggerAttrTypeHighlight = useCallback((mapping: ComponentMappingEntry | undefined) => {
     triggerHighlight(mapping, {
-      applyVisualHighlight: () => applySVGVisualHighlight(dslPath),
-      applyMWPHighlight: () => handleTextElementMWPHighlight(dslPath)
+      applyVisualHighlight: (mapping) => applySVGVisualHighlight(mapping),
+      applyMWPHighlight: (mapping) => handleTextElementMWPHighlight(mapping)
     });
-  }, [triggerHighlight, mappings, applySVGVisualHighlight, handleTextElementMWPHighlight]);
+  }, [triggerHighlight, applySVGVisualHighlight, handleTextElementMWPHighlight]);
 
 
   /**
    * Trigger highlighting for container_name components (text elements)
    */
-  const triggerContainerNameHighlight = useCallback((dslPath: string) => {
-    // Container_name paths are always non-indexed: /operation/entities[0]/container_name
-    const mapping = mappings[dslPath];
-    
+  const triggerContainerNameHighlight = useCallback((mapping: ComponentMappingEntry | undefined) => {
     triggerHighlight(mapping, {
-      applyVisualHighlight: () => applyTextVisualHighlight(dslPath),
-      applyMWPHighlight: () => handleTextElementMWPHighlight(dslPath)
+      applyVisualHighlight: (mapping) => applyTextVisualHighlight(mapping),
+      applyMWPHighlight: (mapping) => handleTextElementMWPHighlight(mapping)
     });
-  }, [triggerHighlight, mappings, applyTextVisualHighlight, handleTextElementMWPHighlight]);
+  }, [triggerHighlight, applyTextVisualHighlight, handleTextElementMWPHighlight]);
 
   /**
    * Trigger highlighting for result container components (box elements)
    */
-  const triggerResultContainerHighlight = useCallback((dslPath: string) => {
-    const mapping = mappings[dslPath];
+  const triggerResultContainerHighlight = useCallback((mapping: ComponentMappingEntry | undefined) => {
     triggerHighlight(mapping, {
       applyVisualHighlight: () => {
-        const targetBox = svgRef.current?.querySelector(`[data-dsl-path="${dslPath}"]:not(text)`) as SVGElement;
-        if (targetBox) {
-          targetBox.classList.add('highlighted-box');
-        }
+        const targetBox = currentTargetElement as SVGElement;
+        targetBox.classList.add('highlighted-box');
       },
       applyMWPHighlight: () => {
         // For result containers, we don't highlight anything in the MWP
         onMWPRangeHighlight([]);
       }
     });
-  }, [triggerHighlight, svgRef, mappings, onMWPRangeHighlight]);
+  }, [triggerHighlight, onMWPRangeHighlight, currentTargetElement]);
+
+  const clearHighlights = useCallback(() => {
+    clearHighlighting();
+    if (svgRef.current) {
+      const highlightedElements = svgRef.current.querySelectorAll('.highlighted-box, .highlighted-text, .highlighted-svg');
+      highlightedElements.forEach((element) => {
+        element.classList.remove('highlighted-box', 'highlighted-text', 'highlighted-svg');
+      });
+    }
+  }, [clearHighlighting, svgRef]);
 
   /**
    * Highlight the visual element corresponding to the current DSL path
    */
   const highlightCurrentDSLPath = useCallback(() => {
     setFormulaHighlightRanges([])
-  
     if (!currentDSLPath) {
+      clearHighlights();
       return;
     }
 
     // Remove indices from the end of the path for matching
     const basePath = currentDSLPath.endsWith(']') ? currentDSLPath.slice(0, -3) : currentDSLPath;
 
+    // Get the mapping for the current DSL path
+    let mapping = mappings[currentDSLPath];
+    
+    // Handle indexed paths - convert to base path if needed
+    if (!mapping && currentDSLPath.includes('/entity_type[')) {
+      const basePath = currentDSLPath.replace(/\/entity_type\[\d+\]$/, '/entity_type');
+      mapping = mappings[basePath];
+    }
+
     // Map DSL path types to their corresponding highlight functions
     const pathTypeHandlers: Record<string, () => void> = {
-      'entity_quantity': () => triggerEntityQuantityHighlight(currentDSLPath),
-      'container_name': () => triggerContainerNameHighlight(currentDSLPath),
-      'attr_name': () => triggerAttrNameHighlight(currentDSLPath),
-      'entity_type': () => triggerEmbeddedSvgHighlight(currentDSLPath),
-      'container_type': () => triggerContainerTypeHighlight(currentDSLPath),
-      'attr_type': () => triggerAttrTypeHighlight(currentDSLPath),
-      'operation': () => triggerOperationHighlight(currentDSLPath),
+      'entity_quantity': () => triggerEntityQuantityHighlight(mapping, currentDSLPath),
+      'container_name': () => triggerContainerNameHighlight(mapping),
+      'attr_name': () => triggerAttrNameHighlight(mapping),
+      'entity_type': () => triggerEmbeddedSvgHighlight(mapping),
+      'container_type': () => triggerContainerTypeHighlight(mapping),
+      'attr_type': () => triggerAttrTypeHighlight(mapping),
+      'operation': () => triggerOperationHighlight(mapping, currentDSLPath),
     };
 
     // Find the matching handler for the current path
@@ -421,12 +387,12 @@ export const useHighlighting = ({
       handler(); // Execute the handler function
     } else if (basePath.endsWith('entities')) {
       // Special case for entity containers (boxes)
-      triggerBoxHighlight(currentDSLPath);
+      triggerBoxHighlight(mapping, currentDSLPath);
     }
-  }, [currentDSLPath, setFormulaHighlightRanges, triggerEntityQuantityHighlight, triggerContainerNameHighlight, triggerAttrNameHighlight, triggerEmbeddedSvgHighlight, triggerContainerTypeHighlight, triggerAttrTypeHighlight, triggerBoxHighlight, triggerOperationHighlight]);
+  }, [currentDSLPath, currentTargetElement, setFormulaHighlightRanges, triggerEntityQuantityHighlight, triggerContainerNameHighlight, triggerAttrNameHighlight, triggerEmbeddedSvgHighlight, triggerContainerTypeHighlight, triggerAttrTypeHighlight, triggerBoxHighlight, triggerOperationHighlight, clearHighlighting, svgRef, mappings]);
+
 
   const returnValue = useMemo(() => ({
-    clearHighlightForElement,
     setupTransformOrigins,
     triggerBoxHighlight,
     triggerEntityQuantityHighlight,
@@ -439,7 +405,6 @@ export const useHighlighting = ({
     triggerResultContainerHighlight,
     highlightCurrentDSLPath,
   }), [
-    clearHighlightForElement,
     setupTransformOrigins,
     triggerBoxHighlight,
     triggerEntityQuantityHighlight,

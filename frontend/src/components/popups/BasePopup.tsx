@@ -24,6 +24,7 @@ export const BasePopup: React.FC<BasePopupProps> = ({
 }) => {
   const { currentTargetElement } = useHighlightingContext();
   const popupRef = useRef<HTMLDivElement>(null);
+  
   const [adjustedPosition, setAdjustedPosition] = useState<AdjustedPosition>(() => {
     // Initialize using currentTargetElement position if available
     if (currentTargetElement) {
@@ -42,7 +43,6 @@ export const BasePopup: React.FC<BasePopupProps> = ({
       transform: 'translate(-50%, -50%)'
     };
   });
-
 
   // Calculate viewport-aware position
   useEffect(() => {

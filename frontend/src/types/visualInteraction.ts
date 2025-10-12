@@ -1,14 +1,20 @@
 /**
+ * Individual mapping entry for a DSL path
+ * Contains range information for highlighting and property values for processing
+ */
+export interface ComponentMappingEntry {
+  /** Character range in the DSL text for highlighting */
+  dsl_range?: [number, number];
+  /** Property value (quantity, name, etc.) if this path represents a property */
+  property_value?: string;
+}
+
+/**
  * Mapping between DSL paths and their corresponding metadata
  * Contains range information for highlighting and property values for processing
  */
 export interface ComponentMapping {
-  [dslPath: string]: {
-    /** Character range in the DSL text for highlighting */
-    dsl_range: [number, number];
-    /** Property value (quantity, name, etc.) if this path represents a property */
-    property_value?: string;
-  };
+  [dslPath: string]: ComponentMappingEntry;
 }
 
 /**

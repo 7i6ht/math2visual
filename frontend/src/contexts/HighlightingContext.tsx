@@ -40,6 +40,7 @@ export function HighlightingProvider({ children }: HighlightingProviderProps) {
     setMwpHighlightRanges([]);
     setFormulaHighlightRanges([]);
     setCurrentDSLPath(null);
+    setCurrentTargetElement(null);
   };
 
   const value: HighlightingContextType = {

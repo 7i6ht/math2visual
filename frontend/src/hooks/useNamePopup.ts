@@ -29,7 +29,7 @@ export const useNamePopup = ({
   onVisualsUpdate
 }: UseNamePopupProps) => {
   const { parsedDSL, componentMappings } = useDSLContext();
-  const { setCurrentTargetElement, clearCurrentTargetElement } = useHighlightingContext();
+  const { setCurrentTargetElement, clearCurrentTargetElement, setCurrentDSLPath } = useHighlightingContext();
   const [popupState, setPopupState] = useState<NamePopupState>({
     isOpen: false,
     dslPath: '',
@@ -39,13 +39,18 @@ export const useNamePopup = ({
   /**
    * Open the popup for editing container_name or attr_name
    */
-  const openPopup = useCallback((dslPath: string, event: MouseEvent) => {
+  const openPopup = useCallback((event: MouseEvent) => {
     // Find the correct element using closest() method
     // This ensures we get the actual element with data-dsl-path, not a child element
-    const targetElement = (event.target as Element).closest('[data-dsl-path]') as Element;
+    const el = event.target as Element;
+    const targetElement = el.closest('[data-dsl-path]') as Element;
+    const dslPath = el.getAttribute('data-dsl-path') || '';
 
-    // Store target element in context
+    // This ensures the popup uses the original position before any CSS transformations
     setCurrentTargetElement(targetElement);
+    
+    // Trigger highlight via existing system
+    setCurrentDSLPath(dslPath);
     
     // Normalize to the concrete field path
     const currentValue = getFieldValue(componentMappings, dslPath) || '';
@@ -55,19 +60,20 @@ export const useNamePopup = ({
       dslPath: dslPath,
       initialValue: currentValue,
     });
-  }, [setCurrentTargetElement, componentMappings]);
+  }, [setCurrentTargetElement, componentMappings, setCurrentDSLPath]);
 
   /**
    * Close the popup
    */
   const closePopup = useCallback(() => {
+    setCurrentDSLPath(null);
     clearCurrentTargetElement();
     setPopupState({
       isOpen: false,
       dslPath: '',
       initialValue: '',
     });
-  }, [clearCurrentTargetElement]);
+  }, [clearCurrentTargetElement, setCurrentDSLPath]);
 
   /**
    * Update field value in DSL and regenerate visuals

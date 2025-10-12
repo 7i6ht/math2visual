@@ -3,11 +3,9 @@ import { EntityQuantityPopup } from "@/components/popups/EntityQuantityPopup";
 import { NamePopup } from "@/components/popups/NamePopup";
 
 type Props = {
-  isSelectorOpen: boolean;
-  visualElementPath: string;
-  visualType: 'formal' | 'intuitive';
-  onCloseSelector: () => void;
-  onEmbeddedSVGChange: (newType: string) => Promise<void>;
+  selectorPopupState: { isOpen: boolean; dslPath: string; currentValue: string };
+  closeSelectorPopup: () => void;
+  updateSVG: (newType: string) => Promise<void>;
 
   quantityPopupState: { isOpen: boolean; initialQuantity: number };
   closeQuantityPopup: () => void;
@@ -19,11 +17,9 @@ type Props = {
 };
 
 export function PopupManager({
-  isSelectorOpen,
-  visualElementPath,
-  visualType,
-  onCloseSelector,
-  onEmbeddedSVGChange,
+  selectorPopupState,
+  closeSelectorPopup,
+  updateSVG,
   quantityPopupState,
   closeQuantityPopup,
   updateEntityQuantity,
@@ -33,12 +29,10 @@ export function PopupManager({
 }: Props) {
   return (
     <>
-      {isSelectorOpen && (
+      {selectorPopupState.isOpen && (
         <SVGActionMenu
-          visualElementPath={visualElementPath}
-          visualType={visualType}
-          onClosePopup={onCloseSelector}
-          onEmbeddedSVGChange={onEmbeddedSVGChange}
+          onClosePopup={closeSelectorPopup}
+          onEmbeddedSVGChange={updateSVG}
         />
       )}
 

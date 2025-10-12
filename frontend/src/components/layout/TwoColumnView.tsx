@@ -5,7 +5,6 @@ import { VisualLanguageForm } from "@/components/forms/VisualLanguageForm";
 import { VisualizationResults } from "@/components/visualization/VisualizationResults";
 import { GearLoading } from "@/components/ui/gear-loading";
 import { useDSLContext } from "@/contexts/DSLContext";
-import { useSVGSelector } from "@/hooks/useSVGSelector";
 import { useVisualizationHandlers } from "@/hooks/useVisualizationHandlers";
 import { usePopupManagement } from "@/hooks/usePopupManagement";
 import { PopupManager } from "@/components/popups/PopupManager";
@@ -39,7 +38,7 @@ export function TwoColumnView({ appState }: Props) {
     setShowHint,
   } = appState;
 
-  const { formattedDSL, parsedDSL, componentMappings } = useDSLContext();
+  const { formattedDSL, parsedDSL } = useDSLContext();
   const hintInputRef = useRef<HTMLTextAreaElement | null>(null);
 
   const { handleVLResult } =
@@ -53,35 +52,6 @@ export function TwoColumnView({ appState }: Props) {
       formula,
       setResults
     });
-
-  const { selectorState, openSelector, closeSelector, handleEmbeddedSVGChange } =
-    useSVGSelector({
-      onVisualsUpdate: (data) => {
-        setResults(
-          data.visual_language,
-          data.svg_formal,
-          data.svg_intuitive,
-          data.parsedDSL,
-          data.formal_error,
-          data.intuitive_error,
-          data.missing_svg_entities,
-          undefined,
-          undefined,
-          data.componentMappings
-        );
-      },
-    });
-
-  const handleEmbeddedSVGClickWithSelector = useCallback(
-    (dslPath: string, event: MouseEvent, visualType: 'formal' | 'intuitive') => {
-      const normalizedPath = dslPath.endsWith("]") ? dslPath.slice(0, -3) : dslPath;
-
-      const typeMapping = componentMappings?.[normalizedPath];
-      const currentValue = typeMapping?.property_value || "";
-      openSelector(dslPath, currentValue, event, visualType);
-    },
-    [componentMappings, openSelector]
-  );
 
   const popup = usePopupManagement({
     onVisualsUpdate: (data) => {
@@ -207,10 +177,10 @@ export function TwoColumnView({ appState }: Props) {
             formulaValue={formula}
             onRegenerateAfterUpload={handleRegenerateAfterUpload}
             onAllFilesUploaded={clearMissingSVGEntities}
-            onEmbeddedSVGClick={handleEmbeddedSVGClickWithSelector}
+            onEmbeddedSVGClick={popup.handleEmbeddedSVGClick}
             onEntityQuantityClick={popup.handleEntityQuantityClick}
             onNameClick={popup.handleNameClick}
-            isSelectorOpen={selectorState.isOpen}
+            isPopupOpen={popup.selectorPopupState.isOpen || popup.namePopupState.isOpen || popup.quantityPopupState.isOpen}
             onShowHint={handleShowHint}
             isDisabled={mpFormLoading}
           />
@@ -224,11 +194,9 @@ export function TwoColumnView({ appState }: Props) {
       </div>
 
       <PopupManager
-        isSelectorOpen={selectorState.isOpen}
-        visualElementPath={selectorState.dslElementPath}
-        visualType={selectorState.visualType}
-        onCloseSelector={closeSelector}
-        onEmbeddedSVGChange={handleEmbeddedSVGChange}
+        selectorPopupState={popup.selectorPopupState}
+        closeSelectorPopup={popup.closeSelectorPopup}
+        updateSVG={popup.updateSVG}
         quantityPopupState={popup.quantityPopupState}
         closeQuantityPopup={popup.closeQuantityPopup}
         updateEntityQuantity={popup.updateEntityQuantity}

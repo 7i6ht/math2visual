@@ -1,4 +1,5 @@
 import { useCallback } from "react";
+import { useSVGSelector } from "./useSVGSelector";
 import { useEntityQuantityPopup } from "@/hooks/useEntityQuantityPopup";
 import { useNamePopup } from "@/hooks/useNamePopup";
 import type { ComponentMapping } from "@/types/visualInteraction";
@@ -18,6 +19,14 @@ export type PopupManagementDeps = {
 };
 
 export const usePopupManagement = ({ onVisualsUpdate }: PopupManagementDeps) => {
+
+  const {
+    selectorState : selectorPopupState,
+    openSelector : openSelectorPopup,
+    closeSelector : closeSelectorPopup,
+    updateEmbeddedSVG : updateSVG,
+  } = useSVGSelector({ onVisualsUpdate });
+
   const {
     popupState: quantityPopupState,
     openPopup: openQuantityPopup,
@@ -32,28 +41,33 @@ export const usePopupManagement = ({ onVisualsUpdate }: PopupManagementDeps) => 
     updateFieldValue: updateName,
   } = useNamePopup({ onVisualsUpdate });
 
+  const handleEmbeddedSVGClick = useCallback(
+    (event: MouseEvent) => openSelectorPopup(event),
+    [openSelectorPopup]
+  );
+
   const handleEntityQuantityClick = useCallback(
-    (dslPath: string, event: MouseEvent) => {
-      openQuantityPopup(dslPath, event);
-    },
+    (event: MouseEvent) => openQuantityPopup(event),
     [openQuantityPopup]
   );
 
   const handleNameClick = useCallback(
-    (dslPath: string, event: MouseEvent) => {
-      openNamePopup(dslPath, event);
-    },
+    (event: MouseEvent) => openNamePopup(event),
     [openNamePopup]
   );
 
   return {
+    selectorPopupState,
+    closeSelectorPopup,
+    updateSVG,
+    handleEmbeddedSVGClick,
     quantityPopupState,
     closeQuantityPopup,
     updateEntityQuantity,
+    handleEntityQuantityClick,
     namePopupState,
     closeNamePopup,
     updateName,
-    handleEntityQuantityClick,
     handleNameClick,
   };
 };

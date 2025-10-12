@@ -901,12 +901,12 @@ class FormalVisualGenerator:
                             if v == container_type and container_type:
                                 container_type_dsl_path = f"{entity_dsl_path}/container_type"
                                 svg_el.set('data-dsl-path', container_type_dsl_path)
-                                svg_el.set('data-dsl-element-path', container_type_dsl_path)
+                                svg_el.set('visual-element-path', container_type_dsl_path)
                                 svg_el.set('style', 'pointer-events: all;')
                             elif v == attr_entity_type and attr_entity_type:
                                 attr_type_dsl_path = f"{entity_dsl_path}/attr_type"
                                 svg_el.set('data-dsl-path', attr_type_dsl_path)
-                                svg_el.set('data-dsl-element-path', attr_type_dsl_path)
+                                svg_el.set('visual-element-path', attr_type_dsl_path)
                                 svg_el.set('style', 'pointer-events: all;')
                             # Append the returned svg element to the group
                             group.append(svg_el)
@@ -924,10 +924,12 @@ class FormalVisualGenerator:
                             # This is a container name
                             container_name_dsl_path = f"{entity_dsl_path}/container_name"
                             text_element.set('data-dsl-path', container_name_dsl_path)
+                            text_element.set('visual-element-path', container_name_dsl_path)
                         elif v == attr_name and attr_name:
                             # This is an attribute name
                             attr_name_dsl_path = f"{entity_dsl_path}/attr_name"
                             text_element.set('data-dsl-path', attr_name_dsl_path)
+                            text_element.set('visual-element-path', attr_name_dsl_path)
                         
                         current_x += width
 
@@ -975,6 +977,7 @@ class FormalVisualGenerator:
                     entity_dsl_path = e.get('_dsl_path', '')
                     quantity_dsl_path = f"{entity_dsl_path}/entity_quantity"
                     text_element.set('data-dsl-path', quantity_dsl_path)
+                    text_element.set('visual-element-path', quantity_dsl_path)
                     update_max_dimensions(text_x + len(q_str)*30, text_y + 50)
                     return
                 # Draw box with DSL path metadata
@@ -983,6 +986,7 @@ class FormalVisualGenerator:
                                 width=str(w), height=str(h), stroke="black", fill="none",
                                 style="pointer-events: all;")
                 rect_elem.set('data-dsl-path', entity_dsl_path)
+                rect_elem.set('visual-element-path', entity_dsl_path)
                 
                 # Draw bracket
                 bracket_y = position_box_y + (entities[0]["planned_height"] / 2) + 13
@@ -1047,7 +1051,7 @@ class FormalVisualGenerator:
                     # Add DSL path metadata for entity_type highlighting
                     entity_type_dsl_path = f"{entity_dsl_path}/entity_type"
                     embedded_svg.set('data-dsl-path', entity_type_dsl_path)
-                    embedded_svg.set('data-dsl-element-path', entity_type_dsl_path)
+                    embedded_svg.set('visual-element-path', entity_type_dsl_path)
                     embedded_svg.set('style', 'pointer-events: all;')
                     svg_root.append(embedded_svg)
                     
@@ -1064,6 +1068,7 @@ class FormalVisualGenerator:
                     # Add DSL path metadata for quantity text
                     quantity_dsl_path = f"{entity_dsl_path}/entity_quantity"
                     text_element.set('data-dsl-path', quantity_dsl_path)
+                    text_element.set('visual-element-path', quantity_dsl_path)
                     update_max_dimensions(start_x_line + tw, center_y_line + 40)
 
                     if unittrans_unit and unittrans_value is not None:
@@ -1114,7 +1119,7 @@ class FormalVisualGenerator:
                             # Add DSL path metadata for entity_type highlighting
                             entity_type_dsl_path = f"{entity_dsl_path}/entity_type[{i}]"
                             embedded_svg.set('data-dsl-path', entity_type_dsl_path)
-                            embedded_svg.set('data-dsl-element-path', entity_type_dsl_path)
+                            embedded_svg.set('visual-element-path', entity_type_dsl_path)
                             embedded_svg.set('style', 'pointer-events: all;')
                             svg_root.append(embedded_svg)
                             

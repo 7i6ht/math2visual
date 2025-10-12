@@ -14,10 +14,10 @@ interface VisualizationResultsProps {
   formulaValue?: string;
   onRegenerateAfterUpload?: (toastId: string | undefined) => Promise<void>;
   onAllFilesUploaded?: () => void;
-  onEmbeddedSVGClick: (dslPath: string, event: MouseEvent, visualType: 'formal' | 'intuitive') => void;
-  onEntityQuantityClick: (dslPath: string, event: MouseEvent) => void;
-  onNameClick: (dslPath: string, event: MouseEvent) => void;
-  isSelectorOpen?: boolean;
+  onEmbeddedSVGClick: (event: MouseEvent) => void;
+  onEntityQuantityClick: (event: MouseEvent) => void;
+  onNameClick: (event: MouseEvent) => void;
+  isPopupOpen?: boolean;
   isDisabled?: boolean;
   onShowHint: () => void;
 }
@@ -35,7 +35,7 @@ export const VisualizationResults = ({
   onEmbeddedSVGClick,
   onEntityQuantityClick,
   onNameClick,
-  isSelectorOpen = false,
+  isPopupOpen = false,
   isDisabled = false,
   onShowHint,
 }: VisualizationResultsProps) => {
@@ -49,16 +49,6 @@ export const VisualizationResults = ({
     // Backend raises FileNotFoundError as: "SVG file not found: <path>"
     return /SVG file not found/i.test(error) ? null : error;
   };
-
-  // Handle embedded SVG click for formal visual
-  const handleFormalEmbeddedSVGClick = useCallback((dslPath: string, event: MouseEvent) => {
-    onEmbeddedSVGClick(dslPath, event, 'formal');
-  }, [onEmbeddedSVGClick]);
-
-  // Handle embedded SVG click for intuitive visual
-  const handleIntuitiveEmbeddedSVGClick = useCallback((dslPath: string, event: MouseEvent) => {
-    onEmbeddedSVGClick(dslPath, event, 'intuitive');
-  }, [onEmbeddedSVGClick]);
 
   // Detect if this is a parse error by checking error message content
   const hasParseError = (formalError && /DSL parse error/i.test(formalError)) || 
@@ -109,10 +99,10 @@ export const VisualizationResults = ({
               isOpen={openAccordionItems.includes("formal")}
               mwpValue={mwpValue}
               formulaValue={formulaValue}
-              onEmbeddedSVGClick={handleFormalEmbeddedSVGClick}
+              onEmbeddedSVGClick={onEmbeddedSVGClick}
               onEntityQuantityClick={onEntityQuantityClick}
               onNameClick={onNameClick}
-              isSelectorOpen={isSelectorOpen}
+              isPopupOpen={isPopupOpen}
               isDisabled={isDisabled}
             />
 
@@ -124,10 +114,10 @@ export const VisualizationResults = ({
               isOpen={openAccordionItems.includes("intuitive")}
               mwpValue={mwpValue}
               formulaValue={formulaValue}
-              onEmbeddedSVGClick={handleIntuitiveEmbeddedSVGClick}
+              onEmbeddedSVGClick={onEmbeddedSVGClick}
               onEntityQuantityClick={onEntityQuantityClick}
               onNameClick={onNameClick}
-              isSelectorOpen={isSelectorOpen}
+              isPopupOpen={isPopupOpen}
               isDisabled={isDisabled}
             />
           </>
