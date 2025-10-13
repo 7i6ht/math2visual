@@ -13,6 +13,8 @@ A modern, interactive React application that enables teachers to generate pedago
 - **Icons**: Lucide React
 - **Notifications**: Sonner (Toast notifications)
 - **PDF Generation**: jsPDF for export functionality
+- **Code Editor**: Monaco Editor for DSL syntax editing
+- **Text Processing**: pluralize and to-words for natural language utilities
 
 ## 📁 Project Structure
 
@@ -20,37 +22,85 @@ A modern, interactive React application that enables teachers to generate pedago
 src/
 ├── api_services/
 │   ├── generation.ts        # Generation API
-│   └── upload.ts            # Upload SVG API
+│   └── svgDataset.ts        # SVG dataset management
 ├── components/
 │   ├── errors/              # Error handling components
 │   │   └── SVGMissingError.tsx
 │   ├── forms/               # Form components
 │   │   ├── MathProblemForm.tsx
 │   │   └── VisualLanguageForm.tsx
+│   ├── layout/              # Layout components
+│   │   ├── AppLayout.tsx
+│   │   ├── InitialView.tsx
+│   │   └── TwoColumnView.tsx
+│   ├── popups/              # Interactive popup components
+│   │   ├── BasePopup.tsx
+│   │   ├── EntityQuantityPopup.tsx
+│   │   ├── NamePopup.tsx
+│   │   ├── PopupManager.tsx
+│   │   ├── SVGActionMenu.tsx
+│   │   ├── SVGSearchPopup.tsx
+│   │   └── SVGUploadPopup.tsx
 │   ├── ui/                  # ShadCN UI components
+│   │   ├── accordion.tsx
+│   │   ├── badge.tsx
 │   │   ├── button.tsx
+│   │   ├── card.tsx
+│   │   ├── dropdown-menu.tsx
+│   │   ├── error-display.tsx
 │   │   ├── form.tsx
+│   │   ├── gear-loading.tsx
+│   │   ├── highlightable-input.tsx
+│   │   ├── highlightable-textarea.tsx
 │   │   ├── input.tsx
+│   │   ├── label.tsx
+│   │   ├── ResponsiveLogo.tsx
+│   │   ├── sonner.tsx
+│   │   ├── syntax-editor.tsx
 │   │   ├── textarea.tsx
 │   │   └── ...
 │   └── visualization/       # Visualization display components
-│       ├── VisualizationCard.tsx
-│       └── VisualizationResults.tsx
+│       ├── DownloadButton.tsx
+│       ├── MissingSVGSection.tsx
+│       ├── ParseErrorSection.tsx
+│       ├── VisualizationResults.tsx
+│       └── VisualizationSection.tsx
 ├── config/
 │   └── api.ts              # API configuration
+├── contexts/               # React contexts
+│   ├── DSLContext.tsx
+│   └── HighlightingContext.tsx
 ├── hooks/                  # Custom React hooks
-│   ├── useMathProblemForm.ts
 │   ├── useAppState.ts
+│   ├── useElementInteractions.ts
+│   ├── useEntityQuantityPopup.ts
+│   ├── useHighlighting.ts
+│   ├── useLoadingStates.ts
+│   ├── useMathProblemForm.ts
+│   ├── useNamePopup.ts
+│   ├── usePopupManagement.ts
 │   ├── useSVGMissingError.tsx
+│   ├── useSVGResponsive.ts
+│   ├── useSVGSelector.ts
+│   ├── useVisualizationHandlers.ts
 │   └── useVisualLanguageForm.ts
 ├── lib/
-│   └── utils.ts            # Utility functions
+│   ├── dsl-utils.ts        # DSL utility functions
+│   └── utils.ts            # General utility functions
 ├── schemas/
 │   └── validation.ts       # Zod validation schemas
 ├── types/
-│   └── index.ts            # TypeScript type definitions
+│   ├── index.ts            # TypeScript type definitions
+│   └── visualInteraction.ts
 └── utils/
-    └── download.ts         # Download functionality
+    ├── download.ts         # Download functionality
+    ├── dsl-cursor-mapping.ts
+    ├── dsl-formatter.ts
+    ├── dsl-parser.ts
+    ├── elementUtils.ts
+    ├── mwpUtils.ts
+    ├── numberUtils.ts
+    └── validation.ts
 ```
 
 ## 🚀 Getting Started
@@ -58,7 +108,7 @@ src/
 ### Prerequisites
 - Node.js 18+ 
 - npm
-- Math2Visual backend running (default: http://localhost:5001)
+- Math2Visual backend running (default: http://localhost:5000)
 
 ### Installation
 
@@ -69,14 +119,21 @@ src/
 
 2. **Configure backend URL** (optional)
    
-   The frontend automatically connects to the backend URL specified in `package.json`:
-   ```json
-   {
-     "proxy": "http://localhost:5001"
+   The frontend automatically connects to the backend URL configured in `vite.config.ts`:
+   ```typescript
+   proxy: {
+     '/api': {
+       target: process.env.BACKEND_URL || 'http://localhost:5000',
+       changeOrigin: true,
+       secure: false,
+     }
    }
    ```
    
-   Update this URL if your backend runs on a different address.
+   You can override the backend URL by setting the `BACKEND_URL` environment variable:
+   ```bash
+   BACKEND_URL=http://your-backend-url:port npm run dev
+   ```
 
 3. **Start development server**
    ```bash
@@ -104,7 +161,10 @@ npm run preview
 3. **Generate Visualization**: Click the "Generate Visualization" button
 4. **Wait for Processing**: Watch the animated loading indicator while the backend processes your request
 5. **Review Results**: View both formal and intuitive visualizations once generated
-6. **Edit Visual Language**: Modify the generated Visual Language (VL) and regenerate if needed
+6. **Interactive Editing**: 
+   - Edit the generated Visual Language (VL) using the Monaco Editor with syntax highlighting
+   - Modify entity names and quantities using interactive popups
+   - Search and upload missing SVG entities
 7. **Download**: Export visualizations in your preferred format (SVG, PNG, PDF)
 
 ### Error Handling
@@ -117,7 +177,9 @@ The application handles various error scenarios:
 ### Advanced Features
 
 - **Request Cancellation**: Abort ongoing generation requests
-- **Visual Language Editing**: Modify and regenerate from custom VL
+- **Visual Language Editing**: Modify and regenerate from custom VL using Monaco Editor
+- **Interactive SVG Management**: Search, upload, and manage SVGs
+- **Popup-based Interactions**: Entity quantity editing and name modification
 - **Multiple Download Formats**: Export in SVG, PNG, or PDF
 
 ## 🔧 Configuration
@@ -126,8 +188,9 @@ The application handles various error scenarios:
 
 The application uses these configuration options:
 
-- **Backend URL**: Set via `package.json` proxy field (default: `http://localhost:5001`)
+- **Backend URL**: Set via `BACKEND_URL` environment variable or `vite.config.ts` (default: `http://localhost:5000`)
 - **API Endpoints**: Automatically configured based on backend URL
+- **Production Backend**: Set via `VITE_BACKEND_URL` environment variable for production builds
 
 ### Customization
 
@@ -141,8 +204,8 @@ The application uses these configuration options:
 ### Common Issues
 
 1. **Backend Connection Failed**
-   - Verify backend is running on configured port
-   - Check `package.json` proxy setting
+   - Verify backend is running on configured port (default: 5000)
+   - Check `vite.config.ts` proxy setting or `BACKEND_URL` environment variable
    - Ensure no firewall blocking the connection
 
 2. **Build Errors**
@@ -162,8 +225,8 @@ The frontend communicates with the Flask backend via REST API endpoints. For det
 ### Key Integration Points
 
 - **Generation Endpoint**: `POST /api/generate` - Creates visualizations from math word problems or visual language 
-- **File Upload**: SVG entity upload for missing visualization elements
-- **Error Handling**: Comprehensive error responses for validation, generation, and system failures 
+- **SVG Dataset Management**: Search and upload SVG entities for missing visualization elements
+- **Error Handling**: Comprehensive error responses for validation, generation, and system failures
 
 ## 📄 License
 
