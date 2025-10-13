@@ -182,9 +182,9 @@ export class DSLFormatter {
         const propertyLine = `${indent}  ${prop}: ${formattedValue}`;
         properties.push(propertyLine);
 
-        // Calculate property range
+        // Calculate property range - from start of property name to end of property value
         const propStart = pos + `${indent}  `.length;
-        const propEnd = propStart + `${prop}: ${formattedValue}`.length;
+        const propEnd = propStart + prop.length + 2 + formattedValue.length;
 
         // Track this property
         const propertyPath = `${containerPath}/${prop}`;
