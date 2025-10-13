@@ -29,7 +29,7 @@ export const useNamePopup = ({
   onVisualsUpdate
 }: UseNamePopupProps) => {
   const { parsedDSL, componentMappings } = useDSLContext();
-  const { setSelectedElement, clearHighlighting } = useHighlightingContext();
+  const { setSelectedElement, clearHighlightingState } = useHighlightingContext();
   const [popupState, setPopupState] = useState<NamePopupState>({
     isOpen: false,
     dslPath: '',
@@ -63,13 +63,13 @@ export const useNamePopup = ({
    * Close the popup
    */
   const closePopup = useCallback(() => {
-    clearHighlighting();
+    clearHighlightingState();
     setPopupState({
       isOpen: false,
       dslPath: '',
       initialValue: '',
     });
-  }, [clearHighlighting]);
+  }, [clearHighlightingState]);
 
   /**
    * Update field value in DSL and regenerate visuals

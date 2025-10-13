@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { HighlightableTextarea } from "@/components/ui/highlightable-textarea";
 import { HighlightableInput } from "@/components/ui/highlightable-input";
@@ -41,7 +41,11 @@ export const MathProblemForm = ({
   showHint = false,
   hintInputRef,
 }: MathProblemFormProps) => {
-  const { mwpHighlightRanges, formulaHighlightRanges } = useHighlightingContext();
+  const { mwpHighlightRanges, formulaHighlightRanges, clearHighlightingState } = useHighlightingContext();
+
+  const handleFormClick = useCallback(() => {
+    clearHighlightingState();
+  }, [clearHighlightingState]);
 
   const { 
     form, 
@@ -58,7 +62,7 @@ export const MathProblemForm = ({
 
   return (
     <Form {...form}>
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-6" onClick={handleFormClick}>
         <FormField
           control={form.control}
           name="mwp"

@@ -14,7 +14,7 @@ interface HighlightingContextType {
   setFormulaHighlightRanges: (ranges: Array<[number, number]>) => void;
   setCurrentDSLPath: (path: string | null) => void;
   setSelectedElement: (element: Element | null) => void;
-  clearHighlighting: () => void;
+  clearHighlightingState: () => void;
 }
 
 const HighlightingContext = createContext<HighlightingContextType | undefined>(undefined);
@@ -35,7 +35,7 @@ export function HighlightingProvider({ children }: HighlightingProviderProps) {
     setCurrentDSLPath(element?.getAttribute('data-dsl-path') || null);
   };
 
-  const clearHighlighting = () => {
+  const clearHighlightingState = () => {
     setDslHighlightRanges([]);
     setMwpHighlightRanges([]);
     setFormulaHighlightRanges([]);
@@ -53,7 +53,7 @@ export function HighlightingProvider({ children }: HighlightingProviderProps) {
     setFormulaHighlightRanges,
     setCurrentDSLPath,
     setSelectedElement,
-    clearHighlighting,
+    clearHighlightingState,
   };
 
   return (

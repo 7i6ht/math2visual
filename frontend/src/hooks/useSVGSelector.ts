@@ -29,7 +29,7 @@ export const useSVGSelector = ({
   onVisualsUpdate,
 }: UseSVGSelectorProps) => {
   // Use highlighting context
-  const { setSelectedElement, clearHighlighting } = useHighlightingContext();
+  const { setSelectedElement, clearHighlightingState } = useHighlightingContext();
   const { formattedDSL, componentMappings } = useDSLContext();
 
   const [selectorState, setSelectorState] = useState<SVGSelectorState>({
@@ -41,13 +41,13 @@ export const useSVGSelector = ({
   // Close the selector and clear highlight
   const closeSelector = useCallback(() => {
     // Reset currentDSLPath to clear highlight
-    clearHighlighting();
+    clearHighlightingState();
     
     setSelectorState(prev => ({
       ...prev,
       isOpen: false,
     }));
-  }, [clearHighlighting]);
+  }, [clearHighlightingState]);
 
   // Open the selector at a specific position for a specific DSL path
   const openSelector = useCallback((event: MouseEvent) => {    

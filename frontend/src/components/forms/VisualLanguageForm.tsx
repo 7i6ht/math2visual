@@ -25,7 +25,7 @@ export const VisualLanguageForm = ({
   onLoadingChange,
   isDisabled = false,
 }: VisualLanguageFormProps) => {
-  const { dslHighlightRanges, setCurrentDSLPath, clearHighlighting } = useHighlightingContext();
+  const { dslHighlightRanges, setCurrentDSLPath } = useHighlightingContext();
   const { componentMappings: contextMappings } = useDSLContext();
   const effectiveMappings = useMemo(() => (contextMappings ?? {}) as ComponentMapping, [contextMappings]);
   
@@ -44,20 +44,14 @@ export const VisualLanguageForm = ({
     onLoadingChange,
   });
 
-  const handleFormMouseLeave = useCallback(() => {
-    if (isDisabled) return;
-    clearHighlighting();
-  }, [clearHighlighting, isDisabled]);
+  
 
   return (
     <div className="flex flex-col h-full min-h-0">
       <h2 className="text-xl font-semibold mb-3 flex-shrink-0">Visual Language</h2>
       
       <Form {...form}>
-        <div
-          className={`flex flex-col min-h-0 flex-1 ${isDisabled ? 'pointer-events-none overflow-hidden' : ''}`}
-          onMouseLeave={handleFormMouseLeave}
-        >
+        <div className={`flex flex-col min-h-0 flex-1 ${isDisabled ? 'pointer-events-none overflow-hidden' : ''}`}>
           <FormField
             control={form.control}
             name="dsl"

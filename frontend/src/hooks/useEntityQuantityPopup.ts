@@ -30,7 +30,7 @@ export const useEntityQuantityPopup = ({
 }: UseEntityQuantityPopupProps) => {
   const { parsedDSL } = useDSLContext();
   const { componentMappings } = useDSLContext();
-  const { setSelectedElement, clearHighlighting } = useHighlightingContext();
+  const { setSelectedElement, clearHighlightingState } = useHighlightingContext();
   const [popupState, setPopupState] = useState<EntityQuantityPopupState>({
     isOpen: false,
     dslPath: '',
@@ -67,13 +67,13 @@ export const useEntityQuantityPopup = ({
    * Close the entity quantity popup
    */
   const closePopup = useCallback(() => {
-    clearHighlighting();
+    clearHighlightingState();
     setPopupState({
       isOpen: false,
       dslPath: '',
       initialQuantity: 1,
     });
-  }, [clearHighlighting]);
+  }, [clearHighlightingState]);
 
   /**
    * Update entity quantity in DSL and regenerate visuals

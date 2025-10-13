@@ -27,7 +27,7 @@ export const useHighlighting = ({
   formulaValue,
 }: UseHighlightingProps) => {
   const { componentMappings } = useDSLContext();
-  const { setDslHighlightRanges: onDSLRangeHighlight, setMwpHighlightRanges: onMWPRangeHighlight, setFormulaHighlightRanges, currentDSLPath, currentTargetElement, clearHighlighting } = useHighlightingContext();
+  const { setDslHighlightRanges: onDSLRangeHighlight, setMwpHighlightRanges: onMWPRangeHighlight, setFormulaHighlightRanges, currentDSLPath, currentTargetElement, clearHighlightingState } = useHighlightingContext();
   const mappings: ComponentMapping = useMemo(() => (componentMappings || {}) as ComponentMapping, [componentMappings]);
 
 
@@ -371,15 +371,14 @@ export const useHighlighting = ({
     });
   }, [triggerHighlight, onMWPRangeHighlight]);
 
-  const clearHighlights = useCallback(() => {
-    clearHighlighting();
+  const removeElementHighlights = useCallback(() => {
     if (svgRef.current) {
       const highlightedElements = svgRef.current.querySelectorAll('.highlighted-box, .highlighted-text, .highlighted-svg');
       highlightedElements.forEach((element) => {
         element.classList.remove('highlighted-box', 'highlighted-text', 'highlighted-svg');
       });
     }
-  }, [clearHighlighting, svgRef]);
+  }, [svgRef]);
 
   /**
    * Highlight the visual element corresponding to a given DSL path and target element
@@ -421,14 +420,15 @@ export const useHighlighting = ({
       // Special case for entity containers (boxes)
       triggerBoxHighlight(mapping, dslPath, targetElement);
     }
-  }, [setFormulaHighlightRanges, triggerEntityQuantityHighlightText, triggerContainerNameHighlight, triggerAttrNameHighlight, triggerEmbeddedSvgHighlight, triggerContainerTypeHighlight, triggerAttrTypeHighlight, triggerBoxHighlight, triggerOperationHighlight, triggerResultContainerHighlight, clearHighlighting, mappings]);
+  }, [setFormulaHighlightRanges, triggerEntityQuantityHighlightText, triggerContainerNameHighlight, triggerAttrNameHighlight, triggerEmbeddedSvgHighlight, triggerContainerTypeHighlight, triggerAttrTypeHighlight, triggerBoxHighlight, triggerOperationHighlight, triggerResultContainerHighlight, clearHighlightingState, mappings]);
 
   /**
    * Highlight the visual element corresponding to the current DSL path
    */
   const highlightCurrentDSLPath = useCallback(() => {
+    removeElementHighlights();
     if (!currentDSLPath) {
-      clearHighlights();
+      clearHighlightingState();
       return;
     }
     
@@ -440,6 +440,7 @@ export const useHighlighting = ({
     } else {
       // Case 2: We have DSL path but no target element (from clicking in DSL editor)
       // Find all elements with this DSL path and highlight them
+
       const escapedPath = CSS.escape(currentDSLPath);
       const targetElements = svgRef.current?.querySelectorAll(`[data-dsl-path="${escapedPath}"]`);
       
@@ -449,7 +450,7 @@ export const useHighlighting = ({
         });
       }
     }
-  }, [currentDSLPath, currentTargetElement, clearHighlights, highlightDSLPath, svgRef]);
+  }, [currentDSLPath, currentTargetElement, removeElementHighlights, clearHighlightingState, highlightDSLPath, svgRef]);
 
 
   const returnValue = useMemo(() => ({

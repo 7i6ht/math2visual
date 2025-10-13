@@ -27,7 +27,7 @@ export const useMathProblemForm = ({
   saveInitialValues,
 }: UseMathProblemFormProps) => {
   const [loading, setLoading] = useState(false);
-  const { clearHighlighting } = useHighlightingContext();
+  const { clearHighlightingState } = useHighlightingContext();
   
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -49,7 +49,7 @@ export const useMathProblemForm = ({
 
 
   const handleSubmit = async (data: FormData) => {
-    clearHighlighting();
+    clearHighlightingState();
     setLoading(true);
     
     // Save the form values before generating (so they're preserved on abort)
