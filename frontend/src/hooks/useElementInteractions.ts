@@ -23,7 +23,7 @@ export const useElementInteractions = ({
   isPopupOpen = false,
   isDisabled = false,
 }: UseElementInteractionsProps) => {
-  const { setCurrentTargetElement, setCurrentDSLPath, currentDSLPath } = useHighlightingContext();
+  const { currentDSLPath, setSelectedElement } = useHighlightingContext();
   const currentDSLPathRef = useRef(currentDSLPath);
   
   // Keep the ref in sync with the current value
@@ -61,14 +61,10 @@ export const useElementInteractions = ({
       svgElem.onmouseenter = () => {
         const currentPath = currentDSLPathRef.current;
         if (currentPath !== dslPath) {
-          setCurrentTargetElement(svgElem);
-          setCurrentDSLPath(dslPath);
+          setSelectedElement(svgElem);
         }
       };
-      svgElem.onmouseleave = () => {
-        setCurrentTargetElement(null as unknown as Element);
-        setCurrentDSLPath(null);
-      };
+      svgElem.onmouseleave = () => setSelectedElement(null as unknown as Element);
       svgElem.style.cursor = 'pointer';
 
       // Determine element type and setup appropriate interactions
@@ -100,8 +96,7 @@ export const useElementInteractions = ({
   }, [
     svgRef,
     isDisabled,
-    setCurrentTargetElement,
-    setCurrentDSLPath,
+    setSelectedElement,
     onEmbeddedSVGClick,
     onEntityQuantityClick,
     onNameClick,

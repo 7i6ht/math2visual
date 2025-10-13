@@ -29,7 +29,7 @@ export const useSVGSelector = ({
   onVisualsUpdate,
 }: UseSVGSelectorProps) => {
   // Use highlighting context
-  const { setCurrentTargetElement, clearCurrentTargetElement, setCurrentDSLPath } = useHighlightingContext();
+  const { setSelectedElement, clearHighlighting } = useHighlightingContext();
   const { formattedDSL, componentMappings } = useDSLContext();
 
   const [selectorState, setSelectorState] = useState<SVGSelectorState>({
@@ -41,14 +41,13 @@ export const useSVGSelector = ({
   // Close the selector and clear highlight
   const closeSelector = useCallback(() => {
     // Reset currentDSLPath to clear highlight
-    setCurrentDSLPath(null);
-    clearCurrentTargetElement();
+    clearHighlighting();
     
     setSelectorState(prev => ({
       ...prev,
       isOpen: false,
     }));
-  }, [clearCurrentTargetElement, setCurrentDSLPath]);
+  }, [clearHighlighting]);
 
   // Open the selector at a specific position for a specific DSL path
   const openSelector = useCallback((event: MouseEvent) => {    
@@ -57,13 +56,10 @@ export const useSVGSelector = ({
     const el = event.target as Element;
     const targetEl = el.closest('svg[data-dsl-path]') as Element;
     const dslPath = targetEl.getAttribute('data-dsl-path') || '';
-    const normalizedDslPath = dslPath.endsWith("]") ? dslPath.slice(0, -3) : dslPath;
+    const normalizedDslPath = dslPath.endsWith("]") ? dslPath.slice(0, dslPath.lastIndexOf("[")) : dslPath;
 
     // Trigger highlight via existing system
-    setCurrentDSLPath(dslPath);
-
-    // Store target element in context
-    setCurrentTargetElement(targetEl);
+    setSelectedElement(targetEl);
 
     const typeMapping = componentMappings?.[normalizedDslPath];
     const currentValue = typeMapping?.property_value || "";
@@ -73,7 +69,7 @@ export const useSVGSelector = ({
       dslPath: normalizedDslPath,
       currentValue,
     });
-  }, [setCurrentTargetElement, componentMappings, setCurrentDSLPath]);
+  }, [setSelectedElement, componentMappings]);
 
   // Handle embedded SVG change
   const updateEmbeddedSVG = useCallback(async (newType: string) => {

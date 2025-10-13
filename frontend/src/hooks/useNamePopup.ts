@@ -29,7 +29,7 @@ export const useNamePopup = ({
   onVisualsUpdate
 }: UseNamePopupProps) => {
   const { parsedDSL, componentMappings } = useDSLContext();
-  const { setCurrentTargetElement, clearCurrentTargetElement, setCurrentDSLPath } = useHighlightingContext();
+  const { setSelectedElement, clearHighlighting } = useHighlightingContext();
   const [popupState, setPopupState] = useState<NamePopupState>({
     isOpen: false,
     dslPath: '',
@@ -45,12 +45,9 @@ export const useNamePopup = ({
     const el = event.target as Element;
     const targetElement = el.closest('[data-dsl-path]') as Element;
     const dslPath = el.getAttribute('data-dsl-path') || '';
-
-    // This ensures the popup uses the original position before any CSS transformations
-    setCurrentTargetElement(targetElement);
     
     // Trigger highlight via existing system
-    setCurrentDSLPath(dslPath);
+    setSelectedElement(targetElement);
     
     // Normalize to the concrete field path
     const currentValue = getFieldValue(componentMappings, dslPath) || '';
@@ -60,20 +57,19 @@ export const useNamePopup = ({
       dslPath: dslPath,
       initialValue: currentValue,
     });
-  }, [setCurrentTargetElement, componentMappings, setCurrentDSLPath]);
+  }, [setSelectedElement, componentMappings]);
 
   /**
    * Close the popup
    */
   const closePopup = useCallback(() => {
-    setCurrentDSLPath(null);
-    clearCurrentTargetElement();
+    clearHighlighting();
     setPopupState({
       isOpen: false,
       dslPath: '',
       initialValue: '',
     });
-  }, [clearCurrentTargetElement, setCurrentDSLPath]);
+  }, [clearHighlighting]);
 
   /**
    * Update field value in DSL and regenerate visuals

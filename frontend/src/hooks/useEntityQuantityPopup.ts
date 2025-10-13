@@ -30,7 +30,7 @@ export const useEntityQuantityPopup = ({
 }: UseEntityQuantityPopupProps) => {
   const { parsedDSL } = useDSLContext();
   const { componentMappings } = useDSLContext();
-  const { setCurrentTargetElement, clearCurrentTargetElement, setCurrentDSLPath } = useHighlightingContext();
+  const { setSelectedElement, clearHighlighting } = useHighlightingContext();
   const [popupState, setPopupState] = useState<EntityQuantityPopupState>({
     isOpen: false,
     dslPath: '',
@@ -51,11 +51,8 @@ export const useEntityQuantityPopup = ({
     ? dslPath
     : `${dslPath}/entity_quantity`;
 
-    // This ensures the popup uses the original position before any CSS transformations
-    setCurrentTargetElement(targetElement);
-
     // Trigger highlight via existing system
-    setCurrentDSLPath(dslPath);
+    setSelectedElement(targetElement);
 
     const currentQty = getEntityQuantityValue(componentMappings, normalizedPath) || 1;
 
@@ -64,20 +61,19 @@ export const useEntityQuantityPopup = ({
       dslPath: normalizedPath,
       initialQuantity: currentQty,
     });
-  }, [setCurrentTargetElement, componentMappings, setCurrentDSLPath]);
+  }, [setSelectedElement, componentMappings]);
 
   /**
    * Close the entity quantity popup
    */
   const closePopup = useCallback(() => {
-    setCurrentDSLPath(null);
-    clearCurrentTargetElement();
+    clearHighlighting();
     setPopupState({
       isOpen: false,
       dslPath: '',
       initialQuantity: 1,
     });
-  }, [clearCurrentTargetElement, setCurrentDSLPath]);
+  }, [clearHighlighting]);
 
   /**
    * Update entity quantity in DSL and regenerate visuals

@@ -9,12 +9,11 @@ interface HighlightingContextType {
   formulaHighlightRanges: Array<[number, number]>;
   
   // Actions
-  setCurrentDSLPath: (path: string | null) => void;
-  setCurrentTargetElement: (element: Element) => void;
-  clearCurrentTargetElement: () => void;
   setDslHighlightRanges: (ranges: Array<[number, number]>) => void;
   setMwpHighlightRanges: (ranges: Array<[number, number]>) => void;
   setFormulaHighlightRanges: (ranges: Array<[number, number]>) => void;
+  setCurrentDSLPath: (path: string | null) => void;
+  setSelectedElement: (element: Element | null) => void;
   clearHighlighting: () => void;
 }
 
@@ -31,16 +30,16 @@ export function HighlightingProvider({ children }: HighlightingProviderProps) {
   const [mwpHighlightRanges, setMwpHighlightRanges] = useState<Array<[number, number]>>([]);
   const [formulaHighlightRanges, setFormulaHighlightRanges] = useState<Array<[number, number]>>([]);
 
-  const clearCurrentTargetElement = () => {
-    setCurrentTargetElement(null);
+  const setSelectedElement = (element: Element | null) => {
+    setCurrentTargetElement(element);
+    setCurrentDSLPath(element?.getAttribute('data-dsl-path') || null);
   };
 
   const clearHighlighting = () => {
     setDslHighlightRanges([]);
     setMwpHighlightRanges([]);
     setFormulaHighlightRanges([]);
-    setCurrentDSLPath(null);
-    setCurrentTargetElement(null);
+    setSelectedElement(null);
   };
 
   const value: HighlightingContextType = {
@@ -49,12 +48,11 @@ export function HighlightingProvider({ children }: HighlightingProviderProps) {
     dslHighlightRanges,
     mwpHighlightRanges,
     formulaHighlightRanges,
-    setCurrentDSLPath,
-    setCurrentTargetElement,
-    clearCurrentTargetElement,
     setDslHighlightRanges,
     setMwpHighlightRanges,
     setFormulaHighlightRanges,
+    setCurrentDSLPath,
+    setSelectedElement,
     clearHighlighting,
   };
 

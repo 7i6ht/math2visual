@@ -25,13 +25,14 @@ export const VisualLanguageForm = ({
   onLoadingChange,
   isDisabled = false,
 }: VisualLanguageFormProps) => {
-  const { dslHighlightRanges, setCurrentDSLPath } = useHighlightingContext();
+  const { dslHighlightRanges, setCurrentDSLPath, clearHighlighting } = useHighlightingContext();
   const { componentMappings: contextMappings } = useDSLContext();
   const effectiveMappings = useMemo(() => (contextMappings ?? {}) as ComponentMapping, [contextMappings]);
   
   const handleCursorPositionChange = useCallback((position: number) => {
     if (isDisabled) return;
     const dslPath = findDSLPathAtPosition(effectiveMappings, position);
+    console.log('DSL Editor click - Position:', position, 'DSL Path:', dslPath);
     setCurrentDSLPath(dslPath);
   }, [effectiveMappings, setCurrentDSLPath, isDisabled]);
 
@@ -43,12 +44,20 @@ export const VisualLanguageForm = ({
     onLoadingChange,
   });
 
+  const handleFormMouseLeave = useCallback(() => {
+    if (isDisabled) return;
+    clearHighlighting();
+  }, [clearHighlighting, isDisabled]);
+
   return (
     <div className="flex flex-col h-full min-h-0">
       <h2 className="text-xl font-semibold mb-3 flex-shrink-0">Visual Language</h2>
       
       <Form {...form}>
-        <div className={`flex flex-col min-h-0 flex-1 ${isDisabled ? 'pointer-events-none overflow-hidden' : ''}`}>
+        <div
+          className={`flex flex-col min-h-0 flex-1 ${isDisabled ? 'pointer-events-none overflow-hidden' : ''}`}
+          onMouseLeave={handleFormMouseLeave}
+        >
           <FormField
             control={form.control}
             name="dsl"
