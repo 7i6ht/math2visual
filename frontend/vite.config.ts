@@ -25,7 +25,7 @@ export default defineConfig({
       '/api': {
         target: process.env.BACKEND_URL || 'http://localhost:5000',
         changeOrigin: true,
-        secure: false,
+        secure: false, // TODO: remove this when the backend is deployed
         configure: (proxy, _options) => {
           proxy.on('error', (err, _req, _res) => {
             console.log('proxy error', err);
