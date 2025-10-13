@@ -96,15 +96,15 @@ flowchart TD
 - **Technologies**: React 19, Vite, ShadCN and Tailwind CSS
 - **Text-To-Image (TTI) Visual Generation**: Generating two types of visualization (intuitive, formal) representing MWP
 - **Visual Language Editing**: Direct modification and regeneration capabilities
+- **Interactive SVG Management**: Search, upload, and manage SVG entities with popup-based interactions
 - **Multi-format Export**: Download visualizations as SVG, PNG or PDF
-- **SVG Upload**: Guided SVG entity upload for missing visual entities
 
 ### Backend (Flask + Python)
 - **AI-Powered Processing**: OpenAI GPT integration for natural language to visual language conversion
 - **Dual Generation Engines**: Separate formal and intuitive visualization algorithms
 - **Scalable Storage**: Local filesystem or distributed JuiceFS with PostgreSQL metadata
 - **SVG Uploading Security & Validation**: SVG content validation, and optional ClamAV integration
-- **Extensive SVG Entity Library**: 1,548+ pre-validated SVG assets for comprehensive visual coverage
+- **Extensive SVG Entity Library**: 1,549 pre-validated SVG assets for comprehensive visual coverage
 
 ## 🚀 Quick Start
 
