@@ -16,7 +16,7 @@ export function findDSLPathAtPosition(componentMappings: ComponentMapping, curso
   // Find all ranges that contain the cursor position
   const containingRanges = Object.entries(componentMappings)
     .filter(([, range]) => 
-      cursorOffset >= range.dsl_range[0] && cursorOffset < range.dsl_range[1]
+      range.dsl_range && cursorOffset >= range.dsl_range[0] && cursorOffset < range.dsl_range[1]
     )
     .map(([dslPath, range]) => ({ dslPath, range }));
 
@@ -27,10 +27,10 @@ export function findDSLPathAtPosition(componentMappings: ComponentMapping, curso
   // Sort by range size (smallest first) to get the most specific match
   // In case of ties, prefer the one that starts later (more specific)
   containingRanges.sort((a, b) => {
-    const sizeA = a.range.dsl_range[1] - a.range.dsl_range[0];
-    const sizeB = b.range.dsl_range[1] - b.range.dsl_range[0];
+    const sizeA = a.range.dsl_range![1] - a.range.dsl_range![0];
+    const sizeB = b.range.dsl_range![1] - b.range.dsl_range![0];
     if (sizeA === sizeB) {
-      return b.range.dsl_range[0] - a.range.dsl_range[0]; // Later start is more specific
+      return b.range.dsl_range![0] - a.range.dsl_range![0]; // Later start is more specific
     }
     return sizeA - sizeB; // Smaller size is more specific
   });
@@ -75,8 +75,9 @@ export function findDSLPathAtPosition(componentMappings: ComponentMapping, curso
 export function printDSLTreeFormatted(componentMappings: ComponentMapping): string {
   // Sort mappings by start position for tree-like output
   const sortedMappings = Object.entries(componentMappings)
+    .filter(([, range]) => range.dsl_range)
     .map(([dslPath, range]) => ({ dslPath, range }))
-    .sort((a, b) => a.range.dsl_range[0] - b.range.dsl_range[0]);
+    .sort((a, b) => a.range.dsl_range![0] - b.range.dsl_range![0]);
   
   let result = '';
   for (const mapping of sortedMappings) {
@@ -92,7 +93,7 @@ export function printDSLTreeFormatted(componentMappings: ComponentMapping): stri
 
     const pathDepth = mapping.dslPath.split('/').length - 1;
     const nodeIndent = '  '.repeat(pathDepth);
-    result += `${nodeIndent}${mapping.dslPath} ${hint} [${mapping.range.dsl_range[0]}-${mapping.range.dsl_range[1]}]`;
+    result += `${nodeIndent}${mapping.dslPath} ${hint} [${mapping.range.dsl_range![0]}-${mapping.range.dsl_range![1]}]`;
     result += '\n';
   }
   
