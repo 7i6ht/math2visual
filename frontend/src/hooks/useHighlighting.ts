@@ -162,9 +162,10 @@ export const useHighlighting = ({
     const mapping = mappings[dslPath];
     const quantity = mapping?.property_value;
     const quantityNum = quantity ? Number(quantity) : NaN;
+    const quantityTextElements = svgRef.current?.querySelectorAll(`[data-dsl-path="${CSS.escape(dslPath)}"]`) as NodeListOf<SVGGraphicsElement>;
     
     // Apply visual highlighting based on quantity threshold
-    if (!Number.isNaN(quantityNum) && quantityNum <= MAX_ITEM_DISPLAY) {
+    if (quantityTextElements.length === 0 && !Number.isNaN(quantityNum) && quantityNum <= MAX_ITEM_DISPLAY) {
       // Highlight all individual embedded SVGs for quantities below threshold
       const entityPath = dslPath.replace(/\/entity_quantity$/, '');
       const entityElements = svgRef.current?.querySelectorAll(`[data-dsl-path="${CSS.escape(entityPath)}"]`) as NodeListOf<SVGGraphicsElement>;
@@ -185,9 +186,8 @@ export const useHighlighting = ({
       }
     } else {
       // Highlight quantity text for quantities above threshold
-      const quantityTextElements = svgRef.current?.querySelectorAll(`[data-dsl-path="${CSS.escape(dslPath)}"]`) as NodeListOf<SVGGraphicsElement>;
       quantityTextElements?.forEach((element) => {
-        const quantityTextEl = element as SVGGraphicsElement;
+        const quantityTextEl = element as SVGElement;
         quantityTextEl.classList.add('highlighted-text');
       });
     }

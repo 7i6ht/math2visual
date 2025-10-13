@@ -20,6 +20,20 @@ export const NamePopup: React.FC<NamePopupProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Calculate dynamic width based on content length
+  const getInputWidth = () => {
+    const minWidth = 80; // w-20 equivalent
+    const maxWidth = 300; // reasonable maximum
+    const padding = 32; // px-2 on both sides + border
+    const charWidth = 8; // approximate character width in pixels for monospace-like text
+    
+    // Use placeholder text length if value is empty
+    const textLength = value.length || "Enter name...".length;
+    const calculatedWidth = Math.max(minWidth, Math.min(maxWidth, textLength * charWidth + padding));
+    
+    return `${calculatedWidth}px`;
+  };
+
   // Focus input on mount
   useEffect(() => {
     if (inputRef.current) {
@@ -68,7 +82,7 @@ export const NamePopup: React.FC<NamePopupProps> = ({
     <BasePopup
       onClose={onClose}
       onKeyDown={handlePopupKeyDown}
-      className="w-fit max-w-[95vw]"
+      className="w-fit max-w-[95vw] min-w-fit"
     >
       <div className="flex flex-col gap-2">
         {/* Input and Update Button */}
@@ -79,7 +93,8 @@ export const NamePopup: React.FC<NamePopupProps> = ({
             onChange={(e) => setValue(e.target.value)}
             placeholder={"Enter name..."}
             spellCheck={false}
-            className="rounded-r-none border-r-0 h-9 text-sm focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation text-center w-20 px-2"
+            className="rounded-r-none border-r-0 h-9 text-sm focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation text-center px-2"
+            style={{ width: getInputWidth() }}
             disabled={isLoading}
           />
           <Button
