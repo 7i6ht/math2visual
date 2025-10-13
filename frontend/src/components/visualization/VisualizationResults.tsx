@@ -136,10 +136,11 @@ export const VisualizationResults = ({
       {(svgFormal || svgIntuitive) && (
         <div className="mt-4 text-left">
           <button
-            onClick={onShowHint}
-            className="text-red-500 cursor-pointer text-sm group"
+            onClick={isDisabled ? undefined : onShowHint}
+            className={`text-red-500 text-sm group ${isDisabled ? 'cursor-default' : 'cursor-pointer'}`}
+            disabled={isDisabled}
           >
-            Does not look as expected? <span className="group-hover:text-red-700 group-hover:italic">🡒 Add more hints ...</span>
+            Does not look as expected? <span className={`${isDisabled ? '' : 'group-hover:italic group-hover:text-red-700'}`}>🡒 Add more hints ...</span>
           </button>
         </div>
       )}

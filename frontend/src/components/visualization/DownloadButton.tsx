@@ -23,12 +23,14 @@ interface DownloadButtonProps {
   svgContent: string | null;
   type: "formal" | "intuitive";
   title: string;
+  disabled?: boolean;
 }
 
 export const DownloadButton = ({
   svgContent,
   type,
   title,
+  disabled = false,
 }: DownloadButtonProps) => {
   const [isDownloading, setIsDownloading] = useState(false);
 
@@ -37,7 +39,7 @@ export const DownloadButton = ({
     event: React.MouseEvent
   ) => {
     event.stopPropagation(); // Prevent accordion toggle
-    if (!svgContent) return;
+    if (!svgContent || disabled || isDownloading) return;
 
     setIsDownloading(true);
     const toastId = toast.loading(
@@ -66,6 +68,8 @@ export const DownloadButton = ({
 
   if (!svgContent) return null;
 
+  const isDisabled = disabled || isDownloading;
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -73,7 +77,7 @@ export const DownloadButton = ({
           variant="ghost"
           size="sm"
           className="h-8 w-8 p-0"
-          disabled={isDownloading}
+          disabled={isDisabled}
           onClick={(e) => e.stopPropagation()}
         >
           <Download className="w-4 h-4" />
@@ -89,7 +93,7 @@ export const DownloadButton = ({
             key={option.format}
             onClick={(e) => handleDownload(option.format, e)}
             className="cursor-pointer"
-            disabled={isDownloading}
+            disabled={isDisabled}
           >
             <span className="mr-2">
               <option.icon className="w-4 h-4" />

@@ -84,13 +84,17 @@ export const VisualizationSection = ({
 
   return (
     <AccordionItem value={type} className="border rounded-lg !border-b">
-      <AccordionTrigger className="px-4 hover:no-underline">
+      <AccordionTrigger 
+        className={`px-4 hover:no-underline ${isDisabled ? 'pointer-events-none cursor-default' : ''}`}
+        disabled={isDisabled}
+      >
         <div className="flex items-center justify-between w-full mr-4">
           <span className="font-medium">{title}</span>
           <DownloadButton
             svgContent={svgContent}
             type={type}
             title={title}
+            disabled={isDisabled}
           />
         </div>
       </AccordionTrigger>
