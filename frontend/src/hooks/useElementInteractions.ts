@@ -70,27 +70,44 @@ export const useElementInteractions = ({
       // Determine element type and setup appropriate interactions
       // Check smaller/internal elements first, then containers, to avoid event blocking
       if (isContainerNameElement(svgElem)) {
-        svgElem.addEventListener('click', (event: MouseEvent) => {
+        svgElem.onclick = (event: MouseEvent) => {
+          event.stopPropagation();
           onNameClick(event);
-        }, { capture: true });
+        };
       } else if (isAttrNameElement(svgElem)) {
-        svgElem.addEventListener('click', (event: MouseEvent) => {
+        svgElem.onclick = (event: MouseEvent) => {
+          event.stopPropagation();
           onNameClick(event);
-        }, { capture: true });
+        };
       } else if (isTextElement(svgElem)) {
         svgElem.style.pointerEvents = 'auto';
         // Add click handler for entity quantity editing if path ends with entity_quantity
         if (dslPath.endsWith('/entity_quantity')) {
-          svgElem.addEventListener('click', (event: MouseEvent) => onEntityQuantityClick(event), { capture: true });
+          svgElem.onclick = (event: MouseEvent) => {
+            event.stopPropagation();
+            onEntityQuantityClick(event);
+          };
         }
       } else if (isEmbeddedSvgElement(svgElem)) {
-        svgElem.addEventListener('click', (event: MouseEvent) => onEmbeddedSVGClick(event), { capture: true });
+        svgElem.onclick = (event: MouseEvent) => {
+          event.stopPropagation();
+          onEmbeddedSVGClick(event);
+        };
       } else if (isContainerTypeSvgElement(svgElem)) {
-        svgElem.addEventListener('click', (event: MouseEvent) => onEmbeddedSVGClick(event), { capture: true });
+        svgElem.onclick = (event: MouseEvent) => {
+          event.stopPropagation();
+          onEmbeddedSVGClick(event);
+        };
       } else if (isAttrTypeSvgElement(svgElem)) {
-        svgElem.addEventListener('click', (event: MouseEvent) => onEmbeddedSVGClick(event), { capture: true });
+        svgElem.onclick = (event: MouseEvent) => {
+          event.stopPropagation();
+          onEmbeddedSVGClick(event);
+        };
       } else if (isBoxElement(svgElem)) {
-        svgElem.addEventListener('click', (event: MouseEvent) => onEntityQuantityClick(event), { capture: true });
+        svgElem.onclick = (event: MouseEvent) => {
+          event.stopPropagation();
+          onEntityQuantityClick(event);
+        };
       }
     });
   }, [
