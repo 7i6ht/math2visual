@@ -22,7 +22,7 @@ backend/
 │   │   ├── middleware/          # Error handlers and middleware
 │   │   └── routes/              # API endpoints
 │   │       ├── generation.py    # Core generation API
-│   │       ├── upload.py        # SVG upload management
+│   │       ├── svg_dataset.py   # SVG dataset management (upload, search, serve)
 │   │       └── system.py        # System status endpoints
 │   ├── config/                  # Configuration management
 │   │   └── storage_config.py    # Storage backend configuration
@@ -34,7 +34,7 @@ backend/
 │   └── utils/                   # Utility functions
 ├── app.py                       # Application entry point
 ├── storage/                     # Local storage directory
-│   ├── datasets/svg_dataset/    # SVG entity library (1,548 files)
+│   ├── datasets/svg_dataset/    # SVG entity library (1,549 files)
 │   ├── models/                  # ML model checkpoints
 │   └── output/                  # Generated visualizations
 ├── scripts/                     # Setup and management scripts
@@ -56,7 +56,12 @@ backend/
 1. **Clone and setup environment:**
 ```bash
 cd backend/
-pip install -r requirements.txt
+
+# Option 1: Using conda (recommended - requirements.txt is a conda environment file)
+conda create --name math2visual --file requirements.txt
+
+# Option 2: Using pip (install individual packages)
+pip install flask flask-cors python-dotenv openai torch transformers peft accelerate bitsandbytes safetensors
 ```
 
 2. **Configure environment variables:**
@@ -114,7 +119,7 @@ Generate visual representations from math word problems.
 }
 ```
 
-### SVG Upload API
+### SVG Dataset Management API
 
 #### `POST /api/svg-dataset/upload`
 Upload SVG file to the svg_dataset directory with validation and security scanning.
@@ -167,6 +172,49 @@ curl -X POST http://localhost:5001/api/svg-dataset/upload \
   "error": "No file uploaded"
 }
 ```
+
+#### `GET /api/svg-dataset/search`
+Search SVG files in the dataset by name.
+
+**Query Parameters:**
+- `query`: Search string to match against SVG filenames (optional)
+- `limit`: Maximum number of results (default: 10, max: 50)
+
+**Response:**
+```json
+{
+  "files": [
+    {
+      "filename": "apple.svg",
+      "name": "apple",
+      "path": "/path/to/svg_dataset/apple.svg"
+    }
+  ],
+  "query": "apple"
+}
+```
+
+#### `GET /api/svg-dataset/check-exists`
+Check if an SVG name already exists in the dataset.
+
+**Query Parameters:**
+- `name`: SVG name to check (without extension)
+
+**Response:**
+```json
+{
+  "exists": true,
+  "name": "apple"
+}
+```
+
+#### `GET /api/svg-dataset/files/<filename>`
+Serve SVG files from the dataset.
+
+**Parameters:**
+- `filename`: The SVG filename to serve
+
+**Response:** SVG file content with appropriate headers
 
 ### Validation Error Responses
 
@@ -334,7 +382,7 @@ The system generates two types of visual representations:
 - Designed to improve engagement & reduce the cognitive load
 
 Both generators support:
-- **Dynamic SVG composition** from 1,548+ entity library
+- **Dynamic SVG composition** from 1,549+ entity library
 - **Intelligent layout calculation** based on content
 - **Missing entity tracking** for dataset expansion
 - **Error handling** with detailed feedback
@@ -406,6 +454,9 @@ pip install pyclamd
 
 See [`docs/CLAMAV_SETUP.md`](docs/CLAMAV_SETUP.md) for configuration details.
 
+Additional documentation:
+- [`docs/cleanup_setup.md`](docs/cleanup_setup.md) - Cleanup and maintenance setup
+
 ## 🧪 Testing
 
 ```bash
@@ -423,8 +474,10 @@ python -m pytest --cov=app tests/
 
 ### Adding New SVG Entities
 1. Create SVG file following naming conventions
-2. Upload via `/api/svg-dataset/upload` endpoint
-3. SVG will be validated and added to dataset
+2. Check if name exists via `/api/svg-dataset/check-exists` endpoint
+3. Upload via `/api/svg-dataset/upload` endpoint
+4. SVG will be validated and added to dataset
+5. Use `/api/svg-dataset/search` to find and manage existing entities
 
 ### Extending Visual Language
 1. Update operation parsers in `services/visual_generation/`
