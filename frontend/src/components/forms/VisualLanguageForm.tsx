@@ -1,5 +1,5 @@
 import { SyntaxEditor } from "@/components/ui/syntax-editor";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState, useEffect } from "react";
 import { findDSLPathAtPosition } from "@/utils/dsl-cursor-mapping";
 import {
   Form,
@@ -29,6 +29,19 @@ export const VisualLanguageForm = ({
   const { componentMappings: contextMappings } = useDSLContext();
   const effectiveMappings = useMemo(() => (contextMappings ?? {}) as ComponentMapping, [contextMappings]);
   
+  // Detect if we're in single-column layout (height >= 1200px)
+  const [isSingleColumnLayout, setIsSingleColumnLayout] = useState(false);
+  
+  useEffect(() => {
+    const checkLayout = () => {
+      setIsSingleColumnLayout(window.innerHeight >= 1200);
+    };
+    
+    checkLayout();
+    window.addEventListener('resize', checkLayout);
+    return () => window.removeEventListener('resize', checkLayout);
+  }, []);
+  
   const handleCursorPositionChange = useCallback((position: number) => {
     if (isDisabled) return;
     const dslPath = findDSLPathAtPosition(effectiveMappings, position);
@@ -47,16 +60,16 @@ export const VisualLanguageForm = ({
   
 
   return (
-    <div className="flex flex-col h-full min-h-0">
-      <h2 className="text-xl font-semibold mb-3 flex-shrink-0">Visual Language</h2>
+    <div className="flex flex-col h-full visual-language-form">
+      <h2 className="text-base md:text-lg lg:text-xl xl:text-2xl 2xl:text-3xl 3xl:text-4xl 4xl:text-4xl font-bold mb-3 flex-shrink-0">Visual Language</h2>
       
       <Form {...form}>
-        <div className={`flex flex-col min-h-0 flex-1 ${isDisabled ? 'pointer-events-none overflow-hidden' : ''}`}>
+        <div className={`flex flex-col flex-1 min-h-0 ${isDisabled ? 'pointer-events-none overflow-hidden' : ''}`}>
           <FormField
             control={form.control}
             name="dsl"
             render={({ field }) => (
-              <FormItem className="flex-1 flex flex-col min-h-0">
+              <FormItem className="flex flex-col flex-1 min-h-0">
                 <FormControl className="flex-1 min-h-0">
                   <SyntaxEditor
                     value={field.value}
@@ -64,8 +77,8 @@ export const VisualLanguageForm = ({
                       field.onChange(value);
                       handleDebouncedChange(value);
                     }}
-                    className="w-full"
-                    height="100%"
+                    className="w-full h-full"
+                    height={isSingleColumnLayout ? undefined : "100%"}
                     highlightRanges={dslHighlightRanges}
                     onCursorPositionChange={handleCursorPositionChange}
                   />

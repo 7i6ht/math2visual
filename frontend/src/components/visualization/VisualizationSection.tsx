@@ -101,7 +101,7 @@ export const VisualizationSection = ({
       <AccordionContent className="px-4">
         {error ? (
           <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-md max-w-md">
-            <p className="text-destructive font-medium text-sm">{error}</p>
+            <p className="text-destructive font-medium text-xs md:text-sm lg:text-base xl:text-lg">{error}</p>
           </div>
         ) : svgContent ? (
           <div className="w-full">

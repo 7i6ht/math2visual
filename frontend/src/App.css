@@ -65,42 +65,43 @@
   background-clip: text;
 }
 
-/* Container improvements */
+/* Container improvements - removed fixed max-widths to allow full-screen usage */
 .container {
   width: 100%;
   margin-left: auto;
   margin-right: auto;
-  padding-left: 1rem;
-  padding-right: 1rem;
+  max-width: none; /* Remove any default max-width constraints */
 }
 
+/* Add breathing room on very small screens */
+@media (max-width: 639px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* Larger padding on bigger screens */
 @media (min-width: 640px) {
   .container {
-    max-width: 640px;
+    padding-left: 2rem;
+    padding-right: 2rem;
   }
 }
 
-@media (min-width: 768px) {
-  .container {
-    max-width: 768px;
-  }
-}
-
-@media (min-width: 1024px) {
-  .container {
-    max-width: 1024px;
-  }
-}
-
-@media (min-width: 1280px) {
-  .container {
-    max-width: 1280px;
-  }
-}
-
+/* Ensure full width utilization for large screens */
 @media (min-width: 1536px) {
   .container {
-    max-width: 1536px;
+    padding-left: 4rem;
+    padding-right: 4rem;
+  }
+}
+
+/* Ultra-wide screen support */
+@media (min-width: 1920px) {
+  .container {
+    padding-left: 6rem;
+    padding-right: 6rem;
   }
 }
 
@@ -140,4 +141,37 @@
 .gear-2 {
   animation: spin-reverse-offset 1.8s linear infinite;
   transform-origin: center;
+}
+
+/* Height-based layout switching */
+@media (min-height: 1200px) {
+  .height-responsive-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem !important;
+  }
+  
+  .height-responsive-grid > div:first-child {
+    padding-left: 0 !important;
+  }
+  
+  .height-responsive-grid > div:last-child {
+    padding-left: 0 !important;
+  }
+  
+  /* Visual Language form in single-column layout: limit height to content */
+  .height-responsive-grid .visual-language-form {
+    height: auto !important;
+    max-height: 70vh;
+  }
+}
+
+/* Two-column layout: Visual Language form matches left column height */
+@media (max-height: 1199px) {
+  .height-responsive-grid .visual-language-form {
+    height: 100% !important;
+  }
+  
+  .height-responsive-grid .visual-language-form .dsl-editor-container {
+    height: 100% !important;
+  }
 }

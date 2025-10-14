@@ -15,7 +15,7 @@ export const ParseErrorSection = ({ message = "Could not parse Visual Language."
         </div>
       </AccordionTrigger>
       <AccordionContent className="px-4">
-        <div className="text-sm text-destructive">
+        <div className="text-xs md:text-sm text-destructive">
           {message}
         </div>
       </AccordionContent>

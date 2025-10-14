@@ -75,7 +75,7 @@ export const VisualizationResults = ({
 
   return (
     <div className="h-full w-full">
-      <h2 className="text-xl font-semibold mb-4 text-center">Visuals</h2>
+      <h2 className="text-base md:text-lg lg:text-xl xl:text-2xl 2xl:text-3xl 3xl:text-4xl 4xl:text-4xl font-bold mb-4 text-center">Visuals</h2>
       
       <Accordion 
         type="multiple" 
@@ -137,7 +137,7 @@ export const VisualizationResults = ({
         <div className="mt-4 text-left">
           <button
             onClick={isDisabled ? undefined : onShowHint}
-            className={`text-red-500 text-sm group ${isDisabled ? 'cursor-default' : 'cursor-pointer'}`}
+            className={`text-red-500 text-xs md:text-sm lg:text-base xl:text-lg group ${isDisabled ? 'cursor-default' : 'cursor-pointer'}`}
             disabled={isDisabled}
           >
             Does not look as expected? <span className={`${isDisabled ? '' : 'group-hover:italic group-hover:text-red-700'}`}>🡒 Add more hints ...</span>

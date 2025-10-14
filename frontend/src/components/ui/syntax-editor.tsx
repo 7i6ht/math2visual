@@ -160,9 +160,70 @@ export const SyntaxEditor: React.FC<SyntaxEditorProps> = ({
 }) => {
   const isLanguageSetup = useRef(false);
   const [formattedValue, setFormattedValue] = useState(value);
+  const [dynamicHeight, setDynamicHeight] = useState<string>('');
   const editorRef = useRef<MonacoEditor.IStandaloneCodeEditor | null>(null);
   const decorationsRef = useRef<string[]>([]);
   const monacoRef = useRef<Monaco | null>(null);
+  
+  // Calculate responsive font size based on container width
+  const getResponsiveFontSize = () => {
+    const container = document.querySelector('.dsl-editor-container');
+    if (!container) return 18;
+    
+    const width = container.clientWidth;
+    if (width >= 1200) return 24;
+    if (width >= 1100) return 23;
+    if (width >= 1000) return 22;
+    if (width >= 900) return 21;
+    if (width >= 800) return 20;
+    if (width >= 700) return 19;
+    if (width >= 600) return 18;
+    if (width >= 500) return 17;
+    if (width >= 400) return 16;
+    if (width >= 300) return 15;
+    return 14;
+  };
+
+  // Calculate dynamic height based on content
+  const calculateDynamicHeight = (content: string) => {
+    if (!content.trim()) {
+      return `${rows * 24}px`; // Default height for empty content
+    }
+
+    const lines = content.split('\n').length;
+    const fontSize = getResponsiveFontSize();
+    const lineHeight = fontSize * 1.3; // More accurate line height based on font size
+    const padding = 16; // Account for editor padding and borders
+    const minHeight = 120; // Minimum height for usability
+    
+    // Calculate base height needed for content
+    const contentHeight = lines * lineHeight + padding;
+    
+    // For single-column layout, use more of the available space
+    const isSingleColumn = window.innerHeight >= 1200;
+    const maxHeight = isSingleColumn 
+      ? Math.min(window.innerHeight * 0.75, 1000) // Use up to 75% of viewport in single-column
+      : Math.min(window.innerHeight * 0.6, 600);  // Use up to 60% in two-column
+    
+    // If content is short, allow it to grow to use more space
+    const targetHeight = contentHeight < 300 
+      ? Math.min(contentHeight * 1.5, maxHeight) // Allow short content to use more space
+      : Math.min(contentHeight, maxHeight);      // Longer content uses what it needs
+    
+    const calculatedHeight = Math.max(minHeight, targetHeight);
+    
+    console.log('Height calculation:', {
+      lines,
+      fontSize,
+      lineHeight,
+      contentHeight,
+      isSingleColumn,
+      maxHeight,
+      calculatedHeight: `${calculatedHeight}px`,
+      viewportHeight: window.innerHeight
+    });
+    return `${calculatedHeight}px`;
+  };
 
   // Update formatted value when value changes externally (no formatting needed since backend sends formatted DSL)
   useEffect(() => {
@@ -170,6 +231,57 @@ export const SyntaxEditor: React.FC<SyntaxEditorProps> = ({
       setFormattedValue(value || '');
     }
   }, [value, formattedValue]);
+
+  // Update dynamic height when content changes
+  useEffect(() => {
+    const newHeight = calculateDynamicHeight(formattedValue);
+    console.log('DSL Height calculation:', {
+      content: formattedValue.substring(0, 100) + '...',
+      lines: formattedValue.split('\n').length,
+      calculatedHeight: newHeight
+    });
+    setDynamicHeight(newHeight);
+  }, [formattedValue, rows]);
+
+  // Recalculate height when layout changes (window resize)
+  useEffect(() => {
+    const handleResize = () => {
+      if (formattedValue) {
+        const newHeight = calculateDynamicHeight(formattedValue);
+        setDynamicHeight(newHeight);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [formattedValue]);
+
+
+  // Update font size when container resizes
+  useEffect(() => {
+    const updateFontSize = () => {
+      if (editorRef.current) {
+        const newFontSize = getResponsiveFontSize();
+        editorRef.current.updateOptions({ fontSize: newFontSize });
+      }
+    };
+
+    // Initial font size update
+    updateFontSize();
+
+    // Set up resize observer
+    const container = document.querySelector('.dsl-editor-container');
+    if (container) {
+      const resizeObserver = new ResizeObserver(() => {
+        updateFontSize();
+      });
+      resizeObserver.observe(container);
+      
+      return () => {
+        resizeObserver.disconnect();
+      };
+    }
+  }, []);
 
   const handleEditorDidMount = (
     editor: MonacoEditor.IStandaloneCodeEditor,
@@ -186,6 +298,14 @@ export const SyntaxEditor: React.FC<SyntaxEditorProps> = ({
     // Set the theme based on system preference or default to light
     const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
     monaco.editor.setTheme(isDark ? 'vl-theme-dark' : 'vl-theme');
+    
+    // Simple height recalculation after editor is mounted
+    setTimeout(() => {
+      if (formattedValue) {
+        const newHeight = calculateDynamicHeight(formattedValue);
+        setDynamicHeight(newHeight);
+      }
+    }, 100);
     
     // Handle cursor position changes
     // Note: We're not automatically triggering highlighting here to avoid infinite loops
@@ -258,10 +378,11 @@ export const SyntaxEditor: React.FC<SyntaxEditorProps> = ({
     }
   }, [highlightRanges]);
 
+
   return (
-    <div className={cn("border rounded-md overflow-hidden h-full", className)}>
+    <div className={cn("dsl-editor-container border rounded-md overflow-hidden", className)}>
       <Editor
-        height={height || `${rows * 24}px`}
+        height={height || dynamicHeight || `${rows * 20}px`}
         language="vl-dsl"
         value={formattedValue}
         onChange={(newValue) => {
@@ -273,7 +394,7 @@ export const SyntaxEditor: React.FC<SyntaxEditorProps> = ({
         options={{
           minimap: { enabled: false },
           scrollBeyondLastLine: false,
-          fontSize: 14,
+          fontSize: getResponsiveFontSize(),
           lineNumbers: 'off',
           glyphMargin: false,
           folding: true,

@@ -70,7 +70,7 @@ export const MathProblemForm = ({
             <FormItem>
               <FormControl>
                 <HighlightableTextarea
-                  className={`w-full ${largeFont ? 'md:text-md md:leading-relaxed lg:text-l' : ''}`}
+                  className="w-full"
                   placeholder="Enter your math word problem…"
                   rows={rows}
                   spellCheck={false}
@@ -96,7 +96,7 @@ export const MathProblemForm = ({
             <FormItem>
               <FormControl>
                 <HighlightableInput
-                  className={`w-full ${largeFont ? 'md:text-md lg:text-gl' : ''}`}
+                  className="w-full"
                   placeholder="Optional formula (e.g. 9 + 7 = 16)"
                   spellCheck={false}
                   highlightRanges={formulaHighlightRanges}
@@ -116,7 +116,7 @@ export const MathProblemForm = ({
               <FormItem>
                 <FormControl>
                   <textarea
-                    className={`w-full rounded-md border border-input bg-background px-3 py-2 text-base md:text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${largeFont ? 'md:text-md md:leading-relaxed lg:text-l' : ''}`}
+                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-xs md:text-sm lg:text-base xl:text-lg 2xl:text-xl ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                     placeholder="Add more hints about the relationships between the visual elements ..."
                     rows={rows}
                     spellCheck={false}

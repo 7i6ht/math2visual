@@ -1,3 +1,8 @@
+/* DSL Editor Container - font sizing now handled by JavaScript */
+.dsl-editor-container {
+  /* Container setup for JavaScript-based font sizing */
+}
+
 /* Highlighting styles for DSL editor */
 .highlighted-dsl-range {
   background-color: rgba(59, 130, 246, 0.1) !important;
