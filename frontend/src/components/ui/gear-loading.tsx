@@ -8,59 +8,22 @@ interface GearLoadingProps {
   size?: "small" | "default" | "large";
 }
 
-const sizeConfig = {
-  small: {
-    container: "p-2",
-    gearContainer: "w-12 h-8",
-    gear1: "w-8 h-8",
-    gear2: "w-6 h-6",
-    gear2Position: "left-[22px]",
-    message: "text-sm",
-    cancelBtn: "h-8 px-3 text-xs",
-    icon: "w-3.5 h-3.5",
-    spacing: "mr-4"
-  },
-  default: {
-    container: "p-4",
-    gearContainer: "w-16 h-11",
-    gear1: "w-11 h-11",
-    gear2: "w-8 h-8",
-    gear2Position: "left-[30px]",
-    message: "text-base",
-    cancelBtn: "h-9 px-4 text-sm",
-    icon: "w-4 h-4",
-    spacing: "mr-5"
-  },
-  large: {
-    container: "p-6",
-    gearContainer: "w-24 h-16",
-    gear1: "w-16 h-16",
-    gear2: "w-12 h-12",
-    gear2Position: "left-[44px]",
-    message: "text-lg",
-    cancelBtn: "h-10 px-5 text-base",
-    icon: "w-5 h-5",
-    spacing: "mr-6"
-  }
-} as const;
-
 export const GearLoading = ({ 
   message = "Generating ...", 
   onAbort,
   showAbortButton = true,
   size = "default"
 }: GearLoadingProps) => {
-  const config = sizeConfig[size];
 
   return (
-    <div className={`flex items-center justify-center ${config.container}`}>
-      {/* Left: Gears with subtle glow effect */}
-      <div className={`relative flex items-center justify-center ${config.gearContainer} ${config.spacing} -mt-2`}>
+    <div className="flex flex-col items-center justify-center p-2">
+      {/* Gears positioned above the cancel button */}
+      <div className="relative flex items-center justify-center w-12 h-8 sm:w-16 sm:h-11 md:w-20 md:h-14 lg:w-24 lg:h-16 xl:w-28 xl:h-20 2xl:w-32 2xl:h-24 3xl:w-36 3xl:h-28 4xl:w-40 4xl:h-32 5xl:w-44 5xl:h-36 mb-2 sm:mb-3 md:mb-4 lg:mb-5 xl:mb-6 2xl:mb-7 3xl:mb-8 4xl:mb-9 5xl:mb-10">
         
         {/* First gear - larger */}
         <div className="absolute left-0 top-1/2 transform -translate-y-1/2">
           <svg
-            className={`gear-1 ${config.gear1} text-primary`}
+            className="gear-1 w-8 h-8 sm:w-11 sm:h-11 md:w-14 md:h-14 lg:w-16 lg:h-16 xl:w-20 xl:h-20 2xl:w-24 2xl:h-24 3xl:w-28 3xl:h-28 4xl:w-32 4xl:h-32 5xl:w-36 5xl:h-36 text-primary"
             viewBox="0 0 24 24"
             fill="currentColor"
           >
@@ -68,10 +31,10 @@ export const GearLoading = ({
           </svg>
         </div>
         
-        {/* Second gear - smaller */}
-        <div className={`absolute ${config.gear2Position} top-1/2 transform -translate-y-1/2 translate-y-px`}>
+        {/* Second gear - smaller, positioned to touch the first gear */}
+        <div className="absolute left-[1.5rem] sm:left-[2rem] md:left-[2.5rem] lg:left-[3rem] xl:left-[3.5rem] 2xl:left-[4rem] 3xl:left-[4.5rem] 4xl:left-[5rem] 5xl:left-[5.5rem] top-1/2 transform translate-y-[calc(-50%+1px)]">
           <svg
-            className={`gear-2 ${config.gear2} text-muted-foreground`}
+            className="gear-2 w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-14 xl:h-14 2xl:w-16 2xl:h-16 3xl:w-18 3xl:h-18 4xl:w-20 4xl:h-20 5xl:w-22 5xl:h-22 text-muted-foreground"
             viewBox="0 0 24 24"
             fill="currentColor"
           >
@@ -80,30 +43,20 @@ export const GearLoading = ({
         </div>
       </div>
       
-      {/* Right: Content with better typography and spacing */}
-      <div className="flex flex-col items-start space-y-2">
-        {/* Message with improved typography */}
-        <div className="text-left">
-          <span className={`font-bold text-foreground tracking-wide text-font-size`}>
-            {message}
-          </span>
-        </div>
-        
-        {/* Cancel button with better styling */}
-        {showAbortButton && onAbort && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onAbort}
-            className={`!text-font-size text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-all duration-200 border border-muted-foreground/20 hover:border-destructive/30 button-responsive-size`}
-            title="Cancel generation"
-            aria-label="Cancel generation"
-          >
-            <X className={`icon-font-size mr-2`} />
-            Cancel
-          </Button>
-        )}
-      </div>
+      {/* Cancel button positioned below the gears */}
+      {showAbortButton && onAbort && (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onAbort}
+          className="text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl 2xl:text-2xl 3xl:text-3xl 4xl:text-4xl 5xl:text-5xl text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-all duration-200 border border-muted-foreground/20 hover:border-destructive/30 h-6 sm:h-8 md:h-9 lg:h-10 xl:h-12 2xl:h-14 3xl:h-16 4xl:h-18 5xl:h-20 px-2 sm:px-3 md:px-4 lg:px-5 xl:px-6 2xl:px-8 3xl:px-10 4xl:px-12 5xl:px-14"
+          title="Cancel generation"
+          aria-label="Cancel generation"
+        >
+          <X className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 xl:w-7 xl:h-7 2xl:w-8 2xl:h-8 3xl:w-9 3xl:h-9 4xl:w-10 4xl:h-10 5xl:w-11 5xl:h-11 mr-1 sm:mr-2" />
+          Cancel
+        </Button>
+      )}
     </div>
   );
-}; 
+};
