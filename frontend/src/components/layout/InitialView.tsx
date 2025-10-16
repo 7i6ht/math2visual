@@ -46,7 +46,6 @@ export function InitialView({ appState }: Props) {
             saveInitialValues={saveInitialValues}
             rows={5}
             hideSubmit={mpFormLoading}
-            largeFont={true}
           />
 
           {mpFormLoading && (

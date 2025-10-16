@@ -95,15 +95,15 @@ export function TwoColumnView({ appState }: Props) {
 
 
   return (
-    <div className="w-full px-4 py-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 3xl:px-16 4xl:px-16">
-      <div className="grid grid-cols-1 xl:grid-cols-[minmax(600px,1fr)_minmax(700px,1.5fr)] 3xl:grid-cols-[minmax(700px,1fr)_minmax(800px,1.8fr)] gap-6 xl:gap-8 2xl:gap-12 3xl:gap-16 min-h-[calc(100vh-2rem)] items-start">
-        <div className="flex flex-col space-y-6 xl:space-y-8 xl:sticky xl:top-6 xl:max-h-[calc(100vh-3rem)] xl:overflow-y-auto xl:z-10">
+    <div className="w-full px-1 py-4 sm:px-2 lg:px-4 xl:px-6 2xl:px-8 3xl:px-8 4xl:px-8">
+      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] 3xl:grid-cols-[minmax(0,1fr)_minmax(0,1.8fr)] gap-6 xl:gap-8 2xl:gap-12 3xl:gap-16 min-h-[calc(100vh-2rem)] items-start">
+        <div className="flex flex-col space-y-6 xl:space-y-8 xl:sticky xl:top-6 xl:max-h-[calc(100vh-3rem)] xl:overflow-visible xl:z-10 xl:pr-2">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 xl:gap-8 flex-1 min-h-0 height-responsive-grid items-stretch">
-            <div className="space-y-4 lg:pl-4 flex flex-col">
+            <div className="space-y-4 flex flex-col">
               <div className="text-center">
-                <div className="flex items-center justify-center gap-2 sm:gap-3 md:gap-4 lg:gap-4 xl:gap-5 mb-3">
+                <div className="flex items-center justify-center gap-1">
                   <ResponsiveLogo className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 xl:w-8 xl:h-8 2xl:w-9 2xl:h-9 3xl:w-10 3xl:h-10 4xl:w-10 4xl:h-10 5xl:w-10 5xl:h-10" />
-                  <h1 className="text-lg md:text-xl lg:text-2xl xl:text-3xl 2xl:text-4xl 3xl:text-4xl 4xl:text-4xl 5xl:text-4xl font-bold">Math2Visual</h1>
+                  <h1 className="text-base md:text-lg lg:text-xl xl:text-2xl 2xl:text-3xl 3xl:text-3xl 4xl:text-3xl 5xl:text-3xl font-bold">Math2Visual</h1>
                 </div>
               </div>
 

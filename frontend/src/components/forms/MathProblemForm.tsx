@@ -2,6 +2,7 @@ import React, { useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { HighlightableTextarea } from "@/components/ui/highlightable-textarea";
 import { HighlightableInput } from "@/components/ui/highlightable-input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Form,
   FormControl,
@@ -22,7 +23,6 @@ interface MathProblemFormProps {
   saveInitialValues: (mwp: string, formula: string, hint: string) => void;
   rows?: number;
   hideSubmit?: boolean;
-  largeFont?: boolean;
   showHint?: boolean;
   hintInputRef?: React.RefObject<HTMLTextAreaElement | null>;
   onReset?: () => void;
@@ -37,7 +37,6 @@ export const MathProblemForm = ({
   saveInitialValues,
   rows = 8,
   hideSubmit = false,
-  largeFont = false,
   showHint = false,
   hintInputRef,
 }: MathProblemFormProps) => {
@@ -70,7 +69,7 @@ export const MathProblemForm = ({
             <FormItem>
               <FormControl>
                 <HighlightableTextarea
-                  className="w-full"
+                  className={"w-full text-font-size"}
                   placeholder="Enter your math word problem…"
                   rows={rows}
                   spellCheck={false}
@@ -96,8 +95,8 @@ export const MathProblemForm = ({
             <FormItem>
               <FormControl>
                 <HighlightableInput
-                  className="w-full"
-                  placeholder="Optional formula (e.g. 9 + 7 = 16)"
+                  className={"w-full text-font-size"}
+                  placeholder="9 + 7 = 16"
                   spellCheck={false}
                   highlightRanges={formulaHighlightRanges}
                   {...field}
@@ -115,8 +114,8 @@ export const MathProblemForm = ({
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <textarea
-                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-xs md:text-sm lg:text-base xl:text-lg 2xl:text-xl ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  <Textarea
+                    className={"w-full ring-offset-background text-font-size"}
                     placeholder="Add more hints about the relationships between the visual elements ..."
                     rows={rows}
                     spellCheck={false}
@@ -138,7 +137,7 @@ export const MathProblemForm = ({
             <Button
               type="submit"
               size="lg"
-              className="min-w-[200px] bg-primary text-primary-foreground"
+              className="min-w-[200px] bg-primary !text-primary-foreground !text-font-size button-responsive-size"
             >
               Generate
             </Button>

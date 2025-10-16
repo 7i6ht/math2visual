@@ -43,20 +43,20 @@ export const SVGActionMenu: React.FC<SVGActionMenuProps> = ({
                 •
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="center" className="min-w-[140px] sm:min-w-[160px] p-1">
+            <DropdownMenuContent align="center" className="w-fit min-w-0 px-1 py-1 md:px-2 md:py-2 lg:px-3 lg:py-3">
               <DropdownMenuItem
-                className="cursor-pointer px-3 py-2 sm:px-2 sm:py-1.5 text-sm touch-manipulation"
+                className="cursor-pointer text-font-size touch-manipulation flex items-center gap-1"
                 onMouseDown={(e) => e.stopPropagation()}
                 onClick={() => setActivePopup("search")}
               >
-                <Search className="h-4 w-4 mr-2 flex-shrink-0" /> Search
+                <Search className="smaller-icon-font-size flex-shrink-0" /> Search
               </DropdownMenuItem>
               <DropdownMenuItem
-                className="cursor-pointer px-3 py-2 sm:px-2 sm:py-1.5 text-sm touch-manipulation"
+                className="cursor-pointer text-font-size touch-manipulation flex items-center gap-1"
                 onMouseDown={(e) => e.stopPropagation()}
                 onClick={() => setActivePopup("upload")}
               >
-                <Upload className="h-4 w-4 mr-2 flex-shrink-0" /> Upload
+                <Upload className="smaller-icon-font-size flex-shrink-0" /> Upload
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

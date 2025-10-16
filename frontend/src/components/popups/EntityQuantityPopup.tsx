@@ -85,7 +85,6 @@ export const EntityQuantityPopup: React.FC<EntityQuantityPopupProps> = ({
     <BasePopup
       onClose={onClose}
       onKeyDown={handlePopupKeyDown}
-      className="min-w-fit max-w-[95vw] w-fit"
     >
       <div className="flex flex-col gap-2">
         {/* Input and Update Button */}
@@ -96,14 +95,14 @@ export const EntityQuantityPopup: React.FC<EntityQuantityPopupProps> = ({
             onChange={handleInputChange}
             placeholder="Enter quantity..."
             spellCheck={false}
-            className="rounded-r-none border-r-0 h-9 text-sm focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation text-center w-16 px-2"
+            className="rounded-r-none border-r-0 popup-button-responsive-height text-font-size focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation text-center px-2"
             disabled={isLoading}
             inputMode="numeric"
           />
           <Button
             onClick={handleUpdate}
             disabled={!isValidQuantity || isLoading}
-            className="px-2 rounded-l-none h-9 text-sm focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation flex-shrink-0"
+            className="px-2 rounded-l-none popup-button-responsive-height text-font-size !text-primary-foreground focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation flex-shrink-0"
           >
             {isLoading ? (
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
@@ -115,7 +114,7 @@ export const EntityQuantityPopup: React.FC<EntityQuantityPopupProps> = ({
 
         {/* Validation hint */}
         {quantity && !isValidQuantity && (
-          <div className="text-xs text-red-600 px-1">
+          <div className="text-xs text-red-600 px-1 text-font-size">
             Please enter a positive integer
           </div>
         )}

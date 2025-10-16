@@ -84,7 +84,7 @@ export const GearLoading = ({
       <div className="flex flex-col items-start space-y-2">
         {/* Message with improved typography */}
         <div className="text-left">
-          <span className={`font-bold text-foreground tracking-wide ${config.message}`}>
+          <span className={`font-bold text-foreground tracking-wide text-font-size`}>
             {message}
           </span>
         </div>
@@ -95,11 +95,11 @@ export const GearLoading = ({
             variant="ghost"
             size="sm"
             onClick={onAbort}
-            className={`${config.cancelBtn} text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-all duration-200 border border-muted-foreground/20 hover:border-destructive/30`}
+            className={`!text-font-size text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-all duration-200 border border-muted-foreground/20 hover:border-destructive/30 button-responsive-size`}
             title="Cancel generation"
             aria-label="Cancel generation"
           >
-            <X className={`${config.icon} mr-2`} />
+            <X className={`icon-font-size mr-2`} />
             Cancel
           </Button>
         )}

@@ -167,20 +167,36 @@ export const SyntaxEditor: React.FC<SyntaxEditorProps> = ({
   
   // Calculate responsive font size based on container width
   const getResponsiveFontSize = () => {
-    const container = document.querySelector('.dsl-editor-container');
-    if (!container) return 18;
-    
-    const width = container.clientWidth;
-    if (width >= 1200) return 24;
-    if (width >= 1100) return 23;
-    if (width >= 1000) return 22;
-    if (width >= 900) return 21;
-    if (width >= 800) return 20;
-    if (width >= 700) return 19;
-    if (width >= 600) return 18;
-    if (width >= 500) return 17;
-    if (width >= 400) return 16;
-    if (width >= 300) return 15;
+    // Use viewport width directly for ultra-wide scaling
+    const width = typeof window !== 'undefined' ? window.innerWidth : 0;
+
+    // Scaled down tiers for ultra-wide screens (more modest sizing)
+    if (width >= 6000) return 72;
+    if (width >= 5200) return 66;
+    if (width >= 4200) return 58;
+    if (width >= 3800) return 52;
+    if (width >= 3400) return 46;
+    if (width >= 3000) return 42;
+    if (width >= 2600) return 36;
+    if (width >= 2400) return 34;
+    if (width >= 2200) return 32;
+
+    // Regular high-res tiers
+    if (width >= 2100) return 30;  // large 3.5xl
+    if (width >= 1920) return 28;  // 4xl breakpoint
+    if (width >= 1700) return 26;  // big 3xl
+    if (width >= 1600) return 25;  // 3xl breakpoint
+    if (width >= 1400) return 16;
+    if (width >= 1200) return 14;
+    if (width >= 1100) return 13;
+    if (width >= 1000) return 12;
+    if (width >= 900) return 11;
+    if (width >= 800) return 10;
+    if (width >= 700) return 9;
+    if (width >= 600) return 8;
+    if (width >= 500) return 7;
+    if (width >= 400) return 6.5;
+    if (width >= 300) return 6.2;
     return 14;
   };
 

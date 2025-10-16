@@ -75,16 +75,17 @@ export const DownloadButton = ({
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          size="sm"
-          className="h-8 w-8 p-0"
+          className="p-0 h-auto w-auto"
+          size="content"
           disabled={isDisabled}
           onClick={(e) => e.stopPropagation()}
+          aria-label="Download"
         >
-          <Download className="w-4 h-4" />
+          <Download className="smaller-icon-font-size" aria-hidden="true" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-fit min-w-0">
-        <DropdownMenuLabel className="px-2 py-1.5 text-sm text-muted-foreground cursor-default select-none">
+      <DropdownMenuContent align="end" className="w-fit min-w-0 px-1 py-1 md:px-2 md:py-2 lg:px-3 lg:py-3">
+        <DropdownMenuLabel className="px-2 py-1.5 !text-font-size text-muted-foreground cursor-default select-none">
           Download
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
@@ -92,12 +93,10 @@ export const DownloadButton = ({
           <DropdownMenuItem
             key={option.format}
             onClick={(e) => handleDownload(option.format, e)}
-            className="cursor-pointer"
+            className="cursor-pointer text-font-size flex items-center gap-1"
             disabled={isDisabled}
           >
-            <span className="mr-2">
-              <option.icon className="w-4 h-4" />
-            </span>
+            <option.icon className="smaller-icon-font-size flex-shrink-0" aria-hidden="true" />
             {option.label}
           </DropdownMenuItem>
         ))}

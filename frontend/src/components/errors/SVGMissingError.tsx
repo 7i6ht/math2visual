@@ -118,7 +118,7 @@ export const SVGMissingError = ({
               <Button
                 onClick={openFileDialog}
                 disabled={uploadLoading}
-                className="min-w-[150px]"
+                className="min-w-[150px] !text-font-size"
               >
                 {getButtonIcon()}
                 {getButtonText()}
@@ -129,7 +129,7 @@ export const SVGMissingError = ({
                   onClick={() => onGenerate(undefined)}
                   disabled={uploadLoading}
                   variant="outline"
-                  className="min-w-[120px]"
+                  className="min-w-[120px] !text-font-size"
                 >
                   Generate
                 </Button>
@@ -156,7 +156,7 @@ export const SVGMissingError = ({
                   key={p.key}
                   type="button"
                   onClick={() => window.open(p.url(missingSvgName))}
-                  className="inline-flex items-center gap-1.5 text-xs text-muted-foreground/70 hover:text-muted-foreground transition-colors underline-offset-4 hover:underline"
+                  className="inline-flex items-center gap-1.5 text-xs text-muted-foreground/70 hover:text-muted-foreground transition-colors underline-offset-4 hover:underline !text-font-size"
                 >
                   <ExternalLink className="w-3 h-3" />
                   {p.label}

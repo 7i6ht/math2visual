@@ -18,7 +18,7 @@ interface AdjustedPosition {
 export const BasePopup: React.FC<BasePopupProps> = ({
   onClose,
   children,
-  className = "min-w-[200px] max-w-[95vw] max-h-[90vh] w-[min(95vw,320px)] sm:w-[min(90vw,280px)]",
+  className = "popup-responsive-width max-h-[90vh]",
   onKeyDown,
   
 }) => {

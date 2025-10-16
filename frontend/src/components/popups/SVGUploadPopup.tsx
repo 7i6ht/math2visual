@@ -117,17 +117,17 @@ export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
   const isValidSelection = uploadFile && filename.trim() && !validationError;
 
   return (
-    <BasePopup onClose={onClose} onKeyDown={handlePopupKeyDown} className="min-w-[180px] max-w-[80vw] max-h-[90vh] w-[min(80vw,240px)] sm:w-[min(70vw,220px)]">
+    <BasePopup onClose={onClose} onKeyDown={handlePopupKeyDown} className="popup-upload-width max-h-[90vh]">
       {/* Upload Form */}
       <div className="flex gap-0 group focus-within:ring-[3px] focus-within:ring-ring/50 focus-within:ring-offset-0 focus-within:border-ring rounded-md transition-all duration-200 border border-ring ring-[3px] ring-ring/50 ring-offset-0">
         <div className="relative flex-1">
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="absolute left-1.5 sm:left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 rounded transition-colors duration-200 flex items-center justify-center"
+            className="absolute left-1.5 sm:left-2 md:left-2 lg:left-2.5 xl:left-3 2xl:left-3.5 3xl:left-4 4xl:left-4.5 5xl:left-3.5 6xl:left-4 7xl:left-4.5 top-1/2 transform -translate-y-1/2 smaller-icon-font-size text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 rounded transition-colors duration-200 flex items-center justify-center"
             title="Choose SVG file"
             disabled={isUploading}
           >
-            <Upload className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+            <Upload className="smaller-icon-font-size" />
           </button>
           <Input
             ref={filenameInputRef}
@@ -135,14 +135,14 @@ export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
             onChange={(e) => setFilename(e.target.value)}
             placeholder="Enter name..."
             spellCheck={false}
-            className="pl-8 sm:pl-10 rounded-r-none border-r-0 h-9 text-sm focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation"
+            className="pl-8 sm:pl-9 md:pl-10 lg:pl-11 xl:pl-12 2xl:pl-14 3xl:pl-15 4xl:pl-16 5xl:pl-20 6xl:pl-22 7xl:pl-24 rounded-r-none border-r-0 popup-button-responsive-height text-font-size focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation"
             disabled={isUploading}
           />
         </div>
         <div className="flex items-center">
           {uploadFile && (
             <button
-              className="h-9 w-9 text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 transition-colors duration-200 flex items-center justify-center touch-manipulation"
+              className="popup-button-responsive-height w-9 text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 transition-colors duration-200 flex items-center justify-center touch-manipulation"
               title={`View ${uploadFile.name} in new tab`}
               onClick={() => {
                 const url = URL.createObjectURL(uploadFile);
@@ -152,18 +152,18 @@ export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
               }}
               disabled={isUploading}
             >
-              <Image className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <Image className="smaller-icon-font-size" />
             </button>
           )}
           <Button
             onClick={handleUpload}
             disabled={!isValidSelection || isUploading}
-            className="px-2 sm:px-3 rounded-l-none h-9 text-sm focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation flex-shrink-0"
+            className="px-2 sm:px-3 rounded-l-none popup-button-responsive-height text-font-size !text-primary-foreground focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation flex-shrink-0"
           >
             {isUploading ? (
-              <div className="animate-spin rounded-full h-3.5 w-3.5 sm:h-4 sm:w-4 border-b-2 border-white" />
+              <div className="animate-spin rounded-full smaller-icon-font-size border-b-2 border-white" />
             ) : (
-              <ArrowRight className="h-4 w-4" />
+              <ArrowRight className="smaller-icon-font-size" />
             )}
           </Button>
         </div>
@@ -180,23 +180,23 @@ export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
 
       {/* Validation error message (real-time) */}
       {validationError && (
-        <div className="flex items-center gap-2 text-red-600 text-sm mt-1">
-          <AlertCircle className="h-4 w-4" />
+        <div className="flex items-center gap-2 text-red-600 text-font-size mt-1">
+          <AlertCircle className="smaller-icon-font-size" />
           {validationError}
         </div>
       )}
 
       {/* Error message */}
       {error && (
-        <div className="flex items-center gap-2 text-red-600 text-sm mt-1">
-          <AlertCircle className="h-4 w-4" />
+        <div className="flex items-center gap-2 text-red-600 text-font-size mt-1">
+          <AlertCircle className="smaller-icon-font-size" />
           {error}
         </div>
       )}
 
       {/* Upload status */}
       {isUploading && (
-        <div className="text-sm text-blue-600 mt-1">Uploading...</div>
+        <div className="text-font-size text-blue-600 mt-1">Uploading...</div>
       )}
     </BasePopup>
   );
