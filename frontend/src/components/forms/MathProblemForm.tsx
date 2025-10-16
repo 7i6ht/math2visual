@@ -61,7 +61,7 @@ export const MathProblemForm = ({
 
   return (
     <Form {...form}>
-      <form onSubmit={handleSubmit} className="space-y-6" onClick={handleFormClick}>
+      <form onSubmit={handleSubmit} className="space-y-4 xl:space-y-5 2xl:space-y-6 3xl:space-y-7 4xl:space-y-8 5xl:space-y-9 6xl:space-y-10 7xl:space-y-11" onClick={handleFormClick}>
         <FormField
           control={form.control}
           name="mwp"
