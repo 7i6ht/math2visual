@@ -96,7 +96,7 @@ export function TwoColumnView({ appState }: Props) {
 
   return (
     <div className="w-full px-1 py-4 sm:px-2 lg:px-4 xl:px-6 2xl:px-8 3xl:px-8 4xl:px-8">
-      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] 3xl:grid-cols-[minmax(0,1fr)_minmax(0,1.8fr)] gap-6 xl:gap-8 2xl:gap-12 3xl:gap-16 min-h-[calc(100vh-2rem)] items-start [@media(min-height:1200px)_and_(max-width:1600px)]:grid-cols-1 [@media(min-height:1400px)_and_(max-width:1800px)]:grid-cols-1">
+      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] 3xl:grid-cols-[minmax(0,1fr)_minmax(0,1.8fr)] gap-4 xl:gap-6 2xl:gap-8 3xl:gap-10 min-h-[calc(100vh-2rem)] items-start [@media(min-height:1200px)_and_(max-width:1600px)]:grid-cols-1 [@media(min-height:1400px)_and_(max-width:1800px)]:grid-cols-1">
         <div className="flex flex-col space-y-6 xl:space-y-8 xl:sticky xl:top-6 xl:max-h-[calc(100vh-3rem)] xl:overflow-visible xl:z-10 xl:pr-2">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 xl:gap-8 flex-1 min-h-0 height-responsive-grid items-stretch [@media(min-height:1200px)_and_(max-width:1600px)]:grid-cols-1 [@media(min-height:1400px)_and_(max-width:1800px)]:grid-cols-1">
             <div className="space-y-4 flex flex-col">
@@ -126,10 +126,8 @@ export function TwoColumnView({ appState }: Props) {
                 {mpFormLoading && (
                   <div className="animate-in fade-in-0 duration-300">
                     <GearLoading
-                      message={"Generating..."}
                       onAbort={handleAbort}
                       showAbortButton={true}
-                      size="small"
                     />
                   </div>
                 )}
