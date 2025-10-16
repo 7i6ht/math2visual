@@ -61,7 +61,7 @@ export const VisualLanguageForm = ({
 
   return (
     <div className="flex flex-col h-full visual-language-form">
-      <h2 className="text-base md:text-lg lg:text-xl xl:text-2xl 2xl:text-3xl 3xl:text-3xl 4xl:text-3xl font-bold mb-3 flex-shrink-0">Visual Language</h2>
+      <h2 className="text-base md:text-lg lg:text-xl xl:text-2xl 2xl:text-3xl 3xl:text-6xl 4xl:text-7xl 5xl:text-8xl font-bold mb-3 flex-shrink-0">Visual Language</h2>
       
       <Form {...form}>
         <div className={`flex flex-col flex-1 min-h-0 ${isDisabled ? 'pointer-events-none overflow-hidden' : ''}`}>

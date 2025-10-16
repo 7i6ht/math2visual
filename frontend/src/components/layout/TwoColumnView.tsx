@@ -102,8 +102,8 @@ export function TwoColumnView({ appState }: Props) {
             <div className="space-y-4 flex flex-col">
               <div className="text-center">
                 <div className="flex items-center justify-center gap-1">
-                  <ResponsiveLogo className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 xl:w-8 xl:h-8 2xl:w-9 2xl:h-9 3xl:w-10 3xl:h-10 4xl:w-10 4xl:h-10 5xl:w-10 5xl:h-10" />
-                  <h1 className="text-base md:text-lg lg:text-xl xl:text-2xl 2xl:text-3xl 3xl:text-3xl 4xl:text-3xl 5xl:text-3xl font-bold">Math2Visual</h1>
+                  <ResponsiveLogo className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 xl:w-8 xl:h-8 2xl:w-9 2xl:h-9 3xl:w-16 3xl:h-16 4xl:w-20 4xl:h-20 5xl:w-24 5xl:h-24" />
+                  <h1 className="text-base md:text-lg lg:text-xl xl:text-2xl 2xl:text-3xl 3xl:text-6xl 4xl:text-7xl 5xl:text-8xl font-bold">Math2Visual</h1>
                 </div>
               </div>
 
