@@ -28,7 +28,7 @@ export const GearLoading = ({
         </div>
         
         {/* Second gear - smaller, positioned to touch the first gear */}
-        <div className="absolute left-[1rem] sm:left-[1.25rem] md:left-[1.75rem] lg:left-[2.25rem] xl:left-[2.75rem] 2xl:left-[3.25rem] 3xl:left-[3.75rem] 4xl:left-[4.25rem] 5xl:left-[4.75rem] top-1/2 transform translate-y-[calc(-50%+1px)]">
+        <div className="absolute left-[1rem] sm:left-[1.25rem] md:left-[1.75rem] lg:left-[2.25rem] xl:left-[2.75rem] 2xl:left-[4rem] 3xl:left-[4.75rem] 4xl:left-[5.5rem] 5xl:left-[6.25rem] top-1/2 transform translate-y-[calc(-50%+1px)]">
           <svg
             className="gear-2 w-4 h-4 sm:w-6 sm:h-6 md:w-8 md:h-8 lg:w-10 lg:h-10 xl:w-12 xl:h-12 2xl:w-14 2xl:h-14 3xl:w-16 3xl:h-16 4xl:w-18 4xl:h-18 5xl:w-20 5xl:h-20 text-muted-foreground"
             viewBox="0 0 24 24"
