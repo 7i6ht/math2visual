@@ -165,7 +165,7 @@ export const useHighlighting = ({
     const quantityTextElements = svgRef.current?.querySelectorAll(`[data-dsl-path="${CSS.escape(dslPath)}"]`) as NodeListOf<SVGGraphicsElement>;
     
     // Apply visual highlighting based on quantity threshold
-    if (quantityTextElements.length === 0 && !Number.isNaN(quantityNum) && quantityNum <= MAX_ITEM_DISPLAY) {
+    if (quantityTextElements?.length === 0 && !Number.isNaN(quantityNum) && quantityNum <= MAX_ITEM_DISPLAY) {
       // Highlight all individual embedded SVGs for quantities below threshold
       const entityPath = dslPath.replace(/\/entity_quantity$/, '');
       const entityElements = svgRef.current?.querySelectorAll(`[data-dsl-path="${CSS.escape(entityPath)}"]`) as NodeListOf<SVGGraphicsElement>;
@@ -230,7 +230,7 @@ export const useHighlighting = ({
       const positions = findQuantityInText(formulaValue, quantity);
       setFormulaHighlightRanges(positions ?? []);
     }
-  }, [setSvgTransformOrigin, svgRef, mwpValue, onMWPRangeHighlight, onDSLRangeHighlight, formulaValue, setFormulaHighlightRanges]);
+  }, [mwpValue, onMWPRangeHighlight, onDSLRangeHighlight, formulaValue, setFormulaHighlightRanges]);
 
   /**
    * Trigger highlighting for operation components
@@ -420,7 +420,7 @@ export const useHighlighting = ({
       // Special case for entity containers (boxes)
       triggerBoxHighlight(mapping, dslPath, targetElement);
     }
-  }, [setFormulaHighlightRanges, triggerEntityQuantityHighlightText, triggerContainerNameHighlight, triggerAttrNameHighlight, triggerEmbeddedSvgHighlight, triggerContainerTypeHighlight, triggerAttrTypeHighlight, triggerBoxHighlight, triggerOperationHighlight, triggerResultContainerHighlight, clearHighlightingState, mappings]);
+  }, [triggerEntityQuantityHighlightText, triggerContainerNameHighlight, triggerAttrNameHighlight, triggerEmbeddedSvgHighlight, triggerContainerTypeHighlight, triggerAttrTypeHighlight, triggerBoxHighlight, triggerOperationHighlight, triggerResultContainerHighlight, mappings]);
 
   /**
    * Highlight the visual element corresponding to the current DSL path
@@ -450,7 +450,7 @@ export const useHighlighting = ({
         });
       }
     }
-  }, [currentDSLPath, currentTargetElement, removeElementHighlights, clearHighlightingState, highlightDSLPath, svgRef]);
+  }, [removeElementHighlights, currentDSLPath, currentTargetElement, clearHighlightingState, highlightDSLPath, triggerEntityQuantityHighlightAll, svgRef]);
 
 
   const returnValue = useMemo(() => ({
