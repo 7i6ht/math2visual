@@ -2,28 +2,24 @@ import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 
 interface GearLoadingProps {
-  message?: string;
   onAbort?: () => void;
   showAbortButton?: boolean;
-  size?: "small" | "default" | "large";
 }
 
 export const GearLoading = ({ 
-  message = "Generating ...", 
   onAbort,
-  showAbortButton = true,
-  size = "default"
+  showAbortButton = true
 }: GearLoadingProps) => {
 
   return (
     <div className="flex flex-col items-center justify-center p-2">
       {/* Gears positioned above the cancel button */}
-      <div className="relative flex items-center justify-center w-12 h-8 sm:w-16 sm:h-11 md:w-20 md:h-14 lg:w-24 lg:h-16 xl:w-28 xl:h-20 2xl:w-32 2xl:h-24 3xl:w-36 3xl:h-28 4xl:w-40 4xl:h-32 5xl:w-44 5xl:h-36 mb-2 sm:mb-3 md:mb-4 lg:mb-5 xl:mb-6 2xl:mb-7 3xl:mb-8 4xl:mb-9 5xl:mb-10">
+      <div className="relative flex items-center justify-center w-10 h-6 sm:w-12 sm:h-8 md:w-16 md:h-11 lg:w-20 lg:h-14 xl:w-24 xl:h-16 2xl:w-28 2xl:h-20 3xl:w-32 3xl:h-24 4xl:w-36 4xl:h-28 5xl:w-40 5xl:h-32 mb-1 sm:mb-2 md:mb-3 lg:mb-4 xl:mb-5 2xl:mb-6 3xl:mb-7 4xl:mb-8 5xl:mb-9">
         
         {/* First gear - larger */}
         <div className="absolute left-0 top-1/2 transform -translate-y-1/2">
           <svg
-            className="gear-1 w-8 h-8 sm:w-11 sm:h-11 md:w-14 md:h-14 lg:w-16 lg:h-16 xl:w-20 xl:h-20 2xl:w-24 2xl:h-24 3xl:w-28 3xl:h-28 4xl:w-32 4xl:h-32 5xl:w-36 5xl:h-36 text-primary"
+            className="gear-1 w-6 h-6 sm:w-8 sm:h-8 md:w-11 md:h-11 lg:w-14 lg:h-14 xl:w-16 xl:h-16 2xl:w-20 2xl:h-20 3xl:w-24 3xl:h-24 4xl:w-28 4xl:h-28 5xl:w-32 5xl:h-32 text-primary"
             viewBox="0 0 24 24"
             fill="currentColor"
           >
@@ -32,9 +28,9 @@ export const GearLoading = ({
         </div>
         
         {/* Second gear - smaller, positioned to touch the first gear */}
-        <div className="absolute left-[1.5rem] sm:left-[2rem] md:left-[2.5rem] lg:left-[3rem] xl:left-[3.5rem] 2xl:left-[4rem] 3xl:left-[4.5rem] 4xl:left-[5rem] 5xl:left-[5.5rem] top-1/2 transform translate-y-[calc(-50%+1px)]">
+        <div className="absolute left-[1rem] sm:left-[1.25rem] md:left-[1.75rem] lg:left-[2.25rem] xl:left-[2.75rem] 2xl:left-[3.25rem] 3xl:left-[3.75rem] 4xl:left-[4.25rem] 5xl:left-[4.75rem] top-1/2 transform translate-y-[calc(-50%+1px)]">
           <svg
-            className="gear-2 w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-14 xl:h-14 2xl:w-16 2xl:h-16 3xl:w-18 3xl:h-18 4xl:w-20 4xl:h-20 5xl:w-22 5xl:h-22 text-muted-foreground"
+            className="gear-2 w-4 h-4 sm:w-6 sm:h-6 md:w-8 md:h-8 lg:w-10 lg:h-10 xl:w-12 xl:h-12 2xl:w-14 2xl:h-14 3xl:w-16 3xl:h-16 4xl:w-18 4xl:h-18 5xl:w-20 5xl:h-20 text-muted-foreground"
             viewBox="0 0 24 24"
             fill="currentColor"
           >
@@ -49,11 +45,11 @@ export const GearLoading = ({
           variant="ghost"
           size="sm"
           onClick={onAbort}
-          className="text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl 2xl:text-2xl 3xl:text-3xl 4xl:text-4xl 5xl:text-5xl text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-all duration-200 border border-muted-foreground/20 hover:border-destructive/30 h-6 sm:h-8 md:h-9 lg:h-10 xl:h-12 2xl:h-14 3xl:h-16 4xl:h-18 5xl:h-20 px-2 sm:px-3 md:px-4 lg:px-5 xl:px-6 2xl:px-8 3xl:px-10 4xl:px-12 5xl:px-14"
+          className="text-xs sm:text-sm md:text-sm lg:text-base xl:text-lg 2xl:text-xl 3xl:text-2xl 4xl:text-3xl 5xl:text-4xl text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-all duration-200 border border-muted-foreground/20 hover:border-destructive/30 h-6 sm:h-7 md:h-8 lg:h-9 xl:h-10 2xl:h-12 3xl:h-14 4xl:h-16 5xl:h-18 px-2 sm:px-2 md:px-3 lg:px-4 xl:px-5 2xl:px-6 3xl:px-8 4xl:px-10 5xl:px-12"
           title="Cancel generation"
           aria-label="Cancel generation"
         >
-          <X className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 xl:w-7 xl:h-7 2xl:w-8 2xl:h-8 3xl:w-9 3xl:h-9 4xl:w-10 4xl:h-10 5xl:w-11 5xl:h-11 mr-1 sm:mr-2" />
+          <X className="w-3 h-3 sm:w-3 sm:h-3 md:w-4 md:h-4 lg:w-4 lg:h-4 xl:w-5 xl:h-5 2xl:w-6 2xl:h-6 3xl:w-7 3xl:h-7 4xl:w-8 4xl:h-8 5xl:w-9 5xl:h-9 mr-1 sm:mr-1" />
           Cancel
         </Button>
       )}
