@@ -300,16 +300,16 @@ h1 {
   .sonner-toast .toast-title,
   [data-sonner-toast] .toast-title {
     font-weight: 600;
-    font-size: 0.875rem; /* 14px */
-    line-height: 1.25rem;
+    font-size: 1.125rem; /* 18px on mobile */
+    line-height: 1.75rem;
   }
   @media (min-width: 768px) {
     .sonner-toast .sonner-title,
     [data-sonner-toast] .sonner-title,
     .sonner-toast .toast-title,
     [data-sonner-toast] .toast-title {
-      font-size: 1rem; /* 16px */
-      line-height: 1.5rem;
+      font-size: 1.125rem; /* 18px on tablets */
+      line-height: 1.75rem;
     }
   }
   @media (min-width: 1280px) {
@@ -326,16 +326,16 @@ h1 {
   [data-sonner-toast] .sonner-description,
   .sonner-toast .toast-description,
   [data-sonner-toast] .toast-description {
-    font-size: 0.75rem; /* 12px */
-    line-height: 1rem;
+    font-size: 1rem; /* 16px on mobile */
+    line-height: 1.5rem;
   }
   @media (min-width: 768px) {
     .sonner-toast .sonner-description,
     [data-sonner-toast] .sonner-description,
     .sonner-toast .toast-description,
     [data-sonner-toast] .toast-description {
-      font-size: 0.875rem; /* 14px */
-      line-height: 1.25rem;
+      font-size: 1rem; /* 16px on tablets */
+      line-height: 1.5rem;
     }
   }
   @media (min-width: 1280px) {
@@ -351,14 +351,14 @@ h1 {
   /* Icon size scales with viewport */
   .sonner-toast .sonner-icon,
   [data-sonner-toast] .sonner-icon {
-    width: 1rem;
-    height: 1rem;
+    width: 1.25rem; /* larger on mobile */
+    height: 1.25rem;
   }
   @media (min-width: 768px) {
     .sonner-toast .sonner-icon,
     [data-sonner-toast] .sonner-icon {
-      width: 1.25rem;
-      height: 1.25rem;
+      width: 1.375rem; /* bigger on tablets */
+      height: 1.375rem;
     }
   }
   @media (min-width: 1024px) {
@@ -374,10 +374,10 @@ h1 {
   [data-sonner-toast] .sonner-button,
   .sonner-toast button[aria-label="Close"],
   [data-sonner-toast] button[aria-label="Close"] {
-    height: 1.75rem;
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-    font-size: 0.75rem;
+    height: 2rem;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    font-size: 1rem; /* bigger on mobile */
   }
   @media (min-width: 768px) {
     .sonner-toast .sonner-button,
@@ -387,7 +387,7 @@ h1 {
       height: 2rem;
       padding-left: 0.75rem;
       padding-right: 0.75rem;
-      font-size: 0.875rem;
+      font-size: 1rem; /* 16px on tablets */
     }
   }
   @media (min-width: 1280px) {
@@ -407,14 +407,14 @@ h1 {
 /* stylelint-disable-next-line at-rule-no-unknown */
 @layer utilities {
   .text-font-size {
-    @apply !text-xs md:!text-sm lg:!text-base xl:!text-lg 2xl:!text-xl 3xl:!text-2xl 4xl:!text-3xl 5xl:!text-4xl 6xl:!text-5xl 7xl:!text-6xl;
+    @apply !text-base md:!text-lg lg:!text-base xl:!text-lg 2xl:!text-xl 3xl:!text-2xl 4xl:!text-3xl 5xl:!text-4xl 6xl:!text-5xl 7xl:!text-6xl;
   }
   .icon-font-size {
-    @apply !size-5 md:!size-6 lg:!size-7 xl:!size-8 2xl:!size-9 3xl:!size-10 4xl:!size-12 5xl:!size-14 6xl:!size-16 7xl:!size-20;
+    @apply !size-7 md:!size-8 lg:!size-7 xl:!size-8 2xl:!size-9 3xl:!size-10 4xl:!size-12 5xl:!size-14 6xl:!size-16 7xl:!size-20;
   }
 
   .smaller-icon-font-size {
-    @apply !size-3 md:!size-4 lg:!size-5 xl:!size-6 2xl:!size-7 3xl:!size-8 4xl:!size-9 5xl:!size-10 6xl:!size-12 7xl:!size-14;
+    @apply !size-5 md:!size-6 lg:!size-5 xl:!size-6 2xl:!size-7 3xl:!size-8 4xl:!size-9 5xl:!size-10 6xl:!size-12 7xl:!size-14;
   }
   
   .button-responsive-size {

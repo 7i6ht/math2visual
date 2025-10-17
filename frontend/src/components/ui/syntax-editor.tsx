@@ -187,17 +187,12 @@ export const SyntaxEditor: React.FC<SyntaxEditorProps> = ({
     if (width >= 1700) return 26;  // big 3xl
     if (width >= 1600) return 25;  // 3xl breakpoint
     if (width >= 1400) return 16;
-    if (width >= 1200) return 14;
-    if (width >= 1100) return 13;
-    if (width >= 1000) return 12;
-    if (width >= 900) return 11;
-    if (width >= 800) return 10;
-    if (width >= 700) return 9;
-    if (width >= 600) return 8;
-    if (width >= 500) return 7;
-    if (width >= 400) return 6.5;
-    if (width >= 300) return 6.2;
-    return 14;
+    if (width >= 1200) return 15;
+    if (width >= 1024) return 14;  // laptops
+    // Tablet and mobile — increased sizes for readability
+    if (width >= 768) return 16;   // tablets
+    if (width >= 480) return 14;   // larger phones
+    return 13;                     // small phones
   };
 
   // Calculate dynamic height based on content
