@@ -44,7 +44,7 @@ export const BasePopup: React.FC<BasePopupProps> = ({
     };
   });
 
-  // Calculate viewport-aware position
+  // Calculate viewport-aware position to prevent popup cutoff
   useEffect(() => {
     const calculatePosition = () => {
       if (!popupRef.current) {
@@ -52,22 +52,60 @@ export const BasePopup: React.FC<BasePopupProps> = ({
       }
       
       try {
+        const popupRect = popupRef.current.getBoundingClientRect();
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        const margin = 16; // Minimum margin from viewport edges
         
-        let x = window.innerWidth / 2;
-        let y = window.innerHeight / 2;
+        let x = viewportWidth / 2;
+        let y = viewportHeight / 2;
+        let transform = 'translate(-50%, -50%)';
         
         // Use target element's current position instead of click position
         if (currentTargetElement) {
           const targetRect = currentTargetElement.getBoundingClientRect();
-          // Use center of target element - stay exactly over it regardless of viewport
-          x = targetRect.left + targetRect.width / 2;
-          y = targetRect.top + targetRect.height / 2;
+          const targetCenterX = targetRect.left + targetRect.width / 2;
+          const targetCenterY = targetRect.top + targetRect.height / 2;
+          
+          // Calculate popup dimensions (estimate if not yet rendered)
+          const popupWidth = popupRect.width || 320; // fallback width based on typical popup sizes
+          const popupHeight = popupRect.height || 150; // fallback height based on typical popup sizes
+          
+          // Calculate ideal position (centered on target)
+          let idealX = targetCenterX;
+          let idealY = targetCenterY;
+          
+          // Adjust X position to stay within viewport bounds
+          if (idealX - popupWidth / 2 < margin) {
+            // Too far left, align to left edge with margin
+            x = margin + popupWidth / 2;
+            transform = 'translate(-50%, -50%)';
+          } else if (idealX + popupWidth / 2 > viewportWidth - margin) {
+            // Too far right, align to right edge with margin
+            x = viewportWidth - margin - popupWidth / 2;
+            transform = 'translate(-50%, -50%)';
+          } else {
+            // Center on target
+            x = idealX;
+          }
+          
+          // Adjust Y position to stay within viewport bounds
+          if (idealY - popupHeight / 2 < margin) {
+            // Too far up, align to top edge with margin
+            y = margin + popupHeight / 2;
+          } else if (idealY + popupHeight / 2 > viewportHeight - margin) {
+            // Too far down, align to bottom edge with margin
+            y = viewportHeight - margin - popupHeight / 2;
+          } else {
+            // Center on target
+            y = idealY;
+          }
         } else {
           // This should never happen when a popup is open - log for debugging
           console.warn('BasePopup: No target element available for positioning, centering popup');
         }
         
-        setAdjustedPosition({ x, y, transform: 'translate(-50%, -50%)' });
+        setAdjustedPosition({ x, y, transform });
       } catch (error) {
         console.error('Error calculating popup position:', error);
       }
