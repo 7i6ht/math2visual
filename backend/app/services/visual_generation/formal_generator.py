@@ -798,7 +798,7 @@ class FormalVisualGenerator:
                     
                     # 2. Try using singular and plural forms using inflect
                     if not found_path:
-                        self.missing_svg_entities.append(base_name)
+                        self._missing_svg_entities.append(base_name)
                         singular_form = self.p.singular_noun(base_name) or base_name
                         plural_form = self.p.plural_noun(base_name) or base_name
                         for mod_name in (plural_form, singular_form):
