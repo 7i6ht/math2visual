@@ -39,7 +39,6 @@ export const VisualizationResults = ({
   isDisabled = false,
   onShowHint,
 }: VisualizationResultsProps) => {
-
   const [openAccordionItems, setOpenAccordionItems] = useState<string[]>([]);
 
   // Suppress generic missing-SVG errors in the accordion; these are shown
@@ -75,7 +74,7 @@ export const VisualizationResults = ({
 
   return (
     <div className="h-full w-full">
-      <h2 className="text-lg md:text-xl lg:text-2xl xl:text-3xl 2xl:text-4xl 3xl:text-6xl 4xl:text-7xl 5xl:text-8xl font-bold mb-4 text-center">Visuals</h2>
+      <h2 className="responsive-title-simple font-bold mb-4 text-center">Visuals</h2>
       
       <Accordion 
         type="multiple" 

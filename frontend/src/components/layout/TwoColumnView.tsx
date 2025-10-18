@@ -126,7 +126,7 @@ export function TwoColumnView({ appState }: Props) {
               <div className="text-center">
                 <div className="flex items-center justify-center gap-1">
                   <ResponsiveLogo className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 lg:w-9 lg:h-9 xl:w-10 xl:h-10 2xl:w-12 2xl:h-12 3xl:w-16 3xl:h-16 4xl:w-20 4xl:h-20 5xl:w-24 5xl:h-24" />
-                  <h1 className="text-lg md:text-xl lg:text-2xl xl:text-3xl 2xl:text-4xl 3xl:text-6xl 4xl:text-7xl 5xl:text-8xl font-bold">Math2Visual</h1>
+                  <h1 className="responsive-title-simple font-bold">Math2Visual</h1>
                 </div>
               </div>
 

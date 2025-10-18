@@ -1,0 +1,53 @@
+/* Height-aware responsive text sizing using pure CSS */
+
+/* Simplified version using viewport units and aspect ratio detection */
+.responsive-title-simple {
+  /* Base sizing that considers both width and height */
+  /* Use !important to override any conflicting Tailwind classes */
+  font-size: clamp(
+    1rem, /* 16px minimum */
+    calc(1.5vw + 1vh), /* Combines width and height scaling */
+    4rem /* 64px maximum */
+  );
+}
+
+/* Additional specificity to ensure override */
+h1.responsive-title-simple,
+h2.responsive-title-simple,
+h3.responsive-title-simple {
+  font-size: clamp(
+    1rem, /* 16px minimum */
+    calc(1.5vw + 1vh), /* Combines width and height scaling */
+    4rem /* 64px maximum */
+  ) !important;
+}
+
+/* For very wide but short screens (aspect ratio > 2.5), cap the size more aggressively */
+@media (min-aspect-ratio: 2.5/1) {
+  .responsive-title-simple,
+  h1.responsive-title-simple,
+  h2.responsive-title-simple,
+  h3.responsive-title-simple {
+    /* For very wide screens, reduce the maximum size significantly */
+    font-size: clamp(
+      1rem,
+      calc(1vw + 1vh), /* Less weight on width scaling */
+      2.5rem /* Much lower maximum for short screens */
+    );
+  }
+}
+
+/* Additional refinement for extremely wide screens */
+@media (min-aspect-ratio: 3/1) {
+  .responsive-title-simple,
+  h1.responsive-title-simple,
+  h2.responsive-title-simple,
+  h3.responsive-title-simple {
+    /* For extremely wide screens, be even more conservative */
+    font-size: clamp(
+      1rem,
+      calc(0.8vw + 1vh),
+      2rem /* Even lower maximum */
+    );
+  }
+}
