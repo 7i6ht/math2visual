@@ -34,7 +34,7 @@ export function InitialView({ appState }: Props) {
           </p>
         </div>
 
-        <div className="w-full max-w-sm sm:max-w-xl md:max-w-2xl lg:max-w-3xl xl:max-w-4xl 2xl:max-w-5xl 3xl:max-w-6xl 4xl:max-w-7xl 5xl:max-w-8xl mt-3 sm:mt-4 md:mt-5 lg:mt-6 xl:mt-8 2xl:mt-10 3xl:mt-12 mb-3 sm:mb-4 md:mb-5 lg:mb-6 xl:mb-8 2xl:mb-10 3xl:mb-12 px-2 sm:px-0">
+        <div className="w-full max-w-sm sm:max-w-xl md:max-w-2xl lg:max-w-3xl xl:max-w-4xl 2xl:max-w-5xl 3xl:max-w-6xl 4xl:max-w-7xl 5xl:max-w-8xl mt-3 sm:mt-4 md:mt-5 lg:mt-6 xl:mt-8 2xl:mt-10 3xl:mt-12 px-2 sm:px-0">
           <MathProblemForm
             onSuccess={setResults}
             onLoadingChange={(loading, abortFn) => {
