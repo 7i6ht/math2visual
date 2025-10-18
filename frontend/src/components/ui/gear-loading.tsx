@@ -12,9 +12,12 @@ export const GearLoading = ({
 }: GearLoadingProps) => {
 
   return (
-    <div className="flex flex-col items-center justify-center p-2">
-      {/* Gears positioned above the cancel button */}
-      <div className="relative flex items-center justify-center w-10 h-6 sm:w-12 sm:h-8 md:w-16 md:h-11 lg:w-20 lg:h-14 xl:w-24 xl:h-16 2xl:w-28 2xl:h-20 3xl:w-32 3xl:h-24 4xl:w-36 4xl:h-28 5xl:w-40 5xl:h-32 mb-1 sm:mb-2 md:mb-3 lg:mb-4 xl:mb-5 2xl:mb-6 3xl:mb-7 4xl:mb-8 5xl:mb-9">
+    <div className="flex items-center justify-center p-2">
+      {/* Gears and cancel button positioned horizontally */}
+      <div className="flex items-center gap-2 sm:gap-3 md:gap-4 lg:gap-5 xl:gap-6 2xl:gap-8 3xl:gap-10 4xl:gap-12 5xl:gap-14">
+        
+        {/* Gears container */}
+        <div className="relative flex items-center justify-center w-10 h-6 sm:w-12 sm:h-8 md:w-16 md:h-11 lg:w-20 lg:h-14 xl:w-24 xl:h-16 2xl:w-28 2xl:h-20 3xl:w-32 3xl:h-24 4xl:w-36 4xl:h-28 5xl:w-40 5xl:h-32">
         
         {/* First gear - larger */}
         <div className="absolute left-0 top-1/2 transform -translate-y-1/2">
@@ -37,10 +40,10 @@ export const GearLoading = ({
             <path d="M12 15.5A3.5 3.5 0 0 1 8.5 12A3.5 3.5 0 0 1 12 8.5a3.5 3.5 0 0 1 3.5 3.5a3.5 3.5 0 0 1-3.5 3.5m7.43-2.53c.04-.32.07-.64.07-.97c0-.33-.03-.66-.07-1l2.11-1.63c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.31-.61-.22l-2.49 1c-.52-.39-1.06-.73-1.69-.98l-.37-2.65A.506.506 0 0 0 14 2h-4c-.25 0-.46.18-.5.42l-.37 2.65c-.63.25-1.17.59-1.69.98l-2.49-1c-.22-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64L4.57 11c-.04.34-.07.67-.07 1c0 .33.03.65.07.97l-2.11 1.66c-.19.15-.25.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1.01c.52.4 1.06.74 1.69.99l.37 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.37-2.65c.63-.26 1.17-.59 1.69-.99l2.49 1.01c.22.08.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.66Z"/>
           </svg>
         </div>
-      </div>
-      
-      {/* Cancel button positioned below the gears */}
-      {showAbortButton && onAbort && (
+        </div>
+        
+        {/* Cancel button positioned next to the gears */}
+        {showAbortButton && onAbort && (
         <Button
           variant="ghost"
           size="sm"
@@ -49,10 +52,11 @@ export const GearLoading = ({
           title="Cancel generation"
           aria-label="Cancel generation"
         >
-          <X className="w-3 h-3 sm:w-3 sm:h-3 md:w-4 md:h-4 lg:w-4 lg:h-4 xl:w-5 xl:h-5 2xl:w-6 2xl:h-6 3xl:w-7 3xl:h-7 4xl:w-8 4xl:h-8 5xl:w-9 5xl:h-9 mr-1 sm:mr-1" />
+          <X className="smaller-icon-font-size"/>
           Cancel
         </Button>
-      )}
+        )}
+      </div>
     </div>
   );
 };
