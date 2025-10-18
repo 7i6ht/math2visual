@@ -56,6 +56,29 @@ export const HighlightableTextarea = React.forwardRef<
     };
   }, []);
 
+  // Sync scroll position between textarea and highlight layer
+  useEffect(() => {
+    if (!textareaRef.current || !highlightLayerRef.current) return;
+
+    const textarea = textareaRef.current;
+    const highlightLayer = highlightLayerRef.current;
+
+    const syncScroll = () => {
+      highlightLayer.scrollTop = textarea.scrollTop;
+      highlightLayer.scrollLeft = textarea.scrollLeft;
+    };
+
+    // Initial sync
+    syncScroll();
+
+    // Add scroll event listener
+    textarea.addEventListener('scroll', syncScroll);
+
+    return () => {
+      textarea.removeEventListener('scroll', syncScroll);
+    };
+  }, []);
+
   // Auto-scroll to highlighted ranges when they change
   useEffect(() => {
     if (textareaRef.current && highlightRanges.length > 0) {
@@ -143,7 +166,11 @@ export const HighlightableTextarea = React.forwardRef<
           color: 'transparent',
           resize: 'none',
           width: '100%',
-          height: '100%'
+          height: '100%',
+          // Enable scrolling to match textarea behavior
+          overflow: 'auto',
+          overflowX: 'hidden',
+          overflowY: 'auto'
         }}
         dangerouslySetInnerHTML={{
           __html: String(createHighlightedContent() || ''),
