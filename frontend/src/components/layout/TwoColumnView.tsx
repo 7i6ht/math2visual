@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ResponsiveLogo } from "@/components/ui/ResponsiveLogo";
 import { MathProblemForm } from "@/components/forms/MathProblemForm";
 import { VisualLanguageForm } from "@/components/forms/VisualLanguageForm";
@@ -40,6 +40,29 @@ export function TwoColumnView({ appState }: Props) {
 
   const { formattedDSL, parsedDSL } = useDSLContext();
   const hintInputRef = useRef<HTMLTextAreaElement | null>(null);
+
+  // Responsive rows for MathProblemForm based on screen size
+  const [responsiveRows, setResponsiveRows] = useState(8);
+
+  useEffect(() => {
+    const updateRows = () => {
+      const width = window.innerWidth;
+      if (width < 768) {
+        // Mobile phones: 4 rows
+        setResponsiveRows(10.5);
+      } else if (width < 1024) {
+        // Tablets: 6 rows
+        setResponsiveRows(8.5);
+      } else {
+        // Laptop and larger screens: 8 rows
+        setResponsiveRows(11.5);
+      }
+    };
+
+    updateRows();
+    window.addEventListener('resize', updateRows);
+    return () => window.removeEventListener('resize', updateRows);
+  }, []);
 
   const { handleVLResult } =
     useVisualizationHandlers({
@@ -118,7 +141,7 @@ export function TwoColumnView({ appState }: Props) {
                   formula={formula}
                   hint={hint}
                   saveInitialValues={appState.saveInitialValues}
-                  rows={8}
+                  rows={responsiveRows}
                   hideSubmit={false}
                   showHint={showHint}
                   hintInputRef={hintInputRef}
