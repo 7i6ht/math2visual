@@ -79,37 +79,6 @@ export const HighlightableTextarea = React.forwardRef<
     };
   }, []);
 
-  // Auto-scroll to highlighted ranges when they change
-  useEffect(() => {
-    if (textareaRef.current && highlightRanges.length > 0) {
-      const textarea = textareaRef.current;
-      const text = value || '';
-      
-      // Get the first highlight range
-      const [start] = highlightRanges[0];
-
-      if (typeof text === 'string' && start >= 0 && start < text.length) {
-        // Calculate which line the highlight starts on
-        const textBeforeHighlight = text.substring(0, start);
-        const lines = textBeforeHighlight.split('\n');
-        const lineNumber = lines.length - 1;
-        
-        // Calculate approximate line height
-        const computedStyle = window.getComputedStyle(textarea);
-        const lineHeight = parseFloat(computedStyle.lineHeight) || parseFloat(computedStyle.fontSize) * 1.2;
-        
-        // Calculate scroll position to center the highlighted line
-        const targetScrollTop = Math.max(0, lineNumber * lineHeight - textarea.clientHeight / 2);
-        
-        // Smooth scroll to the target position
-        textarea.scrollTo({
-          top: targetScrollTop,
-          behavior: 'smooth'
-        });
-      }
-    }
-  }, [highlightRanges, value]);
-
   // Create highlighted content
   const createHighlightedContent = () => {
     if (!value || typeof value !== 'string' || highlightRanges.length === 0) {
