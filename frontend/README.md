@@ -20,28 +20,28 @@ A modern, interactive React application that enables teachers to generate pedago
 
 ```
 src/
-├── api_services/
-│   ├── generation.ts        # Generation API
-│   └── svgDataset.ts        # SVG dataset management
+├── api_services/           # Backend API integration
+│   ├── generation.ts       # Generation API with request cancellation
+│   └── svgDataset.ts       # SVG dataset management and search
 ├── components/
-│   ├── errors/              # Error handling components
+│   ├── errors/             # Error handling and display components
 │   │   └── SVGMissingError.tsx
-│   ├── forms/               # Form components
+│   ├── forms/              # Form components with validation
 │   │   ├── MathProblemForm.tsx
 │   │   └── VisualLanguageForm.tsx
-│   ├── layout/              # Layout components
-│   │   ├── AppLayout.tsx
-│   │   ├── InitialView.tsx
-│   │   └── TwoColumnView.tsx
-│   ├── popups/              # Interactive popup components
-│   │   ├── BasePopup.tsx
-│   │   ├── EntityQuantityPopup.tsx
-│   │   ├── NamePopup.tsx
-│   │   ├── PopupManager.tsx
-│   │   ├── SVGActionMenu.tsx
-│   │   ├── SVGSearchPopup.tsx
-│   │   └── SVGUploadPopup.tsx
-│   ├── ui/                  # ShadCN UI components
+│   ├── layout/             # Application layout and views
+│   │   ├── AppLayout.tsx   # Main layout with state management
+│   │   ├── InitialView.tsx # Single-column initial interface
+│   │   └── TwoColumnView.tsx # Dual-pane editing interface
+│   ├── popups/             # Interactive popup components
+│   │   ├── BasePopup.tsx   # Base popup with common functionality
+│   │   ├── EntityQuantityPopup.tsx # Quantity editing popup
+│   │   ├── NamePopup.tsx   # Name editing popup
+│   │   ├── PopupManager.tsx # Centralized popup state management
+│   │   ├── SVGActionMenu.tsx # SVG selection and upload menu
+│   │   ├── SVGSearchPopup.tsx # SVG search and selection
+│   │   └── SVGUploadPopup.tsx # SVG upload interface
+│   ├── ui/                 # ShadCN UI components and custom UI
 │   │   ├── accordion.tsx
 │   │   ├── badge.tsx
 │   │   ├── button.tsx
@@ -49,58 +49,61 @@ src/
 │   │   ├── dropdown-menu.tsx
 │   │   ├── error-display.tsx
 │   │   ├── form.tsx
-│   │   ├── gear-loading.tsx
-│   │   ├── highlightable-input.tsx
-│   │   ├── highlightable-textarea.tsx
+│   │   ├── gear-loading.tsx # Custom loading animation
+│   │   ├── highlightable-input.tsx # Input with syntax highlighting
+│   │   ├── highlightable-textarea.tsx # Textarea with highlighting
 │   │   ├── input.tsx
 │   │   ├── label.tsx
-│   │   ├── ResponsiveLogo.tsx
-│   │   ├── sonner.tsx
-│   │   ├── syntax-editor.tsx
-│   │   ├── textarea.tsx
-│   │   └── ...
-│   └── visualization/       # Visualization display components
-│       ├── DownloadButton.tsx
-│       ├── MissingSVGSection.tsx
-│       ├── ParseErrorSection.tsx
-│       ├── VisualizationResults.tsx
-│       └── VisualizationSection.tsx
+│   │   ├── ResponsiveLogo.tsx # Responsive logo component
+│   │   ├── sonner.tsx      # Toast notification setup
+│   │   ├── syntax-editor.tsx # Monaco Editor integration
+│   │   ├── syntax-editor.css # Editor styling
+│   │   └── textarea.tsx
+│   └── visualization/      # Visualization display and interaction
+│       ├── DownloadButton.tsx # Multi-format download (SVG/PNG/PDF)
+│       ├── MissingSVGSection.tsx # Missing SVG entity handling
+│       ├── ParseErrorSection.tsx # DSL parsing error display
+│       ├── VisualizationResults.tsx # Results display container
+│       └── VisualizationSection.tsx # Main visualization component
 ├── config/
-│   └── api.ts              # API configuration
-├── contexts/               # React contexts
-│   ├── DSLContext.tsx
-│   └── HighlightingContext.tsx
+│   └── api.ts              # API configuration and endpoints
+├── contexts/               # React Context providers
+│   ├── DSLContext.tsx      # DSL state and operations
+│   └── HighlightingContext.tsx # Syntax highlighting state
 ├── hooks/                  # Custom React hooks
-│   ├── useAppState.ts
-│   ├── useElementInteractions.ts
-│   ├── useEntityQuantityPopup.ts
-│   ├── useHighlighting.ts
-│   ├── useLoadingStates.ts
-│   ├── useMathProblemForm.ts
-│   ├── useNamePopup.ts
-│   ├── usePopupManagement.ts
-│   ├── useSVGMissingError.tsx
-│   ├── useSVGResponsive.ts
-│   ├── useSVGSelector.ts
-│   ├── useVisualizationHandlers.ts
-│   └── useVisualLanguageForm.ts
+│   ├── __tests__/          # Hooks testing structure (in development)
+│   ├── useAppState.ts      # Global application state
+│   ├── useElementInteractions.ts # Element interaction handling
+│   ├── useEntityQuantityPopup.ts # Quantity popup state
+│   ├── useHighlighting.ts  # Syntax highlighting logic
+│   ├── useLoadingStates.ts # Loading state management
+│   ├── useMathProblemForm.ts # Math problem form logic
+│   ├── useNamePopup.ts     # Name popup state
+│   ├── usePopupManagement.ts # Popup coordination
+│   ├── useSVGMissingError.tsx # SVG error handling
+│   ├── useSVGResponsive.ts # SVG responsive behavior
+│   ├── useSVGSelector.ts   # SVG selection logic
+│   ├── useVisualizationHandlers.ts # Visualization event handlers
+│   └── useVisualLanguageForm.ts # Visual language form logic
 ├── lib/
 │   ├── dsl-utils.ts        # DSL utility functions
 │   └── utils.ts            # General utility functions
 ├── schemas/
 │   └── validation.ts       # Zod validation schemas
+├── styles/
+│   └── responsive-text.css # Responsive typography system
 ├── types/
 │   ├── index.ts            # TypeScript type definitions
-│   └── visualInteraction.ts
+│   └── visualInteraction.ts # Visual interaction types
 └── utils/
     ├── download.ts         # Download functionality
-    ├── dsl-cursor-mapping.ts
-    ├── dsl-formatter.ts
-    ├── dsl-parser.ts
-    ├── elementUtils.ts
-    ├── mwpUtils.ts
-    ├── numberUtils.ts
-    └── validation.ts
+    ├── dsl-cursor-mapping.ts # DSL cursor position mapping
+    ├── dsl-formatter.ts    # DSL formatting utilities
+    ├── dsl-parser.ts       # DSL parsing logic
+    ├── elementUtils.ts     # DOM element utilities
+    ├── mwpUtils.ts         # Math word problem utilities
+    ├── numberUtils.ts      # Number formatting and conversion
+    └── validation.ts       # Validation utilities
 ```
 
 ## 🚀 Getting Started
