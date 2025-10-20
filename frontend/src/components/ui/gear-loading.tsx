@@ -14,7 +14,7 @@ export const GearLoading = ({
   return (
     <div className="flex items-center justify-center p-2">
       {/* Gears and cancel button positioned horizontally */}
-      <div className="flex items-center gap-2 sm:gap-3 md:gap-4 lg:gap-5 xl:gap-6 2xl:gap-8 3xl:gap-10 4xl:gap-12 5xl:gap-14">
+      <div className="flex items-center gap-1 sm:gap-1 md:gap-2 lg:gap-2 xl:gap-3 2xl:gap-4 3xl:gap-5 4xl:gap-6 5xl:gap-7">
         
         {/* Gears container */}
         <div className="relative flex items-center justify-center w-10 h-6 sm:w-12 sm:h-8 md:w-16 md:h-11 lg:w-20 lg:h-14 xl:w-24 xl:h-16 2xl:w-28 2xl:h-20 3xl:w-32 3xl:h-24 4xl:w-36 4xl:h-28 5xl:w-40 5xl:h-32">
