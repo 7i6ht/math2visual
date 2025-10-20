@@ -406,19 +406,8 @@ h1 {
   }
 }
 
-/* Reusable responsive typography/icon scales matching math problem input */
 /* stylelint-disable-next-line at-rule-no-unknown */
 @layer utilities {
-  .text-font-size {
-    @apply !text-base md:!text-lg lg:!text-base xl:!text-lg 2xl:!text-xl 3xl:!text-2xl 4xl:!text-3xl 5xl:!text-4xl 6xl:!text-5xl 7xl:!text-6xl;
-  }
-  .icon-font-size {
-    @apply !size-7 md:!size-8 lg:!size-7 xl:!size-8 2xl:!size-9 3xl:!size-10 4xl:!size-12 5xl:!size-14 6xl:!size-16 7xl:!size-20;
-  }
-
-  .smaller-icon-font-size {
-    @apply !size-5 md:!size-6 lg:!size-5 xl:!size-6 2xl:!size-7 3xl:!size-8 4xl:!size-9 5xl:!size-10 6xl:!size-12 7xl:!size-14;
-  }
   
   .button-responsive-size {
     @apply !h-10 !px-6 md:!h-12 md:!px-8 lg:!h-14 lg:!px-10 xl:!h-16 xl:!px-12 2xl:!h-20 2xl:!px-16 3xl:!h-24 3xl:!px-20 4xl:!h-28 4xl:!px-24 5xl:!h-32 5xl:!px-28 6xl:!h-36 6xl:!px-32 7xl:!h-40 7xl:!px-36;
