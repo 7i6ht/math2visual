@@ -111,34 +111,121 @@ h1 {
   [data-dsl-path].highlighted-box {
     stroke: #3b82f6 !important;
     stroke-width: 3 !important;
-    filter: drop-shadow(0 4px 8px rgba(59, 130, 246, 0.3)) !important;
+    filter: drop-shadow(0 20px 40px rgba(59, 130, 246, 0.6)) !important;
   }
   
   [data-dsl-path].highlighted-text {
     fill: #3b82f6 !important;
     font-weight: bold !important;
-    filter: drop-shadow(0 2px 4px rgba(59, 130, 246, 0.3)) !important;
+    filter: drop-shadow(0 16px 32px rgba(59, 130, 246, 0.6)) !important;
   }
   
   [data-dsl-path].highlighted-svg {
     /* merged: drop-shadow from former highlighted-svg and scale from highlighted-operation */
-    filter: drop-shadow(0 20px 40px rgba(59, 130, 246, 0.6)) !important;
+    filter: drop-shadow(0 60px 120px rgba(59, 130, 246, 0.9)) !important;
     transform: scale(1.15) !important;
     /* transform-origin set by JavaScript for proper positioning */
     vector-effect: non-scaling-stroke !important;
+  }
+
+  /* Mobile-specific highlighting enhancements */
+  @media (max-width: 768px) {
+    [data-dsl-path].highlighted-box {
+      stroke-width: 4 !important;
+      filter: drop-shadow(0 24px 48px rgba(59, 130, 246, 0.8)) !important;
+      /* Add subtle pulsing animation for mobile */
+      animation: mobile-pulse 2s ease-in-out infinite !important;
+      /* Add background highlight for better contrast */
+      background-color: rgba(59, 130, 246, 0.1) !important;
+      border-radius: 4px !important;
+    }
+    
+    [data-dsl-path].highlighted-text {
+      filter: drop-shadow(0 20px 40px rgba(59, 130, 246, 0.8)) !important;
+      /* Add subtle pulsing animation for mobile */
+      animation: mobile-pulse 2s ease-in-out infinite !important;
+      /* Add background highlight for better contrast */
+      background-color: rgba(59, 130, 246, 0.1) !important;
+      border-radius: 4px !important;
+      padding: 2px 4px !important;
+    }
+    
+    [data-dsl-path].highlighted-svg {
+      filter: drop-shadow(0 80px 160px rgba(59, 130, 246, 1)) !important;
+      transform: scale(1.25) !important;
+      /* Add subtle pulsing animation for mobile */
+      animation: mobile-pulse 2s ease-in-out infinite !important;
+      /* Add background highlight for better contrast */
+      background-color: rgba(59, 130, 246, 0.1) !important;
+      border-radius: 8px !important;
+      padding: 4px !important;
+    }
+  }
+
+  /* Extra small screens (phones in portrait) */
+  @media (max-width: 480px) {
+    [data-dsl-path].highlighted-box {
+      stroke-width: 5 !important;
+      filter: drop-shadow(0 32px 64px rgba(59, 130, 246, 0.9)) !important;
+      /* Enhanced background highlight for very small screens */
+      background-color: rgba(59, 130, 246, 0.15) !important;
+    }
+    
+    [data-dsl-path].highlighted-text {
+      filter: drop-shadow(0 28px 56px rgba(59, 130, 246, 0.9)) !important;
+      /* Enhanced background highlight for very small screens */
+      background-color: rgba(59, 130, 246, 0.15) !important;
+      padding: 3px 6px !important;
+    }
+    
+    [data-dsl-path].highlighted-svg {
+      filter: drop-shadow(0 100px 200px rgba(59, 130, 246, 1.0)) !important;
+      transform: scale(1.3) !important;
+      /* Enhanced background highlight for very small screens */
+      background-color: rgba(59, 130, 246, 0.15) !important;
+      padding: 6px !important;
+    }
+  }
+
+  /* Enhanced hover effects for mobile */
+  @media (max-width: 768px) {
+    [data-dsl-path]:hover:not(.highlighted-box):not(.highlighted-text):not(.highlighted-svg) {
+      stroke: #60a5fa !important;
+      stroke-width: 3 !important;
+      filter: drop-shadow(0 24px 48px rgba(96, 165, 250, 0.7)) !important;
+    }
+  }
+
+  @media (max-width: 480px) {
+    [data-dsl-path]:hover:not(.highlighted-box):not(.highlighted-text):not(.highlighted-svg) {
+      stroke-width: 4 !important;
+      filter: drop-shadow(0 36px 72px rgba(96, 165, 250, 0.8)) !important;
+    }
   }
   
   /* Enhanced hover effects */
   [data-dsl-path]:hover:not(.highlighted-box):not(.highlighted-text):not(.highlighted-svg) {
     stroke: #60a5fa !important;
     stroke-width: 2 !important;
-    filter: drop-shadow(0 2px 4px rgba(96, 165, 250, 0.2)) !important;
+    filter: drop-shadow(0 12px 24px rgba(96, 165, 250, 0.5)) !important;
   }
   
   
   /* Disable transitions during programmatic changes */
   [data-dsl-path].no-transition {
     transition: none !important;
+  }
+
+  /* Mobile pulse animation for enhanced visibility */
+  @keyframes mobile-pulse {
+    0%, 100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.8;
+      transform: scale(1.02);
+    }
   }
 
 }
