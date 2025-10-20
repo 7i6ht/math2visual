@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import { VisualizationSection } from "./VisualizationSection";
 import { MissingSVGSection } from "./MissingSVGSection";
 import { ParseErrorSection } from "./ParseErrorSection";
+import { ArrowRight } from "lucide-react";
 
 interface VisualizationResultsProps {
   svgFormal: string | null;
@@ -139,7 +140,7 @@ export const VisualizationResults = ({
             className={`text-red-500 responsive-text-font-size group ${isDisabled ? 'cursor-default' : 'cursor-pointer'}`}
             disabled={isDisabled}
           >
-            Does not look as expected? <span className={`${isDisabled ? '' : 'group-hover:italic group-hover:text-red-700'}`}>🡒 Add more hints ...</span>
+            Does not look as expected? <span className={`${isDisabled ? '' : 'group-hover:italic group-hover:text-red-700'}`}> <ArrowRight className="responsive-smaller-icon-font-size inline-block"/> Add more hints ...</span>
           </button>
         </div>
       )}
