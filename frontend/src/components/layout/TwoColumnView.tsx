@@ -134,7 +134,7 @@ export function TwoColumnView({ appState }: Props) {
               </div>
             </div>
 
-            <div className="relative flex flex-col min-h-[300px] md:min-h-[400px] xl:min-h-0 lg:pl-4 h-full">
+            <div className="relative flex flex-col min-h-[300px] md:min-h-[400px] xl:min-h-0 h-full">
               {formattedDSL && (
                 <VisualLanguageForm
                   onResult={handleVLResult}
