@@ -1,5 +1,5 @@
 import { SyntaxEditor } from "@/components/ui/syntax-editor";
-import { useCallback, useMemo, useState, useEffect } from "react";
+import { useCallback, useMemo } from "react";
 import { findDSLPathAtPosition } from "@/utils/dsl-cursor-mapping";
 import {
   Form,
@@ -29,19 +29,6 @@ export const VisualLanguageForm = ({
   const { componentMappings: contextMappings } = useDSLContext();
   const effectiveMappings = useMemo(() => (contextMappings ?? {}) as ComponentMapping, [contextMappings]);
   
-  // Detect if we're in single-column layout (height >= 1200px)
-  const [isSingleColumnLayout, setIsSingleColumnLayout] = useState(false);
-  
-  useEffect(() => {
-    const checkLayout = () => {
-      setIsSingleColumnLayout(window.innerHeight >= 1200);
-    };
-    
-    checkLayout();
-    window.addEventListener('resize', checkLayout);
-    return () => window.removeEventListener('resize', checkLayout);
-  }, []);
-  
   const handleCursorPositionChange = useCallback((position: number) => {
     if (isDisabled) return;
     const dslPath = findDSLPathAtPosition(effectiveMappings, position);
@@ -60,25 +47,24 @@ export const VisualLanguageForm = ({
   
 
   return (
-    <div className="flex flex-col h-full visual-language-form">
+    <div className="flex flex-col visual-language-form">
       <h2 className="responsive-title-simple font-bold mb-3 flex-shrink-0">Visual Language</h2>
       
       <Form {...form}>
-        <div className={`flex flex-col flex-1 min-h-0 ${isDisabled ? 'pointer-events-none overflow-hidden' : ''}`}>
+        <div className={`flex flex-col ${isDisabled ? 'pointer-events-none overflow-hidden' : ''}`}>
           <FormField
             control={form.control}
             name="dsl"
             render={({ field }) => (
-              <FormItem className="flex flex-col flex-1 min-h-0">
-                <FormControl className="flex-1 min-h-0">
+              <FormItem className="flex flex-col">
+                <FormControl>
                   <SyntaxEditor
                     value={field.value}
                     onChange={(value) => {
                       field.onChange(value);
                       handleDebouncedChange(value);
                     }}
-                    className="w-full h-full"
-                    height={isSingleColumnLayout ? undefined : "100%"}
+                    className="w-full"
                     highlightRanges={dslHighlightRanges}
                     onCursorPositionChange={handleCursorPositionChange}
                   />

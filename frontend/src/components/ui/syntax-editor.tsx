@@ -9,7 +9,6 @@ interface SyntaxEditorProps {
   onChange: (value: string) => void;
   className?: string;
   rows?: number;
-  height?: string;
   highlightRanges?: Array<[number, number]>;
   onCursorPositionChange?: (position: number, modelValue: string) => void;
 }
@@ -154,7 +153,6 @@ export const SyntaxEditor: React.FC<SyntaxEditorProps> = ({
   onChange,
   className,
   rows = 6,
-  height,
   highlightRanges = [],
   onCursorPositionChange,
 }) => {
@@ -200,26 +198,32 @@ export const SyntaxEditor: React.FC<SyntaxEditorProps> = ({
     // Calculate base height needed for content
     const contentHeight = lines * lineHeight + padding;
     
-    // For single-column layout, use more of the available space
-    const isSingleColumn = window.innerHeight >= 1200;
-    const maxHeight = isSingleColumn 
-      ? Math.min(window.innerHeight * 0.75, 1000) // Use up to 75% of viewport in single-column
-      : Math.min(window.innerHeight * 0.6, 600);  // Use up to 60% in two-column
+    // Try to get the available space from the parent container
+    const container = document.querySelector('.dsl-editor-container')?.parentElement;
+    let availableHeight = 0;
     
-    // If content is short, allow it to grow to use more space
-    const targetHeight = contentHeight < 300 
-      ? Math.min(contentHeight * 1.5, maxHeight) // Allow short content to use more space
-      : Math.min(contentHeight, maxHeight);      // Longer content uses what it needs
+    if (container) {
+      const viewportHeight = window.innerHeight;
+      // Estimate available space considering the layout structure
+      // Account for header, margins, and other UI elements
+      availableHeight = Math.max(400, viewportHeight * 0.8);
+    } else {
+      // Fallback calculation
+      const isSingleColumn = window.innerHeight >= 1200;
+      availableHeight = isSingleColumn 
+        ? Math.min(window.innerHeight * 0.6, 800) // Use up to 60% of viewport in single-column
+        : Math.min(0.8*window.innerHeight, 600);  // Use up to 80% in two-column
+    }
     
-    const calculatedHeight = Math.max(minHeight, targetHeight);
+    // Take the minimum between content height and available height
+    const calculatedHeight = Math.max(minHeight, Math.min(contentHeight, availableHeight));
     
     console.log('Height calculation:', {
       lines,
       fontSize,
       lineHeight,
       contentHeight,
-      isSingleColumn,
-      maxHeight,
+      availableHeight,
       calculatedHeight: `${calculatedHeight}px`,
       viewportHeight: window.innerHeight
     });
@@ -383,7 +387,7 @@ export const SyntaxEditor: React.FC<SyntaxEditorProps> = ({
   return (
     <div className={cn("dsl-editor-container border rounded-md overflow-hidden", className)}>
       <Editor
-        height={height || dynamicHeight || `${rows * 20}px`}
+        height={dynamicHeight || `${rows * 20}px`}
         language="vl-dsl"
         value={formattedValue}
         onChange={(newValue) => {
