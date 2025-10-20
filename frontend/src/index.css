@@ -133,8 +133,6 @@ h1 {
     [data-dsl-path].highlighted-box {
       stroke-width: 4 !important;
       filter: drop-shadow(0 24px 48px rgba(59, 130, 246, 0.8)) !important;
-      /* Add subtle pulsing animation for mobile */
-      animation: mobile-pulse 2s ease-in-out infinite !important;
       /* Add background highlight for better contrast */
       background-color: rgba(59, 130, 246, 0.1) !important;
       border-radius: 4px !important;
@@ -143,7 +141,6 @@ h1 {
     [data-dsl-path].highlighted-text {
       filter: drop-shadow(0 20px 40px rgba(59, 130, 246, 0.8)) !important;
       /* Add subtle pulsing animation for mobile */
-      animation: mobile-pulse 2s ease-in-out infinite !important;
       /* Add background highlight for better contrast */
       background-color: rgba(59, 130, 246, 0.1) !important;
       border-radius: 4px !important;
@@ -151,10 +148,10 @@ h1 {
     }
     
     [data-dsl-path].highlighted-svg {
-      filter: drop-shadow(0 80px 160px rgba(59, 130, 246, 1)) !important;
+      /* Apply strong blue-tinting filter in addition to shadow on mobile */
+      filter: drop-shadow(0 80px 160px rgba(59, 130, 246, 1)) saturate(0.8) hue-rotate(190deg) contrast(0.7) !important;
       transform: scale(1.25) !important;
       /* Add subtle pulsing animation for mobile */
-      animation: mobile-pulse 2s ease-in-out infinite !important;
       /* Add background highlight for better contrast */
       background-color: rgba(59, 130, 246, 0.1) !important;
       border-radius: 8px !important;
@@ -179,7 +176,8 @@ h1 {
     }
     
     [data-dsl-path].highlighted-svg {
-      filter: drop-shadow(0 100px 200px rgba(59, 130, 246, 1.0)) !important;
+      /* Stronger blue tint for very small screens */
+      filter: drop-shadow(0 100px 200px rgba(59, 130, 246, 1.0)) saturate(0.8) hue-rotate(190deg) contrast(0.7) !important;
       transform: scale(1.3) !important;
       /* Enhanced background highlight for very small screens */
       background-color: rgba(59, 130, 246, 0.15) !important;
@@ -215,19 +213,6 @@ h1 {
   [data-dsl-path].no-transition {
     transition: none !important;
   }
-
-  /* Mobile pulse animation for enhanced visibility */
-  @keyframes mobile-pulse {
-    0%, 100% {
-      opacity: 1;
-      transform: scale(1);
-    }
-    50% {
-      opacity: 0.8;
-      transform: scale(1.02);
-    }
-  }
-
 }
 
 /* stylelint-disable-next-line at-rule-no-unknown */
