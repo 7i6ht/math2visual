@@ -89,7 +89,7 @@ export const VisualizationSection = ({
         disabled={isDisabled}
       >
         <div className="flex items-center justify-between w-full mr-4">
-          <span className="font-medium text-font-size">{title}</span>
+          <span className="font-medium responsive-text-font-size">{title}</span>
           <DownloadButton
             svgContent={svgContent}
             type={type}
@@ -101,7 +101,7 @@ export const VisualizationSection = ({
       <AccordionContent className="px-4">
         {error ? (
           <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-md w-full">
-            <p className="text-destructive font-medium text-font-size">{error}</p>
+            <p className="text-destructive font-medium responsive-text-font-size">{error}</p>
           </div>
         ) : svgContent ? (
           <div className="w-full">

@@ -181,7 +181,7 @@ export const useSVGMissingError = ({
 
   const getButtonIcon = () => {
     if (uploadLoading) return null;
-    return <UploadIcon className="w-4 h-4 mr-2" />;
+    return <UploadIcon className="responsive-icon-font-size mr-2" />;
   };
 
   return {

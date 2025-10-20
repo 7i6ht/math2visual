@@ -178,23 +178,23 @@ export const SVGSearchPopup: React.FC<SVGSearchPopupProps> = ({
       {/* Search Input */}
       <div className="flex gap-0 group focus-within:ring-[3px] focus-within:ring-ring/50 focus-within:ring-offset-0 focus-within:border-ring rounded-md transition-all duration-200 border border-ring ring-[3px] ring-ring/50 ring-offset-0">
         <div className="relative flex-1">
-          <Search className="absolute left-2 sm:left-3 md:left-4 lg:left-4 xl:left-4.5 2xl:left-5.5 3xl:left-6 4xl:left-6.5 5xl:left-7.5 6xl:left-8.5 7xl:left-9.5 top-1/2 transform -translate-y-1/2 smaller-icon-font-size text-gray-400" />
+          <Search className="absolute left-2 sm:left-3 md:left-4 lg:left-4 xl:left-4.5 2xl:left-5.5 3xl:left-6 4xl:left-6.5 5xl:left-7.5 6xl:left-8.5 7xl:left-9.5 top-1/2 transform -translate-y-1/2 responsive-smaller-icon-font-size text-gray-400" />
           <Input
             ref={searchInputRef}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search..."
             spellCheck={false}
-            className="pl-8 sm:pl-10 md:pl-12 lg:pl-13 xl:pl-14 2xl:pl-15 3xl:pl-17 4xl:pl-18 5xl:pl-20 6xl:pl-22 7xl:pl-24 rounded-r-none border-r-0 popup-button-responsive-height text-font-size focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation"
+            className="pl-8 sm:pl-10 md:pl-12 lg:pl-13 xl:pl-14 2xl:pl-15 3xl:pl-17 4xl:pl-18 5xl:pl-20 6xl:pl-22 7xl:pl-24 rounded-r-none border-r-0 popup-button-responsive-height responsive-text-font-size focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation"
             disabled={!!selectedFile}
           />
         </div>
         <Button
           onClick={() => selectedFile && handleFileSelect(selectedFile)}
           disabled={!selectedFile}
-          className="px-2 sm:px-3 rounded-l-none popup-button-responsive-height text-font-size !text-primary-foreground focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation flex-shrink-0"
+          className="px-2 sm:px-3 rounded-l-none popup-button-responsive-height responsive-text-font-size !text-primary-foreground focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation flex-shrink-0"
         >
-          <ArrowRight className="smaller-icon-font-size" />
+          <ArrowRight className="responsive-smaller-icon-font-size" />
         </Button>
       </div>
 
@@ -207,7 +207,7 @@ export const SVGSearchPopup: React.FC<SVGSearchPopupProps> = ({
               onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))}
               className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 bg-white border border-gray-200 rounded-full p-2 sm:p-1 shadow-md hover:bg-gray-50 transition-colors touch-manipulation"
             >
-              <svg className="smaller-icon-font-size text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="responsive-smaller-icon-font-size text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
             </button>
@@ -218,7 +218,7 @@ export const SVGSearchPopup: React.FC<SVGSearchPopupProps> = ({
               onClick={() => setCurrentPage(prev => prev + 1)}
               className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 bg-white border border-gray-200 rounded-full p-2 sm:p-1 shadow-md hover:bg-gray-50 transition-colors touch-manipulation"
             >
-              <svg className="smaller-icon-font-size text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="responsive-smaller-icon-font-size text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </button>
@@ -253,7 +253,7 @@ export const SVGSearchPopup: React.FC<SVGSearchPopupProps> = ({
                       }
                     }}
                   />
-                  <ImageIcon className="smaller-icon-font-size text-gray-400 hidden" />
+                  <ImageIcon className="responsive-smaller-icon-font-size text-gray-400 hidden" />
                 </div>
                 
                 <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 dark:group-hover:bg-opacity-40 rounded-md transition-all duration-200 pointer-events-none" />
@@ -269,15 +269,15 @@ export const SVGSearchPopup: React.FC<SVGSearchPopupProps> = ({
 
       {/* Error Message */}
       {error && (
-        <div className="flex items-center gap-2 text-red-600 text-font-size mt-1">
-          <AlertCircle className="smaller-icon-font-size" />
+        <div className="flex items-center gap-2 text-red-600 responsive-text-font-size mt-1">
+          <AlertCircle className="responsive-smaller-icon-font-size" />
           {error}
         </div>
       )}
 
       {/* Loading Indicator */}
       {isLoading && (
-        <div className="text-font-size text-gray-500 mt-1">Searching...</div>
+        <div className="responsive-text-font-size text-gray-500 mt-1">Searching...</div>
       )}
     </BasePopup>
   );

@@ -69,7 +69,7 @@ export const MathProblemForm = ({
             <FormItem>
               <FormControl>
                 <HighlightableTextarea
-                  className={"w-full text-font-size"}
+                  className={"w-full responsive-text-font-size"}
                   placeholder="Enter your math word problem…"
                   rows={rows}
                   spellCheck={false}
@@ -95,7 +95,7 @@ export const MathProblemForm = ({
             <FormItem>
               <FormControl>
                 <HighlightableInput
-                  className={"w-full text-font-size"}
+                  className={"w-full responsive-text-font-size"}
                   placeholder="9 + 7 = 16"
                   spellCheck={false}
                   highlightRanges={formulaHighlightRanges}
@@ -115,7 +115,7 @@ export const MathProblemForm = ({
               <FormItem>
                 <FormControl>
                   <Textarea
-                    className={"w-full ring-offset-background text-font-size"}
+                    className={"w-full ring-offset-background responsive-text-font-size"}
                     placeholder="Add more hints about the relationships between the visual elements ..."
                     rows={rows}
                     spellCheck={false}
@@ -136,8 +136,7 @@ export const MathProblemForm = ({
           {!loading && !hideSubmit && (
             <Button
               type="submit"
-              size="lg"
-              className="min-w-[200px] bg-primary !text-primary-foreground !text-font-size button-responsive-size"
+              className="min-w-[200px] bg-primary !text-primary-foreground !responsive-text-font-size button-responsive-size px-6 py-3 md:px-8 md:py-4 lg:px-10 lg:py-5 xl:px-12 xl:py-6"
             >
               Generate
             </Button>

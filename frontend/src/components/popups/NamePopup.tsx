@@ -69,16 +69,16 @@ export const NamePopup: React.FC<NamePopupProps> = ({
             onChange={(e) => setValue(e.target.value)}
             placeholder={"Enter name..."}
             spellCheck={false}
-            className="rounded-r-none border-r-0 popup-button-responsive-height text-font-size focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation text-center px-1"
+            className="rounded-r-none border-r-0 popup-button-responsive-height responsive-text-font-size focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation text-center px-1"
             disabled={isLoading}
           />
           <Button
             onClick={handleUpdate}
             disabled={!isValidValue || isLoading}
-            className="px-2 rounded-l-none popup-button-responsive-height text-font-size !text-primary-foreground focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation flex-shrink-0"
+            className="px-2 rounded-l-none popup-button-responsive-height responsive-text-font-size !text-primary-foreground focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation flex-shrink-0"
           >
             {isLoading ? (
-              <div className="animate-spin rounded-full smaller-icon-font-size border-b-2 border-white" />
+              <div className="animate-spin rounded-full responsive-smaller-icon-font-size border-b-2 border-white" />
             ) : (
               <ArrowRight/>
             )}
@@ -87,7 +87,7 @@ export const NamePopup: React.FC<NamePopupProps> = ({
 
         {/* Validation hint */}
         {value && !isValidValue && (
-          <div className="text-xs text-red-600 px-1 text-font-size">
+          <div className="text-xs text-red-600 px-1 responsive-text-font-size">
             Please enter a name
           </div>
         )}

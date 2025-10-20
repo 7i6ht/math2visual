@@ -136,7 +136,7 @@ export const VisualizationResults = ({
         <div className="mt-4 text-left">
           <button
             onClick={isDisabled ? undefined : onShowHint}
-            className={`text-red-500 text-font-size group ${isDisabled ? 'cursor-default' : 'cursor-pointer'}`}
+            className={`text-red-500 responsive-text-font-size group ${isDisabled ? 'cursor-default' : 'cursor-pointer'}`}
             disabled={isDisabled}
           >
             Does not look as expected? <span className={`${isDisabled ? '' : 'group-hover:italic group-hover:text-red-700'}`}>🡒 Add more hints ...</span>

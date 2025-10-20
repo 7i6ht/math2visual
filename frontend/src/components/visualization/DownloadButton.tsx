@@ -81,22 +81,22 @@ export const DownloadButton = ({
           onClick={(e) => e.stopPropagation()}
           aria-label="Download"
         >
-          <Download className="smaller-icon-font-size" aria-hidden="true" />
+          <Download className="responsive-smaller-icon-font-size" aria-hidden="true" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-fit min-w-0 px-1 py-1 md:px-2 md:py-2 lg:px-3 lg:py-3">
-        <DropdownMenuLabel className="px-2 py-1.5 !text-font-size text-muted-foreground cursor-default select-none">
-          Download
+      <DropdownMenuContent align="end" collisionPadding={10} className="w-fit min-w-0 px-1 py-1 md:px-2 md:py-2 lg:px-3 lg:py-3">
+        <DropdownMenuLabel className="px-2 py-1.5 cursor-default select-none">
+          <span className="responsive-text-font-size text-muted-foreground">Download</span>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         {downloadOptions.map((option) => (
           <DropdownMenuItem
             key={option.format}
             onClick={(e) => handleDownload(option.format, e)}
-            className="cursor-pointer text-font-size flex items-center gap-1"
+            className="cursor-pointer responsive-text-font-size flex items-center gap-1"
             disabled={isDisabled}
           >
-            <option.icon className="smaller-icon-font-size flex-shrink-0" aria-hidden="true" />
+            <option.icon className="responsive-smaller-icon-font-size flex-shrink-0" aria-hidden="true" />
             {option.label}
           </DropdownMenuItem>
         ))}

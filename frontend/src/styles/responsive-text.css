@@ -23,7 +23,8 @@ h3.responsive-title-simple {
 }
 
 /* For very wide but short screens (aspect ratio > 2.5), cap the size more aggressively */
-@media (min-aspect-ratio: 2.5/1) {
+/* But only if the screen is not very large (to preserve TV sizing) */
+@media (min-aspect-ratio: 2.5/1) and (max-width: 2560px) {
   .responsive-title-simple,
   h1.responsive-title-simple,
   h2.responsive-title-simple,
@@ -38,7 +39,8 @@ h3.responsive-title-simple {
 }
 
 /* Additional refinement for extremely wide screens */
-@media (min-aspect-ratio: 3/1) {
+/* But only if the screen is not very large (to preserve TV sizing) */
+@media (min-aspect-ratio: 3/1) and (max-width: 2560px) {
   .responsive-title-simple,
   h1.responsive-title-simple,
   h2.responsive-title-simple,
@@ -49,5 +51,413 @@ h3.responsive-title-simple {
       calc(0.8vw + 1vh),
       2rem /* Even lower maximum */
     );
+  }
+}
+
+/* Enhanced sizing for very large screens (TVs, large monitors) */
+@media (min-width: 2560px) {
+  .responsive-title-simple,
+  h1.responsive-title-simple,
+  h2.responsive-title-simple,
+  h3.responsive-title-simple {
+    /* Allow larger text for very large screens */
+    font-size: clamp(
+      1.5rem, /* 24px minimum - larger than normal */
+      calc(2vw + 1.5vh), /* More aggressive scaling for large screens */
+      6rem /* 96px maximum - much larger for TVs */
+    ) !important;
+  }
+}
+
+/* Height-aware responsive text sizing for general text content */
+.responsive-text-font-size {
+  /* Base sizing that considers both width and height */
+  font-size: clamp(
+    0.875rem, /* 14px minimum */
+    calc(0.8vw + 0.8vh), /* Combines width and height scaling */
+    2rem /* 32px maximum */
+  ) !important; /* Override Button component's built-in text sizing */
+  line-height: 1.35; /* Prevent line overlap on extreme aspect ratios/zoom */
+}
+
+/* Additional specificity for Button components */
+button.responsive-text-font-size,
+.btn.responsive-text-font-size,
+[data-slot="button"].responsive-text-font-size {
+  font-size: clamp(
+    0.875rem, /* 14px minimum */
+    calc(0.8vw + 0.8vh), /* Combines width and height scaling */
+    2rem /* 32px maximum */
+  ) !important;
+  line-height: 1.35;
+}
+
+/* Even more specific selector to override Tailwind's responsive classes */
+button.responsive-text-font-size[class*="text-"],
+.btn.responsive-text-font-size[class*="text-"],
+button[class*="responsive-text-font-size"],
+button.responsive-text-font-size {
+  font-size: clamp(
+    0.875rem, /* 14px minimum */
+    calc(0.8vw + 0.8vh), /* Combines width and height scaling */
+    2rem /* 32px maximum */
+  ) !important;
+  line-height: 1.35;
+}
+
+/* Nuclear option - override all possible Tailwind text size classes on buttons with our class */
+button.responsive-text-font-size.text-xs,
+button.responsive-text-font-size.md\:text-sm,
+button.responsive-text-font-size.lg\:text-base,
+button.responsive-text-font-size.xl\:text-lg {
+  font-size: clamp(
+    0.875rem, /* 14px minimum */
+    calc(0.8vw + 0.8vh), /* Combines width and height scaling */
+    2rem /* 32px maximum */
+  ) !important;
+}
+
+/* Create a button base class without built-in text sizing */
+.responsive-button-base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+  pointer-events: auto;
+  opacity: 1;
+  outline: none;
+  border: none;
+  cursor: pointer;
+}
+
+.responsive-button-base:disabled {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.responsive-button-base:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+/* For very wide but short screens (aspect ratio > 2.5), cap the size more aggressively */
+/* But only if the screen is not very large (to preserve TV sizing) */
+@media (min-aspect-ratio: 2.5/1) and (max-width: 2560px) {
+  .responsive-text-font-size,
+  button.responsive-text-font-size,
+  .btn.responsive-text-font-size {
+    font-size: clamp(
+      0.875rem,
+      calc(0.6vw + 0.8vh), /* Less weight on width scaling */
+      1.5rem /* Much lower maximum for short screens */
+    ) !important;
+  }
+}
+
+/* Additional refinement for extremely wide screens */
+/* But only if the screen is not very large (to preserve TV sizing) */
+@media (min-aspect-ratio: 3/1) and (max-width: 2560px) {
+  .responsive-text-font-size,
+  button.responsive-text-font-size,
+  .btn.responsive-text-font-size {
+    font-size: clamp(
+      0.875rem,
+      calc(0.5vw + 0.8vh),
+      1.25rem /* Even lower maximum */
+    ) !important;
+  }
+}
+
+/* Enhanced sizing for very large screens (TVs, large monitors) */
+@media (min-width: 2560px) {
+  .responsive-text-font-size,
+  button.responsive-text-font-size,
+  .btn.responsive-text-font-size,
+  button.responsive-text-font-size[class*="text-"],
+  .btn.responsive-text-font-size[class*="text-"],
+  button[class*="responsive-text-font-size"],
+  button.responsive-text-font-size.text-xs,
+  button.responsive-text-font-size.md\:text-sm,
+  button.responsive-text-font-size.lg\:text-base,
+  button.responsive-text-font-size.xl\:text-lg {
+    font-size: clamp(
+      1.25rem, /* 20px minimum - increased for better TV readability */
+      calc(1.5vw + 1.2vh), /* More aggressive scaling for large screens */
+      4rem /* 64px maximum - significantly larger for TVs */
+    ) !important;
+  }
+}
+
+/* Height-aware responsive icon sizing */
+.responsive-icon-font-size {
+  /* Base sizing that considers both width and height */
+  font-size: clamp(
+    1.5rem, /* 24px minimum */
+    calc(1.2vw + 1vh), /* Combines width and height scaling */
+    3rem /* 48px maximum */
+  ) !important; /* Override any conflicting icon sizing */
+}
+
+/* Additional specificity for icon elements */
+svg.responsive-icon-font-size,
+i.responsive-icon-font-size,
+.icon.responsive-icon-font-size {
+  font-size: clamp(
+    1.5rem, /* 24px minimum */
+    calc(1.2vw + 1vh), /* Combines width and height scaling */
+    3rem /* 48px maximum */
+  ) !important;
+  width: clamp(
+    1.5rem, /* 24px minimum */
+    calc(1.2vw + 1vh), /* Combines width and height scaling */
+    3rem /* 48px maximum */
+  ) !important;
+  height: clamp(
+    1.5rem, /* 24px minimum */
+    calc(1.2vw + 1vh), /* Combines width and height scaling */
+    3rem /* 48px maximum */
+  ) !important;
+}
+
+/* For very wide but short screens (aspect ratio > 2.5), cap the size more aggressively */
+/* But only if the screen is not very large (to preserve TV sizing) */
+@media (min-aspect-ratio: 2.5/1) and (max-width: 2560px) {
+  .responsive-icon-font-size {
+    font-size: clamp(
+      1.5rem,
+      calc(0.8vw + 1vh), /* Less weight on width scaling */
+      2.25rem /* Much lower maximum for short screens */
+    ) !important;
+    width: clamp(
+      1.5rem,
+      calc(0.8vw + 1vh), /* Less weight on width scaling */
+      2.25rem /* Much lower maximum for short screens */
+    ) !important;
+    height: clamp(
+      1.5rem,
+      calc(0.8vw + 1vh), /* Less weight on width scaling */
+      2.25rem /* Much lower maximum for short screens */
+    ) !important;
+  }
+}
+
+/* Additional refinement for extremely wide screens */
+/* But only if the screen is not very large (to preserve TV sizing) */
+@media (min-aspect-ratio: 3/1) and (max-width: 2560px) {
+  .responsive-icon-font-size {
+    font-size: clamp(
+      1.5rem,
+      calc(0.6vw + 1vh),
+      2rem /* Even lower maximum */
+    ) !important;
+    width: clamp(
+      1.5rem,
+      calc(0.6vw + 1vh),
+      2rem /* Even lower maximum */
+    ) !important;
+    height: clamp(
+      1.5rem,
+      calc(0.6vw + 1vh),
+      2rem /* Even lower maximum */
+    ) !important;
+  }
+}
+
+/* Enhanced sizing for very large screens (TVs, large monitors) */
+@media (min-width: 2560px) {
+  .responsive-icon-font-size,
+  svg.responsive-icon-font-size,
+  i.responsive-icon-font-size,
+  .icon.responsive-icon-font-size {
+    font-size: clamp(
+      2.5rem, /* 40px minimum - increased for better TV visibility */
+      calc(2vw + 1.8vh), /* More aggressive scaling for large screens */
+      6rem /* 96px maximum - significantly larger for TVs */
+    ) !important;
+    width: clamp(
+      2.5rem, /* 40px minimum - increased for better TV visibility */
+      calc(2vw + 1.8vh), /* More aggressive scaling for large screens */
+      6rem /* 96px maximum - significantly larger for TVs */
+    ) !important;
+    height: clamp(
+      2.5rem, /* 40px minimum - increased for better TV visibility */
+      calc(2vw + 1.8vh), /* More aggressive scaling for large screens */
+      6rem /* 96px maximum - significantly larger for TVs */
+    ) !important;
+  }
+}
+
+/* Height-aware responsive smaller icon sizing */
+.responsive-smaller-icon-font-size {
+  /* Base sizing that considers both width and height */
+  font-size: clamp(
+    1rem, /* 16px minimum */
+    calc(0.8vw + 0.8vh), /* Combines width and height scaling */
+    2rem /* 32px maximum */
+  ) !important; /* Override any conflicting icon sizing */
+}
+
+/* Additional specificity for smaller icon elements */
+svg.responsive-smaller-icon-font-size,
+i.responsive-smaller-icon-font-size,
+.icon.responsive-smaller-icon-font-size {
+  font-size: clamp(
+    1rem, /* 16px minimum */
+    calc(0.8vw + 0.8vh), /* Combines width and height scaling */
+    2rem /* 32px maximum */
+  ) !important;
+  width: clamp(
+    1rem, /* 16px minimum */
+    calc(0.8vw + 0.8vh), /* Combines width and height scaling */
+    2rem /* 32px maximum */
+  ) !important;
+  height: clamp(
+    1rem, /* 16px minimum */
+    calc(0.8vw + 0.8vh), /* Combines width and height scaling */
+    2rem /* 32px maximum */
+  ) !important;
+}
+
+/* For very wide but short screens (aspect ratio > 2.5), cap the size more aggressively */
+/* But only if the screen is not very large (to preserve TV sizing) */
+@media (min-aspect-ratio: 2.5/1) and (max-width: 2560px) {
+  .responsive-smaller-icon-font-size {
+    font-size: clamp(
+      1rem,
+      calc(0.6vw + 0.8vh), /* Less weight on width scaling */
+      1.5rem /* Much lower maximum for short screens */
+    ) !important;
+    width: clamp(
+      1rem,
+      calc(0.6vw + 0.8vh), /* Less weight on width scaling */
+      1.5rem /* Much lower maximum for short screens */
+    ) !important;
+    height: clamp(
+      1rem,
+      calc(0.6vw + 0.8vh), /* Less weight on width scaling */
+      1.5rem /* Much lower maximum for short screens */
+    ) !important;
+  }
+}
+
+/* Additional refinement for extremely wide screens */
+/* But only if the screen is not very large (to preserve TV sizing) */
+@media (min-aspect-ratio: 3/1) and (max-width: 2560px) {
+  .responsive-smaller-icon-font-size {
+    font-size: clamp(
+      1rem,
+      calc(0.5vw + 0.8vh),
+      1.25rem /* Even lower maximum */
+    ) !important;
+    width: clamp(
+      1rem,
+      calc(0.5vw + 0.8vh),
+      1.25rem /* Even lower maximum */
+    ) !important;
+    height: clamp(
+      1rem,
+      calc(0.5vw + 0.8vh),
+      1.25rem /* Even lower maximum */
+    ) !important;
+  }
+}
+
+/* Enhanced sizing for very large screens (TVs, large monitors) */
+@media (min-width: 2560px) {
+  .responsive-smaller-icon-font-size,
+  svg.responsive-smaller-icon-font-size,
+  i.responsive-smaller-icon-font-size,
+  .icon.responsive-smaller-icon-font-size {
+    font-size: clamp(
+      1.75rem, /* 28px minimum - increased for better TV visibility */
+      calc(1.3vw + 1.2vh), /* More aggressive scaling for large screens */
+      4rem /* 64px maximum - significantly larger for TVs */
+    ) !important;
+    width: clamp(
+      1.75rem, /* 28px minimum - increased for better TV visibility */
+      calc(1.3vw + 1.2vh), /* More aggressive scaling for large screens */
+      4rem /* 64px maximum - significantly larger for TVs */
+    ) !important;
+    height: clamp(
+      1.75rem, /* 28px minimum - increased for better TV visibility */
+      calc(1.3vw + 1.2vh), /* More aggressive scaling for large screens */
+      4rem /* 64px maximum - significantly larger for TVs */
+    ) !important;
+  }
+}
+
+/* Height-aware responsive smaller text sizing - matches smaller icon sizes but for text */
+.responsive-smaller-text-font-size {
+  /* Base sizing that matches responsive-smaller-icon-font-size but for text */
+  font-size: clamp(
+    0.875rem, /* 14px minimum - slightly smaller */
+    calc(0.7vw + 0.7vh), /* Combines width and height scaling - reduced */
+    1.75rem /* 28px maximum - slightly smaller */
+  ) !important; /* Override any conflicting text sizing */
+  line-height: 1.35; /* Prevent line overlap on extreme aspect ratios/zoom */
+}
+
+/* Additional specificity for text elements */
+span.responsive-smaller-text-font-size,
+p.responsive-smaller-text-font-size,
+div.responsive-smaller-text-font-size {
+  font-size: clamp(
+    0.875rem, /* 14px minimum - slightly smaller */
+    calc(0.7vw + 0.7vh), /* Combines width and height scaling - reduced */
+    1.75rem /* 28px maximum - slightly smaller */
+  ) !important;
+  line-height: 1.35;
+}
+
+/* For very wide but short screens (aspect ratio > 2.5), cap the size more aggressively */
+/* But only if the screen is not very large (to preserve TV sizing) */
+@media (min-aspect-ratio: 2.5/1) and (max-width: 2560px) {
+  .responsive-smaller-text-font-size,
+  span.responsive-smaller-text-font-size,
+  p.responsive-smaller-text-font-size,
+  div.responsive-smaller-text-font-size {
+    font-size: clamp(
+      0.875rem, /* 14px minimum - slightly smaller */
+      calc(0.5vw + 0.7vh), /* Less weight on width scaling - reduced */
+      1.25rem /* 20px maximum - slightly smaller */
+    ) !important;
+    line-height: 1.35;
+  }
+}
+
+/* Additional refinement for extremely wide screens */
+/* But only if the screen is not very large (to preserve TV sizing) */
+@media (min-aspect-ratio: 3/1) and (max-width: 2560px) {
+  .responsive-smaller-text-font-size,
+  span.responsive-smaller-text-font-size,
+  p.responsive-smaller-text-font-size,
+  div.responsive-smaller-text-font-size {
+    font-size: clamp(
+      0.875rem, /* 14px minimum - slightly smaller */
+      calc(0.4vw + 0.7vh), /* Reduced scaling */
+      1.125rem /* 18px maximum - slightly smaller */
+    ) !important;
+    line-height: 1.35;
+  }
+}
+
+/* Enhanced sizing for very large screens (TVs, large monitors) */
+@media (min-width: 2560px) {
+  .responsive-smaller-text-font-size,
+  span.responsive-smaller-text-font-size,
+  p.responsive-smaller-text-font-size,
+  div.responsive-smaller-text-font-size {
+    font-size: clamp(
+      1.5rem, /* 24px minimum - slightly smaller for better proportion */
+      calc(1.1vw + 1vh), /* More aggressive scaling for large screens - reduced */
+      3.5rem /* 56px maximum - slightly smaller */
+    ) !important;
+    line-height: 1.35;
   }
 }

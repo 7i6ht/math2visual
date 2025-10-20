@@ -11,11 +11,11 @@ export const ParseErrorSection = ({ message = "Could not parse Visual Language."
       <AccordionTrigger className="px-4 hover:no-underline">
         <div className="flex items-center gap-3">
           <AlertCircle className="w-5 h-5 text-destructive" />
-          <span className="font-normal text-destructive text-font-size">Parse Error</span>
+          <span className="font-normal text-destructive responsive-text-font-size">Parse Error</span>
         </div>
       </AccordionTrigger>
       <AccordionContent className="px-4">
-        <div className="text-font-size text-destructive">
+        <div className="responsive-text-font-size text-destructive">
           {message}
         </div>
       </AccordionContent>

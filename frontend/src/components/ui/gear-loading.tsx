@@ -52,7 +52,7 @@ export const GearLoading = ({
           title="Cancel generation"
           aria-label="Cancel generation"
         >
-          <X className="smaller-icon-font-size"/>
+          <X className="responsive-smaller-icon-font-size"/>
           Cancel
         </Button>
         )}

@@ -123,11 +123,11 @@ export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
         <div className="relative flex-1">
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="absolute left-1.5 sm:left-2 md:left-2 lg:left-2.5 xl:left-3 2xl:left-3.5 3xl:left-4 4xl:left-4.5 5xl:left-3.5 6xl:left-4 7xl:left-4.5 top-1/2 transform -translate-y-1/2 smaller-icon-font-size text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 rounded transition-colors duration-200 flex items-center justify-center"
+            className="absolute left-1.5 sm:left-2 md:left-2 lg:left-2.5 xl:left-3 2xl:left-3.5 3xl:left-4 4xl:left-4.5 5xl:left-3.5 6xl:left-4 7xl:left-4.5 top-1/2 transform -translate-y-1/2 responsive-smaller-icon-font-size text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 rounded transition-colors duration-200 flex items-center justify-center"
             title="Choose SVG file"
             disabled={isUploading}
           >
-            <Upload className="smaller-icon-font-size" />
+            <Upload className="responsive-smaller-icon-font-size" />
           </button>
           <Input
             ref={filenameInputRef}
@@ -135,7 +135,7 @@ export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
             onChange={(e) => setFilename(e.target.value)}
             placeholder="Enter name..."
             spellCheck={false}
-            className="pl-8 sm:pl-9 md:pl-10 lg:pl-11 xl:pl-12 2xl:pl-14 3xl:pl-15 4xl:pl-16 5xl:pl-20 6xl:pl-22 7xl:pl-24 rounded-r-none border-r-0 popup-button-responsive-height text-font-size focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation"
+            className="pl-8 sm:pl-9 md:pl-10 lg:pl-11 xl:pl-12 2xl:pl-14 3xl:pl-15 4xl:pl-16 5xl:pl-20 6xl:pl-22 7xl:pl-24 rounded-r-none border-r-0 popup-button-responsive-height responsive-text-font-size focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation"
             disabled={isUploading}
           />
         </div>
@@ -152,18 +152,18 @@ export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
               }}
               disabled={isUploading}
             >
-              <Image className="smaller-icon-font-size" />
+              <Image className="responsive-smaller-icon-font-size" />
             </button>
           )}
           <Button
             onClick={handleUpload}
             disabled={!isValidSelection || isUploading}
-            className="px-2 sm:px-3 rounded-l-none popup-button-responsive-height text-font-size !text-primary-foreground focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation flex-shrink-0"
+            className="px-2 sm:px-3 rounded-l-none popup-button-responsive-height responsive-text-font-size !text-primary-foreground focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation flex-shrink-0"
           >
             {isUploading ? (
-              <div className="animate-spin rounded-full smaller-icon-font-size border-b-2 border-white" />
+              <div className="animate-spin rounded-full responsive-smaller-icon-font-size border-b-2 border-white" />
             ) : (
-              <ArrowRight className="smaller-icon-font-size" />
+              <ArrowRight className="responsive-smaller-icon-font-size" />
             )}
           </Button>
         </div>
@@ -180,23 +180,23 @@ export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
 
       {/* Validation error message (real-time) */}
       {validationError && (
-        <div className="flex items-center gap-2 text-red-600 text-font-size mt-1">
-          <AlertCircle className="smaller-icon-font-size" />
+        <div className="flex items-center gap-2 text-red-600 responsive-text-font-size mt-1">
+          <AlertCircle className="responsive-smaller-icon-font-size" />
           {validationError}
         </div>
       )}
 
       {/* Error message */}
       {error && (
-        <div className="flex items-center gap-2 text-red-600 text-font-size mt-1">
-          <AlertCircle className="smaller-icon-font-size" />
+        <div className="flex items-center gap-2 text-red-600 responsive-text-font-size mt-1">
+          <AlertCircle className="responsive-smaller-icon-font-size" />
           {error}
         </div>
       )}
 
       {/* Upload status */}
       {isUploading && (
-        <div className="text-font-size text-blue-600 mt-1">Uploading...</div>
+        <div className="responsive-text-font-size text-blue-600 mt-1">Uploading...</div>
       )}
     </BasePopup>
   );
