@@ -165,34 +165,24 @@ export const SyntaxEditor: React.FC<SyntaxEditorProps> = ({
   const decorationsRef = useRef<string[]>([]);
   const monacoRef = useRef<Monaco | null>(null);
   
-  // Calculate responsive font size based on container width
+  // Calculate responsive font size using CSS responsive-text-font-size class
   const getResponsiveFontSize = () => {
-    // Use viewport width directly for ultra-wide scaling
-    const width = typeof window !== 'undefined' ? window.innerWidth : 0;
-
-    // Scaled down tiers for ultra-wide screens (more modest sizing)
-    if (width >= 6000) return 72;
-    if (width >= 5200) return 66;
-    if (width >= 4200) return 58;
-    if (width >= 3800) return 52;
-    if (width >= 3400) return 46;
-    if (width >= 3000) return 42;
-    if (width >= 2600) return 36;
-    if (width >= 2400) return 34;
-    if (width >= 2200) return 32;
-
-    // Regular high-res tiers
-    if (width >= 2100) return 30;  // large 3.5xl
-    if (width >= 1920) return 28;  // 4xl breakpoint
-    if (width >= 1700) return 26;  // big 3xl
-    if (width >= 1600) return 25;  // 3xl breakpoint
-    if (width >= 1400) return 16;
-    if (width >= 1200) return 15;
-    if (width >= 1024) return 14;  // laptops
-    // Tablet and mobile — increased sizes for readability
-    if (width >= 768) return 16;   // tablets
-    if (width >= 480) return 14;   // larger phones
-    return 13;                     // small phones
+    if (typeof window === 'undefined') return 14; // fallback for SSR
+    
+    // Create a temporary element with the responsive class to get computed font size
+    const tempElement = document.createElement('span');
+    tempElement.className = 'responsive-smaller-text-font-size';
+    tempElement.style.visibility = 'hidden';
+    tempElement.style.position = 'absolute';
+    tempElement.style.top = '-9999px';
+    tempElement.textContent = 'M'; // Use a character to measure
+    
+    document.body.appendChild(tempElement);
+    const computedStyle = window.getComputedStyle(tempElement);
+    const fontSize = parseFloat(computedStyle.fontSize);
+    document.body.removeChild(tempElement);
+    
+    return Math.round(fontSize);
   };
 
   // Calculate dynamic height based on content

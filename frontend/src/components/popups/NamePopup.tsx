@@ -78,9 +78,9 @@ export const NamePopup: React.FC<NamePopupProps> = ({
             className="px-2 rounded-l-none popup-button-responsive-height responsive-text-font-size !text-primary-foreground focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation flex-shrink-0"
           >
             {isLoading ? (
-              <div className="animate-spin rounded-full responsive-smaller-icon-font-size border-b-2 border-white" />
+              <div className="animate-spin rounded-full responsive-smaller-text-font-size border-b-2 border-white" />
             ) : (
-              <ArrowRight/>
+              <ArrowRight className="responsive-smaller-icon-font-size"/>
             )}
           </Button>
         </div>
