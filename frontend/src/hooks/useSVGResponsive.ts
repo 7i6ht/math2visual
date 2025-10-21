@@ -28,10 +28,10 @@ export const useSVGResponsive = () => {
 
     // Base responsive settings
     svg.removeAttribute('height');
-    (svg as unknown as HTMLElement).style.height = 'auto';
-    (svg as unknown as HTMLElement).style.maxWidth = '100%';
-    (svg as unknown as HTMLElement).style.display = 'block';
-    (svg as unknown as HTMLElement).style.margin = '0 auto';
+    svg.style.height = 'auto';
+    svg.style.maxWidth = '100%';
+    svg.style.display = 'block';
+    svg.style.margin = '0 auto';
     if (!svg.getAttribute('preserveAspectRatio')) {
       svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
     }
@@ -61,15 +61,15 @@ export const useSVGResponsive = () => {
         const scale = clampPx / predictedHeight; // 0..1
         const widthPercent = Math.max(10, Math.min(100, Math.round(scale * 100)));
         svg.removeAttribute('width');
-        (svg as unknown as HTMLElement).style.width = `${widthPercent}%`;
+        svg.style.width = `${widthPercent}%`;
       } else {
         svg.removeAttribute('width');
-        (svg as unknown as HTMLElement).style.width = '100%';
+        svg.style.width = '100%';
       }
     } else {
       // Fallback
       svg.removeAttribute('width');
-      (svg as unknown as HTMLElement).style.width = '100%';
+      svg.style.width = '100%';
     }
   }, []);
 
