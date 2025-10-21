@@ -8,15 +8,39 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Download, FileImage, File, FileText } from "lucide-react";
-import { downloadVisualization } from "@/utils/download";
+import { downloadSvg, downloadPng, downloadPdf, generateVisualizationFilename } from "@/utils/download";
 import { toast } from "sonner";
 import { useState } from "react";
 import type { DownloadFormat } from "@/types";
 
 const downloadOptions = [
-  { format: "svg" as DownloadFormat, label: "SVG", icon: FileImage },
-  { format: "png" as DownloadFormat, label: "PNG", icon: File },
-  { format: "pdf" as DownloadFormat, label: "PDF", icon: FileText },
+  { 
+    format: "svg" as DownloadFormat, 
+    label: "SVG", 
+    icon: FileImage,
+    handler: (svgContent: string, type: "formal" | "intuitive") => {
+      const filename = generateVisualizationFilename(type, "svg");
+      downloadSvg(svgContent, filename);
+    }
+  },
+  { 
+    format: "png" as DownloadFormat, 
+    label: "PNG", 
+    icon: File,
+    handler: (svgContent: string, type: "formal" | "intuitive") => {
+      const filename = generateVisualizationFilename(type, "png");
+      downloadPng(svgContent, filename);
+    }
+  },
+  { 
+    format: "pdf" as DownloadFormat, 
+    label: "PDF", 
+    icon: FileText,
+    handler: async (svgContent: string, type: "formal" | "intuitive") => {
+      const filename = generateVisualizationFilename(type, "pdf");
+      await downloadPdf(svgContent, filename);
+    }
+  },
 ];
 
 interface DownloadButtonProps {
@@ -35,6 +59,8 @@ export const DownloadButton = ({
   const [isDownloading, setIsDownloading] = useState(false);
 
   const handleDownload = async (
+    handler: (svgContent: string,
+    type: "formal" | "intuitive") => void | Promise<void>,
     format: DownloadFormat,
     event: React.MouseEvent
   ) => {
@@ -47,7 +73,7 @@ export const DownloadButton = ({
     );
 
     try {
-      await downloadVisualization(svgContent, format, type);
+      await handler(svgContent, type);
       toast.success(`${format.toUpperCase()} file downloaded successfully!`, {
         id: toastId,
         description: `${title} has been saved to your downloads folder.`,
@@ -92,7 +118,7 @@ export const DownloadButton = ({
         {downloadOptions.map((option) => (
           <DropdownMenuItem
             key={option.format}
-            onClick={(e) => handleDownload(option.format, e)}
+            onClick={(e) => handleDownload(option.handler, option.format, e)}
             className="cursor-pointer responsive-text-font-size flex items-center gap-1"
             disabled={isDisabled}
           >

@@ -173,30 +173,6 @@ export const downloadPdf = async (svgContent: string, filename: string, scaleFac
   }
 };
 
-/**
- * Downloads visualization in the specified format
- */
-export const downloadVisualization = async (
-  svgContent: string, 
-  format: 'svg' | 'png' | 'pdf', 
-  type: 'formal' | 'intuitive'
-): Promise<void> => {
-  const filename = generateVisualizationFilename(type, format);
-  
-  switch (format) {
-    case 'svg':
-      downloadSvg(svgContent, filename);
-      break;
-    case 'png':
-      downloadPng(svgContent, filename); // Using 3x scale factor by default
-      break;
-    case 'pdf':
-      await downloadPdf(svgContent, filename); // Using 3x scale factor by default
-      break;
-    default:
-      throw new Error(`Unsupported format: ${format}`);
-  }
-};
 
 /**
  * Generates a filename for visualization downloads
