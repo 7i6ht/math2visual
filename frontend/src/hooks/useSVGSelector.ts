@@ -82,7 +82,7 @@ export const useSVGSelector = ({
       const loadingToastId = toast.loading('Updating SVG and regenerating visuals...');
       
       // Use regex to replace all occurrences of the old type with the new type
-      const updatedDSL = replaceEntityTypeInDSL(formattedDSL, selectorState.currentValue, newType, selectorState.dslPath);
+      const updatedDSL = replaceEntityTypeInDSL(formattedDSL, selectorState.currentValue, newType);
 
       // Generate new visuals with updated DSL
       const abortController = new AbortController();
@@ -115,7 +115,7 @@ export const useSVGSelector = ({
       );
       throw error; // Re-throw so the popup can handle it
     }
-  }, [formattedDSL, selectorState.currentValue, selectorState.dslPath, onVisualsUpdate, closeSelector]);
+  }, [formattedDSL, selectorState.currentValue, onVisualsUpdate, closeSelector]);
 
   return {
     selectorState,
@@ -126,42 +126,21 @@ export const useSVGSelector = ({
 };
 
 /**
- * Replace all occurrences of an entity type in DSL string using regex
- * Uses the DSL path to determine whether to match entity_type, container_type, or attr_type
+ * Replace all occurrences of the old value with the new value in DSL string
  */
-function replaceEntityTypeInDSL(dsl: string, oldType: string, newType: string, dslPath: string): string {
-  if (!dsl || !oldType || !newType || !dslPath) {
+function replaceEntityTypeInDSL(dsl: string, oldType: string, newType: string): string {
+  if (!dsl || !oldType || !newType) {
     return dsl;
   }
 
-  // Determine the type pattern based on DSL path
-  let typePattern: string;
-  if (dslPath.endsWith('container_type')) {
-    typePattern = 'container_type';
-  } else if (dslPath.endsWith('attr_type')) {
-    typePattern = 'attr_type';
-  } else {
-    typePattern = 'entity_type';
-  }
-  
-  // Pattern to match the specific type: value pattern
-  // Using word boundaries to avoid partial replacements
-  const pattern = new RegExp(`(${typePattern}\\s*:\\s*)${escapeRegex(oldType)}(\\b)`, 'g');
-  const replacement = `$1${newType}$2`;
-  
-  const updatedDSL = dsl.replace(pattern, replacement);
+  // Simple replacement of all occurrences using word boundaries
+  const pattern = new RegExp(`\\b${oldType}\\b`, 'g');
+  const updatedDSL = dsl.replace(pattern, newType);
   
   // Check if any replacements were made
   if (updatedDSL === dsl) {
-    throw new Error(`Could not find ${typePattern} '${oldType}' in DSL`);
+    throw new Error(`Could not find '${oldType}' in DSL`);
   }
   
   return updatedDSL;
-}
-
-/**
- * Escape special regex characters
- */
-function escapeRegex(string: string): string {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }

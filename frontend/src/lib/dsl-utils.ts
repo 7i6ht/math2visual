@@ -9,12 +9,13 @@ import type { ParsedOperation, ParsedEntity } from '@/utils/dsl-parser';
 export interface EntityInfo {
   entityName: string;
   entityQuantity: number;
+  entityType: string;
   containerName: string;
   dslPath: string;
 }
 
 export interface DSLChange {
-  type: 'entity_name' | 'entity_quantity' | 'container_name';
+  type: 'entity_name' | 'entity_quantity' | 'entity_type' | 'container_name';
   oldValue: string;
   newValue: string;
   entityPath: string;
@@ -85,6 +86,9 @@ function extractEntityInfo(entity: ParsedEntity, dslPath: string): EntityInfo | 
     // Get entity quantity - try multiple possible locations
     const entityQuantity = entity.entity_quantity || entity.item?.entity_quantity || 0;
     
+    // Get entity type - try multiple possible locations
+    const entityType = entity.entity_type || entity.item?.entity_type || '';
+    
     // Get container name
     const containerName = entity.container_name || '';
     
@@ -92,6 +96,7 @@ function extractEntityInfo(entity: ParsedEntity, dslPath: string): EntityInfo | 
       return {
         entityName,
         entityQuantity,
+        entityType,
         containerName,
         dslPath,
       };
@@ -120,6 +125,7 @@ export function detectDSLChanges(oldParsedDSL: ParsedOperation, newParsedDSL: Pa
       const fields: Array<{ type: DSLChange['type']; oldVal: unknown; newVal: unknown; stringify?: boolean }>= [
         { type: 'entity_name', oldVal: oldEntity.entityName, newVal: newEntity.entityName },
         { type: 'entity_quantity', oldVal: oldEntity.entityQuantity, newVal: newEntity.entityQuantity, stringify: true },
+        { type: 'entity_type', oldVal: oldEntity.entityType, newVal: newEntity.entityType },
         { type: 'container_name', oldVal: oldEntity.containerName, newVal: newEntity.containerName },
       ];
 
@@ -147,6 +153,7 @@ export function updateMWPText(mwpText: string, changes: DSLChange[]): string {
   
   const handlers: Record<DSLChange["type"], (t: string, o: string, n: string) => string> = {
     entity_name: (t, o, n) => replaceEntityNames(t, o, n),
+    entity_type: (t, o, n) => replaceEntityNames(t, o, n),
     entity_quantity: (t, o, n) => replaceQuantities(t, o, n),
     container_name: (t, o, n) => replaceContainerNames(t, o, n),
   };
@@ -164,8 +171,7 @@ export function updateMWPText(mwpText: string, changes: DSLChange[]): string {
 function replaceEntityNames(text: string, oldName: string, newName: string): string {
   // Simple approach: match the base word with optional trailing 's' (plural)
   // Mirrors the pattern used in useHighlighting.ts for container names
-  const escaped = escapeRegex(oldName);
-  const regex = new RegExp(`\\b(${escaped})(s?)\\b`, 'gi');
+  const regex = new RegExp(`\\b(${oldName})(s?)\\b`, 'gi');
   return text.replace(regex, (_match, _base: string, plural: string) => {
     return plural ? `${newName}s` : newName;
   });
@@ -180,7 +186,7 @@ function replaceQuantities(text: string, oldQuantity: string, newQuantity: strin
   
   if (isNaN(oldNum) || isNaN(newNum)) {
     // If either value isn't a number, do simple text replacement
-    const regex = new RegExp(`\\b${escapeRegex(oldQuantity)}\\b`, 'gi');
+    const regex = new RegExp(`\\b${oldQuantity}\\b`, 'gi');
     return text.replace(regex, newQuantity);
   }
   
@@ -193,11 +199,11 @@ function replaceQuantities(text: string, oldQuantity: string, newQuantity: strin
   let updatedText = text;
   
   // Replace numeric form
-  const numericRegex = new RegExp(`\\b${escapeRegex(oldQuantity)}\\b`, 'gi');
+  const numericRegex = new RegExp(`\\b${oldQuantity}\\b`, 'gi');
   updatedText = updatedText.replace(numericRegex, newQuantity);
   
   // Replace text form
-  const textRegex = new RegExp(`\\b${escapeRegex(oldText)}\\b`, 'gi');
+  const textRegex = new RegExp(`\\b${oldText}\\b`, 'gi');
   updatedText = updatedText.replace(textRegex, newText);
   
   return updatedText;
@@ -208,13 +214,7 @@ function replaceQuantities(text: string, oldQuantity: string, newQuantity: strin
  */
 function replaceContainerNames(text: string, oldName: string, newName: string): string {
   // Use word boundaries to avoid partial replacements
-  const regex = new RegExp(`\\b${escapeRegex(oldName)}\\b`, 'gi');
+  const regex = new RegExp(`\\b${oldName}\\b`, 'gi');
   return text.replace(regex, newName);
 }
 
-/**
- * Escape special regex characters
- */
-function escapeRegex(string: string): string {
-  return string.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&');
-}
