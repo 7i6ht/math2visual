@@ -16,55 +16,55 @@ The backend consists of the following key components:
 
 ```
 backend/
-├── app/                         # Main application package
-│   ├── __init__.py              # Flask application factory
-│   ├── api/                     # API layer
-│   │   ├── middleware/          # Error handlers and middleware
+├── app/                                    # Main application package
+│   ├── __init__.py                         # Flask application factory
+│   ├── api/                                # API layer
+│   │   ├── middleware/                     # Error handlers and middleware
 │   │   │   └── error_handlers.py
-│   │   └── routes/              # API endpoints
-│   │       ├── generation.py    # Core generation API
-│   │       ├── svg_dataset.py   # SVG dataset management (upload, search, serve)
-│   │       └── system.py        # System status endpoints
-│   ├── config/                  # Configuration management
-│   │   └── storage_config.py    # Storage backend configuration
-│   ├── models/                  # Data models
-│   ├── services/                # Business logic
-│   │   ├── language_generation/ # GPT-based DSL generation
+│   │   └── routes/                         # API endpoints
+│   │       ├── generation.py               # Core generation API
+│   │       ├── svg_dataset.py              # SVG dataset management (upload, search, serve)
+│   │       └── system.py                   # System status endpoints
+│   ├── config/                             # Configuration management
+│   │   └── storage_config.py               # Storage backend configuration
+│   ├── models/                             # Data models
+│   ├── services/                           # Business logic
+│   │   ├── language_generation/            # GPT-based DSL generation
 │   │   │   ├── gpt_generator.py
 │   │   │   └── model_generator.py
-│   │   ├── validation/          # Input/output validation
-│   │   │   ├── security_scanner.py  # ClamAV integration
+│   │   ├── validation/                     # Input/output validation
+│   │   │   ├── security_scanner.py         # ClamAV integration
 │   │   │   └── svg_validator.py
-│   │   └── visual_generation/   # SVG generation engines
+│   │   └── visual_generation/              # SVG generation engines
 │   │       ├── dsl_parser.py
 │   │       ├── formal_generator.py
 │   │       └── intuitive_generator.py
-│   └── utils/                   # Utility functions
+│   └── utils/                              # Utility functions
 │       ├── cleanup.py
 │       └── validation_constants.py
-├── app.py                       # Application entry point
-├── gunicorn.conf.py             # Gunicorn WSGI server configuration
-├── requirements.txt             # Python dependencies
-├── storage/                     # Local storage directory
-│   ├── datasets/svg_dataset/    # SVG entity library (1,549 files)
-│   ├── models/                  # ML model checkpoints
-│   │   ├── base_model/         # Base language models
-│   │   └── check-point/         # Fine-tuned adapters
-│   └── output/                  # Generated visualizations
-├── scripts/                     # Setup and management scripts
-│   ├── start_production.sh      # Production deployment script
-│   ├── cleanup_temp_files.py    # File cleanup utility
-│   ├── install_juicefs.sh       # JuiceFS installation
-│   ├── mount_juicefs.sh         # JuiceFS mounting
-│   └── verify_juicefs.sh        # JuiceFS verification
-├── docs/                        # Documentation
-│   ├── PRODUCTION_DEPLOYMENT.md # Production deployment guide
-│   ├── JUICEFS_SETUP.md         # JuiceFS setup instructions
-│   ├── CLAMAV_SETUP.md          # ClamAV antivirus setup
-│   └── cleanup_setup.md         # File cleanup documentation
-├── config_templates/            # Configuration templates
-│   └── env_juicefs_template     # JuiceFS environment template
-└── tests/                       # Test suite
+├── app.py                                  # Application entry point
+├── gunicorn.conf.py                        # Gunicorn WSGI server configuration
+├── requirements.txt                        # Python dependencies
+├── storage/                                # Local storage directory
+│   ├── datasets/svg_dataset/               # SVG entity library (1,549 files)
+│   ├── models/                             # ML model checkpoints
+│   │   ├── base_model/                     # Base language models
+│   │   └── check-point/                    # Fine-tuned adapters
+│   └── output/                             # Generated visualizations
+├── scripts/                                # Setup and management scripts
+│   ├── start_production.sh                 # Production deployment script
+│   ├── cleanup_temp_files.py               # File cleanup utility
+│   ├── install_juicefs.sh                  # JuiceFS installation
+│   ├── mount_juicefs.sh                    # JuiceFS mounting
+│   └── verify_juicefs.sh                   # JuiceFS verification
+├── docs/                                   # Documentation
+│   ├── PRODUCTION_DEPLOYMENT.md            # Production deployment guide
+│   ├── JUICEFS_SETUP.md                    # JuiceFS setup instructions
+│   ├── CLAMAV_SETUP.md                     # ClamAV antivirus setup
+│   └── cleanup_setup.md                    # File cleanup documentation
+├── config_templates/                       # Configuration templates
+│   └── env_juicefs_template                # JuiceFS environment template
+└── tests/                                  # Test suite
     └── test_svg_validator.py
 ```
 
