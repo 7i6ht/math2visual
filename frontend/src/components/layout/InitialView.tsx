@@ -29,12 +29,12 @@ export function InitialView({ appState }: Props) {
               Math2Visual
             </h1>
           </div>
-          <p className="text-muted-foreground text-base sm:text-lg md:text-xl lg:text-xl xl:text-2xl 2xl:text-3xl 3xl:text-4xl 4xl:text-5xl 5xl:text-6xl max-w-xs sm:max-w-xl md:max-w-2xl lg:max-w-3xl xl:max-w-4xl 2xl:max-w-5xl 3xl:max-w-6xl 4xl:max-w-7xl 5xl:max-w-8xl mx-auto leading-relaxed font-medium px-2 sm:px-0">
+          <p className="text-muted-foreground text-base sm:text-lg md:text-xl lg:text-xl xl:text-2xl 2xl:text-3xl 3xl:text-4xl 4xl:text-5xl 5xl:text-6xl max-w-xs sm:max-w-xl md:max-w-2xl lg:max-w-3xl xl:max-w-4xl 2xl:max-w-5xl 3xl:max-w-6xl 4xl:max-w-7xl 5xl:max-w-8xl 6xl:max-w-full mx-auto leading-relaxed font-medium px-2 sm:px-0">
             Generating Pedagogically Meaningful Visuals for Math Word Problems
           </p>
         </div>
 
-        <div className="w-full max-w-sm sm:max-w-xl md:max-w-2xl lg:max-w-3xl xl:max-w-4xl 2xl:max-w-5xl 3xl:max-w-6xl 4xl:max-w-7xl 5xl:max-w-8xl mt-3 sm:mt-4 md:mt-5 lg:mt-6 xl:mt-8 2xl:mt-10 3xl:mt-12 px-2 sm:px-0">
+        <div className="w-full max-w-sm sm:max-w-xl md:max-w-2xl lg:max-w-3xl xl:max-w-4xl 2xl:max-w-6xl 3xl:max-w-6xl 4xl:max-w-7xl 5xl:max-w-8xl 6xl:max-w-[60%] mt-3 sm:mt-4 md:mt-5 lg:mt-6 xl:mt-8 2xl:mt-10 3xl:mt-12 px-2 sm:px-0">
           <MathProblemForm
             onSuccess={setResults}
             onLoadingChange={(loading, abortFn) => {
