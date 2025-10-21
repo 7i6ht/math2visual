@@ -20,6 +20,7 @@ backend/
 │   ├── __init__.py              # Flask application factory
 │   ├── api/                     # API layer
 │   │   ├── middleware/          # Error handlers and middleware
+│   │   │   └── error_handlers.py
 │   │   └── routes/              # API endpoints
 │   │       ├── generation.py    # Core generation API
 │   │       ├── svg_dataset.py   # SVG dataset management (upload, search, serve)
@@ -29,17 +30,42 @@ backend/
 │   ├── models/                  # Data models
 │   ├── services/                # Business logic
 │   │   ├── language_generation/ # GPT-based DSL generation
+│   │   │   ├── gpt_generator.py
+│   │   │   └── model_generator.py
 │   │   ├── validation/          # Input/output validation
+│   │   │   ├── security_scanner.py  # ClamAV integration
+│   │   │   └── svg_validator.py
 │   │   └── visual_generation/   # SVG generation engines
+│   │       ├── dsl_parser.py
+│   │       ├── formal_generator.py
+│   │       └── intuitive_generator.py
 │   └── utils/                   # Utility functions
+│       ├── cleanup.py
+│       └── validation_constants.py
 ├── app.py                       # Application entry point
+├── gunicorn.conf.py             # Gunicorn WSGI server configuration
+├── requirements.txt             # Python dependencies
 ├── storage/                     # Local storage directory
 │   ├── datasets/svg_dataset/    # SVG entity library (1,549 files)
 │   ├── models/                  # ML model checkpoints
+│   │   ├── base_model/         # Base language models
+│   │   └── check-point/         # Fine-tuned adapters
 │   └── output/                  # Generated visualizations
 ├── scripts/                     # Setup and management scripts
+│   ├── start_production.sh      # Production deployment script
+│   ├── cleanup_temp_files.py    # File cleanup utility
+│   ├── install_juicefs.sh       # JuiceFS installation
+│   ├── mount_juicefs.sh         # JuiceFS mounting
+│   └── verify_juicefs.sh        # JuiceFS verification
 ├── docs/                        # Documentation
+│   ├── PRODUCTION_DEPLOYMENT.md # Production deployment guide
+│   ├── JUICEFS_SETUP.md         # JuiceFS setup instructions
+│   ├── CLAMAV_SETUP.md          # ClamAV antivirus setup
+│   └── cleanup_setup.md         # File cleanup documentation
+├── config_templates/            # Configuration templates
+│   └── env_juicefs_template     # JuiceFS environment template
 └── tests/                       # Test suite
+    └── test_svg_validator.py
 ```
 
 ## 🚀 Quick Start
@@ -61,7 +87,7 @@ cd backend/
 conda create --name math2visual --file requirements.txt
 
 # Option 2: Using pip (install individual packages)
-pip install flask flask-cors python-dotenv openai torch transformers peft accelerate bitsandbytes safetensors
+pip install flask flask-cors python-dotenv openai torch transformers peft accelerate bitsandbytes safetensors gunicorn
 ```
 
 2. **Configure environment variables:**
@@ -79,11 +105,26 @@ SVG_CACHE_SIZE=100
 See [`docs/JUICEFS_SETUP.md`](docs/JUICEFS_SETUP.md)
 
 3. **Run the application:**
+
+**Development mode:**
 ```bash
 python app.py
 ```
 
-The server will start on `http://localhost:5001` by default.
+**Production mode:**
+```bash
+# Using the production script (recommended)
+./scripts/start_production.sh
+
+# Or directly with Gunicorn
+gunicorn --config gunicorn.conf.py app:app
+```
+
+The server will start on `http://localhost:5000` by default.
+
+### Production Deployment
+
+For production deployment, see the comprehensive guide: [`docs/PRODUCTION_DEPLOYMENT.md`](docs/PRODUCTION_DEPLOYMENT.md)
 
 ## 📡 API Endpoints
 
@@ -132,7 +173,7 @@ expected_filename: string (required) - Expected filename for validation
 
 **Example using curl:**
 ```bash
-curl -X POST http://localhost:5001/api/svg-dataset/upload \
+curl -X POST http://localhost:5000/api/svg-dataset/upload \
   -F "file=@apple.svg" \
   -F "expected_filename=apple.svg"
 ```

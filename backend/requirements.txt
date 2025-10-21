@@ -119,3 +119,4 @@ xorg-xorgproto=2024.1=h5eee18b_1
 xz=5.6.4=h5eee18b_1
 zlib=1.2.13=h5eee18b_1
 zstd=1.5.6=hc292b87_0
+gunicorn=23.0.0=pypi_0

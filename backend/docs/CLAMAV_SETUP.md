@@ -65,7 +65,7 @@ Check if ClamAV is working:
 echo "This is a test" | clamscan -
 
 # Test via our API
-curl http://localhost:5001/api/antivirus/status
+curl http://localhost:5000/api/antivirus/status
 ```
 
 Expected response when working:
@@ -118,7 +118,7 @@ sudo systemctl restart clamav-daemon
 Check system status:
 ```bash
 # Via our API
-curl http://localhost:5001/api/antivirus/status | python -m json.tool
+curl http://localhost:5000/api/antivirus/status | python -m json.tool
 
 # Direct ClamAV check
 sudo clamdscan --version
