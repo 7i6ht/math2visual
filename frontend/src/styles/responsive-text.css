@@ -1,13 +1,39 @@
 /* Height-aware responsive text sizing using pure CSS */
 
+/* CSS Custom Properties for responsive text sizing */
+:root {
+  --responsive-text-base-min: 0.875rem;
+  --responsive-text-base-max: 2rem;
+  --responsive-text-base-scale: calc(0.8vw + 0.8vh);
+  
+  --responsive-title-min: 1rem;
+  --responsive-title-max: 4rem;
+  --responsive-title-scale: calc(1.5vw + 1vh);
+  
+  --responsive-icon-min: 1.5rem;
+  --responsive-icon-max: 3rem;
+  --responsive-icon-scale: calc(1.2vw + 1vh);
+  
+  --responsive-smaller-icon-min: 1rem;
+  --responsive-smaller-icon-max: 2rem;
+  --responsive-smaller-icon-scale: calc(0.8vw + 0.8vh);
+  
+  --responsive-smaller-text-min: 0.875rem;
+  --responsive-smaller-text-max: 1.75rem;
+  --responsive-smaller-text-scale: calc(0.7vw + 0.7vh);
+  
+  --responsive-toast-min: 0.875rem;
+  --responsive-toast-max: 2rem;
+  --responsive-toast-scale: calc(0.8vw + 0.8vh);
+}
+
 /* Simplified version using viewport units and aspect ratio detection */
 .responsive-title-simple {
   /* Base sizing that considers both width and height */
-  /* Use !important to override any conflicting Tailwind classes */
   font-size: clamp(
-    1rem, /* 16px minimum */
-    calc(1.5vw + 1vh), /* Combines width and height scaling */
-    4rem /* 64px maximum */
+    var(--responsive-title-min),
+    var(--responsive-title-scale),
+    var(--responsive-title-max)
   );
 }
 
@@ -16,10 +42,10 @@ h1.responsive-title-simple,
 h2.responsive-title-simple,
 h3.responsive-title-simple {
   font-size: clamp(
-    1rem, /* 16px minimum */
-    calc(1.5vw + 1vh), /* Combines width and height scaling */
-    4rem /* 64px maximum */
-  ) !important;
+    var(--responsive-title-min),
+    var(--responsive-title-scale),
+    var(--responsive-title-max)
+  );
 }
 
 /* For very wide but short screens (aspect ratio > 2.5), cap the size more aggressively */
@@ -31,7 +57,7 @@ h3.responsive-title-simple {
   h3.responsive-title-simple {
     /* For very wide screens, reduce the maximum size significantly */
     font-size: clamp(
-      1rem,
+      var(--responsive-title-min),
       calc(1vw + 1vh), /* Less weight on width scaling */
       2.5rem /* Much lower maximum for short screens */
     );
@@ -47,7 +73,7 @@ h3.responsive-title-simple {
   h3.responsive-title-simple {
     /* For extremely wide screens, be even more conservative */
     font-size: clamp(
-      1rem,
+      var(--responsive-title-min),
       calc(0.8vw + 1vh),
       2rem /* Even lower maximum */
     );
@@ -65,7 +91,7 @@ h3.responsive-title-simple {
       1.5rem, /* 24px minimum - larger than normal */
       calc(2vw + 1.5vh), /* More aggressive scaling for large screens */
       6rem /* 96px maximum - much larger for TVs */
-    ) !important;
+    );
   }
 }
 
@@ -73,10 +99,10 @@ h3.responsive-title-simple {
 .responsive-text-font-size {
   /* Base sizing that considers both width and height */
   font-size: clamp(
-    0.875rem, /* 14px minimum */
-    calc(0.8vw + 0.8vh), /* Combines width and height scaling */
-    2rem /* 32px maximum */
-  ) !important; /* Override Button component's built-in text sizing */
+    var(--responsive-text-base-min),
+    var(--responsive-text-base-scale),
+    var(--responsive-text-base-max)
+  );
   line-height: 1.35; /* Prevent line overlap on extreme aspect ratios/zoom */
 }
 
@@ -85,10 +111,21 @@ button.responsive-text-font-size,
 .btn.responsive-text-font-size,
 [data-slot="button"].responsive-text-font-size {
   font-size: clamp(
-    0.875rem, /* 14px minimum */
-    calc(0.8vw + 0.8vh), /* Combines width and height scaling */
-    2rem /* 32px maximum */
-  ) !important;
+    var(--responsive-text-base-min),
+    var(--responsive-text-base-scale),
+    var(--responsive-text-base-max)
+  );
+  line-height: 1.35;
+}
+
+/* Additional specificity for Dropdown Menu Items */
+[role="menuitem"].responsive-text-font-size,
+[data-radix-collection-item].responsive-text-font-size {
+  font-size: clamp(
+    var(--responsive-text-base-min),
+    var(--responsive-text-base-scale),
+    var(--responsive-text-base-max)
+  );
   line-height: 1.35;
 }
 
@@ -98,10 +135,10 @@ button.responsive-text-font-size[class*="text-"],
 button[class*="responsive-text-font-size"],
 button.responsive-text-font-size {
   font-size: clamp(
-    0.875rem, /* 14px minimum */
-    calc(0.8vw + 0.8vh), /* Combines width and height scaling */
-    2rem /* 32px maximum */
-  ) !important;
+    var(--responsive-text-base-min),
+    var(--responsive-text-base-scale),
+    var(--responsive-text-base-max)
+  );
   line-height: 1.35;
 }
 
@@ -111,10 +148,10 @@ button.responsive-text-font-size.md\:text-sm,
 button.responsive-text-font-size.lg\:text-base,
 button.responsive-text-font-size.xl\:text-lg {
   font-size: clamp(
-    0.875rem, /* 14px minimum */
-    calc(0.8vw + 0.8vh), /* Combines width and height scaling */
-    2rem /* 32px maximum */
-  ) !important;
+    var(--responsive-text-base-min),
+    var(--responsive-text-base-scale),
+    var(--responsive-text-base-max)
+  );
 }
 
 /* Create a button base class without built-in text sizing */
@@ -151,12 +188,14 @@ button.responsive-text-font-size.xl\:text-lg {
 @media (min-aspect-ratio: 2.5/1) and (max-width: 2560px) {
   .responsive-text-font-size,
   button.responsive-text-font-size,
-  .btn.responsive-text-font-size {
+  .btn.responsive-text-font-size,
+  [role="menuitem"].responsive-text-font-size,
+  [data-radix-collection-item].responsive-text-font-size {
     font-size: clamp(
-      0.875rem,
+      var(--responsive-text-base-min),
       calc(0.6vw + 0.8vh), /* Less weight on width scaling */
       1.5rem /* Much lower maximum for short screens */
-    ) !important;
+    );
   }
 }
 
@@ -165,12 +204,14 @@ button.responsive-text-font-size.xl\:text-lg {
 @media (min-aspect-ratio: 3/1) and (max-width: 2560px) {
   .responsive-text-font-size,
   button.responsive-text-font-size,
-  .btn.responsive-text-font-size {
+  .btn.responsive-text-font-size,
+  [role="menuitem"].responsive-text-font-size,
+  [data-radix-collection-item].responsive-text-font-size {
     font-size: clamp(
-      0.875rem,
+      var(--responsive-text-base-min),
       calc(0.5vw + 0.8vh),
       1.25rem /* Even lower maximum */
-    ) !important;
+    );
   }
 }
 
@@ -185,12 +226,14 @@ button.responsive-text-font-size.xl\:text-lg {
   button.responsive-text-font-size.text-xs,
   button.responsive-text-font-size.md\:text-sm,
   button.responsive-text-font-size.lg\:text-base,
-  button.responsive-text-font-size.xl\:text-lg {
+  button.responsive-text-font-size.xl\:text-lg,
+  [role="menuitem"].responsive-text-font-size,
+  [data-radix-collection-item].responsive-text-font-size {
     font-size: clamp(
       1.25rem, /* 20px minimum - increased for better TV readability */
       calc(1.5vw + 1.2vh), /* More aggressive scaling for large screens */
       4rem /* 64px maximum - significantly larger for TVs */
-    ) !important;
+    );
   }
 }
 
@@ -198,10 +241,10 @@ button.responsive-text-font-size.xl\:text-lg {
 .responsive-icon-font-size {
   /* Base sizing that considers both width and height */
   font-size: clamp(
-    1.5rem, /* 24px minimum */
-    calc(1.2vw + 1vh), /* Combines width and height scaling */
-    3rem /* 48px maximum */
-  ) !important; /* Override any conflicting icon sizing */
+    var(--responsive-icon-min),
+    var(--responsive-icon-scale),
+    var(--responsive-icon-max)
+  );
 }
 
 /* Additional specificity for icon elements */
@@ -209,20 +252,20 @@ svg.responsive-icon-font-size,
 i.responsive-icon-font-size,
 .icon.responsive-icon-font-size {
   font-size: clamp(
-    1.5rem, /* 24px minimum */
-    calc(1.2vw + 1vh), /* Combines width and height scaling */
-    3rem /* 48px maximum */
-  ) !important;
+    var(--responsive-icon-min),
+    var(--responsive-icon-scale),
+    var(--responsive-icon-max)
+  );
   width: clamp(
-    1.5rem, /* 24px minimum */
-    calc(1.2vw + 1vh), /* Combines width and height scaling */
-    3rem /* 48px maximum */
-  ) !important;
+    var(--responsive-icon-min),
+    var(--responsive-icon-scale),
+    var(--responsive-icon-max)
+  );
   height: clamp(
-    1.5rem, /* 24px minimum */
-    calc(1.2vw + 1vh), /* Combines width and height scaling */
-    3rem /* 48px maximum */
-  ) !important;
+    var(--responsive-icon-min),
+    var(--responsive-icon-scale),
+    var(--responsive-icon-max)
+  );
 }
 
 /* For very wide but short screens (aspect ratio > 2.5), cap the size more aggressively */
@@ -230,20 +273,20 @@ i.responsive-icon-font-size,
 @media (min-aspect-ratio: 2.5/1) and (max-width: 2560px) {
   .responsive-icon-font-size {
     font-size: clamp(
-      1.5rem,
+      var(--responsive-icon-min),
       calc(0.8vw + 1vh), /* Less weight on width scaling */
       2.25rem /* Much lower maximum for short screens */
-    ) !important;
+    );
     width: clamp(
-      1.5rem,
+      var(--responsive-icon-min),
       calc(0.8vw + 1vh), /* Less weight on width scaling */
       2.25rem /* Much lower maximum for short screens */
-    ) !important;
+    );
     height: clamp(
-      1.5rem,
+      var(--responsive-icon-min),
       calc(0.8vw + 1vh), /* Less weight on width scaling */
       2.25rem /* Much lower maximum for short screens */
-    ) !important;
+    );
   }
 }
 
@@ -252,20 +295,20 @@ i.responsive-icon-font-size,
 @media (min-aspect-ratio: 3/1) and (max-width: 2560px) {
   .responsive-icon-font-size {
     font-size: clamp(
-      1.5rem,
+      var(--responsive-icon-min),
       calc(0.6vw + 1vh),
       2rem /* Even lower maximum */
-    ) !important;
+    );
     width: clamp(
-      1.5rem,
+      var(--responsive-icon-min),
       calc(0.6vw + 1vh),
       2rem /* Even lower maximum */
-    ) !important;
+    );
     height: clamp(
-      1.5rem,
+      var(--responsive-icon-min),
       calc(0.6vw + 1vh),
       2rem /* Even lower maximum */
-    ) !important;
+    );
   }
 }
 
@@ -279,17 +322,17 @@ i.responsive-icon-font-size,
       2.5rem, /* 40px minimum - increased for better TV visibility */
       calc(2vw + 1.8vh), /* More aggressive scaling for large screens */
       6rem /* 96px maximum - significantly larger for TVs */
-    ) !important;
+    );
     width: clamp(
       2.5rem, /* 40px minimum - increased for better TV visibility */
       calc(2vw + 1.8vh), /* More aggressive scaling for large screens */
       6rem /* 96px maximum - significantly larger for TVs */
-    ) !important;
+    );
     height: clamp(
       2.5rem, /* 40px minimum - increased for better TV visibility */
       calc(2vw + 1.8vh), /* More aggressive scaling for large screens */
       6rem /* 96px maximum - significantly larger for TVs */
-    ) !important;
+    );
   }
 }
 
@@ -297,10 +340,10 @@ i.responsive-icon-font-size,
 .responsive-smaller-icon-font-size {
   /* Base sizing that considers both width and height */
   font-size: clamp(
-    1rem, /* 16px minimum */
-    calc(0.8vw + 0.8vh), /* Combines width and height scaling */
-    2rem /* 32px maximum */
-  ) !important; /* Override any conflicting icon sizing */
+    var(--responsive-smaller-icon-min),
+    var(--responsive-smaller-icon-scale),
+    var(--responsive-smaller-icon-max)
+  );
 }
 
 /* Additional specificity for smaller icon elements */
@@ -308,38 +351,82 @@ svg.responsive-smaller-icon-font-size,
 i.responsive-smaller-icon-font-size,
 .icon.responsive-smaller-icon-font-size {
   font-size: clamp(
-    1rem, /* 16px minimum */
-    calc(0.8vw + 0.8vh), /* Combines width and height scaling */
-    2rem /* 32px maximum */
+    var(--responsive-smaller-icon-min),
+    var(--responsive-smaller-icon-scale),
+    var(--responsive-smaller-icon-max)
+  );
+  width: clamp(
+    var(--responsive-smaller-icon-min),
+    var(--responsive-smaller-icon-scale),
+    var(--responsive-smaller-icon-max)
+  );
+  height: clamp(
+    var(--responsive-smaller-icon-min),
+    var(--responsive-smaller-icon-scale),
+    var(--responsive-smaller-icon-max)
+  );
+}
+
+/* More specific targeting for Lucide React icons */
+svg[class*="lucide"].responsive-smaller-icon-font-size,
+svg[class*="lucide-"].responsive-smaller-icon-font-size {
+  font-size: clamp(
+    var(--responsive-smaller-icon-min),
+    var(--responsive-smaller-icon-scale),
+    var(--responsive-smaller-icon-max)
   ) !important;
   width: clamp(
-    1rem, /* 16px minimum */
-    calc(0.8vw + 0.8vh), /* Combines width and height scaling */
-    2rem /* 32px maximum */
+    var(--responsive-smaller-icon-min),
+    var(--responsive-smaller-icon-scale),
+    var(--responsive-smaller-icon-max)
   ) !important;
   height: clamp(
-    1rem, /* 16px minimum */
-    calc(0.8vw + 0.8vh), /* Combines width and height scaling */
-    2rem /* 32px maximum */
+    var(--responsive-smaller-icon-min),
+    var(--responsive-smaller-icon-scale),
+    var(--responsive-smaller-icon-max)
+  ) !important;
+}
+
+/* Even more specific targeting for Lucide icons with data attributes */
+svg[data-lucide].responsive-smaller-icon-font-size,
+svg[data-lucide-icon].responsive-smaller-icon-font-size {
+  font-size: clamp(
+    var(--responsive-smaller-icon-min),
+    var(--responsive-smaller-icon-scale),
+    var(--responsive-smaller-icon-max)
+  ) !important;
+  width: clamp(
+    var(--responsive-smaller-icon-min),
+    var(--responsive-smaller-icon-scale),
+    var(--responsive-smaller-icon-max)
+  ) !important;
+  height: clamp(
+    var(--responsive-smaller-icon-min),
+    var(--responsive-smaller-icon-scale),
+    var(--responsive-smaller-icon-max)
   ) !important;
 }
 
 /* For very wide but short screens (aspect ratio > 2.5), cap the size more aggressively */
 /* But only if the screen is not very large (to preserve TV sizing) */
 @media (min-aspect-ratio: 2.5/1) and (max-width: 2560px) {
-  .responsive-smaller-icon-font-size {
+  .responsive-smaller-icon-font-size,
+  svg.responsive-smaller-icon-font-size,
+  svg[class*="lucide"].responsive-smaller-icon-font-size,
+  svg[data-lucide].responsive-smaller-icon-font-size,
+  svg[data-lucide-icon].responsive-smaller-icon-font-size {
     font-size: clamp(
-      1rem,
+      var(--responsive-smaller-icon-min),
       calc(0.6vw + 0.8vh), /* Less weight on width scaling */
       1.5rem /* Much lower maximum for short screens */
     ) !important;
     width: clamp(
-      1rem,
+      var(--responsive-smaller-icon-min),
       calc(0.6vw + 0.8vh), /* Less weight on width scaling */
       1.5rem /* Much lower maximum for short screens */
     ) !important;
     height: clamp(
-      1rem,
+      var(--responsive-smaller-icon-min),
       calc(0.6vw + 0.8vh), /* Less weight on width scaling */
       1.5rem /* Much lower maximum for short screens */
     ) !important;
@@ -349,19 +436,23 @@ i.responsive-smaller-icon-font-size,
 /* Additional refinement for extremely wide screens */
 /* But only if the screen is not very large (to preserve TV sizing) */
 @media (min-aspect-ratio: 3/1) and (max-width: 2560px) {
-  .responsive-smaller-icon-font-size {
+  .responsive-smaller-icon-font-size,
+  svg.responsive-smaller-icon-font-size,
+  svg[class*="lucide"].responsive-smaller-icon-font-size,
+  svg[data-lucide].responsive-smaller-icon-font-size,
+  svg[data-lucide-icon].responsive-smaller-icon-font-size {
     font-size: clamp(
-      1rem,
+      var(--responsive-smaller-icon-min),
       calc(0.5vw + 0.8vh),
       1.25rem /* Even lower maximum */
     ) !important;
     width: clamp(
-      1rem,
+      var(--responsive-smaller-icon-min),
       calc(0.5vw + 0.8vh),
       1.25rem /* Even lower maximum */
     ) !important;
     height: clamp(
-      1rem,
+      var(--responsive-smaller-icon-min),
       calc(0.5vw + 0.8vh),
       1.25rem /* Even lower maximum */
     ) !important;
@@ -373,7 +464,10 @@ i.responsive-smaller-icon-font-size,
   .responsive-smaller-icon-font-size,
   svg.responsive-smaller-icon-font-size,
   i.responsive-smaller-icon-font-size,
-  .icon.responsive-smaller-icon-font-size {
+  .icon.responsive-smaller-icon-font-size,
+  svg[class*="lucide"].responsive-smaller-icon-font-size,
+  svg[data-lucide].responsive-smaller-icon-font-size,
+  svg[data-lucide-icon].responsive-smaller-icon-font-size {
     font-size: clamp(
       1.75rem, /* 28px minimum - increased for better TV visibility */
       calc(1.3vw + 1.2vh), /* More aggressive scaling for large screens */
@@ -396,10 +490,10 @@ i.responsive-smaller-icon-font-size,
 .responsive-smaller-text-font-size {
   /* Base sizing that matches responsive-smaller-icon-font-size but for text */
   font-size: clamp(
-    0.875rem, /* 14px minimum - slightly smaller */
-    calc(0.7vw + 0.7vh), /* Combines width and height scaling - reduced */
-    1.75rem /* 28px maximum - slightly smaller */
-  ) !important; /* Override any conflicting text sizing */
+    var(--responsive-smaller-text-min),
+    var(--responsive-smaller-text-scale),
+    var(--responsive-smaller-text-max)
+  );
   line-height: 1.35; /* Prevent line overlap on extreme aspect ratios/zoom */
 }
 
@@ -408,10 +502,10 @@ span.responsive-smaller-text-font-size,
 p.responsive-smaller-text-font-size,
 div.responsive-smaller-text-font-size {
   font-size: clamp(
-    0.875rem, /* 14px minimum - slightly smaller */
-    calc(0.7vw + 0.7vh), /* Combines width and height scaling - reduced */
-    1.75rem /* 28px maximum - slightly smaller */
-  ) !important;
+    var(--responsive-smaller-text-min),
+    var(--responsive-smaller-text-scale),
+    var(--responsive-smaller-text-max)
+  );
   line-height: 1.35;
 }
 
@@ -423,10 +517,10 @@ div.responsive-smaller-text-font-size {
   p.responsive-smaller-text-font-size,
   div.responsive-smaller-text-font-size {
     font-size: clamp(
-      0.875rem, /* 14px minimum - slightly smaller */
+      var(--responsive-smaller-text-min),
       calc(0.5vw + 0.7vh), /* Less weight on width scaling - reduced */
       1.25rem /* 20px maximum - slightly smaller */
-    ) !important;
+    );
     line-height: 1.35;
   }
 }
@@ -439,10 +533,10 @@ div.responsive-smaller-text-font-size {
   p.responsive-smaller-text-font-size,
   div.responsive-smaller-text-font-size {
     font-size: clamp(
-      0.875rem, /* 14px minimum - slightly smaller */
+      var(--responsive-smaller-text-min),
       calc(0.4vw + 0.7vh), /* Reduced scaling */
       1.125rem /* 18px maximum - slightly smaller */
-    ) !important;
+    );
     line-height: 1.35;
   }
 }
@@ -457,7 +551,7 @@ div.responsive-smaller-text-font-size {
       1.5rem, /* 24px minimum - slightly smaller for better proportion */
       calc(1.1vw + 1vh), /* More aggressive scaling for large screens - reduced */
       3.5rem /* 56px maximum - slightly smaller */
-    ) !important;
+    );
     line-height: 1.35;
   }
 }
@@ -465,11 +559,11 @@ div.responsive-smaller-text-font-size {
 /* Toast-specific responsive text sizing that integrates with the existing system */
 .toast-text-responsive {
   font-size: clamp(
-    0.875rem, /* 14px minimum */
-    calc(0.8vw + 0.8vh), /* Combines width and height scaling */
-    2rem /* 32px maximum */
-  ) !important;
-  line-height: 1.4 !important;
+    var(--responsive-toast-min),
+    var(--responsive-toast-scale),
+    var(--responsive-toast-max)
+  );
+  line-height: 1.4;
 }
 
 /* Enhanced toast text sizing for large screens */
@@ -479,8 +573,8 @@ div.responsive-smaller-text-font-size {
       1.25rem, /* 20px minimum - increased for better TV readability */
       calc(1.2vw + 1.2vh), /* More aggressive scaling for large screens */
       2.5rem /* 40px maximum - significantly larger for TVs */
-    ) !important;
-    line-height: 1.3 !important;
+    );
+    line-height: 1.3;
   }
 }
 
@@ -490,7 +584,7 @@ div.responsive-smaller-text-font-size {
       1.5rem, /* 24px minimum - increased for ultra-wide TVs */
       calc(1.5vw + 1.5vh), /* More aggressive scaling for ultra-wide screens */
       3rem /* 48px maximum - significantly larger for ultra-wide TVs */
-    ) !important;
-    line-height: 1.25 !important;
+    );
+    line-height: 1.25;
   }
 }
