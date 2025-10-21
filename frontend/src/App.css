@@ -1,3 +1,28 @@
+:root {
+  /* Layout variables */
+  --layout-breakpoint-xl: 1280px;
+  --layout-breakpoint-sm: 640px;
+  --layout-breakpoint-2xl: 1536px;
+  --layout-breakpoint-ultra: 1920px;
+  --layout-breakpoint-height: 1200px;
+  
+  /* Spacing variables */
+  --container-padding-sm: 1rem;
+  --container-padding-md: 2rem;
+  --container-padding-lg: 4rem;
+  --container-padding-xl: 6rem;
+  
+  /* Animation variables */
+  --animation-duration-fast: 0.3s;
+  --animation-duration-spin: 1s;
+  --animation-duration-gear-1: 3s;
+  --animation-duration-gear-2: 1.8s;
+  
+  /* Layout constraints */
+  --visual-form-max-height: 70vh;
+  --grid-gap-responsive: 1.5rem;
+}
+
 #root {
   height: 100vh;
   min-height: 100vh;
@@ -7,7 +32,7 @@
 @media (max-width: 1279px) {
   /* Stack layout on smaller screens */
   .grid-cols-1.xl\\:grid-cols-2 {
-    grid-template-columns: 1fr !important;
+    grid-template-columns: 1fr;
   }
 }
 
@@ -40,7 +65,7 @@
 
 /* Smooth transitions */
 .animate-in {
-  animation-duration: 0.3s;
+  animation-duration: var(--animation-duration-fast);
   animation-fill-mode: both;
 }
 
@@ -76,32 +101,32 @@
 /* Add breathing room on very small screens */
 @media (max-width: 639px) {
   .container {
-    padding-left: 1rem;
-    padding-right: 1rem;
+    padding-left: var(--container-padding-sm);
+    padding-right: var(--container-padding-sm);
   }
 }
 
 /* Larger padding on bigger screens */
 @media (min-width: 640px) {
   .container {
-    padding-left: 2rem;
-    padding-right: 2rem;
+    padding-left: var(--container-padding-md);
+    padding-right: var(--container-padding-md);
   }
 }
 
 /* Ensure full width utilization for large screens */
 @media (min-width: 1536px) {
   .container {
-    padding-left: 4rem;
-    padding-right: 4rem;
+    padding-left: var(--container-padding-lg);
+    padding-right: var(--container-padding-lg);
   }
 }
 
 /* Ultra-wide screen support */
 @media (min-width: 1920px) {
   .container {
-    padding-left: 6rem;
-    padding-right: 6rem;
+    padding-left: var(--container-padding-xl);
+    padding-right: var(--container-padding-xl);
   }
 }
 
@@ -128,50 +153,57 @@
   border: 2px solid currentColor;
   border-radius: 50%;
   border-top-color: transparent;
-  animation: spin 1s linear infinite;
+  animation: spin var(--animation-duration-spin) linear infinite;
   opacity: 0.8;
 }
 
 /* Gear animations - synchronized for meshing */
 .gear-1 {
-  animation: spin 3s linear infinite;
+  animation: spin var(--animation-duration-gear-1) linear infinite;
   transform-origin: center;
 }
 
 .gear-2 {
-  animation: spin-reverse-offset 1.8s linear infinite;
+  animation: spin-reverse-offset var(--animation-duration-gear-2) linear infinite;
   transform-origin: center;
 }
 
 /* Height-based layout switching */
 @media (min-height: 1200px) {
-  .height-responsive-grid {
-    grid-template-columns: 1fr !important;
-    gap: 1.5rem !important;
+  /* Use more specific selectors to override grid layout */
+  .height-responsive-grid,
+  .height-responsive-grid.grid-cols-2 {
+    grid-template-columns: 1fr;
+    gap: var(--grid-gap-responsive);
   }
   
-  .height-responsive-grid > div:first-child {
-    padding-left: 0 !important;
+  .height-responsive-grid > div:first-child,
+  .height-responsive-grid > div:first-child > * {
+    padding-left: 0;
   }
   
-  .height-responsive-grid > div:last-child {
-    padding-left: 0 !important;
+  .height-responsive-grid > div:last-child,
+  .height-responsive-grid > div:last-child > * {
+    padding-left: 0;
   }
   
   /* Visual Language form in single-column layout: limit height to content */
   .height-responsive-grid .visual-language-form {
-    height: auto !important;
-    max-height: 70vh;
+    height: auto;
+    max-height: var(--visual-form-max-height);
   }
 }
 
 /* Two-column layout: Visual Language form matches left column height */
 @media (max-height: 1199px) {
-  .height-responsive-grid .visual-language-form {
-    height: 100% !important;
+  /* Use more specific selectors to ensure proper height inheritance */
+  .height-responsive-grid .visual-language-form,
+  .height-responsive-grid .visual-language-form[style*="height"] {
+    height: 100%;
   }
   
-  .height-responsive-grid .visual-language-form .dsl-editor-container {
-    height: 100% !important;
+  .height-responsive-grid .visual-language-form .dsl-editor-container,
+  .height-responsive-grid .visual-language-form .dsl-editor-container[style*="height"] {
+    height: 100%;
   }
 }
