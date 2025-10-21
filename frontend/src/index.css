@@ -144,6 +144,14 @@ h1 {
     filter: drop-shadow(var(--highlight-text-shadow));
   }
   
+  /* More specific selectors to override inline fill attributes */
+  svg [data-dsl-path].highlighted-text,
+  svg text[data-dsl-path].highlighted-text,
+  svg g[data-dsl-path] text.highlighted-text,
+  svg [data-dsl-path] text.highlighted-text {
+    fill: var(--highlight-color) !important;
+  }
+  
   [data-dsl-path].highlighted-svg {
     /* merged: drop-shadow from former highlighted-svg and scale from highlighted-operation */
     filter: drop-shadow(var(--highlight-svg-shadow));
