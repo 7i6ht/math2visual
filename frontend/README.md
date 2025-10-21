@@ -91,7 +91,8 @@ src/
 ├── schemas/
 │   └── validation.ts       # Zod validation schemas
 ├── styles/
-│   └── responsive-text.css # Responsive typography system
+│   ├── responsive-text.css # Responsive typography system
+│   └── responsive-toast.css # Responsive toast notifications for large screens
 ├── types/
 │   ├── index.ts            # TypeScript type definitions
 │   └── visualInteraction.ts # Visual interaction types
