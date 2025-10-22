@@ -3,6 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRef, useEffect } from "react";
 import { vlFormSchema } from "@/schemas/validation";
 import { generationService as service } from "@/api_services/generation";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import { toast } from "sonner";
 import { useDSLContext } from "@/contexts/DSLContext";
 import type { VLFormData } from "@/schemas/validation";
@@ -20,6 +21,7 @@ export const useVisualLanguageForm = ({
 }: UseVisualLanguageFormProps) => {
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { formattedDSL, parsedDSL } = useDSLContext();
+  const { trackFormSubmit, trackError, isAnalyticsEnabled } = useAnalytics();
 
   const form = useForm<VLFormData>({
     resolver: zodResolver(vlFormSchema),
@@ -39,6 +41,14 @@ export const useVisualLanguageForm = ({
     // Don't regenerate if the value is empty or hasn't changed
     if (!dslValue.trim()) {
       return;
+    }
+
+    // Track form submission
+    if (isAnalyticsEnabled) {
+      trackFormSubmit('visual_language', {
+        dsl: dslValue,
+        dsl_length: dslValue.length,
+      });
     }
 
     // Create abort controller for this request
@@ -76,6 +86,14 @@ export const useVisualLanguageForm = ({
       if (error instanceof Error && error.name === 'AbortError') {
         toast.info('Generation cancelled');
       } else {
+        // Track error
+        if (isAnalyticsEnabled) {
+          trackError('dsl_generation_failed', error instanceof Error ? error.message : "An error occurred", {
+            form_type: 'visual_language',
+            dsl_length: dslValue.length,
+          });
+        }
+        
         toast.error(error instanceof Error ? error.message : "An error occurred");
       }
     } finally {

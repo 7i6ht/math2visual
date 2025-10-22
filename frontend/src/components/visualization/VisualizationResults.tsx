@@ -4,6 +4,7 @@ import { VisualizationSection } from "./VisualizationSection";
 import { MissingSVGSection } from "./MissingSVGSection";
 import { ParseErrorSection } from "./ParseErrorSection";
 import { ArrowRight } from "lucide-react";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 interface VisualizationResultsProps {
   svgFormal: string | null;
@@ -41,6 +42,14 @@ export const VisualizationResults = ({
   onShowHint,
 }: VisualizationResultsProps) => {
   const [openAccordionItems, setOpenAccordionItems] = useState<string[]>([]);
+  const { trackElementClick, isAnalyticsEnabled } = useAnalytics();
+
+  const handleHintLinkClick = useCallback(() => {
+    if (isAnalyticsEnabled) {
+      trackElementClick('hint_link', 'button', 'Add more hints');
+    }
+    onShowHint();
+  }, [trackElementClick, isAnalyticsEnabled, onShowHint]);
 
   // Suppress generic missing-SVG errors in the accordion; these are shown
   // more helpfully in the dedicated MissingSVGSection below
@@ -136,7 +145,7 @@ export const VisualizationResults = ({
       {(svgFormal || svgIntuitive) && (
         <div className="mt-4 text-left">
           <button
-            onClick={isDisabled ? undefined : onShowHint}
+            onClick={isDisabled ? undefined : handleHintLinkClick}
             className={`text-red-500 responsive-text-font-size group ${isDisabled ? 'cursor-default' : 'cursor-pointer'}`}
             disabled={isDisabled}
           >

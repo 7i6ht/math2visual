@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useRef, useEffect } from 'react';
 import { isTextElement, isBoxElement, isEmbeddedSvgElement, isContainerTypeSvgElement, isAttrTypeSvgElement, isContainerNameElement, isAttrNameElement } from '../utils/elementUtils';
 import { useHighlightingContext } from '@/contexts/HighlightingContext';
+import { useAnalytics } from './useAnalytics';
 
 interface UseElementInteractionsProps {
   svgRef: React.RefObject<HTMLDivElement | null>;
@@ -24,6 +25,7 @@ export const useElementInteractions = ({
   isDisabled = false,
 }: UseElementInteractionsProps) => {
   const { currentDSLPath, setSelectedElement } = useHighlightingContext();
+  const { trackElementHover, trackSVGElementClick, isAnalyticsEnabled } = useAnalytics();
   const currentDSLPathRef = useRef(currentDSLPath);
   
   // Keep the ref in sync with the current value
@@ -58,24 +60,39 @@ export const useElementInteractions = ({
       }
   
       // Add event listeners
-      svgElem.onmouseenter = () => {
-        const currentPath = currentDSLPathRef.current;
-        if (currentPath !== dslPath) {
-          setSelectedElement(svgElem);
-        }
-      };
-      svgElem.onmouseleave = () => setSelectedElement(null as unknown as Element);
+      // Track hover analytics if enabled
+      if (isAnalyticsEnabled) {
+         svgElem.onmouseenter = () => {
+           const currentPath = currentDSLPathRef.current;
+           if (currentPath !== dslPath) {
+             const elementType = svgElem.tagName.toLowerCase();
+             const elementId = svgElem.id || `${elementType}-${dslPath.replace(/\//g, '-')}`;
+             trackElementHover(elementId, elementType, 'enter', dslPath);
+             setSelectedElement(svgElem);
+           }
+         };
+         svgElem.onmouseleave = () => {
+           const elementType = svgElem.tagName.toLowerCase();
+           const elementId = svgElem.id || `${elementType}-${dslPath.replace(/\//g, '-')}`;
+           trackElementHover(elementId, elementType, 'leave', dslPath);
+           setSelectedElement(null as unknown as Element);
+         };
+      } else {
+        svgElem.onmouseenter = () => {
+          const currentPath = currentDSLPathRef.current;
+          if (currentPath !== dslPath) {
+            setSelectedElement(svgElem);
+          }
+        };
+        svgElem.onmouseleave = () => setSelectedElement(null as unknown as Element);
+      }
+
       svgElem.style.cursor = 'pointer';
 
       // Determine element type and setup appropriate interactions
       // Check smaller/internal elements first, then containers, to avoid event blocking
-      if (isContainerNameElement(svgElem)) {
-        svgElem.onclick = (event: MouseEvent) => {
-          event.stopPropagation();
-          onNameClick(event);
-        };
-      } else if (isAttrNameElement(svgElem)) {
-        svgElem.onclick = (event: MouseEvent) => {
+      if (isContainerNameElement(svgElem) || isAttrNameElement(svgElem)) {
+        svgElem.onclick = (event: PointerEvent) => {
           event.stopPropagation();
           onNameClick(event);
         };
@@ -83,33 +100,34 @@ export const useElementInteractions = ({
         svgElem.style.pointerEvents = 'auto';
         // Add click handler for entity quantity editing if path ends with entity_quantity
         if (dslPath.endsWith('/entity_quantity')) {
-          svgElem.onclick = (event: MouseEvent) => {
+          svgElem.onclick = (event: PointerEvent) => {
             event.stopPropagation();
             onEntityQuantityClick(event);
           };
         }
-      } else if (isEmbeddedSvgElement(svgElem)) {
-        svgElem.onclick = (event: MouseEvent) => {
-          event.stopPropagation();
-          onEmbeddedSVGClick(event);
-        };
-      } else if (isContainerTypeSvgElement(svgElem)) {
-        svgElem.onclick = (event: MouseEvent) => {
-          event.stopPropagation();
-          onEmbeddedSVGClick(event);
-        };
-      } else if (isAttrTypeSvgElement(svgElem)) {
-        svgElem.onclick = (event: MouseEvent) => {
+      } else if (isEmbeddedSvgElement(svgElem) || isContainerTypeSvgElement(svgElem) || isAttrTypeSvgElement(svgElem)) {
+        svgElem.onclick = (event: PointerEvent) => {
           event.stopPropagation();
           onEmbeddedSVGClick(event);
         };
       } else if (isBoxElement(svgElem)) {
-        svgElem.onclick = (event: MouseEvent) => {
+        svgElem.onclick = (event: PointerEvent) => {
           event.stopPropagation();
           onEntityQuantityClick(event);
         };
       }
+
+      if (svgElem.onclick) {
+        const originalClickHandler = svgElem.onclick;
+        svgElem.onclick = isAnalyticsEnabled ? (event: PointerEvent) => {
+          const elementType = svgElem.tagName.toLowerCase();
+          const elementId = svgElem.id || `${elementType}-${dslPath.replace(/\//g, '-')}`;
+          trackSVGElementClick(elementId, elementType, dslPath);
+          originalClickHandler.call(svgElem, event);
+        } : originalClickHandler;
+      }
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     svgRef,
     isDisabled,
@@ -118,6 +136,7 @@ export const useElementInteractions = ({
     onEntityQuantityClick,
     onNameClick,
     isPopupOpen
+    // trackElementHover and isAnalyticsEnabled are stable references and don't need to be dependencies
   ]);
 
   const returnValue = useMemo(() => ({

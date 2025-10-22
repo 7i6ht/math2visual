@@ -9,6 +9,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useVisualLanguageForm } from "@/hooks/useVisualLanguageForm";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import type { ComponentMapping } from "@/types/visualInteraction";
 import type { ParsedOperation } from "@/utils/dsl-parser";
 import { useHighlightingContext } from "@/contexts/HighlightingContext";
@@ -20,7 +21,7 @@ interface VisualLanguageFormProps {
   isDisabled?: boolean;
 }
 
-export const VisualLanguageForm = ({ 
+export const VisualLanguageForm = ({
   onResult,
   onLoadingChange,
   isDisabled = false,
@@ -28,12 +29,18 @@ export const VisualLanguageForm = ({
   const { dslHighlightRanges, setCurrentDSLPath } = useHighlightingContext();
   const { componentMappings: contextMappings } = useDSLContext();
   const effectiveMappings = useMemo(() => (contextMappings ?? {}) as ComponentMapping, [contextMappings]);
+  const { trackDSLEditorClick, trackDSLType, trackDSLScroll, isAnalyticsEnabled } = useAnalytics();
   
   const handleCursorPositionChange = useCallback((position: number) => {
     if (isDisabled) return;
     const dslPath = findDSLPathAtPosition(effectiveMappings, position);
     console.log('DSL Editor click - Position:', position, 'DSL Path:', dslPath);
     setCurrentDSLPath(dslPath);
+    
+    // Track DSL editor click with analytics
+    if (isAnalyticsEnabled) {
+      trackDSLEditorClick(dslPath);
+    }
   }, [effectiveMappings, setCurrentDSLPath, isDisabled]);
 
   const { 
@@ -62,11 +69,17 @@ export const VisualLanguageForm = ({
                     value={field.value}
                     onChange={(value) => {
                       field.onChange(value);
+                      if (isAnalyticsEnabled) {
+                        trackDSLType();
+                      }
                       handleDebouncedChange(value);
                     }}
                     className="w-full"
                     highlightRanges={dslHighlightRanges}
                     onCursorPositionChange={handleCursorPositionChange}
+                    {...(isAnalyticsEnabled ? {onScroll: (direction) => {
+                      trackDSLScroll(direction);
+                    }} : {})}
                   />
                 </FormControl>
                 <FormMessage/>

@@ -1,13 +1,17 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useRef } from "react";
 import { toast } from "sonner";
 import type { AppState as AppState } from "@/types";
 import type { ComponentMapping } from "@/types/visualInteraction";
 import type { ParsedOperation } from "@/utils/dsl-parser";
 import { useDSLContext } from "@/contexts/DSLContext";
 import { generationService as service } from "@/api_services/generation";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 export const useAppState = () => {
   const { setGenerationResult, formattedDSL } = useDSLContext();
+  const currentGenerationId = useRef<string | null>(null);
+  const generationStartTime = useRef<number | null>(null);
+  const { trackGenerationStart, trackGenerationComplete, isAnalyticsEnabled } = useAnalytics();
   const [state, setState] = useState<AppState>({
     mpFormLoading: false,
     vlFormLoading: false,
@@ -72,6 +76,30 @@ export const useAppState = () => {
       ...(componentMappings && { componentMappings }),
       parsedDSL,
     });
+
+    // Track generation completion
+    if (isAnalyticsEnabled) {
+      const success = !!(svgFormal || svgIntuitive);
+      const endTime = Date.now();
+      const totalTime = generationStartTime.current ? endTime - generationStartTime.current : undefined;
+      
+      trackGenerationComplete(
+        currentGenerationId.current,
+        success,
+        vl,
+        [formalError, intuitiveError].filter(Boolean),
+        missingSvgEntities,
+        {
+          total: totalTime,
+          dsl: totalTime ? Math.floor(totalTime * 0.6) : undefined, // Estimate DSL time
+          visual: totalTime ? Math.floor(totalTime * 0.4) : undefined, // Estimate visual time
+        }
+      );
+    }
+
+    // Reset generation tracking
+    currentGenerationId.current = null;
+    generationStartTime.current = null;
   }, [setGenerationResult]);
 
   const resetResults = useCallback(() => {
@@ -146,13 +174,19 @@ export const useAppState = () => {
     }
   }, [formattedDSL, setResults, setUploadGenerating]);
 
-  const saveInitialValues = useCallback((mwp: string, formula: string, hint: string) => {
+  const saveInitialValues = useCallback(async (mwp: string, formula: string, hint: string) => {
     setState(prev => ({
       ...prev,
       mwp: mwp,
       formula: formula,
       hint: hint,
     }));
+
+    // Track generation start
+    if (isAnalyticsEnabled) {
+      currentGenerationId.current = await trackGenerationStart(mwp, formula, hint);
+      generationStartTime.current = Date.now();
+    }
   }, []);
 
   const setShowHint = useCallback((showHint: boolean) => {

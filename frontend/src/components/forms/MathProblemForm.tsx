@@ -11,6 +11,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useMathProblemForm } from "@/hooks/useMathProblemForm";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import type { ParsedOperation } from "@/utils/dsl-parser";
 import { useHighlightingContext } from "@/contexts/HighlightingContext";
 
@@ -41,6 +42,7 @@ export const MathProblemForm = ({
   hintInputRef,
 }: MathProblemFormProps) => {
   const { mwpHighlightRanges, formulaHighlightRanges, clearHighlightingState } = useHighlightingContext();
+  const { trackMWPType, trackFormulaType, trackHintType, isAnalyticsEnabled } = useAnalytics();
 
   const handleFormClick = useCallback(() => {
     clearHighlightingState();
@@ -81,6 +83,12 @@ export const MathProblemForm = ({
                     }
                   }}
                   {...field}
+                  {...(isAnalyticsEnabled ? {onChange: (e) => {
+                    field.onChange(e);
+                    if (isAnalyticsEnabled) {
+                      trackMWPType();
+                    }
+                  }} : {})}
                 />
               </FormControl>
               <FormMessage />
@@ -100,6 +108,12 @@ export const MathProblemForm = ({
                   spellCheck={false}
                   highlightRanges={formulaHighlightRanges}
                   {...field}
+                  {...(isAnalyticsEnabled ? {onChange: (e) => {
+                    field.onChange(e);
+                    if (isAnalyticsEnabled) {
+                      trackFormulaType();
+                    }
+                  }} : {})}
                 />
               </FormControl>
               <FormMessage />
@@ -120,6 +134,12 @@ export const MathProblemForm = ({
                     rows={rows}
                     spellCheck={false}
                     {...field}
+                    {...(isAnalyticsEnabled ? {onChange: (e) => {
+                      field.onChange(e);
+                      if (isAnalyticsEnabled) {
+                        trackHintType();
+                      }
+                    }} : {})}
                     ref={(el) => {
                       if (hintInputRef) hintInputRef.current = el;
                       if (typeof field.ref === 'function') field.ref(el);

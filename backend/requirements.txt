@@ -2,6 +2,10 @@
 # $ conda create --name <env> --file <this file>
 # platform: linux-64
 # created-by: conda 25.5.1
+
+# Analytics and Database Dependencies
+sqlalchemy=2.0.23=pypi_0
+psycopg2-binary=2.9.9=pypi_0
 _libgcc_mutex=0.1=main
 _openmp_mutex=5.1=1_gnu
 accelerate=1.9.0=pypi_0

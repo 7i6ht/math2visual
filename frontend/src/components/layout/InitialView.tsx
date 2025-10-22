@@ -1,6 +1,8 @@
+import { useEffect } from "react";
 import { ResponsiveLogo } from "@/components/ui/ResponsiveLogo";
 import { MathProblemForm } from "@/components/forms/MathProblemForm";
 import { GearLoading } from "@/components/ui/gear-loading";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import type { useAppState } from "@/hooks/useAppState";
 
 type Props = {
@@ -18,6 +20,14 @@ export function InitialView({ appState }: Props) {
     mpFormLoading,
     handleAbort,
   } = appState;
+  const { trackInitialViewRender, isAnalyticsEnabled } = useAnalytics();
+
+  // Track initial view render
+  useEffect(() => {
+    if (isAnalyticsEnabled) {
+      trackInitialViewRender();
+    }
+  }, [trackInitialViewRender, isAnalyticsEnabled]);
 
   return (
     <div className="w-full px-3 py-3 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 3xl:px-20 4xl:px-24 5xl:px-32">

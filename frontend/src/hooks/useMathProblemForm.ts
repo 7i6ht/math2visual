@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { formSchema } from "@/schemas/validation";
 import { generationService as service } from "@/api_services/generation";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import type { FormData } from "@/schemas/validation";
 import type { ComponentMapping } from "@/types/visualInteraction";
 import type { ParsedOperation } from "@/utils/dsl-parser";
@@ -28,6 +29,7 @@ export const useMathProblemForm = ({
 }: UseMathProblemFormProps) => {
   const [loading, setLoading] = useState(false);
   const { clearHighlightingState } = useHighlightingContext();
+  const { trackFormSubmit, trackError, isAnalyticsEnabled } = useAnalytics();
   
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -52,8 +54,17 @@ export const useMathProblemForm = ({
     clearHighlightingState();
     setLoading(true);
     
+    // Track form submission
+    if (isAnalyticsEnabled) {
+      trackFormSubmit('math_problem', {
+        mwp: data.mwp,
+        formula: data.formula,
+        hint: data.hint,
+      });
+    }
+    
     // Save the form values before generating (so they're preserved on abort)
-    saveInitialValues(data.mwp, data.formula || "", data.hint || "");
+    await saveInitialValues(data.mwp, data.formula || "", data.hint || "");
 
     // Create abort controller for this request
     const controller = new AbortController();
@@ -85,8 +96,16 @@ export const useMathProblemForm = ({
       );
     } catch (error) {
       console.error('Generation failed:', error);
-      // Only show toast if it's not an abort error
+      
+      // Track error
       if (error instanceof Error && !error.message.includes("Request was cancelled")) {
+        if (isAnalyticsEnabled) {
+          trackError('generation_failed', error.message, {
+            form_type: 'math_problem',
+            mwp_length: data.mwp.length,
+          });
+        }
+        
         const errorMessage = error.message || "An unknown error occurred";
         toast.error("Failed to generate visualizations", {
           description: errorMessage

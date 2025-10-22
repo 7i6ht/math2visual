@@ -11,6 +11,7 @@ interface SyntaxEditorProps {
   rows?: number;
   highlightRanges?: Array<[number, number]>;
   onCursorPositionChange?: (position: number, modelValue: string) => void;
+  onScroll?: (direction: 'up' | 'down') => void;
 }
 
 // Define the Visual Language DSL grammar and syntax highlighting
@@ -155,6 +156,7 @@ export const SyntaxEditor: React.FC<SyntaxEditorProps> = ({
   rows = 6,
   highlightRanges = [],
   onCursorPositionChange,
+  onScroll,
 }) => {
   const isLanguageSetup = useRef(false);
   const [formattedValue, setFormattedValue] = useState(value);
@@ -162,6 +164,7 @@ export const SyntaxEditor: React.FC<SyntaxEditorProps> = ({
   const editorRef = useRef<MonacoEditor.IStandaloneCodeEditor | null>(null);
   const decorationsRef = useRef<string[]>([]);
   const monacoRef = useRef<Monaco | null>(null);
+  const lastScrollTopRef = useRef<number>(0);
   
   // Calculate responsive font size using CSS responsive-text-font-size class
   const getResponsiveFontSize = () => {
@@ -325,6 +328,22 @@ export const SyntaxEditor: React.FC<SyntaxEditorProps> = ({
           // Provide the current model value to consumers
           onCursorPositionChange(offset, modelValue);
         }
+      });
+    }
+
+    // Handle scroll events with direction detection
+    if (onScroll) {
+      editor.onDidScrollChange((e) => {
+        const currentScrollTop = e.scrollTop;
+        const previousScrollTop = lastScrollTopRef.current;
+        
+        if (currentScrollTop > previousScrollTop) {
+          onScroll('down');
+        } else if (currentScrollTop < previousScrollTop) {
+          onScroll('up');
+        }
+        
+        lastScrollTopRef.current = currentScrollTop;
       });
     }
   };

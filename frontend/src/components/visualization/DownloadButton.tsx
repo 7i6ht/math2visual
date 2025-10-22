@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Download, FileImage, File, FileText } from "lucide-react";
 import { downloadSvg, downloadPng, downloadPdf, generateVisualizationFilename } from "@/utils/download";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import { toast } from "sonner";
 import { useState } from "react";
 import type { DownloadFormat } from "@/types";
@@ -57,6 +58,7 @@ export const DownloadButton = ({
   disabled = false,
 }: DownloadButtonProps) => {
   const [isDownloading, setIsDownloading] = useState(false);
+  const { trackDownload, trackError, isAnalyticsEnabled } = useAnalytics();
 
   const handleDownload = async (
     handler: (svgContent: string,
@@ -72,14 +74,35 @@ export const DownloadButton = ({
       `Preparing ${format.toUpperCase()} download...`
     );
 
+    // Track download start
+    if (isAnalyticsEnabled) {
+      trackDownload(format, `${type}_${format}`);
+    }
+
     try {
       await handler(svgContent, type);
+      
+      // Track successful download
+      if (isAnalyticsEnabled) {
+        trackDownload(format, `${type}_${format}`);
+      }
+      
       toast.success(`${format.toUpperCase()} file downloaded successfully!`, {
         id: toastId,
         description: `${title} has been saved to your downloads folder.`,
       });
     } catch (error) {
       console.error("Download failed:", error);
+      
+      // Track download error
+      if (isAnalyticsEnabled) {
+        trackError('download_failed', error instanceof Error ? error.message : "Download failed", {
+          format,
+          type,
+          svg_length: svgContent.length,
+        });
+      }
+      
       toast.error(`Failed to download ${format.toUpperCase()} file`, {
         id: toastId,
         description:

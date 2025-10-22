@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { ResponsiveLogo } from "@/components/ui/ResponsiveLogo";
 import { MathProblemForm } from "@/components/forms/MathProblemForm";
 import { VisualLanguageForm } from "@/components/forms/VisualLanguageForm";
 import { VisualizationResults } from "@/components/visualization/VisualizationResults";
 import { GearLoading } from "@/components/ui/gear-loading";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import { useDSLContext } from "@/contexts/DSLContext";
 import { useVisualizationHandlers } from "@/hooks/useVisualizationHandlers";
 import { usePopupManagement } from "@/hooks/usePopupManagement";
@@ -40,6 +41,9 @@ export function TwoColumnView({ appState }: Props) {
 
   const { formattedDSL, parsedDSL } = useDSLContext();
   const hintInputRef = useRef<HTMLTextAreaElement | null>(null);
+  const { trackColumnScroll, trackTwoColumnLayoutRender, isAnalyticsEnabled } = useAnalytics();
+  const lastLeftScrollTopRef = useRef<number>(0);
+  const lastRightScrollTopRef = useRef<number>(0);
 
   const { handleVLResult } =
     useVisualizationHandlers({
@@ -71,6 +75,13 @@ export function TwoColumnView({ appState }: Props) {
     },
   });
 
+  // Track two column layout render
+  useEffect(() => {
+    if (isAnalyticsEnabled) {
+      trackTwoColumnLayoutRender();
+    }
+  }, [trackTwoColumnLayoutRender, isAnalyticsEnabled]);
+
   // Ensure the field is visible whenever hint text exists
   useEffect(() => {
     if (hint?.trim()) {
@@ -93,11 +104,29 @@ export function TwoColumnView({ appState }: Props) {
     }, 0);
   }, [setShowHint, hintInputRef]);
 
+  const handleColumnScroll = useCallback((event: React.UIEvent<HTMLDivElement>, column: 'left' | 'right', scrollTopRef: React.MutableRefObject<number>) => {
+    const target = event.currentTarget;
+    const currentScrollTop = target.scrollTop;
+    const previousScrollTop = scrollTopRef.current;
+    
+    const direction = currentScrollTop > previousScrollTop ? 'down' : 
+                     currentScrollTop < previousScrollTop ? 'up' : null;
+    
+    if (direction) {
+      trackColumnScroll(column, direction);
+    }
+    
+    scrollTopRef.current = currentScrollTop;
+  }, [trackColumnScroll]);
+
 
   return (
     <div className="w-full px-1 py-4 sm:px-2 lg:px-4 xl:px-6 2xl:px-8 3xl:px-8 4xl:px-8">
       <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] 3xl:grid-cols-[minmax(0,1fr)_minmax(0,1.8fr)] gap-4 xl:gap-6 2xl:gap-8 3xl:gap-10 min-h-[calc(100vh-2rem)] items-start [@media(min-height:1200px)_and_(max-width:1600px)]:grid-cols-1 [@media(min-height:1400px)_and_(max-width:1800px)]:grid-cols-1">
-        <div className="flex flex-col space-y-6 xl:space-y-8 xl:sticky xl:top-6 xl:z-10 xl:pr-2">
+        <div 
+          className="flex flex-col space-y-6 xl:space-y-8 xl:sticky xl:top-6 xl:z-10 xl:pr-2"
+          {...(isAnalyticsEnabled ? {onScroll: (event) => handleColumnScroll(event, 'left', lastLeftScrollTopRef)} : {})}
+        >
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 xl:gap-6 2xl:gap-8 3xl:gap-10 flex-1 min-h-0 height-responsive-grid items-stretch [@media(min-height:1200px)_and_(max-width:1600px)]:grid-cols-1 [@media(min-height:1400px)_and_(max-width:1800px)]:grid-cols-1">
             <div className="space-y-4 flex flex-col">
               <div className="text-center">
@@ -162,7 +191,10 @@ export function TwoColumnView({ appState }: Props) {
           </div>
         </div>
 
-        <div className="relative flex flex-col w-full">
+        <div 
+          className="relative flex flex-col w-full"
+          {...(isAnalyticsEnabled ? {onScroll: (event) => handleColumnScroll(event, 'right', lastRightScrollTopRef)} : {})}
+        >
           <VisualizationResults
             svgFormal={svgFormal}
             formalError={formalError}
