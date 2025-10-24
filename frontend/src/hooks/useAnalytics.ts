@@ -127,56 +127,6 @@ export const useAnalytics = () => {
     });
   }, []);
 
-  // Form submission tracking
-  const trackFormSubmit = useCallback((formType: 'math_problem' | 'visual_language', data: Record<string, unknown>) => {
-    analyticsService.recordAction({
-      action_type: 'form_submit',
-      action_category: 'generation',
-      element_type: 'form',
-      element_text: formType,
-      action_data: {
-        form_type: formType,
-        data_length: JSON.stringify(data).length,
-        has_mwp: 'mwp' in data,
-        has_formula: 'formula' in data,
-        has_hint: 'hint' in data,
-      },
-    });
-  }, []);
-
-  // Download tracking
-  const trackDownload = useCallback((format: 'svg' | 'png' | 'pdf', filename?: string) => {
-    analyticsService.recordAction({
-      action_type: 'download',
-      action_category: 'download',
-      element_type: 'download_button',
-      action_data: { format, filename },
-    });
-  }, []);
-
-  // Upload tracking
-  const trackUpload = useCallback((filename: string, fileSize: number, success: boolean) => {
-    analyticsService.recordAction({
-      action_type: 'upload',
-      action_category: 'upload',
-      element_type: 'file_input',
-      action_data: { filename, file_size: fileSize },
-      success: success ? 'true' : 'false',
-    });
-  }, []);
-
-  // Error tracking
-  const trackError = useCallback((errorType: string, errorMessage: string, context?: Record<string, unknown>) => {
-    analyticsService.recordAction({
-      action_type: 'error',
-      action_category: 'error',
-      element_type: 'error',
-      action_data: { error_type: errorType, context },
-      success: 'false',
-      error_message: errorMessage,
-    });
-  }, []);
-
   // Element click tracking
   const trackElementClick = useCallback((elementId: string, elementType: string, elementText?: string) => {
     analyticsService.recordAction({
@@ -207,74 +157,6 @@ export const useAnalytics = () => {
       element_id: elementId,
       element_type: elementType,
       action_data: { dsl_path: dslPath },
-    });
-  }, []);
-
-  // DSL editor click tracking
-  const trackDSLEditorClick = useCallback((dslPath: string | null) => {
-    analyticsService.recordAction({
-      action_type: 'dsl_editor_click',
-      action_category: 'interaction',
-      element_type: 'monaco_editor',
-      element_id: 'dsl_editor',
-      action_data: { dsl_path: dslPath },
-    });
-  }, []);
-
-  // Generation tracking
-  const trackGenerationStart = useCallback(async (mwp: string, formula?: string, hint?: string): Promise<string | null> => {
-    const generationId = await analyticsService.recordGeneration({
-      mwp_text: mwp,
-      formula,
-      hint,
-      success: 'pending',
-    });
-
-    analyticsService.recordAction({
-      action_type: 'generation_start',
-      action_category: 'generation',
-      element_type: 'generation_button',
-      action_data: {
-        mwp_length: mwp.length,
-        has_formula: !!formula,
-        has_hint: !!hint,
-      },
-    });
-
-    return generationId;
-  }, []);
-
-  const trackGenerationComplete = useCallback((
-    generationId: string | null,
-    success: boolean,
-    generatedDsl?: string,
-    errors?: unknown[],
-    missingEntities?: string[],
-    timing?: { total?: number; dsl?: number; visual?: number }
-  ) => {
-    if (generationId) {
-      analyticsService.updateGeneration(generationId, {
-        success: success ? 'success' : 'error',
-        generated_dsl: generatedDsl,
-        dsl_validation_errors: errors,
-        missing_svg_entities: missingEntities,
-        generation_time_ms: timing?.total,
-        dsl_generation_time_ms: timing?.dsl,
-        visual_generation_time_ms: timing?.visual,
-      });
-    }
-
-    analyticsService.recordAction({
-      action_type: 'generation_complete',
-      action_category: 'generation',
-      element_type: 'generation_result',
-      action_data: {
-        success,
-        has_dsl: !!generatedDsl,
-        error_count: errors?.length || 0,
-        missing_entities_count: missingEntities?.length || 0,
-      },
-      success: success ? 'true' : 'false',
     });
   }, []);
 
@@ -374,6 +256,124 @@ export const useAnalytics = () => {
       element_id: elementId,
       element_type: elementType,
       action_data: { dsl_path: dslPath },
+    });
+  }, []);
+
+  // Form submission tracking
+  const trackFormSubmit = useCallback((formType: 'math_problem' | 'visual_language', data: Record<string, unknown>) => {
+    analyticsService.recordAction({
+      action_type: 'form_submit',
+      action_category: 'generation',
+      element_type: 'form',
+      element_text: formType,
+      action_data: {
+        form_type: formType,
+        data_length: JSON.stringify(data).length,
+        has_mwp: 'mwp' in data,
+        has_formula: 'formula' in data,
+        has_hint: 'hint' in data,
+      },
+    });
+  }, []);
+
+  // Download tracking
+  const trackDownload = useCallback((format: 'svg' | 'png' | 'pdf', filename?: string) => {
+    analyticsService.recordAction({
+      action_type: 'download',
+      action_category: 'download',
+      element_type: 'download_button',
+      action_data: { format, filename },
+    });
+  }, []);
+
+  // Upload tracking
+  const trackUpload = useCallback((filename: string, fileSize: number, success: boolean) => {
+    analyticsService.recordAction({
+      action_type: 'upload',
+      action_category: 'upload',
+      element_type: 'file_input',
+      action_data: { filename, file_size: fileSize },
+      success: success ? 'true' : 'false',
+    });
+  }, []);
+
+  // Error tracking
+  const trackError = useCallback((errorType: string, errorMessage: string, context?: Record<string, unknown>) => {
+    analyticsService.recordAction({
+      action_type: 'error',
+      action_category: 'error',
+      element_type: 'error',
+      action_data: { error_type: errorType, context },
+      success: 'false',
+      error_message: errorMessage,
+    });
+  }, []);
+
+  // DSL editor click tracking
+  const trackDSLEditorClick = useCallback((dslPath: string | null) => {
+    analyticsService.recordAction({
+      action_type: 'dsl_editor_click',
+      action_category: 'interaction',
+      element_type: 'monaco_editor',
+      element_id: 'dsl_editor',
+      action_data: { dsl_path: dslPath },
+    });
+  }, []);
+
+  // Generation tracking
+  const trackGenerationStart = useCallback(async (mwp: string, formula?: string, hint?: string): Promise<string | null> => {
+    const generationId = await analyticsService.recordGeneration({
+      mwp_text: mwp,
+      formula,
+      hint,
+      success: 'pending',
+    });
+
+    analyticsService.recordAction({
+      action_type: 'generation_start',
+      action_category: 'generation',
+      element_type: 'generation_button',
+      action_data: {
+        mwp_length: mwp.length,
+        has_formula: !!formula,
+        has_hint: !!hint,
+      },
+    });
+
+    return generationId;
+  }, []);
+
+  const trackGenerationComplete = useCallback((
+    generationId: string | null,
+    success: boolean,
+    generatedDsl?: string,
+    errors?: unknown[],
+    missingEntities?: string[],
+    timing?: { total?: number; dsl?: number; visual?: number }
+  ) => {
+    if (generationId) {
+      analyticsService.updateGeneration(generationId, {
+        success: success ? 'success' : 'error',
+        generated_dsl: generatedDsl,
+        dsl_validation_errors: errors,
+        missing_svg_entities: missingEntities,
+        generation_time_ms: timing?.total,
+        dsl_generation_time_ms: timing?.dsl,
+        visual_generation_time_ms: timing?.visual,
+      });
+    }
+
+    analyticsService.recordAction({
+      action_type: 'generation_complete',
+      action_category: 'generation',
+      element_type: 'generation_result',
+      action_data: {
+        success,
+        has_dsl: !!generatedDsl,
+        error_count: errors?.length || 0,
+        missing_entities_count: missingEntities?.length || 0,
+      },
+      success: success ? 'true' : 'false',
     });
   }, []);
 
