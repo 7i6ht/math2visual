@@ -62,18 +62,16 @@ export const useElementInteractions = ({
       // Add event listeners
       // Track hover analytics if enabled
       if (isAnalyticsEnabled) {
+        const elementType = svgElem.tagName.toLowerCase();
+        const elementId = svgElem.id || `${elementType}-${dslPath.replace(/\//g, '-')}`;
          svgElem.onmouseenter = () => {
            const currentPath = currentDSLPathRef.current;
            if (currentPath !== dslPath) {
-             const elementType = svgElem.tagName.toLowerCase();
-             const elementId = svgElem.id || `${elementType}-${dslPath.replace(/\//g, '-')}`;
              trackElementHover(elementId, elementType, 'enter', dslPath);
              setSelectedElement(svgElem);
            }
          };
          svgElem.onmouseleave = () => {
-           const elementType = svgElem.tagName.toLowerCase();
-           const elementId = svgElem.id || `${elementType}-${dslPath.replace(/\//g, '-')}`;
            trackElementHover(elementId, elementType, 'leave', dslPath);
            setSelectedElement(null as unknown as Element);
          };
@@ -117,14 +115,14 @@ export const useElementInteractions = ({
         };
       }
 
-      if (svgElem.onclick) {
+      if (svgElem.onclick && isAnalyticsEnabled) {
         const originalClickHandler = svgElem.onclick;
-        svgElem.onclick = isAnalyticsEnabled ? (event: PointerEvent) => {
+        svgElem.onclick = (event: PointerEvent) => {
           const elementType = svgElem.tagName.toLowerCase();
           const elementId = svgElem.id || `${elementType}-${dslPath.replace(/\//g, '-')}`;
           trackSVGElementClick(elementId, elementType, dslPath);
           originalClickHandler.call(svgElem, event);
-        } : originalClickHandler;
+        };
       }
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
