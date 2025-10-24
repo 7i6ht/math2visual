@@ -1,8 +1,9 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useCallback } from "react";
 import { toast } from "sonner";
 import { SVGDatasetService } from "@/api_services/svgDataset";
 import { ValidationError } from "@/types";
 import { Upload as UploadIcon } from "lucide-react";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 interface UseSVGMissingErrorArgs {
   missingSVGEntities: string[];
@@ -19,6 +20,9 @@ export const useSVGMissingError = ({
   const [currentEntityIndex, setCurrentEntityIndex] = useState(0);
   const [uploadLoading, setUploadLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Use analytics hook directly
+  const { trackDragOver, trackDrop, trackElementClick, isAnalyticsEnabled } = useAnalytics();
 
   const handleUploadAndRegenerate = async (file: File): Promise<void> => {
     if (!onGenerate) return;
@@ -140,6 +144,11 @@ export const useSVGMissingError = ({
     const files = Array.from(e.dataTransfer.files);
     if (files.length === 0) return;
 
+    // Track drop event if analytics is enabled
+    if (isAnalyticsEnabled) {
+      trackDrop('svg_upload_drop_zone', 'drop_zone');
+    }
+
     const file = files[0];
     handleFileSelect(file);
   };
@@ -147,6 +156,11 @@ export const useSVGMissingError = ({
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragOver(true);
+    
+    // Track drag over event if analytics is enabled
+    if (isAnalyticsEnabled) {
+      trackDragOver('svg_upload_drop_zone', 'drop_zone');
+    }
   };
 
   const handleDragLeave = (e: React.DragEvent) => {
@@ -164,6 +178,12 @@ export const useSVGMissingError = ({
   };
 
   const openFileDialog = () => {
+    // Track upload button click if analytics is enabled
+    if (isAnalyticsEnabled) {
+      const isLastEntity = currentEntityIndex === missingSVGEntities.length - 1;
+      const buttonText = isLastEntity ? 'Upload & Regenerate' : 'Upload';
+      trackElementClick('svg_upload_button', 'button', buttonText);
+    }
     fileInputRef.current?.click();
   };
 
@@ -184,6 +204,16 @@ export const useSVGMissingError = ({
     return <UploadIcon className="responsive-icon-font-size mr-2" />;
   };
 
+  const handleGenerateClick = useCallback(() => {
+    // Track generate button click if analytics is enabled
+    if (isAnalyticsEnabled) {
+      trackElementClick('svg_generate_button', 'button', 'Generate');
+    }
+    if (onGenerate) {
+      onGenerate(undefined);
+    }
+  }, [isAnalyticsEnabled, trackElementClick, onGenerate]);
+
   return {
     // state
     isDragOver,
@@ -197,6 +227,7 @@ export const useSVGMissingError = ({
     handleDragLeave,
     handleFileInputChange,
     openFileDialog,
+    handleGenerateClick,
     // ui helpers
     getButtonText,
     getButtonIcon,

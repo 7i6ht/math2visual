@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { BasePopup } from "./BasePopup";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 interface EntityQuantityPopupProps {
   onClose: () => void;
@@ -19,6 +20,7 @@ export const EntityQuantityPopup: React.FC<EntityQuantityPopupProps> = ({
   const [quantity, setQuantity] = useState(initialQuantity.toString());
   const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const { trackEntityQuantityPopupType, trackPopupSubmit, isAnalyticsEnabled } = useAnalytics();
 
   // Focus input on mount
   useEffect(() => {
@@ -35,6 +37,9 @@ export const EntityQuantityPopup: React.FC<EntityQuantityPopupProps> = ({
     // Allow empty string or positive integers only
     if (value === "" || /^[1-9]\d*$/.test(value)) {
       setQuantity(value);
+      if (isAnalyticsEnabled) {
+        trackEntityQuantityPopupType(value);
+      }
     }
   };
 
@@ -75,6 +80,9 @@ export const EntityQuantityPopup: React.FC<EntityQuantityPopupProps> = ({
   const handlePopupKeyDown = (event: KeyboardEvent) => {
     if (event.key === "Enter" && quantity && !isLoading) {
       event.preventDefault();
+      if (isAnalyticsEnabled) {
+        trackPopupSubmit('entity_quantity', quantity, 'keyboard');
+      }
       handleUpdate();
     }
   };
@@ -100,7 +108,12 @@ export const EntityQuantityPopup: React.FC<EntityQuantityPopupProps> = ({
             inputMode="numeric"
           />
           <Button
-            onClick={handleUpdate}
+            onClick={() => {
+              if (isAnalyticsEnabled) {
+                trackPopupSubmit('entity_quantity', quantity);
+              }
+              handleUpdate();
+            }}
             disabled={!isValidQuantity || isLoading}
             className="px-2 rounded-l-none popup-button-responsive-height responsive-text-font-size !text-primary-foreground focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation flex-shrink-0"
           >

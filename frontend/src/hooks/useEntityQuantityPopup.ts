@@ -3,6 +3,7 @@ import { generationService } from '@/api_services/generation';
 import { useDSLContext } from '@/contexts/DSLContext';
 import { useHighlightingContext } from '@/contexts/HighlightingContext';
 import { DSLFormatter } from '@/utils/dsl-formatter';
+import { useAnalytics } from './useAnalytics';
 import type { ParsedOperation, ParsedEntity } from '@/utils/dsl-parser';
 import type { ComponentMapping } from '@/types/visualInteraction';
 
@@ -31,6 +32,7 @@ export const useEntityQuantityPopup = ({
   const { parsedDSL } = useDSLContext();
   const { componentMappings } = useDSLContext();
   const { setSelectedElement, clearHighlightingState } = useHighlightingContext();
+  const { trackOpenPopup, isAnalyticsEnabled } = useAnalytics();
   const [popupState, setPopupState] = useState<EntityQuantityPopupState>({
     isOpen: false,
     dslPath: '',
@@ -51,6 +53,11 @@ export const useEntityQuantityPopup = ({
     ? dslPath
     : `${dslPath}/entity_quantity`;
 
+    // Track popup open
+    if (isAnalyticsEnabled) {
+      trackOpenPopup('entity_quantity', dslPath);
+    }
+
     // Trigger highlight via existing system
     setSelectedElement(targetElement);
 
@@ -61,7 +68,7 @@ export const useEntityQuantityPopup = ({
       dslPath: normalizedPath,
       initialQuantity: currentQty,
     });
-  }, [setSelectedElement, componentMappings]);
+  }, [setSelectedElement, componentMappings, trackOpenPopup, isAnalyticsEnabled]);
 
   /**
    * Close the entity quantity popup

@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { validateFormatAsync } from '@/utils/validation';
 import { SVGDatasetService } from '@/api_services/svgDataset';
 import { BasePopup } from './BasePopup.tsx';
+import { useAnalytics } from '@/hooks/useAnalytics';
 
 interface SVGUploadPopupProps {
   onClose: () => void;
@@ -23,6 +24,7 @@ export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const filenameInputRef = useRef<HTMLInputElement>(null);
+  const { trackSVGUploadPopupType, trackPopupSubmit, trackElementClick, isAnalyticsEnabled } = useAnalytics();
 
   // Real-time validation for filename
   useEffect(() => {
@@ -92,6 +94,9 @@ export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
   const handlePopupKeyDown = (event: KeyboardEvent) => {
     if (event.key === 'Enter' && isValidSelection && !isUploading) {
       event.preventDefault();
+      if (isAnalyticsEnabled) {
+        trackPopupSubmit('svg_upload', filename.trim(), 'keyboard');
+      }
       handleUpload();
     }
   };
@@ -122,7 +127,12 @@ export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
       <div className="flex gap-0 group focus-within:ring-[3px] focus-within:ring-ring/50 focus-within:ring-offset-0 focus-within:border-ring rounded-md transition-all duration-200 border border-ring ring-[3px] ring-ring/50 ring-offset-0">
         <div className="relative flex-1">
           <button
-            onClick={() => fileInputRef.current?.click()}
+            onClick={() => {
+              if (isAnalyticsEnabled) {
+                trackElementClick('svg_upload_file_select', 'button', 'Choose SVG file');
+              }
+              fileInputRef.current?.click();
+            }}
             className="absolute left-1.5 sm:left-2 md:left-2 lg:left-2.5 xl:left-3 2xl:left-3.5 3xl:left-4 4xl:left-4.5 5xl:left-3.5 6xl:left-4 7xl:left-4.5 top-1/2 transform -translate-y-1/2 responsive-smaller-icon-font-size text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 rounded transition-colors duration-200 flex items-center justify-center"
             title="Choose SVG file"
             disabled={isUploading}
@@ -132,7 +142,12 @@ export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
           <Input
             ref={filenameInputRef}
             value={filename}
-            onChange={(e) => setFilename(e.target.value)}
+            onChange={(e) => {
+              setFilename(e.target.value);
+              if (isAnalyticsEnabled) {
+                trackSVGUploadPopupType(e.target.value);
+              }
+            }}
             placeholder="Enter name..."
             spellCheck={false}
             className="pl-8 sm:pl-9 md:pl-10 lg:pl-11 xl:pl-12 2xl:pl-14 3xl:pl-15 4xl:pl-16 5xl:pl-20 6xl:pl-22 7xl:pl-24 rounded-r-none border-r-0 popup-button-responsive-height responsive-text-font-size focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation"
@@ -145,6 +160,9 @@ export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
               className="popup-button-responsive-height w-9 text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 transition-colors duration-200 flex items-center justify-center touch-manipulation"
               title={`View ${uploadFile.name} in new tab`}
               onClick={() => {
+                if (isAnalyticsEnabled) {
+                  trackElementClick('svg_upload_preview', 'button', uploadFile.name);
+                }
                 const url = URL.createObjectURL(uploadFile);
                 window.open(url, '_blank');
                 // Clean up the object URL after a short delay
@@ -156,7 +174,12 @@ export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
             </button>
           )}
           <Button
-            onClick={handleUpload}
+            onClick={() => {
+              if (isAnalyticsEnabled) {
+                trackPopupSubmit('svg_upload', filename.trim());
+              }
+              handleUpload();
+            }}
             disabled={!isValidSelection || isUploading}
             className="px-2 sm:px-3 rounded-l-none popup-button-responsive-height responsive-text-font-size !text-primary-foreground focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation flex-shrink-0"
           >

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { BasePopup } from "./BasePopup";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 interface NamePopupProps {
   onClose: () => void;
@@ -18,6 +19,7 @@ export const NamePopup: React.FC<NamePopupProps> = ({
 }) => {
   const [value, setValue] = useState(initialValue);
   const [isLoading, setIsLoading] = useState(false);
+  const { trackNamePopupType, trackPopupSubmit, isAnalyticsEnabled } = useAnalytics();
 
 
   // Handle value update
@@ -50,6 +52,9 @@ export const NamePopup: React.FC<NamePopupProps> = ({
   const handlePopupKeyDown = (event: KeyboardEvent) => {
     if (event.key === "Enter" && value.trim() && !isLoading) {
       event.preventDefault();
+      if (isAnalyticsEnabled) {
+        trackPopupSubmit('name', value.trim(), 'keyboard');
+      }
       handleUpdate();
     }
   };
@@ -66,14 +71,24 @@ export const NamePopup: React.FC<NamePopupProps> = ({
         <div className="flex gap-0 group focus-within:ring-[3px] focus-within:ring-ring/50 focus-within:ring-offset-0 focus-within:border-ring rounded-md transition-all duration-200 border border-ring ring-[3px] ring-ring/50 ring-offset-0">
           <Input
             value={value}
-            onChange={(e) => setValue(e.target.value)}
+            onChange={(e) => {
+              setValue(e.target.value);
+              if (isAnalyticsEnabled) {
+                trackNamePopupType(e.target.value);
+              }
+            }}
             placeholder={"Enter name..."}
             spellCheck={false}
             className="rounded-r-none border-r-0 popup-button-responsive-height responsive-text-font-size focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation text-center px-1"
             disabled={isLoading}
           />
           <Button
-            onClick={handleUpdate}
+            onClick={() => {
+              if (isAnalyticsEnabled) {
+                trackPopupSubmit('name', value.trim());
+              }
+              handleUpdate();
+            }}
             disabled={!isValidValue || isLoading}
             className="px-2 rounded-l-none popup-button-responsive-height responsive-text-font-size !text-primary-foreground focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation flex-shrink-0"
           >

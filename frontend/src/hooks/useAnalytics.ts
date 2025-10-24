@@ -10,6 +10,10 @@ export const useAnalytics = () => {
   const formulaTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hintTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const dslTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const namePopupTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const entityQuantityPopupTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const svgSearchPopupTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const svgUploadPopupTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const dslScrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const leftScrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const rightScrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -274,6 +278,105 @@ export const useAnalytics = () => {
     });
   }, []);
 
+  // Popup tracking
+  const trackOpenPopup = useCallback((popupType: 'name' | 'entity_quantity' | 'svg_selector', dslPath: string) => {
+    const actionType = `${popupType}_popup_open`;
+    const elementId = `${popupType}_popup_${dslPath.replace(/\//g, '-')}`;
+    
+    analyticsService.recordAction({
+      action_type: actionType,
+      action_category: 'interaction',
+      element_type: 'popup',
+      element_id: elementId,
+      action_data: {
+        dsl_path: dslPath
+      },
+    });
+  }, []);
+
+  // Generic popup typing tracking with debouncing
+  const trackPopupType = useCallback((timeoutRef: React.MutableRefObject<ReturnType<typeof setTimeout> | null>, popupType: string, value: string) => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    
+    timeoutRef.current = setTimeout(() => {
+      analyticsService.recordAction({
+        action_type: `${popupType}_popup_type`,
+        action_category: 'interaction',
+        element_type: 'input',
+        element_id: `${popupType}_popup_input`,
+        action_data: {
+          value: value
+        }
+      });
+    }, 500);
+  }, []);
+
+  // Specific popup typing tracking functions
+  const trackNamePopupType = useCallback((value: string) => {
+    trackPopupType(namePopupTimeoutRef, 'name', value);
+  }, [trackPopupType]);
+
+  const trackEntityQuantityPopupType = useCallback((value: string) => {
+    trackPopupType(entityQuantityPopupTimeoutRef, 'entity_quantity', value);
+  }, [trackPopupType]);
+
+  const trackSVGSearchPopupType = useCallback((value: string) => {
+    trackPopupType(svgSearchPopupTimeoutRef, 'svg_search', value);
+  }, [trackPopupType]);
+
+  const trackSVGUploadPopupType = useCallback((value: string) => {
+    trackPopupType(svgUploadPopupTimeoutRef, 'svg_upload', value);
+  }, [trackPopupType]);
+
+  // Popup submission tracking
+  const trackPopupSubmit = useCallback((popupType: string, value: string, elementType: 'button' | 'keyboard' = 'button') => {
+    const actionType = elementType === 'keyboard' ? `${popupType}_popup_keyboard_submit` : `${popupType}_popup_submit`;
+    const elementId = elementType === 'keyboard' ? `${popupType}_popup_keyboard` : `${popupType}_popup_submit_button`;
+    
+    analyticsService.recordAction({
+      action_type: actionType,
+      action_category: 'interaction',
+      element_type: elementType,
+      element_id: elementId,
+      action_data: {
+        value: value
+      }
+    });
+  }, []);
+
+  // Drag and drop tracking
+  const trackDragStart = useCallback((elementId: string, elementType: string, dslPath?: string) => {
+    analyticsService.recordAction({
+      action_type: 'drag_start',
+      action_category: 'interaction',
+      element_id: elementId,
+      element_type: elementType,
+      action_data: { dsl_path: dslPath },
+    });
+  }, []);
+
+  const trackDragOver = useCallback((elementId: string, elementType: string, dslPath?: string) => {
+    analyticsService.recordAction({
+      action_type: 'drag_over',
+      action_category: 'interaction',
+      element_id: elementId,
+      element_type: elementType,
+      action_data: { dsl_path: dslPath },
+    });
+  }, []);
+
+  const trackDrop = useCallback((elementId: string, elementType: string, dslPath?: string) => {
+    analyticsService.recordAction({
+      action_type: 'drop',
+      action_category: 'interaction',
+      element_id: elementId,
+      element_type: elementType,
+      action_data: { dsl_path: dslPath },
+    });
+  }, []);
+
   return {
     // Input typing
     trackMWPType,
@@ -295,6 +398,16 @@ export const useAnalytics = () => {
     trackElementHover,
     trackSVGElementClick,
     trackDSLEditorClick,
+    trackOpenPopup,
+    trackNamePopupType,
+    trackEntityQuantityPopupType,
+    trackSVGSearchPopupType,
+    trackSVGUploadPopupType,
+    trackPopupSubmit,
+    // Drag and drop
+    trackDragStart,
+    trackDragOver,
+    trackDrop,
     // Generation
     trackGenerationStart,
     trackGenerationComplete,

@@ -3,6 +3,7 @@ import { generationService } from '@/api_services/generation';
 import { useDSLContext } from '@/contexts/DSLContext';
 import { useHighlightingContext } from '@/contexts/HighlightingContext';
 import { DSLFormatter } from '@/utils/dsl-formatter';
+import { useAnalytics } from './useAnalytics';
 import type { ParsedOperation } from '@/utils/dsl-parser';
 import type { ComponentMapping } from '@/types/visualInteraction';
 
@@ -30,6 +31,7 @@ export const useNamePopup = ({
 }: UseNamePopupProps) => {
   const { parsedDSL, componentMappings } = useDSLContext();
   const { setSelectedElement, clearHighlightingState } = useHighlightingContext();
+  const { trackOpenPopup, isAnalyticsEnabled } = useAnalytics();
   const [popupState, setPopupState] = useState<NamePopupState>({
     isOpen: false,
     dslPath: '',
@@ -46,6 +48,11 @@ export const useNamePopup = ({
     const targetElement = el.closest('[data-dsl-path]') as Element;
     const dslPath = el.getAttribute('data-dsl-path') || '';
     
+    // Track popup open
+    if (isAnalyticsEnabled) {
+      trackOpenPopup('name', dslPath);
+    }
+    
     // Trigger highlight via existing system
     setSelectedElement(targetElement);
     
@@ -57,7 +64,7 @@ export const useNamePopup = ({
       dslPath: dslPath,
       initialValue: currentValue,
     });
-  }, [setSelectedElement, componentMappings]);
+  }, [setSelectedElement, componentMappings, trackOpenPopup, isAnalyticsEnabled]);
 
   /**
    * Close the popup

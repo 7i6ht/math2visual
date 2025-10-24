@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { SVGDatasetService } from '@/api_services/svgDataset';
 import { BasePopup } from './BasePopup.tsx';
+import { useAnalytics } from '@/hooks/useAnalytics';
 
 interface SVGFile {
   filename: string;
@@ -32,6 +33,7 @@ export const SVGSearchPopup: React.FC<SVGSearchPopupProps> = ({
   const previewContainerRef = useRef<HTMLDivElement>(null);
   const thumbnailsRowRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const { trackSVGSearchPopupType, trackPopupSubmit, isAnalyticsEnabled } = useAnalytics();
 
   // Calculate pagination
   const totalPages = Math.ceil(searchResults.length / Math.max(1, imagesPerPage));
@@ -141,6 +143,7 @@ export const SVGSearchPopup: React.FC<SVGSearchPopupProps> = ({
   // Handle file selection from dataset
   const handleFileSelect = async (file: SVGFile) => {
     setSelectedFile(file);
+    
     try {
       await onSelect(file.name);
       onClose();
@@ -154,6 +157,9 @@ export const SVGSearchPopup: React.FC<SVGSearchPopupProps> = ({
   const handlePopupKeyDown = (event: KeyboardEvent) => {
     if (event.key === 'Enter' && selectedFile) {
       event.preventDefault();
+      if (isAnalyticsEnabled) {
+        trackPopupSubmit('svg_search', selectedFile.name, 'keyboard');
+      }
       handleFileSelect(selectedFile);
     }
   };
@@ -182,7 +188,12 @@ export const SVGSearchPopup: React.FC<SVGSearchPopupProps> = ({
           <Input
             ref={searchInputRef}
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              if (isAnalyticsEnabled) {
+                trackSVGSearchPopupType(e.target.value);
+              }
+            }}
             placeholder="Search..."
             spellCheck={false}
             className="pl-8 sm:pl-10 md:pl-12 lg:pl-13 xl:pl-14 2xl:pl-15 3xl:pl-17 4xl:pl-18 5xl:pl-20 6xl:pl-22 7xl:pl-24 rounded-r-none border-r-0 popup-button-responsive-height responsive-text-font-size focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation"
@@ -190,7 +201,14 @@ export const SVGSearchPopup: React.FC<SVGSearchPopupProps> = ({
           />
         </div>
         <Button
-          onClick={() => selectedFile && handleFileSelect(selectedFile)}
+          onClick={() => {
+            if (selectedFile) {
+              if (isAnalyticsEnabled) {
+                trackPopupSubmit('svg_search', selectedFile.name);
+              }
+              handleFileSelect(selectedFile);
+            }
+          }}
           disabled={!selectedFile}
           className="px-2 sm:px-3 rounded-l-none popup-button-responsive-height responsive-text-font-size !text-primary-foreground focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation flex-shrink-0"
         >

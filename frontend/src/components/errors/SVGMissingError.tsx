@@ -1,6 +1,7 @@
 import { FileUp, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSVGMissingError } from "@/hooks/useSVGMissingError";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 const PROVIDERS: Array<{
   key: string;
@@ -41,6 +42,8 @@ export const SVGMissingError = ({
   onGenerate,
   onAllFilesUploaded,
 }: SVGMissingErrorProps) => {
+  const { trackElementClick, isAnalyticsEnabled } = useAnalytics();
+  
   const {
     isDragOver,
     uploadLoading,
@@ -51,6 +54,7 @@ export const SVGMissingError = ({
     handleDragLeave,
     handleFileInputChange,
     openFileDialog,
+    handleGenerateClick,
     getButtonText,
     getButtonIcon,
   } = useSVGMissingError({
@@ -124,9 +128,9 @@ export const SVGMissingError = ({
                 {getButtonText()}
               </Button>
 
-              {!isLastEntity && missingSVGEntities.length > 1 && onGenerate && (
+              {!isLastEntity && missingSVGEntities.length > 1 && (
                 <Button
-                  onClick={() => onGenerate(undefined)}
+                  onClick={handleGenerateClick}
                   disabled={uploadLoading}
                   variant="outline"
                   className="button-responsive-size !responsive-text-font-size w-full sm:w-auto min-w-[120px] md:min-w-[140px] lg:min-w-[160px] xl:min-w-[180px] 2xl:min-w-[200px] 3xl:min-w-[220px] 4xl:min-w-[240px] 5xl:min-w-[260px] 6xl:min-w-[280px] 7xl:min-w-[300px]"
@@ -156,7 +160,14 @@ export const SVGMissingError = ({
                   <button
                     key={p.key}
                     type="button"
-                    onClick={() => window.open(p.url(missingSvgName))}
+                    {...(isAnalyticsEnabled ? {
+                      onClick: () => {
+                        trackElementClick(`external_link_${p.key}`, 'link', p.label);
+                        window.open(p.url(missingSvgName));
+                      },
+                    } : {
+                      onClick: () => window.open(p.url(missingSvgName)),
+                    })}
                     className="inline-flex items-center gap-1.5 md:gap-2 lg:gap-2.5 text-muted-foreground/70 hover:text-muted-foreground transition-colors underline-offset-4 hover:underline min-w-fit"
                   >
                     <ExternalLink className="responsive-smaller-icon-font-size"/>

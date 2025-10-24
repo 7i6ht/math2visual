@@ -49,7 +49,7 @@ export const VisualizationResults = ({
       trackElementClick('hint_link', 'button', 'Add more hints');
     }
     onShowHint();
-  }, [trackElementClick, isAnalyticsEnabled, onShowHint]);
+  }, [onShowHint]);
 
   // Suppress generic missing-SVG errors in the accordion; these are shown
   // more helpfully in the dedicated MissingSVGSection below

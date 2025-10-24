@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { SVGSearchPopup } from "./SVGSearchPopup";
 import { SVGUploadPopup } from "./SVGUploadPopup";
 import { BasePopup } from "./BasePopup";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 interface SVGActionMenuProps {
   onClosePopup: () => void;
@@ -23,6 +24,7 @@ export const SVGActionMenu: React.FC<SVGActionMenuProps> = ({
   const [activePopup, setActivePopup] = useState<"search" | "upload" | null>(
     null
   );
+  const { trackElementClick, isAnalyticsEnabled } = useAnalytics();
 
   const handleClosePopup = useCallback(() => {
     setActivePopup(null);
@@ -47,14 +49,24 @@ export const SVGActionMenu: React.FC<SVGActionMenuProps> = ({
               <DropdownMenuItem
                 className="cursor-pointer responsive-text-font-size touch-manipulation flex items-center gap-1"
                 onMouseDown={(e) => e.stopPropagation()}
-                onClick={() => setActivePopup("search")}
+                onClick={() => {
+                  if (isAnalyticsEnabled) {
+                    trackElementClick('svg_action_menu_search', 'menu_item', 'Search');
+                  }
+                  setActivePopup("search");
+                }}
               >
                 <Search className="responsive-smaller-icon-font-size flex-shrink-0" /> Search
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="cursor-pointer responsive-text-font-size touch-manipulation flex items-center gap-1"
                 onMouseDown={(e) => e.stopPropagation()}
-                onClick={() => setActivePopup("upload")}
+                onClick={() => {
+                  if (isAnalyticsEnabled) {
+                    trackElementClick('svg_action_menu_upload', 'menu_item', 'Upload');
+                  }
+                  setActivePopup("upload");
+                }}
               >
                 <Upload className="responsive-smaller-icon-font-size flex-shrink-0" /> Upload
               </DropdownMenuItem>

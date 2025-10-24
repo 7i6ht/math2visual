@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
 import { generationService } from '@/api_services/generation';
+import { useAnalytics } from './useAnalytics';
 import type { ComponentMapping } from '@/types/visualInteraction';
 import type { ParsedOperation } from '@/utils/dsl-parser';
 import { useHighlightingContext } from '@/contexts/HighlightingContext';
@@ -31,6 +32,7 @@ export const useSVGSelector = ({
   // Use highlighting context
   const { setSelectedElement, clearHighlightingState } = useHighlightingContext();
   const { formattedDSL, componentMappings } = useDSLContext();
+  const { trackOpenPopup, isAnalyticsEnabled } = useAnalytics();
 
   const [selectorState, setSelectorState] = useState<SVGSelectorState>({
     isOpen: false,
@@ -58,6 +60,11 @@ export const useSVGSelector = ({
     const dslPath = targetEl.getAttribute('data-dsl-path') || '';
     const normalizedDslPath = dslPath.endsWith("]") ? dslPath.slice(0, dslPath.lastIndexOf("[")) : dslPath;
 
+    // Track popup open
+    if (isAnalyticsEnabled) {
+      trackOpenPopup('svg_selector', dslPath);
+    }
+
     // Trigger highlight via existing system
     setSelectedElement(targetEl);
 
@@ -69,7 +76,7 @@ export const useSVGSelector = ({
       dslPath: normalizedDslPath,
       currentValue,
     });
-  }, [setSelectedElement, componentMappings]);
+  }, [setSelectedElement, componentMappings, trackOpenPopup, isAnalyticsEnabled]);
 
   // Handle embedded SVG change
   const updateEmbeddedSVG = useCallback(async (newType: string) => {
