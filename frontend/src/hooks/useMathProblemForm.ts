@@ -97,19 +97,17 @@ export const useMathProblemForm = ({
     } catch (error) {
       console.error('Generation failed:', error);
       
-      // Track error
-      if (error instanceof Error && !error.message.includes("Request was cancelled")) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        toast.info('Generation cancelled');
+      } else {
+        // Track error
         if (isAnalyticsEnabled) {
-          trackError('generation_failed', error.message, {
+          trackError('generation_failed', error instanceof Error ? error.message : "An error occurred", {
             form_type: 'math_problem',
-            mwp_length: data.mwp.length,
           });
         }
         
-        const errorMessage = error.message || "An unknown error occurred";
-        toast.error("Failed to generate visualizations", {
-          description: errorMessage
-        });
+        toast.error(error instanceof Error ? error.message : "An error occurred");
       }
     } finally {
       setLoading(false);
