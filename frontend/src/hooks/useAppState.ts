@@ -11,7 +11,7 @@ export const useAppState = () => {
   const { setGenerationResult, formattedDSL } = useDSLContext();
   const currentGenerationId = useRef<string | null>(null);
   const generationStartTime = useRef<number | null>(null);
-  const { trackGenerationStart, trackGenerationComplete, isAnalyticsEnabled } = useAnalytics();
+  const { trackGenerationStart, trackGenerationComplete, trackElementClick, isAnalyticsEnabled } = useAnalytics();
   const [state, setState] = useState<AppState>({
     mpFormLoading: false,
     vlFormLoading: false,
@@ -195,6 +195,11 @@ export const useAppState = () => {
 
 
   const handleAbort = useCallback(() => {
+    // Track abort event if analytics is enabled
+    if (isAnalyticsEnabled) {
+      trackElementClick('abort_button', 'button', 'Abort');
+    }
+    
     // Call the current abort function if it exists
     if (state.currentAbortFunction) {
       state.currentAbortFunction();
