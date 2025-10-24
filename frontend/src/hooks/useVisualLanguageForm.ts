@@ -47,7 +47,6 @@ export const useVisualLanguageForm = ({
     if (isAnalyticsEnabled) {
       trackFormSubmit('visual_language', {
         dsl: dslValue,
-        dsl_length: dslValue.length,
       });
     }
 
@@ -90,7 +89,6 @@ export const useVisualLanguageForm = ({
         if (isAnalyticsEnabled) {
           trackError('dsl_generation_failed', error instanceof Error ? error.message : "An error occurred", {
             form_type: 'visual_language',
-            dsl_length: dslValue.length,
           });
         }
         
