@@ -26,6 +26,7 @@ The analytics system tracks user interactions and behaviors to provide insights 
 ### 1. PostgreSQL Database Configuration
 
 ```bash
+sudo -u postgres psql
 # Create database
 createdb math2visual_analytics
 
