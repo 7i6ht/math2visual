@@ -63,8 +63,8 @@ def create_error_response(message: str, status_code: int = 400) -> tuple:
 
 
 def get_or_create_session(session_id: str, ip_address: Optional[str] = None, 
-                         user_agent: Optional[str] = None) -> UserSession:
-    """Get existing session or create a new one."""
+                         user_agent: Optional[str] = None) -> int:
+    """Get existing session or create a new one. Returns the session database ID."""
     db = next(get_db())
     try:
         # Try to get existing session
@@ -74,7 +74,7 @@ def get_or_create_session(session_id: str, ip_address: Optional[str] = None,
             # Update last activity
             session.last_activity = datetime.utcnow()
             db.commit()
-            return session
+            return session.id
         
         # Create new session
         new_session = UserSession(
@@ -85,7 +85,7 @@ def get_or_create_session(session_id: str, ip_address: Optional[str] = None,
         db.add(new_session)
         db.commit()
         db.refresh(new_session)
-        return new_session
+        return new_session.id
         
     finally:
         db.close()
@@ -98,18 +98,27 @@ def create_session():
         data = request.get_json()
         validate_required_fields(data, ['session_id'])
         
-        session = get_or_create_session(
+        session_id = get_or_create_session(
             data['session_id'],
             ip_address=request.remote_addr,
             user_agent=request.headers.get('User-Agent')
         )
         
-        return jsonify({
-            'success': True,
-            'session_id': session.session_id,
-            'created_at': session.created_at.isoformat(),
-            'last_activity': session.last_activity.isoformat()
-        })
+        # Get the session details for response
+        db = next(get_db())
+        try:
+            session = db.query(UserSession).filter(UserSession.id == session_id).first()
+            if not session:
+                return create_error_response('Session not found', 404)
+            
+            return jsonify({
+                'success': True,
+                'session_id': session.session_id,
+                'created_at': session.created_at.isoformat(),
+                'last_activity': session.last_activity.isoformat()
+            })
+        finally:
+            db.close()
         
     except ValueError as e:
         return create_error_response(str(e), 400)
@@ -156,13 +165,13 @@ def record_actions_batch():
         data = request.get_json()
         validate_required_fields(data, ['session_id', 'actions'])
         
-        session = get_or_create_session(data['session_id'])
+        session_id = get_or_create_session(data['session_id'])
         
         # Validate and process actions
         actions_to_create = process_batch_items(
             data['actions'],
             validate_action,
-            lambda item: process_action(item, session.id)
+            lambda item: process_action(item, session_id)
         )
         
         # Bulk insert actions
@@ -202,7 +211,7 @@ def upload_screenshot():
         data = request.get_json()
         validate_required_fields(data, ['session_id', 'image_data', 'width', 'height'])
         
-        session = get_or_create_session(data['session_id'])
+        session_id = get_or_create_session(data['session_id'])
         
         # Parse timestamp
         screenshot_timestamp = parse_timestamp(data.get('timestamp'))
@@ -224,7 +233,7 @@ def upload_screenshot():
         db = next(get_db())
         try:
             screenshot = Screenshot(
-                session_id=session.id,
+                session_id=session_id,
                 file_path=file_path,
                 width=data['width'],
                 height=data['height'],
@@ -275,13 +284,13 @@ def record_cursor_positions_batch():
         data = request.get_json()
         validate_required_fields(data, ['session_id', 'positions'])
         
-        session = get_or_create_session(data['session_id'])
+        session_id = get_or_create_session(data['session_id'])
         
         # Validate and process positions
         positions_to_create = process_batch_items(
             data['positions'],
             validate_cursor_position,
-            lambda item: process_cursor_position(item, session.id)
+            lambda item: process_cursor_position(item, session_id)
         )
         
         # Bulk insert positions
