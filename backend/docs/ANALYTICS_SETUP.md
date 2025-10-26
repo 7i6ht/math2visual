@@ -4,24 +4,27 @@ This document describes how to set up and use the user action recording system i
 
 ## 📊 Overview
 
-The analytics system tracks user interactions and generation workflows to provide insights into:
+The analytics system tracks user interactions and behaviors to provide insights into:
 - User behavior patterns
-- Generation success rates
-- Feature usage statistics
-- Error tracking and debugging
-- Performance metrics
+- Form usage and interaction patterns
+- Generation workflows
+- Download patterns
+- UI/UX interaction tracking (clicks, scrolls, etc.)
+- Cursor movements for heat map analysis
+- Screenshot capture for visual analytics
 
 ## 🏗️ Architecture
 
 ### Backend Components
-- **Database Models**: User sessions, actions, and generation workflows
+- **Database Models**: `UserSession`, `Action`, `Screenshot`, `CursorPosition` in SQLAlchemy
 - **API Endpoints**: RESTful endpoints for recording and retrieving analytics data
 - **Database**: PostgreSQL (recommended) or SQLite (development)
+- **Storage**: File-based screenshot storage
 
 ### Frontend Components
-- **Analytics Service**: Client-side service for tracking user actions
-- **Integration**: Automatic tracking in forms, downloads, and interactions
-- **Admin Dashboard**: Component for viewing analytics data
+- **Analytics Service**: Client-side service (`analyticsService`) for tracking user actions
+- **useAnalytics Hook**: React hook providing analytics tracking functions
+- **Automatic Tracking**: Batched action recording with debouncing
 
 ## 🚀 Quick Setup
 
@@ -57,32 +60,51 @@ DATABASE_URL=postgresql://math2visual_user:your_password@localhost:5432/math2vis
 # For SQLite (development)
 DATABASE_URL=sqlite:///./analytics.db
 
-# Analytics settings
-ANALYTICS_ENABLED=true
-ANALYTICS_RETENTION_DAYS=90
+# Database Configuration
+DATABASE_ECHO=false  # Set to true for SQL query logging (development only)
+
+# Analytics Configuration
+ANALYTICS_ENABLED=true  # Set to false to disable user action tracking
+ANALYTICS_RETENTION_DAYS=90  # How long to keep analytics data (days)
 ```
 
-### 3. Install Dependencies
+### 3. Database Initialization
 
-```bash
-# Install new dependencies
-pip install sqlalchemy psycopg2-binary
+The database is automatically initialized when the Flask app starts via `app/__init__.py`. The `init_database()` function creates all necessary tables:
 
-# Or update your conda environment
-conda env update --file requirements.txt
+```python
+# In app/__init__.py
+if test_database_connection():
+    init_database()
+    print("✅ Analytics database initialized")
 ```
 
-### 4. Initialize Database
+Tables created:
+- `user_sessions`: Session tracking
+- `actions`: User action records
+- `screenshots`: Screenshot metadata
+- `cursor_positions`: Cursor tracking data
 
+### 4. Frontend Configuration
+
+Analytics are controlled by the `VITE_ENABLE_ANALYTICS` environment variable in the frontend.
+
+Create or edit `frontend/.env`:
 ```bash
-# Run the setup script
-python scripts/setup_analytics_db.py
+# Enable or disable analytics
+VITE_ENABLE_ANALYTICS=true
 ```
 
 ### 5. Start the Application
 
 ```bash
+# Backend
 python app.py
+
+# Frontend
+cd frontend
+npm install
+npm run dev
 ```
 
 The analytics system will automatically initialize when the Flask app starts.
@@ -90,28 +112,64 @@ The analytics system will automatically initialize when the Flask app starts.
 ## 📈 What Gets Tracked
 
 ### User Sessions
-- Session creation and activity
-- IP address and user agent
-- Session duration
+- **Session Creation**: Unique session IDs stored in localStorage
+- **Session Activity**: Last activity timestamp updates
+- **IP Address**: Optional IP tracking
+- **User Agent**: Browser/device information
 
-### User Actions
-- **Form Submissions**: Math problem and visual language forms
-- **Element Interactions**: Button clicks, input changes
-- **Downloads**: SVG, PNG, PDF downloads
-- **Uploads**: SVG file uploads
-- **Navigation**: Page/view changes
-- **Errors**: Generation failures, validation errors
+### User Actions (Tracked via `useAnalytics` hook)
 
-### Generation Workflows
-- **Math Problem Input**: Original MWP, formula, hint
-- **Generated DSL**: Visual language output
-- **Validation Results**: Parsing errors, missing entities
-- **Visual Output**: Success/failure of formal and intuitive generation
-- **Timing**: Generation duration, DSL processing time
+#### Form Interactions
+- `mwp_input_type`: Math word problem input typing
+- `formula_input_type`: Formula input typing
+- `hint_input_type`: Hint input typing
+- `dsl_editor_type`: Visual language editor typing
+- `math_problem_form_submit`: Math problem form submission
+- `visual_language_form_change`: Visual language form changes
+
+#### Navigation & Layout
+- `initial_view_render`: Initial single-column view
+- `two_column_layout_render`: Two-column editing view
+- `dsl_editor_scroll_up/down`: DSL editor scrolling
+- `math_problem_column_scroll_up/down`: Left column scrolling
+- `visualization_column_scroll_up/down`: Right column scrolling
+
+#### Popups & Modals
+- `name_popup_open`: Name editor popup
+- `entity_quantity_popup_open`: Quantity editor popup
+- `name_popup_type`: Name popup typing
+- `entity_quantity_popup_type`: Quantity popup typing
+- `name_popup_button_submit`: Name popup button submit
+- `name_popup_keyboard_submit`: Name popup keyboard submit
+
+#### SVG Interactions
+- `svg_element_hover`: SVG element hover
+- `svg_element_click`: SVG element click
+- `svg_search_popup_type`: SVG search typing
+- `svg_upload_popup_type`: SVG upload popup typing
+
+#### Downloads
+- `download_svg_button_click`: SVG download
+- `download_png_button_click`: PNG download
+- `download_pdf_button_click`: PDF download
+
+#### Generation
+- `generation_start`: Generation initiation with MWP, formula, hint
+- `generation_complete`: Generation completion with success/error status, DSL, missing entities
+
+### Cursor Positions
+- Mouse X/Y coordinates
+- Element context (type, ID)
+- Timestamp for heat map analysis
+
+### Screenshots
+- Full-page screenshots
+- Timestamp and dimensions
+- Stored in `backend/storage/screenshots/`
 
 ## 🔧 API Endpoints
 
-### Recording Actions
+### Sessions
 ```bash
 # Create/update session
 POST /api/analytics/session
@@ -119,57 +177,146 @@ POST /api/analytics/session
   "session_id": "session_123"
 }
 
-# Record action
-POST /api/analytics/action
+Response:
 {
+  "success": true,
   "session_id": "session_123",
-  "action_type": "form_submit",
-  "element_type": "form",
-  "action_data": {...}
-}
-
-# Record generation workflow
-POST /api/analytics/generation
-{
-  "session_id": "session_123",
-  "mwp_text": "John has 5 apples...",
-  "formula": "5 + 3 = 8",
-  "hint": "Add the numbers"
+  "created_at": "2024-01-01T12:00:00Z",
+  "last_activity": "2024-01-01T12:00:00Z"
 }
 ```
 
-### Viewing Analytics
+### Actions
 ```bash
-# Get statistics
-GET /api/analytics/stats?days=7
+# Record batch actions
+POST /api/analytics/actions/batch
+{
+  "session_id": "session_123",
+  "actions": [
+    {
+      "type": "form_submit",
+      "data": "{\"value\": \"some data\"}",
+      "timestamp": "2024-01-01T12:00:00Z"
+    }
+  ]
+}
 
-# Get recent actions
-GET /api/analytics/actions?limit=100
-
-# Get actions by type
-GET /api/analytics/actions?action_type=form_submit
+Response:
+{
+  "success": true,
+  "actions_recorded": 1,
+  "message": "Successfully recorded 1 actions"
+}
 ```
 
-## 🎛️ Admin Dashboard
+### Cursor Positions
+```bash
+# Record cursor positions
+POST /api/analytics/cursor-positions/batch
+{
+  "session_id": "session_123",
+  "positions": [
+    {
+      "x": 100.5,
+      "y": 200.3,
+      "element_type": "button",
+      "element_id": "submit-btn",
+      "timestamp": "2024-01-01T12:00:00Z"
+    }
+  ]
+}
+```
 
-### Frontend Integration
+### Screenshots
+```bash
+# Upload screenshot
+POST /api/analytics/screenshot
+{
+  "session_id": "session_123",
+  "image_data": "data:image/png;base64,...",
+  "width": 1920,
+  "height": 1080,
+  "timestamp": "2024-01-01T12:00:00Z"
+}
 
-Add the analytics dashboard to your admin interface:
+Response:
+{
+  "success": true,
+  "screenshot_id": "screenshot_123",
+  "filename": "session_123_20240101_120000_abc12345.png",
+  "created_at": "2024-01-01T12:00:00Z"
+}
+```
+
+## 📊 Using Analytics in Components
+
+### Basic Usage
 
 ```tsx
-import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
+import { useAnalytics } from '@/hooks/useAnalytics';
 
-// In your admin route
-<AnalyticsDashboard />
+function MyComponent() {
+  const { 
+    trackFormSubmit, 
+    trackDownload, 
+    trackElementClick,
+    isAnalyticsEnabled 
+  } = useAnalytics();
+
+  const handleSubmit = () => {
+    trackFormSubmit('my_form_submit', 'form data');
+  };
+
+  const handleDownload = () => {
+    trackDownload('pdf', 'output.pdf');
+  };
+
+  const handleClick = () => {
+    trackElementClick('button_click', 'submit-button');
+  };
+
+  return (
+    <div>
+      {isAnalyticsEnabled && <p>Analytics enabled</p>}
+      {/* Your component */}
+    </div>
+  );
+}
 ```
 
-### Key Metrics Displayed
-- **Total Sessions**: Unique user sessions
-- **Total Actions**: All user interactions
-- **Generation Success Rate**: Percentage of successful generations
-- **Action Breakdown**: Actions by type (form_submit, download, etc.)
-- **Daily Activity**: Actions per day
-- **Recent Actions**: Latest user interactions
+### Cursor Tracking
+
+```tsx
+import { useAnalytics } from '@/hooks/useAnalytics';
+import { useEffect } from 'react';
+
+function MyComponent() {
+  const { startCursorTracking, stopCursorTracking } = useAnalytics();
+
+  useEffect(() => {
+    startCursorTracking();
+    return () => stopCursorTracking();
+  }, []);
+
+  return <div>Tracked component</div>;
+}
+```
+
+### Screenshot Capture
+
+```tsx
+import { useAnalytics } from '@/hooks/useAnalytics';
+
+function MyComponent() {
+  const { captureScreenshot } = useAnalytics();
+
+  const handleCapture = async () => {
+    await captureScreenshot();
+  };
+
+  return <button onClick={handleCapture}>Capture</button>;
+}
+```
 
 ## 🔒 Privacy and Security
 
@@ -178,15 +325,17 @@ import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
 - **Session-Based**: Actions linked to anonymous session IDs
 - **IP Addresses**: Stored for basic analytics (can be disabled)
 - **User Agents**: For browser/device analytics
+- **LocalStorage**: Session IDs stored client-side
 
 ### Data Retention
-- **Configurable**: Set retention period in environment variables
-- **Automatic Cleanup**: Old data can be automatically purged
+- **Configurable**: Set retention period via `ANALYTICS_RETENTION_DAYS` environment variable
+- **Automatic Cleanup**: Can be implemented for automatic data purging
 - **GDPR Compliant**: No personal data collection
 
 ### Security Measures
 - **Input Validation**: All data is validated before storage
 - **SQL Injection Protection**: SQLAlchemy ORM prevents injection
+- **Base64 Validation**: Screenshot data validated before decoding
 - **Rate Limiting**: Consider implementing rate limiting for API endpoints
 
 ## 📊 Analytics Insights
@@ -195,47 +344,60 @@ import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
 - **Form Usage**: Which forms are used most frequently
 - **Generation Success**: Success rates for different input types
 - **Feature Adoption**: Which features are most/least used
+- **Interaction Patterns**: Cursor heat maps and click patterns
 - **Error Patterns**: Common failure points and error types
 
 ### Performance Metrics
-- **Generation Times**: How long generations take
+- **Generation Times**: How long generations take (track via timestamps)
 - **Success Rates**: Overall and per-feature success rates
 - **User Engagement**: Session duration and action frequency
+- **Scroll Patterns**: Where users spend most time
 
 ### Debugging Information
 - **Error Tracking**: Detailed error messages and contexts
 - **Missing Entities**: Which SVG entities are most commonly missing
 - **Validation Issues**: DSL parsing problems and patterns
+- **Visual Analytics**: Screenshots for debugging UI issues
 
 ## 🛠️ Customization
 
 ### Adding New Action Types
+
+In your component:
+```tsx
+const { trackElementClick } = useAnalytics();
+
+trackElementClick('custom_action', 'custom_element');
+```
+
+### Batching Behavior
+
+The analytics service automatically batches actions:
+- Actions are queued and sent in batches of 10
+- Cursor positions are queued and sent in batches of 100
+- Automatic flush every 5 seconds
+- Immediate flush on page unload (via `navigator.sendBeacon`)
+
+### Custom Flush Timing
+
+```tsx
+import { analyticsService } from '@/api_services/analytics';
+
+// Force immediate flush
+await analyticsService.flushPending();
+```
+
+### Enabling/Disabling Analytics
+
 ```typescript
-// In your component
-analyticsService.recordAction({
-  action_type: 'custom_action',
-  element_type: 'custom_element',
-  action_data: { custom: 'data' }
-});
-```
+// Runtime control
+analyticsService.setEnabled(false);  // Disable
+analyticsService.setEnabled(true);   // Enable
 
-### Custom Analytics Queries
-```python
-# In your backend
-from app.config.database import get_db
-from app.models.user_actions import UserAction
-
-# Custom query example
-db = next(get_db())
-custom_actions = db.query(UserAction).filter(
-    UserAction.action_type == 'custom_action'
-).all()
-```
-
-### Disabling Analytics
-```bash
-# In .env file
-ANALYTICS_ENABLED=false
+// Check status
+if (analyticsService.isAnalyticsEnabled()) {
+  // Track actions
+}
 ```
 
 ## 🚨 Troubleshooting
@@ -247,37 +409,68 @@ ANALYTICS_ENABLED=false
 # Check database URL
 echo $DATABASE_URL
 
-# Test connection manually
+# Test connection
 python -c "from app.config.database import test_database_connection; test_database_connection()"
 ```
 
 #### Tables Not Created
-```bash
-# Run setup script
-python scripts/setup_analytics_db.py
+The database is automatically initialized when the Flask app starts. If tables are missing:
 
-# Or manually initialize
-python -c "from app.config.database import init_database; init_database()"
+```python
+# Manual initialization
+from app.config.database import init_database
+init_database()
 ```
 
 #### Analytics Not Recording
-- Check `ANALYTICS_ENABLED=true` in environment
-- Verify database connection
-- Check browser console for errors
-- Ensure session ID is being generated
+1. Check `ANALYTICS_ENABLED=true` in environment
+2. Check `VITE_ENABLE_ANALYTICS=true` in frontend
+3. Verify database connection
+4. Check browser console for errors
+5. Verify session ID is being generated
 
 ### Debug Mode
 ```bash
 # Enable SQL query logging
 DATABASE_ECHO=true
 
-# Check analytics service status
-# In browser console: analyticsService.isAnalyticsEnabled()
+# Check analytics service status in browser console
+analyticsService.getSessionId()
+analyticsService.isAnalyticsEnabled()
+analyticsService.getQueueSize()
+```
+
+### Viewing Stored Data
+
+#### Using PostgreSQL
+```bash
+# Connect to database
+psql math2visual_analytics
+
+# View sessions
+SELECT * FROM user_sessions ORDER BY created_at DESC LIMIT 10;
+
+# View actions
+SELECT * FROM actions ORDER BY timestamp DESC LIMIT 10;
+
+# View cursor positions
+SELECT * FROM cursor_positions ORDER BY timestamp DESC LIMIT 10;
+
+# View screenshots
+SELECT * FROM screenshots ORDER BY created_at DESC LIMIT 10;
+```
+
+#### Using SQLite
+```bash
+# Connect to database
+sqlite3 analytics.db
+
+# Run the same queries as above
 ```
 
 ## 📚 Further Reading
 
 - [SQLAlchemy Documentation](https://docs.sqlalchemy.org/)
 - [PostgreSQL Documentation](https://www.postgresql.org/docs/)
-- [Flask Analytics Best Practices](https://flask.palletsprojects.com/en/2.3.x/patterns/)
-- [React Analytics Integration](https://reactjs.org/docs/thinking-in-react.html)
+- [React Hooks Documentation](https://react.dev/reference/react)
+- [navigator.sendBeacon API](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/sendBeacon)

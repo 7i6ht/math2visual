@@ -2,7 +2,8 @@
  * Custom hook for tracking analytics with debouncing.
  * Consolidates all analytics functionality in one place.
  */
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef, useEffect } from 'react';
+import html2canvas from 'html2canvas';
 import { analyticsService } from '@/api_services/analytics';
 
 export const useAnalytics = () => {
@@ -134,7 +135,7 @@ export const useAnalytics = () => {
   }, []);
 
   // Generic popup typing tracking with debouncing
-  const trackPopupType = useCallback((timeoutRef: React.MutableRefObject<ReturnType<typeof setTimeout> | null>, popupaction_type: string, value: string) => {
+  const trackPopupType = useCallback((timeoutRef: React.MutableRefObject<ReturnType<typeof setTimeout> | null>, popupType: string, value: string) => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
@@ -165,7 +166,7 @@ export const useAnalytics = () => {
   }, [trackPopupType]);
 
   // Popup submission tracking
-  const trackPopupSubmit = useCallback((popupaction_type: string, value: string, elementType: 'button' | 'keyboard' = 'button') => {
+  const trackPopupSubmit = useCallback((popupType: string, value: string, elementType: 'button' | 'keyboard' = 'button') => {
     const actionType = `${popupType}_popup_${elementType}_submit`;
     
     analyticsService.recordAction({
@@ -189,7 +190,7 @@ export const useAnalytics = () => {
   }, []);
 
   // Form submission tracking
-  const trackFormSubmit = useCallback((actionaction_type: string, value: string) => {
+  const trackFormSubmit = useCallback((actionType: string, value: string) => {
     analyticsService.recordAction({
       type: actionType,
       data: JSON.stringify({ value: value }),
@@ -205,7 +206,7 @@ export const useAnalytics = () => {
   }, []);
 
   // Error tracking
-  const trackError = useCallback((erroraction_type: string, errorMessage: string) => {
+  const trackError = useCallback((errorType: string, errorMessage: string) => {
     analyticsService.recordAction({
       type: errorType,
       data: JSON.stringify({ error_message: errorMessage }),
@@ -241,6 +242,61 @@ export const useAnalytics = () => {
     });
   }, []);
 
+  // Cursor tracking
+  const handleMouseMove = useCallback((event: MouseEvent) => {
+    const element = event.target as HTMLElement;
+    const elementId = element.id || undefined;
+    const elementType = element.tagName.toLowerCase() || undefined;
+
+    analyticsService.recordCursorPosition(event.clientX, event.clientY, {
+      element_id: elementId,
+      element_type: elementType,
+    });
+  }, []);
+
+  // Start cursor tracking
+  const startCursorTracking = useCallback(() => {
+    // Track cursor movements
+    document.addEventListener('mousemove', handleMouseMove);
+  }, [handleMouseMove]);
+
+  // Stop cursor tracking
+  const stopCursorTracking = useCallback(() => {
+    document.removeEventListener('mousemove', handleMouseMove);
+  }, [handleMouseMove]);
+
+  // Capture screenshot
+  const captureScreenshot = useCallback(async () => {
+    try {
+      // Capture the entire document using html2canvas
+      const canvas = await html2canvas(document.body, {
+        // Capture everything including elements outside the viewport
+        width: document.documentElement.scrollWidth,
+        height: document.documentElement.scrollHeight,
+        // Use the device's pixel ratio for better quality
+        scale: window.devicePixelRatio || 1,
+        // Improve rendering quality
+        useCORS: true,
+        logging: false, // Disable console logs from html2canvas
+      });
+      
+      const dataURL = canvas.toDataURL('image/png');
+      const width = canvas.width;
+      const height = canvas.height;
+      
+      await analyticsService.uploadScreenshot(dataURL, width, height);
+    } catch (error) {
+      console.error('Failed to capture screenshot:', error);
+    }
+  }, []);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      stopCursorTracking();
+    };
+  }, [stopCursorTracking]);
+
   return {
     // Input typing
     trackMWPType,
@@ -273,6 +329,10 @@ export const useAnalytics = () => {
     // Generation
     trackGenerationStart,
     trackGenerationComplete,
+    // Cursor tracking and screenshots
+    startCursorTracking,
+    stopCursorTracking,
+    captureScreenshot,
     // Analytics control
     isAnalyticsEnabled: analyticsService.isAnalyticsEnabled(),
   };
