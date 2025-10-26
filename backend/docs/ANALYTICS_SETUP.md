@@ -23,9 +23,8 @@ The analytics system tracks user interactions and behaviors to provide insights 
 
 ## 🚀 Quick Setup
 
-### 1. Database Configuration
+### 1. PostgreSQL Database Configuration
 
-#### Option A: PostgreSQL (Recommended)
 ```bash
 # Create database
 createdb math2visual_analytics
@@ -33,11 +32,6 @@ createdb math2visual_analytics
 # Create user (optional)
 psql -c "CREATE USER math2visual_user WITH PASSWORD 'your_password';"
 psql -c "GRANT ALL PRIVILEGES ON DATABASE math2visual_analytics TO math2visual_user;"
-```
-
-#### Option B: SQLite (Development)
-```bash
-# No setup required - database will be created automatically
 ```
 
 ### 2. Environment Configuration
