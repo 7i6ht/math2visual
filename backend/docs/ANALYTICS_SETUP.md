@@ -72,7 +72,7 @@ Tables created:
 
 Analytics are controlled by the `VITE_ENABLE_ANALYTICS` environment variable in the frontend.
 
-Create or edit `frontend/.env`:
+Edit `frontend/.env`:
 ```bash
 # Enable or disable analytics
 VITE_ENABLE_ANALYTICS=true
