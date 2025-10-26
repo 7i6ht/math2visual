@@ -46,15 +46,8 @@ Edit `.env` with your database configuration:
 # For PostgreSQL
 DATABASE_URL=postgresql://math2visual_user:your_password@localhost:5432/math2visual_analytics
 
-# For SQLite (development)
-DATABASE_URL=sqlite:///./analytics.db
-
 # Database Configuration
 DATABASE_ECHO=false  # Set to true for SQL query logging (development only)
-
-# Analytics Configuration
-ANALYTICS_ENABLED=true  # Set to false to disable user action tracking
-ANALYTICS_RETENTION_DAYS=90  # How long to keep analytics data (days)
 ```
 
 ### 3. Database Initialization
@@ -287,11 +280,10 @@ init_database()
 ```
 
 #### Analytics Not Recording
-1. Check `ANALYTICS_ENABLED=true` in environment
-2. Check `VITE_ENABLE_ANALYTICS=true` in frontend
-3. Verify database connection
-4. Check browser console for errors
-5. Verify session ID is being generated
+1. Check `VITE_ENABLE_ANALYTICS=true` in frontend
+2. Verify database connection
+3. Check browser console for errors
+4. Verify session ID is being generated
 
 ### Debug Mode
 ```bash
