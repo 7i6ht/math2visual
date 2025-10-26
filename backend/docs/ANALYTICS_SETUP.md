@@ -90,8 +90,6 @@ npm install
 npm run dev
 ```
 
-The analytics system will automatically initialize when the Flask app starts.
-
 ## 📈 What Gets Tracked
 
 ### User Sessions
