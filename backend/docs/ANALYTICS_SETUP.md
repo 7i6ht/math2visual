@@ -28,11 +28,11 @@ The analytics system tracks user interactions and behaviors to provide insights 
 ```bash
 sudo -u postgres psql
 # Create database
-createdb math2visual_analytics
+CREATE DATABASE math2visual_analytics;
 
-# Create user (optional)
-psql -c "CREATE USER math2visual_user WITH PASSWORD 'your_password';"
-psql -c "GRANT ALL PRIVILEGES ON DATABASE math2visual_analytics TO math2visual_user;"
+# Create user
+CREATE USER math2visual_user WITH PASSWORD 'your_password';
+GRANT ALL PRIVILEGES ON DATABASE math2visual_analytics TO math2visual_user;
 ```
 
 ### 2. Environment Configuration
