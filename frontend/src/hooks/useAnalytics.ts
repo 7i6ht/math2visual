@@ -266,50 +266,9 @@ export const useAnalytics = () => {
     document.removeEventListener('mousemove', handleMouseMove);
   }, [handleMouseMove]);
 
-  // Wait for all images to load before capturing screenshot
-  const waitForImagesToLoad = () => {
-    return new Promise<void>((resolve) => {
-      const images = document.querySelectorAll('img');
-      let loadedCount = 0;
-      const totalImages = images.length;
-
-      if (totalImages === 0) {
-        resolve();
-        return;
-      }
-
-      images.forEach((img) => {
-        if (img.complete) {
-          loadedCount++;
-        } else {
-          img.addEventListener('load', () => {
-            loadedCount++;
-            if (loadedCount === totalImages) {
-              // Small delay to ensure all images are fully rendered
-              setTimeout(() => resolve(), 100);
-            }
-          });
-          img.addEventListener('error', () => {
-            loadedCount++;
-            if (loadedCount === totalImages) {
-              setTimeout(() => resolve(), 100);
-            }
-          });
-        }
-      });
-
-      if (loadedCount === totalImages) {
-        setTimeout(() => resolve(), 100);
-      }
-    });
-  };
-
   // Capture screenshot
   const captureScreenshot = useCallback(async () => {
     try {
-      // Wait for all images (including the logo) to load before capturing
-      await waitForImagesToLoad();
-
       // Capture the viewport (what user actually sees) using html2canvas
       const canvas = await html2canvas(document.documentElement, {
         // Capture the viewport dimensions (what user sees)

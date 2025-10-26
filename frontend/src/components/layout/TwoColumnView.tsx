@@ -82,7 +82,7 @@ export function TwoColumnView({ appState }: Props) {
       // Capture screenshot after a brief delay to ensure layout is fully rendered
       setTimeout(() => {
         captureScreenshot();
-      }, 2000);
+      }, 1000);
       setIsFirstRender(false);
     }
   }, [isAnalyticsEnabled, trackTwoColumnLayoutRender, captureScreenshot, setIsFirstRender]);
