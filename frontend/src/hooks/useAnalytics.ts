@@ -345,7 +345,7 @@ export const useAnalytics = () => {
   }, [stopCursorTracking]);
 
   return {
-    isFirstRender: isFirstRender.current,
+    isFirstRender,
     setIsFirstRender: (value: boolean) => { isFirstRender.current = value; },
     // Input typing
     trackMWPType,

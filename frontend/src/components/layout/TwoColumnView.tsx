@@ -77,13 +77,15 @@ export function TwoColumnView({ appState }: Props) {
 
   // Track two column layout render and capture screenshot
   useEffect(() => {
-    if (isAnalyticsEnabled && isFirstRender) {
+    if (isAnalyticsEnabled && isFirstRender.current) {
       trackTwoColumnLayoutRender();
       // Capture screenshot after a brief delay to ensure layout is fully rendered
-      captureScreenshot();
+      setTimeout(() => {
+        captureScreenshot();
+      }, 2000);
       setIsFirstRender(false);
     }
-  }, []);
+  }, [isAnalyticsEnabled, trackTwoColumnLayoutRender, captureScreenshot, setIsFirstRender]);
 
   // Ensure the field is visible whenever hint text exists
   useEffect(() => {
