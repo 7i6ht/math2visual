@@ -37,9 +37,9 @@ GRANT ALL PRIVILEGES ON DATABASE math2visual_analytics TO math2visual_user;
 
 ### 2. Environment Configuration
 
-Copy the analytics template:
+Copy the analytics template into `.env`:
 ```bash
-cp config_templates/env_analytics_template .env
+config_templates/env_analytics_template
 ```
 
 Edit `.env` with your database configuration:
