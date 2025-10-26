@@ -146,7 +146,7 @@ export const useSVGMissingError = ({
 
     // Track drop event if analytics is enabled
     if (isAnalyticsEnabled) {
-      trackDrop('svg_upload_drop_zone', 'drop_zone');
+      trackDrop('svg_upload_drop_zone');
     }
 
     const file = files[0];
@@ -159,7 +159,7 @@ export const useSVGMissingError = ({
     
     // Track drag over event if analytics is enabled
     if (isAnalyticsEnabled) {
-      trackDragOver('svg_upload_drop_zone', 'drop_zone');
+      trackDragOver('svg_upload_drop_zone');
     }
   };
 
@@ -181,8 +181,8 @@ export const useSVGMissingError = ({
     // Track upload button click if analytics is enabled
     if (isAnalyticsEnabled) {
       const isLastEntity = currentEntityIndex === missingSVGEntities.length - 1;
-      const buttonText = isLastEntity ? 'Upload & Regenerate' : 'Upload';
-      trackElementClick('svg_upload_button', 'button', buttonText);
+      const action = isLastEntity ? 'upload_regenerate' : 'upload';
+      trackElementClick(`svg_${action}_button_click`);
     }
     fileInputRef.current?.click();
   };
@@ -207,7 +207,7 @@ export const useSVGMissingError = ({
   const handleGenerateClick = useCallback(() => {
     // Track generate button click if analytics is enabled
     if (isAnalyticsEnabled) {
-      trackElementClick('svg_generate_button', 'button', 'Generate');
+      trackElementClick('svg_generate_button_click');
     }
     if (onGenerate) {
       onGenerate(undefined);

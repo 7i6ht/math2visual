@@ -25,10 +25,7 @@ export const useAnalytics = () => {
     }
     mwpTimeoutRef.current = setTimeout(() => {
       analyticsService.recordAction({
-        action_type: 'mwp_input_type',
-        action_category: 'interaction',
-        element_type: 'textarea',
-        element_id: 'mwp_input',
+        type: 'mwp_input_type'
       });
     }, 500);
   }, []);
@@ -39,10 +36,7 @@ export const useAnalytics = () => {
     }
     formulaTimeoutRef.current = setTimeout(() => {
       analyticsService.recordAction({
-        action_type: 'formula_input_type',
-        action_category: 'interaction',
-        element_type: 'input',
-        element_id: 'formula_input',
+        type: 'formula_input_type'
       });
     }, 500);
   }, []);
@@ -53,10 +47,7 @@ export const useAnalytics = () => {
     }
     hintTimeoutRef.current = setTimeout(() => {
       analyticsService.recordAction({
-        action_type: 'hint_input_type',
-        action_category: 'interaction',
-        element_type: 'textarea',
-        element_id: 'hint_input',
+        type: 'hint_input_type'
       });
     }, 500);
   }, []);
@@ -67,10 +58,7 @@ export const useAnalytics = () => {
     }
     dslTimeoutRef.current = setTimeout(() => {
       analyticsService.recordAction({
-        action_type: 'dsl_input_type',
-        action_category: 'interaction',
-        element_type: 'monaco_editor',
-        element_id: 'dsl_editor',
+        type: 'dsl_editor_type'
       });
     }, 500);
   }, []);
@@ -81,116 +69,80 @@ export const useAnalytics = () => {
     }
     dslScrollTimeoutRef.current = setTimeout(() => {
       analyticsService.recordAction({
-        action_type: 'dsl_editor_scroll',
-        action_category: 'interaction',
-        element_type: 'monaco_editor',
-        element_id: 'dsl_editor',
-        action_data: { scroll_direction: direction },
+        type: `dsl_editor_scroll_${direction}`,
       });
     }, 250);
   }, []);
 
   const trackColumnScroll = useCallback((column: 'left' | 'right', direction: 'up' | 'down') => {
     const timeoutRef = column === 'left' ? leftScrollTimeoutRef : rightScrollTimeoutRef;
-    const actionType = column === 'left' ? 'left_column_scroll' : 'right_column_scroll';
-    const elementId = column === 'left' ? 'math_problem_column' : 'visualization_column';
+    const actionType = column === 'left' ? 'math_problem_column_scroll' : 'visualization_column_scroll';
     
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
     timeoutRef.current = setTimeout(() => {
       analyticsService.recordAction({
-        action_type: actionType,
-        action_category: 'interaction',
-        element_type: 'column',
-        element_id: elementId,
-        action_data: { scroll_direction: direction },
+        type: `${actionType}_${direction}`,
       });
     }, 250);
   }, []);
 
   const trackTwoColumnLayoutRender = useCallback(() => {
     analyticsService.recordAction({
-      action_type: 'two_column_layout_render',
-      action_category: 'navigation',
-      element_type: 'page',
-      element_id: 'two_column_view',
+      type: 'two_column_layout_render',
     });
   }, []);
 
   const trackInitialViewRender = useCallback(() => {
     analyticsService.recordAction({
-      action_type: 'initial_view_render',
-      action_category: 'navigation',
-      element_type: 'page',
-      element_id: 'initial_view',
+      type: 'initial_view_render'
     });
   }, []);
 
   // Element click tracking
-  const trackElementClick = useCallback((elementId: string, elementType: string, elementText?: string) => {
+  const trackElementClick = useCallback((action_type: string, action_data?: string) => {
     analyticsService.recordAction({
-      action_type: 'element_click',
-      action_category: 'interaction',
-      element_id: elementId,
-      element_type: elementType,
-      element_text: elementText,
+      type: action_type,
+      data: JSON.stringify({key: action_data}),
     });
   }, []);
 
   // Element hover tracking
-  const trackElementHover = useCallback((elementId: string, elementType: string, hoverType: 'enter' | 'leave', dslPath?: string) => {
+  const trackSVGElementHover = useCallback((action_type: string, dslPath?: string) => {
     analyticsService.recordAction({
-      action_type: 'element_hover',
-      action_category: 'interaction',
-      element_id: elementId,
-      element_type: elementType,
-      action_data: { dsl_path: dslPath, hover_type: hoverType },
+      type: action_type,
+      data: JSON.stringify({ dsl_path: dslPath }),
     });
   }, []);
 
   // SVG element click tracking
-  const trackSVGElementClick = useCallback((elementId: string, elementType: string, dslPath?: string) => {
+  const trackSVGElementClick = useCallback((action_type: string, dslPath?: string) => {
     analyticsService.recordAction({
-      action_type: 'svg_element_click',
-      action_category: 'interaction',
-      element_id: elementId,
-      element_type: elementType,
-      action_data: { dsl_path: dslPath },
+      type: action_type,
+      data: JSON.stringify({ dsl_path: dslPath }),
     });
   }, []);
 
   // Popup tracking
   const trackOpenPopup = useCallback((popupType: 'name' | 'entity_quantity' | 'svg_selector', dslPath: string) => {
-    const actionType = `${popupType}_popup_open`;
-    const elementId = `${popupType}_popup_${dslPath.replace(/\//g, '-')}`;
-    
+    const actionType = `${popupType}_popup_open`;    
     analyticsService.recordAction({
-      action_type: actionType,
-      action_category: 'interaction',
-      element_type: 'popup',
-      element_id: elementId,
-      action_data: {
-        dsl_path: dslPath
-      },
+      type: actionType,
+      data: JSON.stringify({ dsl_path: dslPath }),
     });
   }, []);
 
   // Generic popup typing tracking with debouncing
-  const trackPopupType = useCallback((timeoutRef: React.MutableRefObject<ReturnType<typeof setTimeout> | null>, popupType: string, value: string) => {
+  const trackPopupType = useCallback((timeoutRef: React.MutableRefObject<ReturnType<typeof setTimeout> | null>, popupaction_type: string, value: string) => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
     
     timeoutRef.current = setTimeout(() => {
       analyticsService.recordAction({
-        action_type: `${popupType}_popup_type`,
-        action_category: 'interaction',
-        element_type: 'input',
-        element_id: `${popupType}_popup_input`,
-        action_data: {
-          value: value
-        }
+        type: `${popupType}_popup_type`,
+        data: JSON.stringify({ value: value }),
       });
     }, 500);
   }, []);
@@ -213,167 +165,79 @@ export const useAnalytics = () => {
   }, [trackPopupType]);
 
   // Popup submission tracking
-  const trackPopupSubmit = useCallback((popupType: string, value: string, elementType: 'button' | 'keyboard' = 'button') => {
-    const actionType = elementType === 'keyboard' ? `${popupType}_popup_keyboard_submit` : `${popupType}_popup_submit`;
-    const elementId = elementType === 'keyboard' ? `${popupType}_popup_keyboard` : `${popupType}_popup_submit_button`;
+  const trackPopupSubmit = useCallback((popupaction_type: string, value: string, elementType: 'button' | 'keyboard' = 'button') => {
+    const actionType = `${popupType}_popup_${elementType}_submit`;
     
     analyticsService.recordAction({
-      action_type: actionType,
-      action_category: 'interaction',
-      element_type: elementType,
-      element_id: elementId,
-      action_data: {
-        value: value
-      }
+      type: actionType,
+      data: JSON.stringify({ value: value }),
     });
   }, []);
 
-  // Drag and drop tracking
-  const trackDragStart = useCallback((elementId: string, elementType: string, dslPath?: string) => {
+  const trackDragOver = useCallback((action_type: string, dslPath?: string) => {
     analyticsService.recordAction({
-      action_type: 'drag_start',
-      action_category: 'interaction',
-      element_id: elementId,
-      element_type: elementType,
-      action_data: { dsl_path: dslPath },
+      type: action_type,
+      data: JSON.stringify({ dsl_path: dslPath }),
     });
   }, []);
 
-  const trackDragOver = useCallback((elementId: string, elementType: string, dslPath?: string) => {
+  const trackDrop = useCallback((action_type: string, dslPath?: string) => {
     analyticsService.recordAction({
-      action_type: 'drag_over',
-      action_category: 'interaction',
-      element_id: elementId,
-      element_type: elementType,
-      action_data: { dsl_path: dslPath },
-    });
-  }, []);
-
-  const trackDrop = useCallback((elementId: string, elementType: string, dslPath?: string) => {
-    analyticsService.recordAction({
-      action_type: 'drop',
-      action_category: 'interaction',
-      element_id: elementId,
-      element_type: elementType,
-      action_data: { dsl_path: dslPath },
+      type: action_type,
+      data: JSON.stringify({ dsl_path: dslPath }),
     });
   }, []);
 
   // Form submission tracking
-  const trackFormSubmit = useCallback((formType: 'math_problem' | 'visual_language', data: Record<string, unknown>) => {
+  const trackFormSubmit = useCallback((actionaction_type: string, value: string) => {
     analyticsService.recordAction({
-      action_type: 'form_submit',
-      action_category: 'generation',
-      element_type: 'form',
-      element_text: formType,
-      action_data: {
-        form_type: formType,
-        data_length: JSON.stringify(data).length,
-        has_mwp: 'mwp' in data,
-        has_formula: 'formula' in data,
-        has_hint: 'hint' in data,
-      },
+      type: actionType,
+      data: JSON.stringify({ value: value }),
     });
   }, []);
 
   // Download tracking
   const trackDownload = useCallback((format: 'svg' | 'png' | 'pdf', filename?: string) => {
     analyticsService.recordAction({
-      action_type: 'download',
-      action_category: 'download',
-      element_type: 'download_button',
-      action_data: { format, filename },
-    });
-  }, []);
-
-  // Upload tracking
-  const trackUpload = useCallback((filename: string, fileSize: number, success: boolean) => {
-    analyticsService.recordAction({
-      action_type: 'upload',
-      action_category: 'upload',
-      element_type: 'file_input',
-      action_data: { filename, file_size: fileSize },
-      success: success ? 'true' : 'false',
+      type: `download_${format}_button_click`,
+      data: JSON.stringify({ filename: filename }),
     });
   }, []);
 
   // Error tracking
-  const trackError = useCallback((errorType: string, errorMessage: string, context?: Record<string, unknown>) => {
+  const trackError = useCallback((erroraction_type: string, errorMessage: string) => {
     analyticsService.recordAction({
-      action_type: 'error',
-      action_category: 'error',
-      element_type: 'error',
-      action_data: { error_type: errorType, context },
-      success: 'false',
-      error_message: errorMessage,
+      type: errorType,
+      data: JSON.stringify({ error_message: errorMessage }),
     });
   }, []);
 
   // DSL editor click tracking
   const trackDSLEditorClick = useCallback((dslPath: string | null) => {
     analyticsService.recordAction({
-      action_type: 'dsl_editor_click',
-      action_category: 'interaction',
-      element_type: 'monaco_editor',
-      element_id: 'dsl_editor',
-      action_data: { dsl_path: dslPath },
+      type: 'dsl_editor_click',
+      data: JSON.stringify({ dsl_path: dslPath }),
     });
   }, []);
 
   // Generation tracking
-  const trackGenerationStart = useCallback(async (mwp: string, formula?: string, hint?: string): Promise<string | null> => {
-    const generationId = await analyticsService.recordGeneration({
-      mwp_text: mwp,
-      formula,
-      hint,
-      success: 'pending',
-    });
-
+  const trackGenerationStart = useCallback(async (mwp: string, formula?: string, hint?: string) => {
     analyticsService.recordAction({
-      action_type: 'generation_start',
-      action_category: 'generation',
-      element_type: 'generation_button',
-      action_data: {
-        mwp_length: mwp.length,
-        has_formula: !!formula,
-        has_hint: !!hint,
-      },
+      type: 'generation_start',
+      data: JSON.stringify({ mwp: mwp, formula: formula, hint: hint }),
     });
-
-    return generationId;
   }, []);
 
   const trackGenerationComplete = useCallback((
-    generationId: string | null,
     success: boolean,
-    generatedDsl?: string,
-    errors?: unknown[],
+    errorFormal?: string | null,
+    errorIntuitive?: string | null,
+    dsl?: string,
     missingEntities?: string[],
-    timing?: { total?: number; dsl?: number; visual?: number }
   ) => {
-    if (generationId) {
-      analyticsService.updateGeneration(generationId, {
-        success: success ? 'success' : 'error',
-        generated_dsl: generatedDsl,
-        dsl_validation_errors: errors,
-        missing_svg_entities: missingEntities,
-        generation_time_ms: timing?.total,
-        dsl_generation_time_ms: timing?.dsl,
-        visual_generation_time_ms: timing?.visual,
-      });
-    }
-
     analyticsService.recordAction({
-      action_type: 'generation_complete',
-      action_category: 'generation',
-      element_type: 'generation_result',
-      action_data: {
-        success,
-        has_dsl: !!generatedDsl,
-        error_count: errors?.length || 0,
-        missing_entities_count: missingEntities?.length || 0,
-      },
-      success: success ? 'true' : 'false',
+      type: 'generation_complete',
+      data: JSON.stringify({ success: success, error_formal: errorFormal, error_intuitive: errorIntuitive, dsl: dsl, missing_svg_entities: missingEntities }),
     });
   }, []);
 
@@ -391,11 +255,10 @@ export const useAnalytics = () => {
     // Form actions
     trackFormSubmit,
     trackDownload,
-    trackUpload,
     trackError,
     // Interactions
     trackElementClick,
-    trackElementHover,
+    trackSVGElementHover,
     trackSVGElementClick,
     trackDSLEditorClick,
     trackOpenPopup,
@@ -405,7 +268,6 @@ export const useAnalytics = () => {
     trackSVGUploadPopupType,
     trackPopupSubmit,
     // Drag and drop
-    trackDragStart,
     trackDragOver,
     trackDrop,
     // Generation

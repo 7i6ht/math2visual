@@ -25,7 +25,7 @@ export const useElementInteractions = ({
   isDisabled = false,
 }: UseElementInteractionsProps) => {
   const { currentDSLPath, setSelectedElement } = useHighlightingContext();
-  const { trackElementHover, trackSVGElementClick, isAnalyticsEnabled } = useAnalytics();
+  const { trackSVGElementHover, trackSVGElementClick, isAnalyticsEnabled } = useAnalytics();
   const currentDSLPathRef = useRef(currentDSLPath);
   
   // Keep the ref in sync with the current value
@@ -62,17 +62,17 @@ export const useElementInteractions = ({
       // Add event listeners
       // Track hover analytics if enabled
       if (isAnalyticsEnabled) {
-        const elementType = svgElem.tagName.toLowerCase();
-        const elementId = svgElem.id || `${elementType}-${dslPath.replace(/\//g, '-')}`;
          svgElem.onmouseenter = () => {
            const currentPath = currentDSLPathRef.current;
            if (currentPath !== dslPath) {
-             trackElementHover(elementId, elementType, 'enter', dslPath);
+            const actionType = `svg_element_hover_enter`;
+             trackSVGElementHover(actionType, dslPath);
              setSelectedElement(svgElem);
            }
          };
          svgElem.onmouseleave = () => {
-           trackElementHover(elementId, elementType, 'leave', dslPath);
+          const actionType = `svg_element_hover_leave`;
+           trackSVGElementHover(actionType, dslPath);
            setSelectedElement(null as unknown as Element);
          };
       } else {
@@ -118,9 +118,8 @@ export const useElementInteractions = ({
       if (svgElem.onclick && isAnalyticsEnabled) {
         const originalClickHandler = svgElem.onclick;
         svgElem.onclick = (event: PointerEvent) => {
-          const elementType = svgElem.tagName.toLowerCase();
-          const elementId = svgElem.id || `${elementType}-${dslPath.replace(/\//g, '-')}`;
-          trackSVGElementClick(elementId, elementType, dslPath);
+          const action_type = `svg_element_click`;
+          trackSVGElementClick(action_type, dslPath);
           originalClickHandler.call(svgElem, event);
         };
       }
@@ -134,7 +133,7 @@ export const useElementInteractions = ({
     onEntityQuantityClick,
     onNameClick,
     isPopupOpen
-    // trackElementHover and isAnalyticsEnabled are stable references and don't need to be dependencies
+    // trackSVGElementHover and isAnalyticsEnabled are stable references and don't need to be dependencies
   ]);
 
   const returnValue = useMemo(() => ({

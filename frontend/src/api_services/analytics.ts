@@ -3,31 +3,9 @@
  */
 import { BACKEND_API_URL } from '@/config/api';
 
-export interface UserAction {
-  action_type: string;
-  action_category: 'generation' | 'interaction' | 'navigation' | 'download' | 'upload' | 'error';
-  element_id?: string;
-  element_type?: string;
-  element_text?: string;
-  page_url?: string;
-  action_data?: Record<string, unknown>;
-  duration_ms?: number;
-  success?: 'true' | 'false';
-  error_message?: string;
-}
-
-export interface GenerationSession {
-  mwp_text: string;
-  formula?: string;
-  hint?: string;
-  generated_dsl?: string;
-  dsl_validation_errors?: unknown[];
-  missing_svg_entities?: string[];
-  success?: 'pending' | 'success' | 'error';
-  error_message?: string;
-  generation_time_ms?: number;
-  dsl_generation_time_ms?: number;
-  visual_generation_time_ms?: number;
+export interface Action {
+  type: string;
+  data?: string;
 }
 
 class AnalyticsService {
@@ -70,56 +48,25 @@ class AnalyticsService {
     }
   }
 
-  async recordAction(action: UserAction): Promise<void> {
+  async recordAction(action: Action): Promise<void> {
     if (!this.isEnabled || !this.sessionId) return;
 
     try {
+      // Add UTC timestamp to the action
+      const actionWithTimestamp = {
+        ...action,
+        timestamp: new Date().toISOString(),
+      };
+
       await fetch(`${BACKEND_API_URL}/analytics/action`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ session_id: this.sessionId, ...action }),
+        body: JSON.stringify({ session_id: this.sessionId, ...actionWithTimestamp }),
       });
     } catch (error) {
       console.warn('Failed to record analytics action:', error);
     }
   }
-
-  async recordGeneration(generation: GenerationSession): Promise<string | null> {
-    if (!this.isEnabled || !this.sessionId) return null;
-
-    try {
-      const response = await fetch(`${BACKEND_API_URL}/analytics/generation`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ session_id: this.sessionId, ...generation }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        return data.generation_id;
-      }
-    } catch (error) {
-      console.warn('Failed to record generation session:', error);
-    }
-
-    return null;
-  }
-
-  async updateGeneration(generationId: string, updates: Partial<GenerationSession>): Promise<void> {
-    if (!this.isEnabled) return;
-
-    try {
-      await fetch(`${BACKEND_API_URL}/analytics/generation/${generationId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates),
-      });
-    } catch (error) {
-      console.warn('Failed to update generation session:', error);
-    }
-  }
-
-
 
   getSessionId(): string | null {
     return this.sessionId;

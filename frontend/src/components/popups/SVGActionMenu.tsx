@@ -51,7 +51,7 @@ export const SVGActionMenu: React.FC<SVGActionMenuProps> = ({
                 onMouseDown={(e) => e.stopPropagation()}
                 onClick={() => {
                   if (isAnalyticsEnabled) {
-                    trackElementClick('svg_action_menu_search', 'menu_item', 'Search');
+                    trackElementClick('svg_action_menu_search_click');
                   }
                   setActivePopup("search");
                 }}
@@ -63,7 +63,7 @@ export const SVGActionMenu: React.FC<SVGActionMenuProps> = ({
                 onMouseDown={(e) => e.stopPropagation()}
                 onClick={() => {
                   if (isAnalyticsEnabled) {
-                    trackElementClick('svg_action_menu_upload', 'menu_item', 'Upload');
+                    trackElementClick('svg_action_menu_upload_click');
                   }
                   setActivePopup("upload");
                 }}

@@ -46,7 +46,7 @@ export const VisualizationResults = ({
 
   const handleHintLinkClick = useCallback(() => {
     if (isAnalyticsEnabled) {
-      trackElementClick('hint_link', 'button', 'Add more hints');
+      trackElementClick('hint_link_click');
     }
     onShowHint();
   }, [onShowHint]);

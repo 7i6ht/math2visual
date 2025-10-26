@@ -56,11 +56,7 @@ export const useMathProblemForm = ({
     
     // Track form submission
     if (isAnalyticsEnabled) {
-      trackFormSubmit('math_problem', {
-        mwp: data.mwp,
-        formula: data.formula,
-        hint: data.hint,
-      });
+      trackFormSubmit('math_problem_form_submit', 'mwp: ' + data.mwp + '\nformula: ' + (data.formula || '') + '\nhint: ' + (data.hint || ''));
     }
     
     // Save the form values before generating (so they're preserved on abort)
@@ -102,9 +98,7 @@ export const useMathProblemForm = ({
       } else {
         // Track error
         if (isAnalyticsEnabled) {
-          trackError('generation_failed', error instanceof Error ? error.message : "An error occurred", {
-            form_type: 'math_problem',
-          });
+          trackError('generation_failed', error instanceof Error ? error.message : "An error occurred");
         }
         
         toast.error(error instanceof Error ? error.message : "An error occurred");

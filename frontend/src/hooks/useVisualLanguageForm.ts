@@ -45,9 +45,7 @@ export const useVisualLanguageForm = ({
 
     // Track form submission
     if (isAnalyticsEnabled) {
-      trackFormSubmit('visual_language', {
-        dsl: dslValue,
-      });
+      trackFormSubmit('visual_language_form_change', dslValue);
     }
 
     // Create abort controller for this request
@@ -87,9 +85,7 @@ export const useVisualLanguageForm = ({
       } else {
         // Track error
         if (isAnalyticsEnabled) {
-          trackError('dsl_generation_failed', error instanceof Error ? error.message : "An error occurred", {
-            form_type: 'visual_language',
-          });
+          trackError('dsl_generation_failed', error instanceof Error ? error.message : "An error occurred");
         }
         
         toast.error(error instanceof Error ? error.message : "An error occurred");

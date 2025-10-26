@@ -9,8 +9,6 @@ import { useAnalytics } from "@/hooks/useAnalytics";
 
 export const useAppState = () => {
   const { setGenerationResult, formattedDSL } = useDSLContext();
-  const currentGenerationId = useRef<string | null>(null);
-  const generationStartTime = useRef<number | null>(null);
   const { trackGenerationStart, trackGenerationComplete, trackElementClick, isAnalyticsEnabled } = useAnalytics();
   const [state, setState] = useState<AppState>({
     mpFormLoading: false,
@@ -80,26 +78,15 @@ export const useAppState = () => {
     // Track generation completion
     if (isAnalyticsEnabled) {
       const success = !!(svgFormal || svgIntuitive);
-      const endTime = Date.now();
-      const totalTime = generationStartTime.current ? endTime - generationStartTime.current : undefined;
-      
+
       trackGenerationComplete(
-        currentGenerationId.current,
         success,
+        formalError,
+        intuitiveError,
         vl,
-        [formalError, intuitiveError].filter(Boolean),
-        missingSvgEntities,
-        {
-          total: totalTime,
-          dsl: totalTime ? Math.floor(totalTime * 0.6) : undefined, // Estimate DSL time
-          visual: totalTime ? Math.floor(totalTime * 0.4) : undefined, // Estimate visual time
-        }
+        missingSvgEntities
       );
     }
-
-    // Reset generation tracking
-    currentGenerationId.current = null;
-    generationStartTime.current = null;
   }, [setGenerationResult]);
 
   const resetResults = useCallback(() => {
@@ -184,8 +171,7 @@ export const useAppState = () => {
 
     // Track generation start
     if (isAnalyticsEnabled) {
-      currentGenerationId.current = await trackGenerationStart(mwp, formula, hint);
-      generationStartTime.current = Date.now();
+      trackGenerationStart(mwp, formula, hint);
     }
   }, []);
 
@@ -197,7 +183,7 @@ export const useAppState = () => {
   const handleAbort = useCallback(() => {
     // Track abort event if analytics is enabled
     if (isAnalyticsEnabled) {
-      trackElementClick('abort_button', 'button', 'Abort');
+      trackElementClick('abort_button_click');
     }
     
     // Call the current abort function if it exists

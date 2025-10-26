@@ -21,8 +21,7 @@ export const MissingSVGSection = ({
       <AccordionTrigger 
         className="px-4 hover:no-underline"
         {...(isAnalyticsEnabled ? {onClick: () => {
-          trackElementClick('accordion_missing-svg_click', 'accordion', 'missing-svg');
-
+          trackElementClick('accordion_missing_svg_click');
         }} : {})}
       >
         <div className="flex items-center gap-3">

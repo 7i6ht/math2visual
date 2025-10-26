@@ -124,7 +124,6 @@ POST /api/analytics/action
 {
   "session_id": "session_123",
   "action_type": "form_submit",
-  "action_category": "generation",
   "element_type": "form",
   "action_data": {...}
 }
@@ -215,7 +214,6 @@ import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
 // In your component
 analyticsService.recordAction({
   action_type: 'custom_action',
-  action_category: 'custom',
   element_type: 'custom_element',
   action_data: { custom: 'data' }
 });

@@ -96,11 +96,7 @@ export const DownloadButton = ({
       
       // Track download error
       if (isAnalyticsEnabled) {
-        trackError('download_failed', error instanceof Error ? error.message : "Download failed", {
-          format,
-          type,
-          svg_length: svgContent.length,
-        });
+        trackError(`${type}_download_${format}_failed`, error instanceof Error ? error.message : "Download failed");
       }
       
       toast.error(`Failed to download ${format.toUpperCase()} file`, {

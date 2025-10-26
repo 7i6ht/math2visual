@@ -91,7 +91,7 @@ export const VisualizationSection = ({
         disabled={isDisabled}
         {...(isAnalyticsEnabled ? {onClick: () => {
           const action = isOpen ? 'close' : 'open';
-          trackElementClick(`accordion_${type}_${action}`, 'accordion', type);
+          trackElementClick(`accordion_${type}_${action}`);
         }} : {})}
       >
         <div className="flex items-center justify-between w-full mr-4">

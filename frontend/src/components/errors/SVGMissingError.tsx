@@ -162,7 +162,7 @@ export const SVGMissingError = ({
                     type="button"
                     {...(isAnalyticsEnabled ? {
                       onClick: () => {
-                        trackElementClick(`external_link_${p.key}`, 'link', p.label);
+                        trackElementClick(`external_link_click`, p.key);
                         window.open(p.url(missingSvgName));
                       },
                     } : {
