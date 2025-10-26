@@ -20,30 +20,46 @@ backend/
 │   ├── __init__.py                         # Flask application factory
 │   ├── api/                                # API layer
 │   │   ├── middleware/                     # Error handlers and middleware
+│   │   │   ├── __init__.py
 │   │   │   └── error_handlers.py
-│   │   └── routes/                         # API endpoints
-│   │       ├── generation.py               # Core generation API
-│   │       ├── svg_dataset.py              # SVG dataset management (upload, search, serve)
-│   │       └── system.py                   # System status endpoints
+│   │   ├── routes/                         # API endpoints
+│   │   │   ├── __init__.py
+│   │   │   ├── analytics.py                # Analytics and usage tracking
+│   │   │   ├── generation.py               # Core generation API
+│   │   │   ├── svg_dataset.py              # SVG dataset management (upload, search, serve)
+│   │   │   └── system.py                   # System status endpoints
+│   │   └── __init__.py
 │   ├── config/                             # Configuration management
+│   │   ├── __init__.py
+│   │   ├── database.py                     # Database configuration
 │   │   └── storage_config.py               # Storage backend configuration
 │   ├── models/                             # Data models
+│   │   ├── __init__.py
+│   │   └── user_actions.py                 # User action tracking models
 │   ├── services/                           # Business logic
 │   │   ├── language_generation/            # GPT-based DSL generation
+│   │   │   ├── __init__.py
 │   │   │   ├── gpt_generator.py
 │   │   │   └── model_generator.py
 │   │   ├── validation/                     # Input/output validation
+│   │   │   ├── __init__.py
 │   │   │   ├── security_scanner.py         # ClamAV integration
 │   │   │   └── svg_validator.py
-│   │   └── visual_generation/              # SVG generation engines
-│   │       ├── dsl_parser.py
-│   │       ├── formal_generator.py
-│   │       └── intuitive_generator.py
+│   │   ├── visual_generation/              # SVG generation engines
+│   │   │   ├── __init__.py
+│   │   │   ├── dsl_parser.py
+│   │   │   ├── formal_generator.py
+│   │   │   └── intuitive_generator.py
+│   │   └── __init__.py
+│   ├── storage/                            # Application storage
+│   │   └── screenshots/                    # Screenshot storage
 │   └── utils/                              # Utility functions
+│       ├── __init__.py
 │       ├── cleanup.py
 │       └── validation_constants.py
 ├── app.py                                  # Application entry point
 ├── gunicorn.conf.py                        # Gunicorn WSGI server configuration
+├── math2visual.yml                         # Conda environment file
 ├── requirements.txt                        # Python dependencies
 ├── storage/                                # Local storage directory
 │   ├── datasets/svg_dataset/               # SVG entity library (1,549 files)
@@ -52,10 +68,14 @@ backend/
 │   │   └── check-point/                    # Fine-tuned adapters
 │   └── output/                             # Generated visualizations
 ├── scripts/                                # Setup and management scripts
-│   ├── start_production.sh                 # Production deployment script
 │   ├── cleanup_temp_files.py               # File cleanup utility
+│   ├── format_juicefs.sh                   # JuiceFS formatting script
 │   ├── install_juicefs.sh                  # JuiceFS installation
+│   ├── install_systemd_service.sh          # Systemd service installation
+│   ├── juicefs-math2visual.service.template # Systemd service template
 │   ├── mount_juicefs.sh                    # JuiceFS mounting
+│   ├── start_production.sh                 # Production deployment script
+│   ├── uninstall_systemd_service.sh        # Systemd service uninstallation
 │   └── verify_juicefs.sh                   # JuiceFS verification
 ├── docs/                                   # Documentation
 │   ├── PRODUCTION_DEPLOYMENT.md            # Production deployment guide
