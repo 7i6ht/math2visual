@@ -18,6 +18,7 @@ export const useAnalytics = () => {
   const dslScrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const leftScrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const rightScrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isFirstRender = useRef(true);
 
   // Input typing tracking with debouncing
   const trackMWPType = useCallback(() => {
@@ -265,19 +266,65 @@ export const useAnalytics = () => {
     document.removeEventListener('mousemove', handleMouseMove);
   }, [handleMouseMove]);
 
+  // Wait for all images to load before capturing screenshot
+  const waitForImagesToLoad = () => {
+    return new Promise<void>((resolve) => {
+      const images = document.querySelectorAll('img');
+      let loadedCount = 0;
+      const totalImages = images.length;
+
+      if (totalImages === 0) {
+        resolve();
+        return;
+      }
+
+      images.forEach((img) => {
+        if (img.complete) {
+          loadedCount++;
+        } else {
+          img.addEventListener('load', () => {
+            loadedCount++;
+            if (loadedCount === totalImages) {
+              // Small delay to ensure all images are fully rendered
+              setTimeout(() => resolve(), 100);
+            }
+          });
+          img.addEventListener('error', () => {
+            loadedCount++;
+            if (loadedCount === totalImages) {
+              setTimeout(() => resolve(), 100);
+            }
+          });
+        }
+      });
+
+      if (loadedCount === totalImages) {
+        setTimeout(() => resolve(), 100);
+      }
+    });
+  };
+
   // Capture screenshot
   const captureScreenshot = useCallback(async () => {
     try {
-      // Capture the entire document using html2canvas
-      const canvas = await html2canvas(document.body, {
-        // Capture everything including elements outside the viewport
-        width: document.documentElement.scrollWidth,
-        height: document.documentElement.scrollHeight,
+      // Wait for all images (including the logo) to load before capturing
+      await waitForImagesToLoad();
+
+      // Capture the viewport (what user actually sees) using html2canvas
+      const canvas = await html2canvas(document.documentElement, {
+        // Capture the viewport dimensions (what user sees)
+        width: window.innerWidth,
+        height: window.innerHeight,
         // Use the device's pixel ratio for better quality
         scale: window.devicePixelRatio || 1,
         // Improve rendering quality
         useCORS: true,
+        allowTaint: false, // Keep canvas "clean" to allow toDataURL()
+        backgroundColor: '#ffffff', // Ensure white background
         logging: false, // Disable console logs from html2canvas
+        // Additional options for better rendering
+        foreignObjectRendering: true,
+        removeContainer: true,
       });
       
       const dataURL = canvas.toDataURL('image/png');
@@ -298,6 +345,8 @@ export const useAnalytics = () => {
   }, [stopCursorTracking]);
 
   return {
+    isFirstRender: isFirstRender.current,
+    setIsFirstRender: (value: boolean) => { isFirstRender.current = value; },
     // Input typing
     trackMWPType,
     trackFormulaType,
