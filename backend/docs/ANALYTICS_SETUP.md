@@ -5,13 +5,8 @@ This document describes how to set up and use the user action recording system i
 ## 📊 Overview
 
 The analytics system tracks user interactions and behaviors to provide insights into:
-- User behavior patterns
 - Form usage and interaction patterns
-- Generation workflows
-- Download patterns
-- UI/UX interaction tracking (clicks, scrolls, etc.)
-- Cursor movements for heat map analysis
-- Screenshot capture for visual analytics
+- Cursor movements & screenhot for heat map analysis
 
 ## 🏗️ Architecture
 
@@ -248,76 +243,6 @@ Response:
 }
 ```
 
-## 📊 Using Analytics in Components
-
-### Basic Usage
-
-```tsx
-import { useAnalytics } from '@/hooks/useAnalytics';
-
-function MyComponent() {
-  const { 
-    trackFormSubmit, 
-    trackDownload, 
-    trackElementClick,
-    isAnalyticsEnabled 
-  } = useAnalytics();
-
-  const handleSubmit = () => {
-    trackFormSubmit('my_form_submit', 'form data');
-  };
-
-  const handleDownload = () => {
-    trackDownload('pdf', 'output.pdf');
-  };
-
-  const handleClick = () => {
-    trackElementClick('button_click', 'submit-button');
-  };
-
-  return (
-    <div>
-      {isAnalyticsEnabled && <p>Analytics enabled</p>}
-      {/* Your component */}
-    </div>
-  );
-}
-```
-
-### Cursor Tracking
-
-```tsx
-import { useAnalytics } from '@/hooks/useAnalytics';
-import { useEffect } from 'react';
-
-function MyComponent() {
-  const { startCursorTracking, stopCursorTracking } = useAnalytics();
-
-  useEffect(() => {
-    startCursorTracking();
-    return () => stopCursorTracking();
-  }, []);
-
-  return <div>Tracked component</div>;
-}
-```
-
-### Screenshot Capture
-
-```tsx
-import { useAnalytics } from '@/hooks/useAnalytics';
-
-function MyComponent() {
-  const { captureScreenshot } = useAnalytics();
-
-  const handleCapture = async () => {
-    await captureScreenshot();
-  };
-
-  return <button onClick={handleCapture}>Capture</button>;
-}
-```
-
 ## 🔒 Privacy and Security
 
 ### Data Collection
@@ -346,61 +271,6 @@ function MyComponent() {
 - **Feature Adoption**: Which features are most/least used
 - **Interaction Patterns**: Cursor heat maps and click patterns
 - **Error Patterns**: Common failure points and error types
-
-### Performance Metrics
-- **Generation Times**: How long generations take (track via timestamps)
-- **Success Rates**: Overall and per-feature success rates
-- **User Engagement**: Session duration and action frequency
-- **Scroll Patterns**: Where users spend most time
-
-### Debugging Information
-- **Error Tracking**: Detailed error messages and contexts
-- **Missing Entities**: Which SVG entities are most commonly missing
-- **Validation Issues**: DSL parsing problems and patterns
-- **Visual Analytics**: Screenshots for debugging UI issues
-
-## 🛠️ Customization
-
-### Adding New Action Types
-
-In your component:
-```tsx
-const { trackElementClick } = useAnalytics();
-
-trackElementClick('custom_action', 'custom_element');
-```
-
-### Batching Behavior
-
-The analytics service automatically batches actions:
-- Actions are queued and sent in batches of 10
-- Cursor positions are queued and sent in batches of 100
-- Automatic flush every 5 seconds
-- Immediate flush on page unload (via `navigator.sendBeacon`)
-
-### Custom Flush Timing
-
-```tsx
-import { analyticsService } from '@/api_services/analytics';
-
-// Force immediate flush
-await analyticsService.flushPending();
-```
-
-### Enabling/Disabling Analytics
-
-```typescript
-// Runtime control
-analyticsService.setEnabled(false);  // Disable
-analyticsService.setEnabled(true);   // Enable
-
-// Check status
-if (analyticsService.isAnalyticsEnabled()) {
-  // Track actions
-}
-```
-
-## 🚨 Troubleshooting
 
 ### Common Issues
 
