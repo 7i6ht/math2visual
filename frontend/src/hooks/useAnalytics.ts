@@ -15,10 +15,6 @@ export const useAnalytics = () => {
   const entityQuantityPopupTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const svgSearchPopupTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const svgUploadPopupTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const dslScrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const leftScrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const rightScrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const outermostScrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const leftScrollTopRef = useRef<number>(0);
   const rightScrollTopRef = useRef<number>(0);
   const outermostScrollTopRef = useRef<number>(0);
@@ -70,22 +66,16 @@ export const useAnalytics = () => {
   }, []);
 
   const trackDSLScroll = useCallback((direction: 'up' | 'down') => {
-    if (dslScrollTimeoutRef.current) {
-      clearTimeout(dslScrollTimeoutRef.current);
-    }
-    dslScrollTimeoutRef.current = setTimeout(() => {
-      analyticsService.recordAction({
-        type: `dsl_editor_scroll_${direction}`,
-      });
-      // captureScreenshot();
-    }, 250);
+    analyticsService.recordAction({
+      type: `dsl_editor_scroll_${direction}`,
+    });
+    // captureScreenshot();
   }, []);
 
   const trackColumnScroll = useCallback((event: React.UIEvent<HTMLDivElement>, column: 'left' | 'right') => {
     const target = event.currentTarget;
     const currentScrollTop = target.scrollTop;
     const scrollTopRef = column === 'left' ? leftScrollTopRef : rightScrollTopRef;
-    const timeoutRef = column === 'left' ? leftScrollTimeoutRef : rightScrollTimeoutRef;
     const actionType = column === 'left' ? 'math_problem_column_scroll' : 'visualization_column_scroll';
     const previousScrollTop = scrollTopRef.current;
     
@@ -93,15 +83,10 @@ export const useAnalytics = () => {
                      currentScrollTop < previousScrollTop ? 'up' : null;
     
     if (direction) {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-      timeoutRef.current = setTimeout(() => {
-        analyticsService.recordAction({
-          type: `${actionType}_${direction}`,
-        });
-        captureScreenshot();
-      }, 250);
+      analyticsService.recordAction({
+        type: `${actionType}_${direction}`,
+      });
+      //captureScreenshot();
     }
     
     scrollTopRef.current = currentScrollTop;
@@ -116,15 +101,10 @@ export const useAnalytics = () => {
                      currentScrollTop < previousScrollTop ? 'up' : null;
     
     if (direction) {
-      if (outermostScrollTimeoutRef.current) {
-        clearTimeout(outermostScrollTimeoutRef.current);
-      }
-      outermostScrollTimeoutRef.current = setTimeout(() => {
-        analyticsService.recordAction({
-          type: `outermost_scroll_${direction}`,
-        });
-        captureScreenshot();
-      }, 250);
+      analyticsService.recordAction({
+        type: `outermost_scroll_${direction}`,
+      });
+      //captureScreenshot();
     }
     
     outermostScrollTopRef.current = currentScrollTop;
