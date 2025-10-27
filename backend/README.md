@@ -52,7 +52,10 @@ backend/
 │   │   │   └── intuitive_generator.py
 │   │   └── __init__.py
 │   ├── storage/                            # Application storage
-│   │   └── screenshots/                    # Screenshot storage
+│   │   ├── datasets/                       # Dataset files
+│   │   ├── models/                         # ML model files
+│   │   ├── output/                         # Generated outputs
+│   │   └── analytics/                      # Analytics data storage (screenshots, etc.)
 │   └── utils/                              # Utility functions
 │       ├── __init__.py
 │       ├── cleanup.py

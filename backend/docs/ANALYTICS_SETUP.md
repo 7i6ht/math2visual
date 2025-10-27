@@ -146,7 +146,7 @@ npm run dev
 ### Screenshots
 - Full-page screenshots
 - Timestamp and dimensions
-- Stored in `backend/storage/screenshots/`
+- Stored in `backend/storage/analytics/`
 
 ## 🔧 API Endpoints
 

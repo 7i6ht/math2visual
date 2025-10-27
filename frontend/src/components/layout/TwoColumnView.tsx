@@ -41,7 +41,7 @@ export function TwoColumnView({ appState }: Props) {
 
   const { formattedDSL, parsedDSL } = useDSLContext();
   const hintInputRef = useRef<HTMLTextAreaElement | null>(null);
-  const { trackColumnScroll, trackTwoColumnLayoutRender, captureScreenshot, isFirstRender, setIsFirstRender, isAnalyticsEnabled } = useAnalytics();
+  const { trackColumnScroll, trackTwoColumnLayoutRender, isAnalyticsEnabled } = useAnalytics();
   const lastLeftScrollTopRef = useRef<number>(0);
   const lastRightScrollTopRef = useRef<number>(0);
 
@@ -77,15 +77,10 @@ export function TwoColumnView({ appState }: Props) {
 
   // Track two column layout render and capture screenshot
   useEffect(() => {
-    if (isAnalyticsEnabled && isFirstRender.current) {
+    if (isAnalyticsEnabled) {
       trackTwoColumnLayoutRender();
-      // Capture screenshot after a brief delay to ensure layout is fully rendered
-      setTimeout(() => {
-        captureScreenshot();
-      }, 1000);
-      setIsFirstRender(false);
     }
-  }, [isAnalyticsEnabled, trackTwoColumnLayoutRender, captureScreenshot, setIsFirstRender]);
+  }, [isAnalyticsEnabled, trackTwoColumnLayoutRender]);
 
   // Ensure the field is visible whenever hint text exists
   useEffect(() => {

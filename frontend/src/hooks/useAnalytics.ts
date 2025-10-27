@@ -73,6 +73,7 @@ export const useAnalytics = () => {
       analyticsService.recordAction({
         type: `dsl_editor_scroll_${direction}`,
       });
+      captureScreenshot();
     }, 250);
   }, []);
 
@@ -87,13 +88,21 @@ export const useAnalytics = () => {
       analyticsService.recordAction({
         type: `${actionType}_${direction}`,
       });
+      captureScreenshot();
     }, 250);
   }, []);
 
   const trackTwoColumnLayoutRender = useCallback(() => {
-    analyticsService.recordAction({
-      type: 'two_column_layout_render',
-    });
+    if (isFirstRender.current) {
+      analyticsService.recordAction({
+        type: 'two_column_layout_render',
+      });
+      // Capture screenshot after a brief delay to ensure layout is fully rendered
+      setTimeout(() => {
+        captureScreenshot();
+      }, 1000);
+      isFirstRender.current = false;
+    }
   }, []);
 
   const trackInitialViewRender = useCallback(() => {
@@ -276,14 +285,15 @@ export const useAnalytics = () => {
         height: window.innerHeight,
         // Use the device's pixel ratio for better quality
         scale: window.devicePixelRatio || 1,
-        // Improve rendering quality
+        // CORS and rendering settings
         useCORS: true,
         allowTaint: false, // Keep canvas "clean" to allow toDataURL()
         backgroundColor: '#ffffff', // Ensure white background
         logging: false, // Disable console logs from html2canvas
-        // Additional options for better rendering
-        foreignObjectRendering: true,
+        // Rendering quality and compatibility
+        foreignObjectRendering: false, // Disable for better browser compatibility
         removeContainer: true,
+        imageTimeout: 0, // Don't timeout on images (wait indefinitely)
       });
       
       const dataURL = canvas.toDataURL('image/png');
@@ -304,8 +314,6 @@ export const useAnalytics = () => {
   }, [stopCursorTracking]);
 
   return {
-    isFirstRender,
-    setIsFirstRender: (value: boolean) => { isFirstRender.current = value; },
     // Input typing
     trackMWPType,
     trackFormulaType,

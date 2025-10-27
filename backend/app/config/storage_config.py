@@ -15,7 +15,7 @@ class StorageConfig:
     
     def __init__(self):
         self.storage_mode = os.getenv('SVG_STORAGE_MODE', 'local')
-        self.local_svg_path = os.getenv('SVG_DATASET_PATH', os.path.join(os.path.dirname(os.path.dirname(__file__)), "storage/datasets/svg_dataset"))
+        self.local_svg_path = os.getenv('SVG_DATASET_PATH', os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "storage/datasets/svg_dataset"))
         self.juicefs_svg_path = os.getenv('SVG_DATASET_PATH', '/mnt/juicefs/svg_dataset')
         self.cache_size = int(os.getenv('SVG_CACHE_SIZE', '100'))
     

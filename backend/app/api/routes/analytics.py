@@ -18,7 +18,7 @@ analytics_bp = Blueprint('analytics', __name__)
 logger = logging.getLogger(__name__)
 
 # Configuration
-SCREENSHOTS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'storage', 'screenshots')
+SCREENSHOTS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), 'storage', 'analytics')
 
 def ensure_dir_exists(directory: str) -> None:
     """Ensure a directory exists, creating it if necessary."""
