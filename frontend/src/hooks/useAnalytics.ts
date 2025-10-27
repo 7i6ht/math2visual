@@ -118,7 +118,7 @@ export const useAnalytics = () => {
       // Capture screenshot after a brief delay to ensure layout is fully rendered
       setTimeout(() => {
         captureScreenshot();
-      }, 1000);
+      }, 3000);
       isFirstRender.current = false;
     }
   }, []);
