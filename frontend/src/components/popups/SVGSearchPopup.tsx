@@ -194,7 +194,7 @@ export const SVGSearchPopup: React.FC<SVGSearchPopupProps> = ({
                 trackSVGSearchPopupType(e.target.value);
               }
             }}
-            placeholder="Search..."
+            placeholder="Search"
             spellCheck={false}
             className="pl-8 sm:pl-10 md:pl-12 lg:pl-13 xl:pl-14 2xl:pl-15 3xl:pl-17 4xl:pl-18 5xl:pl-20 6xl:pl-22 7xl:pl-24 rounded-r-none border-r-0 popup-button-responsive-height responsive-text-font-size focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation"
             disabled={!!selectedFile}

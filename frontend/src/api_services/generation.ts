@@ -72,7 +72,7 @@ const generationService = {
     } catch (error) {
       // Handle abort errors
       if (error instanceof DOMException && error.name === 'AbortError') {
-        throw new ApiError("Request was cancelled");
+        throw error;
       }
       
       if (error instanceof ApiError) {

@@ -77,7 +77,7 @@ export const NamePopup: React.FC<NamePopupProps> = ({
                 trackNamePopupType(e.target.value);
               }
             }}
-            placeholder={"Enter name..."}
+            placeholder={"Enter name"}
             spellCheck={false}
             className="rounded-r-none border-r-0 popup-button-responsive-height responsive-text-font-size focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation text-center px-1"
             disabled={isLoading}

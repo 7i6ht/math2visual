@@ -133,7 +133,7 @@ export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
               }
               fileInputRef.current?.click();
             }}
-            className="absolute left-1.5 sm:left-2 md:left-2 lg:left-2.5 xl:left-3 2xl:left-3.5 3xl:left-4 4xl:left-4.5 5xl:left-3.5 6xl:left-4 7xl:left-4.5 top-1/2 transform -translate-y-1/2 responsive-smaller-icon-font-size text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 rounded transition-colors duration-200 flex items-center justify-center"
+            className="absolute left-1.5 sm:left-2 md:left-2 lg:left-2.5 xl:left-3 2xl:left-3.5 3xl:left-4 4xl:left-4.5 5xl:left-3.5 6xl:left-4 7xl:left-4.5 top-1/2 transform -translate-y-1/2 responsive-smaller-icon-font-size text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 rounded transition-colors duration-200 flex items-center justify-center p-1.5 sm:p-2"
             title="Choose SVG file"
             disabled={isUploading}
           >
@@ -148,9 +148,9 @@ export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
                 trackSVGUploadPopupType(e.target.value);
               }
             }}
-            placeholder="Enter name..."
+            placeholder="Enter name"
             spellCheck={false}
-            className="pl-8 sm:pl-9 md:pl-10 lg:pl-11 xl:pl-12 2xl:pl-14 3xl:pl-15 4xl:pl-16 5xl:pl-20 6xl:pl-22 7xl:pl-24 rounded-r-none border-r-0 popup-button-responsive-height responsive-text-font-size focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation"
+            className="!pl-10 sm:!pl-12 md:!pl-13 lg:!pl-14 xl:!pl-15 2xl:!pl-17 3xl:!pl-18 4xl:!pl-19 5xl:!pl-24 6xl:!pl-28 7xl:!pl-30 !pr-1 rounded-r-none border-r-0 popup-button-responsive-height responsive-text-font-size focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation"
             disabled={isUploading}
           />
         </div>
