@@ -282,6 +282,7 @@ class FormalVisualGenerator:
                                     start_y=current_y)
                 except:
                     created = False
+                    print("Error in handle_all_except_comparison exception")
                 svg_width, svg_height = int(float(w)), int(float(h))
                 entity_boxes[i] = (current_x, current_y, svg_width, svg_height)
 
@@ -1298,6 +1299,7 @@ class FormalVisualGenerator:
                             compare2_operations, compare2_entities, compare2_result_entities,
                             svg_root,resources_path, comparison_dsl_path=comparison_dsl_path)
             except:
+                print("Error in handle_comparison exception")
                 created = False
         else:
             operations, entities, result_entities = extract_operations_and_entities(data, current_path="")
