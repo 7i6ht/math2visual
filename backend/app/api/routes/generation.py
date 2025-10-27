@@ -60,7 +60,7 @@ def generate():
     if "dsl" in body:
         raw_dsl = body["dsl"].strip()
         if not raw_dsl:
-            return jsonify({"error": "Empty DSL provided."}), 400
+            return jsonify({"error": "Empty Visual Language provided."}), 400
         # Strip the prefix if present
         if raw_dsl.lower().startswith("visual_language:"):
             dsl = raw_dsl.split(":", 1)[1].strip()
@@ -72,14 +72,14 @@ def generate():
         formula = body.get("formula") or None
         hint = body.get("hint") or None
         if not mwp:
-            return jsonify({"error": "Please provide a math word problem (mwp)."}), 400
+            return jsonify({"error": "Please provide a math word problem (MWP)."}), 400
 
         # Generate via GPT and extract
         vl_response = generate_visual_language(mwp, formula, hint)
         # Use parser for extraction
         raw = extract_visual_language(vl_response)
         if not raw:
-            return jsonify({"error": "Could not find `visual_language:` in GPT response."}), 500
+            return jsonify({"error": "Did not get Visual Language from AI. Please try again."}), 500
         dsl = raw.split(":", 1)[1].strip() if raw.lower().startswith("visual_language:") else raw.strip()
     
     # Generate visualizations using shared method
@@ -100,7 +100,8 @@ def generate():
         # Create deep copy to avoid mutations
         data_intuitive = copy.deepcopy(data_formal)
     except ValueError as e:
-        return jsonify({"error": f"DSL parse error: {e}"}), 500
+        print(f"Visual Language parse error: {e}")
+        return jsonify({"error": f"Visual Language parse error."}), 500
     
     
     formal_error = None
