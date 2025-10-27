@@ -120,7 +120,7 @@ export const DownloadButton = ({
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          className="p-2 h-auto w-12 rounded-md"
+          className="p-2 h-auto w-10 sm:w-12 md:w-14 lg:w-16 xl:w-18 2xl:w-20 3xl:w-22 4xl:w-24 5xl:w-26 6xl:w-28 7xl:w-30 rounded-md"
           size="content"
           disabled={isDisabled}
           onClick={(e) => e.stopPropagation()}
