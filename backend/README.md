@@ -434,13 +434,6 @@ Get antivirus scanner status and configuration information.
 }
 ```
 
-## 📊 Analytics
-
-The backend includes user analytics tracking.
-
-For detailed setup instructions, API documentation, and usage examples, see:
-**[`docs/ANALYTICS_SETUP.md`](docs/ANALYTICS_SETUP.md)**
-
 ## 🎨 Visual Generation
 
 The system generates two types of visual representations:
@@ -531,6 +524,13 @@ See [`docs/CLAMAV_SETUP.md`](docs/CLAMAV_SETUP.md) for configuration details.
 
 Additional documentation:
 - [`docs/cleanup_setup.md`](docs/cleanup_setup.md) - Cleanup and maintenance setup
+
+## 📊 Analytics
+
+The backend includes user analytics tracking.
+
+For detailed setup instructions, API documentation, and usage examples, see:
+**[`docs/ANALYTICS_SETUP.md`](docs/ANALYTICS_SETUP.md)**
 
 ## 🧪 Testing
 
