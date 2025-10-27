@@ -3,7 +3,7 @@
  * Consolidates all analytics functionality in one place.
  */
 import { useCallback, useRef, useEffect } from 'react';
-import html2canvas from 'html2canvas';
+import { toPng } from 'html-to-image';
 import { analyticsService } from '@/api_services/analytics';
 
 export const useAnalytics = () => {
@@ -73,7 +73,7 @@ export const useAnalytics = () => {
       analyticsService.recordAction({
         type: `dsl_editor_scroll_${direction}`,
       });
-      captureScreenshot();
+      // captureScreenshot();
     }, 250);
   }, []);
 
@@ -278,27 +278,21 @@ export const useAnalytics = () => {
   // Capture screenshot
   const captureScreenshot = useCallback(async () => {
     try {
-      // Capture the viewport (what user actually sees) using html2canvas
-      const canvas = await html2canvas(document.documentElement, {
+      // Capture the viewport (what user actually sees) using html-to-image
+      const dataURL = await toPng(document.body, {
         // Capture the viewport dimensions (what user sees)
         width: window.innerWidth,
         height: window.innerHeight,
         // Use the device's pixel ratio for better quality
-        scale: window.devicePixelRatio || 1,
-        // CORS and rendering settings
-        useCORS: true,
-        allowTaint: false, // Keep canvas "clean" to allow toDataURL()
+        pixelRatio: window.devicePixelRatio || 1,
+        // Quality and rendering settings
         backgroundColor: '#ffffff', // Ensure white background
-        logging: false, // Disable console logs from html2canvas
-        // Rendering quality and compatibility
-        foreignObjectRendering: false, // Disable for better browser compatibility
-        removeContainer: true,
-        imageTimeout: 0, // Don't timeout on images (wait indefinitely)
+        quality: 1.0, // Maximum quality
       });
       
-      const dataURL = canvas.toDataURL('image/png');
-      const width = canvas.width;
-      const height = canvas.height;
+      // Use the viewport dimensions we specified
+      const width = window.innerWidth * (window.devicePixelRatio || 1);
+      const height = window.innerHeight * (window.devicePixelRatio || 1);
       
       await analyticsService.uploadScreenshot(dataURL, width, height);
     } catch (error) {
