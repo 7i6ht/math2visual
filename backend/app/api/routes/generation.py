@@ -114,7 +114,7 @@ def generate():
             with open(output_file, "r") as f1:
                 svg_formal = f1.read()
         else:
-            formal_error = "Could not generate formal visualization."
+            formal_error = "Could not generate formal visualization. Maybe retry."
     except (VisualGenerationError, FileNotFoundError) as e:
         formal_error = f"Formal generation error: {str(e)}"
     except Exception as e:
@@ -131,7 +131,7 @@ def generate():
             with open(intuitive_file, "r") as f2:
                 svg_intuitive = f2.read()
         else:
-            intuitive_error = "Could not generate intuitive visualization."
+            intuitive_error = "Could not generate intuitive visualization. Maybe retry."
     except (VisualGenerationError, FileNotFoundError) as e:
         intuitive_error = f"Intuitive generation error: {str(e)}"
     except Exception as e:
