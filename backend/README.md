@@ -69,10 +69,14 @@ backend/
 │   ├── models/                             # ML model checkpoints
 │   │   ├── base_model/                     # Base language models
 │   │   └── check-point/                    # Fine-tuned adapters
-│   └── output/                             # Generated visualizations
+│   ├── output/                             # Generated visualizations
+│   └── analytics/                          # Analytics data storage
+│       ├── *.png                           # User session screenshots
+│       └── heatmaps/                       # Generated heatmap visualizations
 ├── scripts/                                # Setup and management scripts
 │   ├── cleanup_temp_files.py               # File cleanup utility
 │   ├── format_juicefs.sh                   # JuiceFS formatting script
+│   ├── generate_heatmap.py                 # Heatmap generation from cursor analytics
 │   ├── install_juicefs.sh                  # JuiceFS installation
 │   ├── install_systemd_service.sh          # Systemd service installation
 │   ├── juicefs-math2visual.service.template # Systemd service template
@@ -429,6 +433,13 @@ Get antivirus scanner status and configuration information.
   "error": "Failed to get antivirus status: ClamAV daemon not running"
 }
 ```
+
+## 📊 Analytics
+
+The backend includes user analytics tracking.
+
+For detailed setup instructions, API documentation, and usage examples, see:
+**[`docs/ANALYTICS_SETUP.md`](docs/ANALYTICS_SETUP.md)**
 
 ## 🎨 Visual Generation
 

@@ -157,13 +157,22 @@ class HeatmapGenerator:
         x_coords = [coord[0] for coord in coordinates]
         y_coords = [coord[1] for coord in coordinates]
         
-        # Create bins
-        x_bins = np.linspace(0, image_width, image_width + 1)
-        y_bins = np.linspace(0, image_height, image_height + 1)
+        # Use kernel density estimation for better heatmap quality
+        from scipy.stats import gaussian_kde
         
-        # Create histogram
-        heatmap, _, _ = np.histogram2d(x_coords, y_coords, bins=[x_bins, y_bins])
-        heatmap = heatmap.T  # Transpose to match image coordinates
+        # Create a grid for the heatmap
+        x_grid = np.linspace(0, image_width, image_width)
+        y_grid = np.linspace(0, image_height, image_height)
+        X, Y = np.meshgrid(x_grid, y_grid)
+        positions = np.vstack([X.ravel(), Y.ravel()])
+        
+        # Calculate kernel density estimation
+        if len(x_coords) > 1:  # Need at least 2 points for KDE
+            kernel = gaussian_kde(np.vstack([x_coords, y_coords]))
+            heatmap = kernel(positions).reshape(image_height, image_width)
+        else:
+            print("❌ Not enough cursor positions for heatmap generation (need at least 2 points)")
+            return None
         
         # Apply Gaussian smoothing with larger sigma for smoother blending
         if kernel_size > 0:
