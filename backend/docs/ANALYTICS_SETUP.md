@@ -237,17 +237,13 @@ Response:
 - **IP Addresses**: Stored for basic analytics (can be disabled)
 - **User Agents**: For browser/device analytics
 - **LocalStorage**: Session IDs stored client-side
-
-### Data Retention
-- **Configurable**: Set retention period via `ANALYTICS_RETENTION_DAYS` environment variable
-- **Automatic Cleanup**: Can be implemented for automatic data purging
-- **GDPR Compliant**: No personal data collection
+- **Screenshots**: Screenshots collected/captured of app only
 
 ### Security Measures
 - **Input Validation**: All data is validated before storage
 - **SQL Injection Protection**: SQLAlchemy ORM prevents injection
 - **Base64 Validation**: Screenshot data validated before decoding
-- **Rate Limiting**: Consider implementing rate limiting for API endpoints
+
 
 ## 📊 Analytics Insights
 
