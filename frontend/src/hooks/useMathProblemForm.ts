@@ -93,9 +93,7 @@ export const useMathProblemForm = ({
     } catch (error) {
       console.error('Generation failed:', error);
       
-      if (error instanceof Error && error.name === 'AbortError') {
-        toast.info('Generation cancelled');
-      } else {
+      if (error instanceof Error && error.name !== 'AbortError') {
         // Track error
         if (isAnalyticsEnabled) {
           trackError('generation_failed', error instanceof Error ? error.message : "An error occurred");
