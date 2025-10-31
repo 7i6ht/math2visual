@@ -903,12 +903,12 @@ class FormalVisualGenerator:
                                 container_type_dsl_path = f"{entity_dsl_path}/container_type"
                                 svg_el.set('data-dsl-path', container_type_dsl_path)
                                 svg_el.set('visual-element-path', container_type_dsl_path)
-                                svg_el.set('style', 'pointer-events: all;')
+                                svg_el.set('style', 'pointer-events: bounding-box;')
                             elif v == attr_entity_type and attr_entity_type:
                                 attr_type_dsl_path = f"{entity_dsl_path}/attr_type"
                                 svg_el.set('data-dsl-path', attr_type_dsl_path)
                                 svg_el.set('visual-element-path', attr_type_dsl_path)
-                                svg_el.set('style', 'pointer-events: all;')
+                                svg_el.set('style', 'pointer-events: bounding-box;')
                             # Append the returned svg element to the group
                             group.append(svg_el)
                         current_x += width
@@ -985,7 +985,7 @@ class FormalVisualGenerator:
                 entity_dsl_path = e.get('_dsl_path', '')
                 rect_elem = etree.SubElement(svg_root, "rect", x=str(x), y=str(box_y),
                                 width=str(w), height=str(h), stroke="black", fill="none",
-                                style="pointer-events: all;")
+                                style="pointer-events: stroke;")
                 rect_elem.set('data-dsl-path', entity_dsl_path)
                 rect_elem.set('visual-element-path', entity_dsl_path)
                 
@@ -1053,7 +1053,7 @@ class FormalVisualGenerator:
                     entity_type_dsl_path = f"{entity_dsl_path}/entity_type"
                     embedded_svg.set('data-dsl-path', entity_type_dsl_path)
                     embedded_svg.set('visual-element-path', entity_type_dsl_path)
-                    embedded_svg.set('style', 'pointer-events: all;')
+                    embedded_svg.set('style', 'pointer-events: bounding-box;')
                     svg_root.append(embedded_svg)
                     
                     # Add entity_quantity text with DSL path metadata
@@ -1121,7 +1121,7 @@ class FormalVisualGenerator:
                             entity_type_dsl_path = f"{entity_dsl_path}/entity_type[{i}]"
                             embedded_svg.set('data-dsl-path', entity_type_dsl_path)
                             embedded_svg.set('visual-element-path', entity_type_dsl_path)
-                            embedded_svg.set('style', 'pointer-events: all;')
+                            embedded_svg.set('style', 'pointer-events: bounding-box;')
                             svg_root.append(embedded_svg)
                             
                             # If unittrans_unit exists, add the purple circle

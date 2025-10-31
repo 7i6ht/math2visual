@@ -796,13 +796,13 @@ class IntuitiveVisualGenerator():
                                 container_type_visual_element_path = f"{entity_visual_element_path}/container_type"
                                 svg_el.set('data-dsl-path', container_type_dsl_path)
                                 svg_el.set('visual-element-path', container_type_visual_element_path)
-                                svg_el.set('style', 'pointer-events: all;')
+                                svg_el.set('style', 'pointer-events: bounding-box;')
                             elif v == attr_type and attr_type:
                                 attr_type_dsl_path = f"{entity_dsl_path}/attr_type"
                                 attr_type_visual_element_path = f"{entity_visual_element_path}/attr_type"
                                 svg_el.set('data-dsl-path', attr_type_dsl_path)
                                 svg_el.set('visual-element-path', attr_type_visual_element_path)
-                                svg_el.set('style', 'pointer-events: all;')
+                                svg_el.set('style', 'pointer-events: bounding-box;')
                             # Append the returned svg element to the group
                             group.append(svg_el)
                         current_x += UNIT_SIZE
@@ -881,7 +881,7 @@ class IntuitiveVisualGenerator():
                 # Draw box
                 rect_elem = etree.SubElement(svg_root, "rect", x=str(x), y=str(box_y),
                                 width=str(w), height=str(h), stroke="black", fill="none",
-                                style="pointer-events: all;")
+                                style="pointer-events: stroke;")
                 rect_elem.set('data-dsl-path', entity_dsl_path)
                 rect_elem.set('visual-element-path', entity_visual_element_path)
                 update_max_dimensions(x + w, y + h)
@@ -925,7 +925,7 @@ class IntuitiveVisualGenerator():
                     entity_type_dsl_path = f"{container_dsl_path}/entity_type"
                     embedded_svg.set('data-dsl-path', entity_type_dsl_path)
                     embedded_svg.set('visual-element-path', entity_visual_element_path)
-                    embedded_svg.set('style', 'pointer-events: all;')
+                    embedded_svg.set('style', 'pointer-events: bounding-box;')
                     
                     svg_root.append(embedded_svg) 
                     
@@ -999,7 +999,7 @@ class IntuitiveVisualGenerator():
                             entity_type_visual_element_path = f"{container_visual_element_path}/entity_type[{i}]"
                             embedded_svg.set('data-dsl-path', entity_type_dsl_path)
                             embedded_svg.set('visual-element-path', entity_type_visual_element_path)
-                            embedded_svg.set('style', 'pointer-events: all;')
+                            embedded_svg.set('style', 'pointer-events: bounding-box;')
                             
                             svg_root.append(embedded_svg)
                             # Cross colors (use predefined and fallback to random colors if needed)
@@ -1629,13 +1629,13 @@ class IntuitiveVisualGenerator():
                                 container_type_visual_element_path = f"{entity_visual_element_path}/container_type"
                                 svg_el.set('data-dsl-path', container_type_dsl_path)
                                 svg_el.set('visual-element-path', container_type_visual_element_path)
-                                svg_el.set('style', 'pointer-events: all;')
+                                svg_el.set('style', 'pointer-events: bounding-box;')
                             elif v == attr_type and attr_type:
                                 attr_type_dsl_path = f"{entity_dsl_path}/attr_type"
                                 attr_type_visual_element_path = f"{entity_visual_element_path}/attr_type"
                                 svg_el.set('data-dsl-path', attr_type_dsl_path)
                                 svg_el.set('visual-element-path', attr_type_visual_element_path)
-                                svg_el.set('style', 'pointer-events: all;')
+                                svg_el.set('style', 'pointer-events: bounding-box;')
                             # Append the returned svg element to the group
                             group.append(svg_el)
                         current_x += UNIT_SIZE
@@ -1713,7 +1713,7 @@ class IntuitiveVisualGenerator():
                 # Draw box
                 rect_elem = etree.SubElement(svg_root, "rect", x=str(x), y=str(box_y),
                                 width=str(w), height=str(h), stroke="black", fill="none",
-                                style="pointer-events: all;")
+                                style="pointer-events: stroke;")
                 rect_elem.set('data-dsl-path', entity_dsl_path)
                 rect_elem.set('visual-element-path', entity_visual_element_path)
                 update_max_dimensions(x + w, y + h)
@@ -1766,7 +1766,7 @@ class IntuitiveVisualGenerator():
                     entity_type_visual_element_path = f"{container_visual_element_path}/entity_type"
                     embedded_svg.set('data-dsl-path', entity_type_dsl_path)
                     embedded_svg.set('visual-element-path', entity_type_visual_element_path)
-                    embedded_svg.set('style', 'pointer-events: all;')
+                    embedded_svg.set('style', 'pointer-events: bounding-box;')
                     
                     svg_root.append(embedded_svg) 
                     
@@ -1840,7 +1840,7 @@ class IntuitiveVisualGenerator():
                             entity_type_visual_element_path = f"{container_visual_element_path}/entity_type[{i}]"
                             embedded_svg.set('data-dsl-path', entity_type_dsl_path)
                             embedded_svg.set('visual-element-path', entity_type_visual_element_path)
-                            embedded_svg.set('style', 'pointer-events: all;')
+                            embedded_svg.set('style', 'pointer-events: bounding-box;')
                             
                             svg_root.append(embedded_svg)
                             # Cross colors (use predefined and fallback to random colors if needed)
@@ -2526,13 +2526,13 @@ class IntuitiveVisualGenerator():
                                 container_type_visual_element_path = f"{entity_visual_element_path}/container_type"
                                 svg_el.set('data-dsl-path', container_type_dsl_path)
                                 svg_el.set('visual-element-path', container_type_visual_element_path)
-                                svg_el.set('style', 'pointer-events: all;')
+                                svg_el.set('style', 'pointer-events: bounding-box;')
                             elif v == attr_type and attr_type:
                                 attr_type_dsl_path = f"{entity_dsl_path}/attr_type"
                                 attr_type_visual_element_path = f"{entity_visual_element_path}/attr_type"
                                 svg_el.set('data-dsl-path', attr_type_dsl_path)
                                 svg_el.set('visual-element-path', attr_type_visual_element_path)
-                                svg_el.set('style', 'pointer-events: all;')
+                                svg_el.set('style', 'pointer-events: bounding-box;')
                             # Append the returned svg element to the group
                             group.append(svg_el)
                         current_x += UNIT_SIZE
@@ -2613,7 +2613,7 @@ class IntuitiveVisualGenerator():
                 # Draw box
                 rect_elem = etree.SubElement(svg_root, "rect", x=str(x), y=str(box_y),
                                 width=str(w), height=str(h), stroke="black", fill="none",
-                                style="pointer-events: all;")
+                                style="pointer-events: stroke;")
                 rect_elem.set('data-dsl-path', entity_dsl_path)
                 rect_elem.set('visual-element-path', entity_visual_element_path)
                 update_max_dimensions(x + w, y + h)
@@ -2672,7 +2672,7 @@ class IntuitiveVisualGenerator():
                     entity_type_visual_element_path = f"{container_visual_element_path}/entity_type"
                     embedded_svg.set('data-dsl-path', entity_type_dsl_path)
                     embedded_svg.set('visual-element-path', entity_type_visual_element_path)
-                    embedded_svg.set('style', 'pointer-events: all;')
+                    embedded_svg.set('style', 'pointer-events: bounding-box;')
                     
                     svg_root.append(embedded_svg) 
                     
@@ -2743,7 +2743,7 @@ class IntuitiveVisualGenerator():
                             entity_type_visual_element_path = f"{container_visual_element_path}/entity_type[{i}]"
                             embedded_svg.set('data-dsl-path', entity_type_dsl_path)
                             embedded_svg.set('visual-element-path', entity_type_visual_element_path)
-                            embedded_svg.set('style', 'pointer-events: all;')
+                            embedded_svg.set('style', 'pointer-events: bounding-box;')
                             
                             svg_root.append(embedded_svg)
                             # Cross colors (use predefined and fallback to random colors if needed)
@@ -3047,7 +3047,7 @@ class IntuitiveVisualGenerator():
                 # Annotate shape with DSL metadata for entity_type hover
                 shape_svg.set('data-dsl-path', f"{result_dsl_path}/container_type")
                 shape_svg.set('visual-element-path', f"{result_visual_element_path}/container_type")
-                shape_svg.set('style', 'pointer-events: all;')
+                shape_svg.set('style', 'pointer-events: bounding-box;')
                 svg_root.append(shape_svg)
             else:
                 # If the SVG does not exist, draw an orange rectangle
@@ -3682,13 +3682,13 @@ class IntuitiveVisualGenerator():
                                 container_type_visual_element_path = f"{entity_visual_element_path}/container_type"
                                 svg_el.set('data-dsl-path', container_type_dsl_path)
                                 svg_el.set('visual-element-path', container_type_visual_element_path)
-                                svg_el.set('style', 'pointer-events: all;')
+                                svg_el.set('style', 'pointer-events: bounding-box;')
                             elif v == attr_type and attr_type:
                                 attr_type_dsl_path = f"{entity_dsl_path}/attr_type"
                                 attr_type_visual_element_path = f"{entity_visual_element_path}/attr_type"
                                 svg_el.set('data-dsl-path', attr_type_dsl_path)
                                 svg_el.set('visual-element-path', attr_type_visual_element_path)
-                                svg_el.set('style', 'pointer-events: all;')
+                                svg_el.set('style', 'pointer-events: bounding-box;')
                             # Append the returned svg element to the group
                             group.append(svg_el)
                         current_x += width
@@ -3769,7 +3769,7 @@ class IntuitiveVisualGenerator():
                 
                 rect_elem = etree.SubElement(svg_root, "rect", x=str(x), y=str(box_y),
                                 width=str(w), height=str(h), stroke="black", fill="none",
-                                style="pointer-events: all;")
+                                style="pointer-events: stroke;")
                 rect_elem.set('data-dsl-path', entity_dsl_path)
                 rect_elem.set('visual-element-path', entity_visual_element_path)
                 update_max_dimensions(x + w, y + h)
@@ -3821,7 +3821,7 @@ class IntuitiveVisualGenerator():
                     entity_type_visual_element_path = f"{container_visual_element_path}/entity_type"
                     embedded_svg.set('data-dsl-path', entity_type_dsl_path)
                     embedded_svg.set('visual-element-path', entity_type_visual_element_path)
-                    embedded_svg.set('style', 'pointer-events: all;')
+                    embedded_svg.set('style', 'pointer-events: bounding-box;')
                     
                     svg_root.append(embedded_svg) 
                     
@@ -3941,7 +3941,7 @@ class IntuitiveVisualGenerator():
                             entity_type_visual_element_path = f"{container_visual_element_path}/entity_type[{i}]"
                             embedded_svg.set('data-dsl-path', entity_type_dsl_path)
                             embedded_svg.set('visual-element-path', entity_type_visual_element_path)
-                            embedded_svg.set('style', 'pointer-events: all;')
+                            embedded_svg.set('style', 'pointer-events: bounding-box;')
                             svg_root.append(embedded_svg)
 
                             # if there's a unittrans, draw the purple circle & text above
