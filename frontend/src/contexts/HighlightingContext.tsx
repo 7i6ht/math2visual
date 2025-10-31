@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, type ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from 'react';
 
 interface HighlightingContextType {
   // State
@@ -30,19 +30,19 @@ export function HighlightingProvider({ children }: HighlightingProviderProps) {
   const [mwpHighlightRanges, setMwpHighlightRanges] = useState<Array<[number, number]>>([]);
   const [formulaHighlightRanges, setFormulaHighlightRanges] = useState<Array<[number, number]>>([]);
 
-  const setSelectedElement = (element: Element | null) => {
+  const setSelectedElement = useCallback((element: Element | null) => {
     setCurrentTargetElement(element);
     setCurrentDSLPath(element?.getAttribute('data-dsl-path') || null);
-  };
+  }, []);
 
-  const clearHighlightingState = () => {
+  const clearHighlightingState = useCallback(() => {
     setDslHighlightRanges([]);
     setMwpHighlightRanges([]);
     setFormulaHighlightRanges([]);
     setSelectedElement(null);
-  };
+  }, [setSelectedElement]);
 
-  const value: HighlightingContextType = {
+  const value: HighlightingContextType = useMemo(() => ({
     currentDSLPath,
     currentTargetElement,
     dslHighlightRanges,
@@ -54,7 +54,15 @@ export function HighlightingProvider({ children }: HighlightingProviderProps) {
     setCurrentDSLPath,
     setSelectedElement,
     clearHighlightingState,
-  };
+  }), [
+    currentDSLPath,
+    currentTargetElement,
+    dslHighlightRanges,
+    mwpHighlightRanges,
+    formulaHighlightRanges,
+    setSelectedElement,
+    clearHighlightingState,
+  ]);
 
   return (
     <HighlightingContext.Provider value={value}>

@@ -31,37 +31,7 @@ export const isBoxElement = (el: Element): boolean => {
  * @returns true if the element is an embedded SVG element
  */
 export const isEmbeddedSvgElement = (el: Element): boolean => {
-  const tag = el.tagName.toLowerCase();
-  if (tag !== 'svg') return false;
-  
-  const path = (el as SVGElement).getAttribute('data-dsl-path') || '';
-  return path.includes('/entity_type');
-};
-
-/**
- * Check if an element is a container type SVG element (container_type)
- * @param el - The element to check
- * @returns true if the element is a container type SVG element
- */
-export const isContainerTypeSvgElement = (el: Element): boolean => {
-  const tag = el.tagName.toLowerCase();
-  if (tag !== 'svg') return false;
-  
-  const path = (el as SVGElement).getAttribute('data-dsl-path') || '';
-  return path.includes('/container_type');
-};
-
-/**
- * Check if an element is an attribute type SVG element (attr_type)
- * @param el - The element to check
- * @returns true if the element is an attribute type SVG element
- */
-export const isAttrTypeSvgElement = (el: Element): boolean => {
-  const tag = el.tagName.toLowerCase();
-  if (tag !== 'svg') return false;
-  
-  const path = (el as SVGElement).getAttribute('data-dsl-path') || '';
-  return path.includes('/attr_type');
+  return el.tagName.toLowerCase() === 'svg';
 };
 
 /**

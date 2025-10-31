@@ -7,7 +7,7 @@ import { TwoColumnView } from "./TwoColumnView";
 
 export function AppLayout() {
   const appState = useAppState();
-  const { startCursorTracking, isAnalyticsEnabled, trackOutermostScroll } = useAnalytics();
+  const { startCursorTracking, stopCursorTracking, isAnalyticsEnabled, trackOutermostScroll } = useAnalytics();
 
   // Initialize analytics cursor tracking and body scroll tracking
   useEffect(() => {
@@ -23,9 +23,10 @@ export function AppLayout() {
       
       return () => {
         document.body.removeEventListener('scroll', handleBodyScroll);
+        stopCursorTracking();
       };
     }
-  }, [startCursorTracking, isAnalyticsEnabled, trackOutermostScroll]);
+  }, [startCursorTracking, stopCursorTracking, isAnalyticsEnabled, trackOutermostScroll]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-muted/30">

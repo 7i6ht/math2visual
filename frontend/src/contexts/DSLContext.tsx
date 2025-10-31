@@ -2,6 +2,7 @@ import {
   createContext,
   useContext,
   useState,
+  useCallback,
   type ReactNode,
 } from "react";
 import type { ParsedOperation } from "@/utils/dsl-parser";
@@ -30,8 +31,7 @@ export function DSLProvider({ children }: DSLProviderProps) {
     useState<ComponentMapping | null>(null);
   const [parsedDSL, setParsedDSL] = useState<ParsedOperation | null>(null);
 
-
-  const setGenerationResult = (
+  const setGenerationResult = useCallback((
     result: Partial<ApiResponse & { parsedDSL: ParsedOperation }>
   ) => {
     if (result.visual_language !== undefined) {
@@ -43,7 +43,7 @@ export function DSLProvider({ children }: DSLProviderProps) {
     if (result.parsedDSL !== undefined) {
       setParsedDSL(result.parsedDSL);
     }
-  };
+  }, []);
 
   const value: DSLContextType = {
     formattedDSL,

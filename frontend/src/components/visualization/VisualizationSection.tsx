@@ -1,5 +1,5 @@
 // Individual visualization section component
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useCallback } from "react";
 import { AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { DownloadButton } from "./DownloadButton";
 import { useHighlighting } from "@/hooks/useHighlighting";
@@ -84,15 +84,17 @@ export const VisualizationSection = ({
       highlighting.highlightCurrentDSLPath();
   }, [currentDSLPath]);
 
+  const handleAccordionClick = useCallback(() => {
+    const action = isOpen ? 'close' : 'open';
+    trackElementClick(`accordion_${type}_${action}`);
+  }, [isOpen, type, trackElementClick]);
+
   return (
     <AccordionItem value={type} className="border rounded-lg !border-b">
       <AccordionTrigger 
         className={`px-4 hover:no-underline ${isDisabled ? 'pointer-events-none cursor-default' : ''}`}
         disabled={isDisabled}
-        {...(isAnalyticsEnabled ? {onClick: () => {
-          const action = isOpen ? 'close' : 'open';
-          trackElementClick(`accordion_${type}_${action}`);
-        }} : {})}
+        {...(isAnalyticsEnabled ? {onClick: handleAccordionClick} : {})}
       >
         <div className="flex items-center justify-between w-full mr-4">
           <span className="font-medium responsive-text-font-size">{title}</span>

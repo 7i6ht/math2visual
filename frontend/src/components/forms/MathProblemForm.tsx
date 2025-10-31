@@ -61,6 +61,24 @@ export const MathProblemForm = ({
     saveInitialValues,
   });
 
+  const mwpChangeHandler = useCallback((onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void) => 
+    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      onChange(e);
+      trackMWPType();
+    }, [trackMWPType]);
+
+  const formulaChangeHandler = useCallback((onChange: (e: React.ChangeEvent<HTMLInputElement>) => void) => 
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      onChange(e);
+      trackFormulaType();
+    }, [trackFormulaType]);
+
+  const hintChangeHandler = useCallback((onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void) => 
+    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      onChange(e);
+      trackHintType();
+    }, [trackHintType]);
+
   return (
     <Form {...form}>
       <form onSubmit={handleSubmit} className="space-y-4 xl:space-y-5 2xl:space-y-6 3xl:space-y-7 4xl:space-y-8 5xl:space-y-9 6xl:space-y-10 7xl:space-y-11" onClick={handleFormClick}>
@@ -83,12 +101,7 @@ export const MathProblemForm = ({
                     }
                   }}
                   {...field}
-                  {...(isAnalyticsEnabled ? {onChange: (e) => {
-                    field.onChange(e);
-                    if (isAnalyticsEnabled) {
-                      trackMWPType();
-                    }
-                  }} : {})}
+                  {...(isAnalyticsEnabled ? {onChange: mwpChangeHandler(field.onChange)} : {})}
                 />
               </FormControl>
               <FormMessage />
@@ -108,12 +121,7 @@ export const MathProblemForm = ({
                   spellCheck={false}
                   highlightRanges={formulaHighlightRanges}
                   {...field}
-                  {...(isAnalyticsEnabled ? {onChange: (e) => {
-                    field.onChange(e);
-                    if (isAnalyticsEnabled) {
-                      trackFormulaType();
-                    }
-                  }} : {})}
+                  {...(isAnalyticsEnabled ? {onChange: formulaChangeHandler(field.onChange)} : {})}
                 />
               </FormControl>
               <FormMessage />
@@ -133,13 +141,8 @@ export const MathProblemForm = ({
                     placeholder="Add more hints about the relationships between the visual elements ..."
                     rows={rows}
                     spellCheck={false}
-                    {...field}
-                    {...(isAnalyticsEnabled ? {onChange: (e) => {
-                      field.onChange(e);
-                      if (isAnalyticsEnabled) {
-                        trackHintType();
-                      }
-                    }} : {})}
+                  {...field}
+                  {...(isAnalyticsEnabled ? {onChange: hintChangeHandler(field.onChange)} : {})}
                     ref={(el) => {
                       if (hintInputRef) hintInputRef.current = el;
                       if (typeof field.ref === 'function') field.ref(el);

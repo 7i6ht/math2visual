@@ -2,7 +2,7 @@
  * Custom hook for tracking analytics with debouncing.
  * Consolidates all analytics functionality in one place.
  */
-import { useCallback, useRef, useEffect } from 'react';
+import { useCallback, useRef, useEffect, useMemo } from 'react';
 import { toPng } from 'html-to-image';
 import { analyticsService } from '@/api_services/analytics';
 
@@ -72,6 +72,31 @@ export const useAnalytics = () => {
     // captureScreenshot();
   }, []);
 
+  // Capture screenshot - define early because it's used by other callbacks
+  const captureScreenshot = useCallback(async () => {
+    try {
+      // Capture the viewport (what user actually sees) using html-to-image
+      const dataURL = await toPng(document.body, {
+        // Capture the viewport dimensions (what user sees)
+        width: window.innerWidth,
+        height: window.innerHeight,
+        // Use the device's pixel ratio for better quality
+        pixelRatio: window.devicePixelRatio || 1,
+        // Quality and rendering settings
+        backgroundColor: '#ffffff', // Ensure white background
+        quality: 1.0, // Maximum quality
+      });
+      
+      // Use the viewport dimensions we specified
+      const width = window.innerWidth * (window.devicePixelRatio || 1);
+      const height = window.innerHeight * (window.devicePixelRatio || 1);
+      
+      await analyticsService.uploadScreenshot(dataURL, width, height);
+    } catch (error) {
+      console.error('Failed to capture screenshot:', error);
+    }
+  }, []);
+
   const trackColumnScroll = useCallback((event: React.UIEvent<HTMLDivElement>, column: 'left' | 'right') => {
     const target = event.currentTarget;
     const currentScrollTop = target.scrollTop;
@@ -121,7 +146,7 @@ export const useAnalytics = () => {
       }, 3000);
       isFirstRender.current = false;
     }
-  }, []);
+  }, [captureScreenshot]);
 
   const trackInitialViewRender = useCallback(() => {
     analyticsService.recordAction({
@@ -293,39 +318,7 @@ export const useAnalytics = () => {
     document.removeEventListener('mousemove', handleMouseMove);
   }, [handleMouseMove]);
 
-  // Capture screenshot
-  const captureScreenshot = useCallback(async () => {
-    try {
-      // Capture the viewport (what user actually sees) using html-to-image
-      const dataURL = await toPng(document.body, {
-        // Capture the viewport dimensions (what user sees)
-        width: window.innerWidth,
-        height: window.innerHeight,
-        // Use the device's pixel ratio for better quality
-        pixelRatio: window.devicePixelRatio || 1,
-        // Quality and rendering settings
-        backgroundColor: '#ffffff', // Ensure white background
-        quality: 1.0, // Maximum quality
-      });
-      
-      // Use the viewport dimensions we specified
-      const width = window.innerWidth * (window.devicePixelRatio || 1);
-      const height = window.innerHeight * (window.devicePixelRatio || 1);
-      
-      await analyticsService.uploadScreenshot(dataURL, width, height);
-    } catch (error) {
-      console.error('Failed to capture screenshot:', error);
-    }
-  }, []);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      stopCursorTracking();
-    };
-  }, [stopCursorTracking]);
-
-  return {
+  return useMemo(() => ({
     // Input typing
     trackMWPType,
     trackFormulaType,
@@ -364,5 +357,35 @@ export const useAnalytics = () => {
     captureScreenshot,
     // Analytics control
     isAnalyticsEnabled: analyticsService.isAnalyticsEnabled(),
-  };
+  }), [
+    trackMWPType,
+    trackFormulaType,
+    trackHintType,
+    trackDSLType,
+    trackDSLScroll,
+    trackColumnScroll,
+    trackOutermostScroll,
+    trackInitialViewRender,
+    trackTwoColumnLayoutRender,
+    trackFormSubmit,
+    trackDownload,
+    trackError,
+    trackElementClick,
+    trackSVGElementHover,
+    trackSVGElementClick,
+    trackDSLEditorClick,
+    trackOpenPopup,
+    trackNamePopupType,
+    trackEntityQuantityPopupType,
+    trackSVGSearchPopupType,
+    trackSVGUploadPopupType,
+    trackPopupSubmit,
+    trackDragOver,
+    trackDrop,
+    trackGenerationStart,
+    trackGenerationComplete,
+    startCursorTracking,
+    stopCursorTracking,
+    captureScreenshot,
+  ]);
 };

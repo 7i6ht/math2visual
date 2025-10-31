@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useRef, useEffect } from 'react';
-import { isTextElement, isBoxElement, isEmbeddedSvgElement, isContainerTypeSvgElement, isAttrTypeSvgElement, isContainerNameElement, isAttrNameElement } from '../utils/elementUtils';
+import { isTextElement, isBoxElement, isEmbeddedSvgElement, isContainerNameElement, isAttrNameElement } from '../utils/elementUtils';
 import { useHighlightingContext } from '@/contexts/HighlightingContext';
 import { useAnalytics } from './useAnalytics';
 
@@ -24,7 +24,7 @@ export const useElementInteractions = ({
   isPopupOpen = false,
   isDisabled = false,
 }: UseElementInteractionsProps) => {
-  const { currentDSLPath, setSelectedElement } = useHighlightingContext();
+  const { currentDSLPath, setSelectedElement, clearHighlightingState } = useHighlightingContext();
   const { trackSVGElementHover, trackSVGElementClick, isAnalyticsEnabled } = useAnalytics();
   const currentDSLPathRef = useRef(currentDSLPath);
   
@@ -73,7 +73,7 @@ export const useElementInteractions = ({
          svgElem.onmouseleave = () => {
           const actionType = `svg_element_hover_leave`;
            trackSVGElementHover(actionType, dslPath);
-           setSelectedElement(null as unknown as Element);
+           clearHighlightingState();
          };
       } else {
         svgElem.onmouseenter = () => {
@@ -82,7 +82,7 @@ export const useElementInteractions = ({
             setSelectedElement(svgElem);
           }
         };
-        svgElem.onmouseleave = () => setSelectedElement(null as unknown as Element);
+        svgElem.onmouseleave = () => clearHighlightingState();
       }
 
       svgElem.style.cursor = 'pointer';
@@ -103,7 +103,7 @@ export const useElementInteractions = ({
             onEntityQuantityClick(event);
           };
         }
-      } else if (isEmbeddedSvgElement(svgElem) || isContainerTypeSvgElement(svgElem) || isAttrTypeSvgElement(svgElem)) {
+      } else if (isEmbeddedSvgElement(svgElem)) {
         svgElem.onclick = (event: PointerEvent) => {
           event.stopPropagation();
           onEmbeddedSVGClick(event);
@@ -129,10 +129,14 @@ export const useElementInteractions = ({
     svgRef,
     isDisabled,
     setSelectedElement,
+    clearHighlightingState,
     onEmbeddedSVGClick,
     onEntityQuantityClick,
     onNameClick,
-    isPopupOpen
+    isPopupOpen,
+    trackSVGElementHover,
+    trackSVGElementClick,
+    isAnalyticsEnabled,
     // trackSVGElementHover and isAnalyticsEnabled are stable references and don't need to be dependencies
   ]);
 

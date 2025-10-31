@@ -26,7 +26,7 @@ export const VisualLanguageForm = ({
   onLoadingChange,
   isDisabled = false,
 }: VisualLanguageFormProps) => {
-  const { dslHighlightRanges, setCurrentDSLPath } = useHighlightingContext();
+  const { dslHighlightRanges, currentDSLPath, setCurrentDSLPath, clearHighlightingState } = useHighlightingContext();
   const { componentMappings: contextMappings } = useDSLContext();
   const effectiveMappings = useMemo(() => (contextMappings ?? {}) as ComponentMapping, [contextMappings]);
   const { trackDSLEditorClick, trackDSLType, trackDSLScroll, isAnalyticsEnabled } = useAnalytics();
@@ -35,13 +35,17 @@ export const VisualLanguageForm = ({
     if (isDisabled) return;
     const dslPath = findDSLPathAtPosition(effectiveMappings, position);
     console.log('DSL Editor click - Position:', position, 'DSL Path:', dslPath);
-    setCurrentDSLPath(dslPath);
+    if (dslPath) {
+      setCurrentDSLPath(dslPath);
+    } else if (currentDSLPath) {
+      clearHighlightingState();
+    }
     
     // Track DSL editor click with analytics
     if (isAnalyticsEnabled) {
       trackDSLEditorClick(dslPath);
     }
-  }, [effectiveMappings, setCurrentDSLPath, isDisabled]);
+  }, [effectiveMappings, setCurrentDSLPath, isDisabled, isAnalyticsEnabled, trackDSLEditorClick]);
 
   const { 
     form, 
@@ -77,9 +81,7 @@ export const VisualLanguageForm = ({
                     className="w-full"
                     highlightRanges={dslHighlightRanges}
                     onCursorPositionChange={handleCursorPositionChange}
-                    {...(isAnalyticsEnabled ? {onScroll: (direction) => {
-                      trackDSLScroll(direction);
-                    }} : {})}
+                    {...(isAnalyticsEnabled ? {onScroll: trackDSLScroll} : {})}
                   />
                 </FormControl>
                 <FormMessage/>

@@ -27,7 +27,7 @@ export const useHighlighting = ({
   formulaValue,
 }: UseHighlightingProps) => {
   const { componentMappings } = useDSLContext();
-  const { setDslHighlightRanges: onDSLRangeHighlight, setMwpHighlightRanges: onMWPRangeHighlight, setFormulaHighlightRanges, currentDSLPath, currentTargetElement, clearHighlightingState } = useHighlightingContext();
+  const { setDslHighlightRanges: onDSLRangeHighlight, setMwpHighlightRanges: onMWPRangeHighlight, setFormulaHighlightRanges, currentDSLPath, currentTargetElement } = useHighlightingContext();
   const mappings: ComponentMapping = useMemo(() => (componentMappings || {}) as ComponentMapping, [componentMappings]);
 
 
@@ -181,7 +181,6 @@ export const useHighlighting = ({
         embeddedSvgElements?.forEach((element) => {
           const embeddedSvgEl = element as SVGGraphicsElement;
           embeddedSvgEl.classList.add('highlighted-svg');
-          setSvgTransformOrigin(embeddedSvgEl);
         });
       }
     } else {
@@ -205,7 +204,7 @@ export const useHighlighting = ({
       const positions = findQuantityInText(formulaValue, quantity);
       setFormulaHighlightRanges(positions ?? []);
     }
-  }, [setSvgTransformOrigin, svgRef, mwpValue, onMWPRangeHighlight, onDSLRangeHighlight, formulaValue, setFormulaHighlightRanges, mappings]);
+  }, [svgRef, mwpValue, onMWPRangeHighlight, onDSLRangeHighlight, formulaValue, setFormulaHighlightRanges, mappings]);
 
   /**
    * Trigger highlighting for text/quantity component
@@ -249,32 +248,9 @@ export const useHighlighting = ({
   }, [triggerHighlight, highlightSecondOperandSentence]);
 
   /**
-   * Trigger highlighting for embedded SVG components (entity_type)
-   */
-  const triggerEmbeddedSvgHighlight = useCallback((mapping: ComponentMappingEntry | undefined, currentTargetElement: Element) => {
-    triggerHighlight(mapping, {
-      applyVisualHighlight: () => {
-        const embeddedSvgEl = currentTargetElement as SVGGraphicsElement;
-        // Apply CSS class and set custom transform origin
-        embeddedSvgEl.classList.add('highlighted-svg');
-        setSvgTransformOrigin(embeddedSvgEl);
-      },
-      applyMWPHighlight: () => {
-        if (!mapping?.property_value || !mwpValue) {
-          onMWPRangeHighlight([]);
-          return;
-        }
-        const entityName = mapping.property_value;
-        const fallbackRanges = findAllNameOccurrencesInText(entityName, mwpValue);
-        onMWPRangeHighlight(fallbackRanges);
-      }
-    });
-  }, [triggerHighlight, setSvgTransformOrigin, mwpValue, onMWPRangeHighlight]);
-
-  /**
    * Generic function to handle MWP highlighting for text-based elements
    */
-  const handleTextElementMWPHighlight = useCallback((mapping: ComponentMappingEntry | undefined) => {
+  const handleMWPHighlight = useCallback((mapping: ComponentMappingEntry | undefined) => {
     if (!mapping?.property_value || !mwpValue) {
       onMWPRangeHighlight([]);
       return;
@@ -287,23 +263,18 @@ export const useHighlighting = ({
   }, [mwpValue, onMWPRangeHighlight]);
 
   /**
-   * Generic function to handle visual highlighting for SVG elements with position attributes
+   * Trigger highlighting for embedded SVG components (entity_type)
    */
-  const applySVGVisualHighlight = useCallback((_mapping: ComponentMappingEntry | undefined, currentTargetElement: Element) => {
-    const svgEl = currentTargetElement as SVGElement;
-    // For SVG elements, use their position attributes to calculate center
-    const x = parseFloat(svgEl.getAttribute('x') || '0');
-    const y = parseFloat(svgEl.getAttribute('y') || '0');
-    const width = parseFloat(svgEl.getAttribute('width') || '0');
-    const height = parseFloat(svgEl.getAttribute('height') || '0');
-    
-    const centerX = x + width / 2;
-    const centerY = y + height / 2;
-    
-    // Apply CSS class and set custom transform origin
-    svgEl.classList.add('highlighted-svg');
-    svgEl.style.transformOrigin = `${centerX}px ${centerY}px`;
-  }, []);
+  const triggerEmbeddedSvgHighlight = useCallback((mapping: ComponentMappingEntry | undefined, currentTargetElement: Element) => {
+    triggerHighlight(mapping, {
+      applyVisualHighlight: () => {
+        const embeddedSvgEl = currentTargetElement as SVGGraphicsElement;
+        // Apply CSS class and set custom transform origin
+        embeddedSvgEl.classList.add('highlighted-svg');
+      },
+      applyMWPHighlight: () => handleMWPHighlight(mapping)
+    });
+  }, [triggerHighlight, handleMWPHighlight]);
 
   /**
    * Generic function to handle visual highlighting for text elements
@@ -313,37 +284,15 @@ export const useHighlighting = ({
     textEl.classList.add('highlighted-text');
   }, []);
 
-
-  /**
-   * Trigger highlighting for container_type components (embedded SVGs on containers)
-   */
-  const triggerContainerTypeHighlight = useCallback((mapping: ComponentMappingEntry | undefined, currentTargetElement: Element) => {
-    triggerHighlight(mapping, {
-      applyVisualHighlight: (mapping) => applySVGVisualHighlight(mapping, currentTargetElement),
-      applyMWPHighlight: (mapping) => handleTextElementMWPHighlight(mapping)
-    });
-  }, [triggerHighlight, applySVGVisualHighlight, handleTextElementMWPHighlight]);
-
   /**
    * Trigger highlighting for attr_name components (text elements for attribute names)
    */
   const triggerAttrNameHighlight = useCallback((mapping: ComponentMappingEntry | undefined, currentTargetElement: Element) => {
     triggerHighlight(mapping, {
       applyVisualHighlight: (mapping) => applyTextVisualHighlight(mapping, currentTargetElement),
-      applyMWPHighlight: (mapping) => handleTextElementMWPHighlight(mapping)
+      applyMWPHighlight: (mapping) => handleMWPHighlight(mapping)
     });
-  }, [triggerHighlight, applyTextVisualHighlight, handleTextElementMWPHighlight]);
-
-  /**
-   * Trigger highlighting for attr_type components (embedded SVGs for attributes)
-   */
-  const triggerAttrTypeHighlight = useCallback((mapping: ComponentMappingEntry | undefined, currentTargetElement: Element) => {
-    triggerHighlight(mapping, {
-      applyVisualHighlight: (mapping) => applySVGVisualHighlight(mapping, currentTargetElement),
-      applyMWPHighlight: (mapping) => handleTextElementMWPHighlight(mapping)
-    });
-  }, [triggerHighlight, applySVGVisualHighlight, handleTextElementMWPHighlight]);
-
+  }, [triggerHighlight, applyTextVisualHighlight, handleMWPHighlight]);
 
   /**
    * Trigger highlighting for container_name components (text elements)
@@ -351,9 +300,9 @@ export const useHighlighting = ({
   const triggerContainerNameHighlight = useCallback((mapping: ComponentMappingEntry | undefined, currentTargetElement: Element) => {
     triggerHighlight(mapping, {
       applyVisualHighlight: (mapping) => applyTextVisualHighlight(mapping, currentTargetElement),
-      applyMWPHighlight: (mapping) => handleTextElementMWPHighlight(mapping)
+      applyMWPHighlight: (mapping) => handleMWPHighlight(mapping)
     });
-  }, [triggerHighlight, applyTextVisualHighlight, handleTextElementMWPHighlight]);
+  }, [triggerHighlight, applyTextVisualHighlight, handleMWPHighlight]);
 
   /**
    * Trigger highlighting for result container components (box elements)
@@ -404,8 +353,8 @@ export const useHighlighting = ({
       'container_name': () => triggerContainerNameHighlight(mapping, targetElement),
       'attr_name': () => triggerAttrNameHighlight(mapping, targetElement),
       'entity_type': () => triggerEmbeddedSvgHighlight(mapping, targetElement),
-      'container_type': () => triggerContainerTypeHighlight(mapping, targetElement),
-      'attr_type': () => triggerAttrTypeHighlight(mapping, targetElement),
+      'container_type': () => triggerEmbeddedSvgHighlight(mapping, targetElement),
+      'attr_type': () => triggerEmbeddedSvgHighlight(mapping, targetElement),
       'operation': () => triggerOperationHighlight(mapping, dslPath, targetElement),
       'result_container': () => triggerResultContainerHighlight(mapping, targetElement),
     };
@@ -420,7 +369,7 @@ export const useHighlighting = ({
       // Special case for entity containers (boxes)
       triggerBoxHighlight(mapping, dslPath, targetElement);
     }
-  }, [triggerEntityQuantityHighlightText, triggerContainerNameHighlight, triggerAttrNameHighlight, triggerEmbeddedSvgHighlight, triggerContainerTypeHighlight, triggerAttrTypeHighlight, triggerBoxHighlight, triggerOperationHighlight, triggerResultContainerHighlight, mappings]);
+  }, [triggerEntityQuantityHighlightText, triggerContainerNameHighlight, triggerAttrNameHighlight, triggerEmbeddedSvgHighlight, triggerBoxHighlight, triggerOperationHighlight, triggerResultContainerHighlight, mappings]);
 
   /**
    * Highlight the visual element corresponding to the current DSL path
@@ -428,7 +377,6 @@ export const useHighlighting = ({
   const highlightCurrentDSLPath = useCallback(() => {
     removeElementHighlights();
     if (!currentDSLPath) {
-      clearHighlightingState();
       return;
     }
     
@@ -450,7 +398,7 @@ export const useHighlighting = ({
         });
       }
     }
-  }, [removeElementHighlights, currentDSLPath, currentTargetElement, clearHighlightingState, highlightDSLPath, triggerEntityQuantityHighlightAll, svgRef]);
+  }, [removeElementHighlights, currentDSLPath, currentTargetElement, highlightDSLPath, triggerEntityQuantityHighlightAll, svgRef]);
 
 
   const returnValue = useMemo(() => ({
@@ -459,8 +407,6 @@ export const useHighlighting = ({
     triggerEntityQuantityHighlightText,
     triggerOperationHighlight,
     triggerEmbeddedSvgHighlight,
-    triggerContainerTypeHighlight,
-    triggerAttrTypeHighlight,
     triggerContainerNameHighlight,
     triggerAttrNameHighlight,
     triggerResultContainerHighlight,
@@ -472,8 +418,6 @@ export const useHighlighting = ({
     triggerEntityQuantityHighlightText,
     triggerOperationHighlight,
     triggerEmbeddedSvgHighlight,
-    triggerContainerTypeHighlight,
-    triggerAttrTypeHighlight,
     triggerContainerNameHighlight,
     triggerAttrNameHighlight,
     triggerResultContainerHighlight,
