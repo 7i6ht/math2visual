@@ -86,7 +86,6 @@ export const useSVGMissingError = ({
         errorDescription = uploadError.message;
         
         // Log validation details for debugging
-        // console.log("Validation details:", uploadError.validationDetails);
       } else if (uploadError instanceof Error) {
         // Fallback to basic string matching for legacy errors
         if (uploadError.message.includes("Network error")) {
