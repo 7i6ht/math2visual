@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Editor, { type Monaco } from '@monaco-editor/react';
 import type { editor as MonacoEditor } from 'monaco-editor';
 import { cn } from '@/lib/utils';
@@ -160,14 +160,15 @@ export const SyntaxEditor: React.FC<SyntaxEditorProps> = ({
 }) => {
   const isLanguageSetup = useRef(false);
   const [formattedValue, setFormattedValue] = useState(value);
-  const [dynamicHeight, setDynamicHeight] = useState<string>('');
+  const [isEditorMounted, setIsEditorMounted] = useState(false);
   const editorRef = useRef<MonacoEditor.IStandaloneCodeEditor | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const decorationsRef = useRef<string[]>([]);
   const monacoRef = useRef<Monaco | null>(null);
   const lastScrollTopRef = useRef<number>(0);
   
   // Calculate responsive font size using CSS responsive-text-font-size class
-  const getResponsiveFontSize = () => {
+  const getResponsiveFontSize = useCallback(() => {
     if (typeof window === 'undefined') return 14; // fallback for SSR
     
     // Create a temporary element with the responsive class to get computed font size
@@ -184,54 +185,28 @@ export const SyntaxEditor: React.FC<SyntaxEditorProps> = ({
     document.body.removeChild(tempElement);
     
     return Math.round(fontSize);
-  };
+  }, []);
 
   // Calculate dynamic height based on content
-  const calculateDynamicHeight = (content: string) => {
+  const calculateDynamicHeight = useCallback((content: string, fontSize: number) => {
     if (!content.trim()) {
       return `${rows * 24}px`; // Default height for empty content
     }
 
     const lines = content.split('\n').length;
-    const fontSize = getResponsiveFontSize();
     const lineHeight = fontSize * 1.3; // More accurate line height based on font size
     const padding = 16; // Account for editor padding and borders
     const minHeight = 120; // Minimum height for usability
     
     // Calculate base height needed for content
     const contentHeight = lines * lineHeight + padding;
-    
-    // Try to get the available space from the parent container
-    const container = document.querySelector('.dsl-editor-container')?.parentElement;
-    let availableHeight = 0;
-    
-    if (container) {
-      const viewportHeight = window.innerHeight;
-      // Estimate available space considering the layout structure
-      // Account for header, margins, and other UI elements
-      availableHeight = Math.max(400, viewportHeight * 0.8);
-    } else {
-      // Fallback calculation
-      const isSingleColumn = window.innerHeight >= 1200;
-      availableHeight = isSingleColumn 
-        ? Math.min(window.innerHeight * 0.6, 800) // Use up to 60% of viewport in single-column
-        : Math.min(0.8*window.innerHeight, 600);  // Use up to 80% in two-column
-    }
+    const availableHeight = Math.min(0.8*window.innerHeight, 600);
     
     // Take the minimum between content height and available height
     const calculatedHeight = Math.max(minHeight, Math.min(contentHeight, availableHeight));
     
-    console.log('Height calculation:', {
-      lines,
-      fontSize,
-      lineHeight,
-      contentHeight,
-      availableHeight,
-      calculatedHeight: `${calculatedHeight}px`,
-      viewportHeight: window.innerHeight
-    });
     return `${calculatedHeight}px`;
-  };
+  }, [rows]);
 
   // Update formatted value when value changes externally (no formatting needed since backend sends formatted DSL)
   useEffect(() => {
@@ -240,114 +215,49 @@ export const SyntaxEditor: React.FC<SyntaxEditorProps> = ({
     }
   }, [value, formattedValue]);
 
-  // Update dynamic height when content changes
+  // Update height when content changes (only after editor is mounted)
+  useEffect(() => {    
+    if (isEditorMounted && editorRef.current && containerRef.current && formattedValue) {
+      const fontSize = getResponsiveFontSize();
+      const newHeight = calculateDynamicHeight(formattedValue, fontSize);
+            
+      // Set container height directly (no React re-render)
+      containerRef.current.style.height = newHeight;
+      containerRef.current.style.minHeight = newHeight; // Also set minHeight in case something is constraining it
+      
+      // Then resize the editor to fill the container
+      const heightValue = parseInt(newHeight);
+      const currentLayout = editorRef.current.getLayoutInfo();
+      editorRef.current.layout({ width: currentLayout.width, height: heightValue });
+    }
+  }, [isEditorMounted, formattedValue, calculateDynamicHeight, getResponsiveFontSize]);
+
+  // Initialize and update font size cache and handle window resize
   useEffect(() => {
-    const newHeight = calculateDynamicHeight(formattedValue);
-    console.log('DSL Height calculation:', {
-      content: formattedValue.substring(0, 100) + '...',
-      lines: formattedValue.split('\n').length,
-      calculatedHeight: newHeight
-    });
-    setDynamicHeight(newHeight);
-  }, [formattedValue, rows]);
-
-  // Recalculate height when layout changes (window resize)
-  useEffect(() => {
-    const handleResize = () => {
-      if (formattedValue) {
-        const newHeight = calculateDynamicHeight(formattedValue);
-        setDynamicHeight(newHeight);
-      }
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [formattedValue]);
-
-
-  // Update font size when container resizes
-  useEffect(() => {
-    const updateFontSize = () => {
-      if (editorRef.current) {
+    // Handle window resize: update both font size and height
+    const handleWindowResize = () => {
+      // Update font size & update height
+      if (editorRef.current && containerRef.current && formattedValue) {
         const newFontSize = getResponsiveFontSize();
         editorRef.current.updateOptions({ fontSize: newFontSize });
+        const newHeight = calculateDynamicHeight(formattedValue, newFontSize);
+        
+        // Set container height directly (no React re-render)
+        containerRef.current.style.height = newHeight;
+        
+        // Then resize the editor to fill the container
+        const heightValue = parseInt(newHeight);
+        const currentLayout = editorRef.current.getLayoutInfo();
+        editorRef.current.layout({ width: currentLayout.width, height: heightValue });
       }
     };
 
-    // Initial font size update
-    updateFontSize();
+    window.addEventListener('resize', handleWindowResize);
+    return () => {
+      window.removeEventListener('resize', handleWindowResize);
+    };
+  }, [getResponsiveFontSize, formattedValue, calculateDynamicHeight]);
 
-    // Set up resize observer
-    const container = document.querySelector('.dsl-editor-container');
-    if (container) {
-      const resizeObserver = new ResizeObserver(() => {
-        updateFontSize();
-      });
-      resizeObserver.observe(container);
-      
-      return () => {
-        resizeObserver.disconnect();
-      };
-    }
-  }, []);
-
-  const handleEditorDidMount = (
-    editor: MonacoEditor.IStandaloneCodeEditor,
-    monaco: Monaco
-  ) => {
-    editorRef.current = editor;
-    monacoRef.current = monaco;
-    
-    if (!isLanguageSetup.current) {
-      setupVLLanguage(monaco);
-      isLanguageSetup.current = true;
-    }
-
-    // Set the theme based on system preference or default to light
-    const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    monaco.editor.setTheme(isDark ? 'vl-theme-dark' : 'vl-theme');
-    
-    // Simple height recalculation after editor is mounted
-    setTimeout(() => {
-      if (formattedValue) {
-        const newHeight = calculateDynamicHeight(formattedValue);
-        setDynamicHeight(newHeight);
-      }
-    }, 100);
-    
-    // Handle cursor position changes
-    // Note: We're not automatically triggering highlighting here to avoid infinite loops
-    // Highlighting will happen when users interact with visual elements
-    if (onCursorPositionChange) {
-      editor.onDidChangeCursorPosition((e: MonacoEditor.ICursorPositionChangedEvent) => {
-        const model = editor.getModel();
-        if (model) {
-          const offset = model.getOffsetAt(e.position);
-          const modelValue = model.getValue();
-          
-          // Provide the current model value to consumers
-          onCursorPositionChange(offset, modelValue);
-        }
-      });
-    }
-
-    // Handle scroll events with direction detection
-    if (onScroll) {
-      editor.onDidScrollChange((e) => {
-        const currentScrollTop = e.scrollTop;
-        const previousScrollTop = lastScrollTopRef.current;
-        
-        if (currentScrollTop > previousScrollTop) {
-          onScroll('down');
-        } else if (currentScrollTop < previousScrollTop) {
-          onScroll('up');
-        }
-        
-        lastScrollTopRef.current = currentScrollTop;
-      });
-    }
-  };
-  
   // Add highlighting functionality
   useEffect(() => {
     if (editorRef.current && highlightRanges.length > 0) {
@@ -402,11 +312,60 @@ export const SyntaxEditor: React.FC<SyntaxEditorProps> = ({
     }
   }, [highlightRanges]);
 
+  const handleEditorDidMount = (
+    editor: MonacoEditor.IStandaloneCodeEditor,
+    monaco: Monaco
+  ) => {
+    editorRef.current = editor;
+    monacoRef.current = monaco;
+    setIsEditorMounted(true); // Trigger useEffect to set initial height
+    
+    if (!isLanguageSetup.current) {
+      setupVLLanguage(monaco);
+      isLanguageSetup.current = true;
+    }
+
+    // Set the theme based on system preference or default to light
+    const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    monaco.editor.setTheme(isDark ? 'vl-theme-dark' : 'vl-theme');
+    
+    // Handle cursor position changes
+    // Note: We're not automatically triggering highlighting here to avoid infinite loops
+    // Highlighting will happen when users interact with visual elements
+    if (onCursorPositionChange) {
+      editor.onDidChangeCursorPosition((e: MonacoEditor.ICursorPositionChangedEvent) => {
+        const model = editor.getModel();
+        if (model) {
+          const offset = model.getOffsetAt(e.position);
+          const modelValue = model.getValue();
+          
+          // Provide the current model value to consumers
+          onCursorPositionChange(offset, modelValue);
+        }
+      });
+    }
+
+    // Handle scroll events with direction detection
+    if (onScroll) {
+      editor.onDidScrollChange((e) => {
+        const currentScrollTop = e.scrollTop;
+        const previousScrollTop = lastScrollTopRef.current;
+        
+        if (currentScrollTop > previousScrollTop) {
+          onScroll('down');
+        } else if (currentScrollTop < previousScrollTop) {
+          onScroll('up');
+        }
+        
+        lastScrollTopRef.current = currentScrollTop;
+      });
+    }
+  };
 
   return (
-    <div className={cn("dsl-editor-container border rounded-md overflow-hidden", className)}>
+    <div ref={containerRef} className={cn("dsl-editor-container border rounded-md overflow-hidden", className)} style={{ height: `${rows * 24}px` }}>
       <Editor
-        height={dynamicHeight || `${rows * 20}px`}
+        height="100%"
         language="vl-dsl"
         value={formattedValue}
         onChange={(newValue) => {

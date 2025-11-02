@@ -81,8 +81,14 @@ export const VisualizationSection = ({
 
   // Highlight the current DSL path (on DSL editor click)
   useEffect(() => {
+      // Only highlight if this section is open
+      if (!isOpen) {
+        return;
+      }
+      
       highlighting.highlightCurrentDSLPath();
-  }, [currentDSLPath]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentDSLPath, isOpen]);
 
   const handleAccordionClick = useCallback(() => {
     const action = isOpen ? 'close' : 'open';
