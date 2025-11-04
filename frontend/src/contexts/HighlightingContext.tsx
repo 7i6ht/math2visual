@@ -4,6 +4,7 @@ interface HighlightingContextType {
   // State
   currentDSLPath: string | null;
   currentTargetElement: Element | null;
+  hoverSource: 'formal' | 'intuitive' | null;
   dslHighlightRanges: Array<[number, number]>;
   mwpHighlightRanges: Array<[number, number]>;
   formulaHighlightRanges: Array<[number, number]>;
@@ -13,7 +14,7 @@ interface HighlightingContextType {
   setMwpHighlightRanges: (ranges: Array<[number, number]>) => void;
   setFormulaHighlightRanges: (ranges: Array<[number, number]>) => void;
   setCurrentDSLPath: (path: string | null) => void;
-  setSelectedElement: (element: Element | null) => void;
+  setSelectedElement: (element: Element | null, source?: 'formal' | 'intuitive') => void;
   clearHighlightingState: () => void;
 }
 
@@ -26,13 +27,15 @@ interface HighlightingProviderProps {
 export function HighlightingProvider({ children }: HighlightingProviderProps) {
   const [currentDSLPath, setCurrentDSLPath] = useState<string | null>(null);
   const [currentTargetElement, setCurrentTargetElement] = useState<Element | null>(null);
+  const [hoverSource, setHoverSource] = useState<'formal' | 'intuitive' | null>(null);
   const [dslHighlightRanges, setDslHighlightRanges] = useState<Array<[number, number]>>([]);
   const [mwpHighlightRanges, setMwpHighlightRanges] = useState<Array<[number, number]>>([]);
   const [formulaHighlightRanges, setFormulaHighlightRanges] = useState<Array<[number, number]>>([]);
 
-  const setSelectedElement = useCallback((element: Element | null) => {
+  const setSelectedElement = useCallback((element: Element | null, source?: 'formal' | 'intuitive') => {
     setCurrentTargetElement(element);
     setCurrentDSLPath(element?.getAttribute('data-dsl-path') || null);
+    setHoverSource(source || null);
   }, []);
 
   const clearHighlightingState = useCallback(() => {
@@ -45,6 +48,7 @@ export function HighlightingProvider({ children }: HighlightingProviderProps) {
   const value: HighlightingContextType = useMemo(() => ({
     currentDSLPath,
     currentTargetElement,
+    hoverSource,
     dslHighlightRanges,
     mwpHighlightRanges,
     formulaHighlightRanges,
@@ -57,6 +61,7 @@ export function HighlightingProvider({ children }: HighlightingProviderProps) {
   }), [
     currentDSLPath,
     currentTargetElement,
+    hoverSource,
     dslHighlightRanges,
     mwpHighlightRanges,
     formulaHighlightRanges,

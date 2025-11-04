@@ -375,11 +375,10 @@ export const useHighlighting = ({
    * Highlight the visual element corresponding to the current DSL path
    */
   const highlightCurrentDSLPath = useCallback(() => {
-    removeElementHighlights();
     if (!currentDSLPath) {
       return;
     }
-    
+        
     if (currentTargetElement) {
       // Case 1: We have both DSL path and target element (from hovering over SVG)
       highlightDSLPath(currentDSLPath, currentTargetElement);
@@ -412,6 +411,7 @@ export const useHighlighting = ({
     triggerResultContainerHighlight,
     highlightDSLPath,
     highlightCurrentDSLPath,
+    removeElementHighlights,
   }), [
     setupTransformOrigins,
     triggerBoxHighlight,
@@ -423,6 +423,7 @@ export const useHighlighting = ({
     triggerResultContainerHighlight,
     highlightDSLPath,
     highlightCurrentDSLPath,
+    removeElementHighlights,
   ]);
 
   return returnValue;

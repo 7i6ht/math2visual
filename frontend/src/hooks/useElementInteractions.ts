@@ -5,6 +5,7 @@ import { useAnalytics } from './useAnalytics';
 
 interface UseElementInteractionsProps {
   svgRef: React.RefObject<HTMLDivElement | null>;
+  sectionType: 'formal' | 'intuitive';
   onEmbeddedSVGClick: (event: MouseEvent) => void;
   onEntityQuantityClick: (event: MouseEvent) => void;
   onNameClick: (event: MouseEvent) => void;
@@ -18,6 +19,7 @@ interface UseElementInteractionsProps {
  */
 export const useElementInteractions = ({
   svgRef,
+  sectionType,
   onEmbeddedSVGClick,
   onEntityQuantityClick,
   onNameClick,
@@ -67,7 +69,7 @@ export const useElementInteractions = ({
            if (currentPath !== dslPath) {
             const actionType = `svg_element_hover_enter`;
              trackSVGElementHover(actionType, dslPath);
-             setSelectedElement(svgElem);
+             setSelectedElement(svgElem, sectionType);
            }
          };
          svgElem.onmouseleave = () => {
@@ -79,7 +81,7 @@ export const useElementInteractions = ({
         svgElem.onmouseenter = () => {
           const currentPath = currentDSLPathRef.current;
           if (currentPath !== dslPath) {
-            setSelectedElement(svgElem);
+            setSelectedElement(svgElem, sectionType);
           }
         };
         svgElem.onmouseleave = () => clearHighlightingState();
@@ -127,6 +129,7 @@ export const useElementInteractions = ({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     svgRef,
+    sectionType,
     isDisabled,
     setSelectedElement,
     clearHighlightingState,

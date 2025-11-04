@@ -38,7 +38,7 @@ export const VisualizationSection = ({
   isDisabled = false,
 }: VisualizationSectionProps) => {
   const svgRef = useRef<HTMLDivElement | null>(null);
-  const { currentDSLPath } = useHighlightingContext();
+  const { currentDSLPath, hoverSource } = useHighlightingContext();
   const { trackElementClick, isAnalyticsEnabled } = useAnalytics();
 
   // Handle SVG responsiveness
@@ -56,6 +56,7 @@ export const VisualizationSection = ({
   const highlighting = useHighlighting({ svgRef, mwpValue, formulaValue });
   const interactions = useElementInteractions({
     svgRef,
+    sectionType: type,
     onEmbeddedSVGClick,
     onEntityQuantityClick,
     onNameClick,
@@ -86,9 +87,18 @@ export const VisualizationSection = ({
         return;
       }
       
-      highlighting.highlightCurrentDSLPath();
+      // Only highlight if the hover originated from this section or from the DSL editor (null)
+      if (hoverSource !== null && hoverSource !== type) {
+        return;
+      }
+      
+      if (currentDSLPath) {
+        highlighting.highlightCurrentDSLPath();
+      } else {
+        highlighting.removeElementHighlights();
+      }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentDSLPath, isOpen]);
+  }, [currentDSLPath, hoverSource, isOpen, type]);
 
   const handleAccordionClick = useCallback(() => {
     const action = isOpen ? 'close' : 'open';
