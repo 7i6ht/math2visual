@@ -10,6 +10,7 @@ import { useAnalytics } from "@/hooks/useAnalytics";
 export const useAppState = () => {
   const { setGenerationResult, formattedDSL } = useDSLContext();
   const { trackGenerationStart, trackGenerationComplete, trackElementClick, isAnalyticsEnabled } = useAnalytics();
+  const currentAbortFunctionRef = useRef<(() => void) | undefined>(undefined);
   const [state, setState] = useState<AppState>({
     mpFormLoading: false,
     vlFormLoading: false,
@@ -29,6 +30,7 @@ export const useAppState = () => {
   });
 
   const setMpFormLoading = useCallback((mpFormLoading: boolean, abortFn?: () => void) => {
+    currentAbortFunctionRef.current = mpFormLoading ? abortFn : undefined;
     setState(prev => ({ 
       ...prev, 
       mpFormLoading,
@@ -37,6 +39,7 @@ export const useAppState = () => {
   }, []);
 
   const setVLFormLoading = useCallback((vlFormLoading: boolean, abortFn?: () => void) => {
+    currentAbortFunctionRef.current = vlFormLoading ? abortFn : undefined;
     setState(prev => ({ 
       ...prev, 
       vlFormLoading,
@@ -87,7 +90,7 @@ export const useAppState = () => {
         missingSvgEntities
       );
     }
-  }, [setGenerationResult]);
+  }, [setGenerationResult, isAnalyticsEnabled, trackGenerationComplete]);
 
   const resetResults = useCallback(() => {
     setState(prev => ({
@@ -173,7 +176,7 @@ export const useAppState = () => {
     if (isAnalyticsEnabled) {
       trackGenerationStart(mwp, formula, hint);
     }
-  }, []);
+  }, [isAnalyticsEnabled, trackGenerationStart]);
 
   const setShowHint = useCallback((showHint: boolean) => {
     setState(prev => ({ ...prev, showHint }));
@@ -187,11 +190,12 @@ export const useAppState = () => {
     }
     
     // Call the current abort function if it exists
-    if (state.currentAbortFunction) {
-      state.currentAbortFunction();
+    if (currentAbortFunctionRef.current) {
+      currentAbortFunctionRef.current();
     }
     
     // Reset to initial layout while preserving MWP and formula values
+    currentAbortFunctionRef.current = undefined;
     setState(prev => ({
       ...prev,
       mpFormLoading: false,
@@ -201,7 +205,7 @@ export const useAppState = () => {
     }));
 
     toast.info('Generation cancelled');
-  }, [state]);
+  }, [isAnalyticsEnabled, trackElementClick]);
 
   // Memoize the return object to prevent unnecessary re-renders
   const returnValue = useMemo(() => ({

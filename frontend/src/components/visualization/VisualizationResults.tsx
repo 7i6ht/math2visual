@@ -1,5 +1,5 @@
 import { Accordion } from "@/components/ui/accordion";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, memo } from "react";
 import { VisualizationSection } from "./VisualizationSection";
 import { MissingSVGSection } from "./MissingSVGSection";
 import { ParseErrorSection } from "./ParseErrorSection";
@@ -24,7 +24,7 @@ interface VisualizationResultsProps {
   onShowHint: () => void;
 }
 
-export const VisualizationResults = ({
+export const VisualizationResults = memo(({
   svgFormal,
   formalError,
   svgIntuitive,
@@ -49,7 +49,12 @@ export const VisualizationResults = ({
       trackElementClick('hint_link_click');
     }
     onShowHint();
-  }, [onShowHint]);
+  }, [onShowHint, isAnalyticsEnabled, trackElementClick]);
+
+  // Log component rerenders
+  useEffect(() => {
+    console.log('VisualizationResults rerendered');
+  });
 
   // Suppress generic missing-SVG errors in the accordion; these are shown
   // more helpfully in the dedicated MissingSVGSection below
@@ -155,4 +160,4 @@ export const VisualizationResults = ({
       )}
     </div>
   );
-};
+});

@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { useSVGSelector } from "./useSVGSelector";
 import { useEntityQuantityPopup } from "@/hooks/useEntityQuantityPopup";
 import { useNamePopup } from "@/hooks/useNamePopup";
@@ -56,7 +56,7 @@ export const usePopupManagement = ({ onVisualsUpdate }: PopupManagementDeps) => 
     [openNamePopup]
   );
 
-  return {
+  return useMemo(() => ({
     selectorPopupState,
     closeSelectorPopup,
     updateSVG,
@@ -69,7 +69,20 @@ export const usePopupManagement = ({ onVisualsUpdate }: PopupManagementDeps) => 
     closeNamePopup,
     updateName,
     handleNameClick,
-  };
+  }), [
+    selectorPopupState,
+    closeSelectorPopup,
+    updateSVG,
+    handleEmbeddedSVGClick,
+    quantityPopupState,
+    closeQuantityPopup,
+    updateEntityQuantity,
+    handleEntityQuantityClick,
+    namePopupState,
+    closeNamePopup,
+    updateName,
+    handleNameClick,
+  ]);
 };
 
 

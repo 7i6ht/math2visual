@@ -80,21 +80,20 @@ export const VisualizationSection = ({
     }
   }, [isPopupOpen, interactions.setupSVGInteractions, isOpen]);
 
-  // Highlight the current DSL path (on DSL editor click)
+  // Highlight the current DSL path
   useEffect(() => {
       // Only highlight if this section is open
       if (!isOpen) {
         return;
       }
       
-      // Only highlight if the hover originated from this section or from the DSL editor (null)
-      if (hoverSource !== null && hoverSource !== type) {
-        return;
+      if (!hoverSource) {
+        highlighting.removeElementHighlights();
       }
       
       if (currentDSLPath) {
         highlighting.highlightCurrentDSLPath();
-      } else {
+      } else if (hoverSource === type) {
         highlighting.removeElementHighlights();
       }
   // eslint-disable-next-line react-hooks/exhaustive-deps
