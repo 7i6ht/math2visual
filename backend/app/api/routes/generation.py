@@ -114,7 +114,7 @@ def generate():
             with open(output_file, "r") as f1:
                 svg_formal = f1.read()
         else:
-            formal_error = "Could not generate formal visualization. Pherhaps retry one more time."
+            formal_error = "Could not generate formal visualization. Perhaps retry one more time."
     except (VisualGenerationError, FileNotFoundError) as e:
         formal_error = f"Formal generation error: {str(e)}"
     except Exception as e:
