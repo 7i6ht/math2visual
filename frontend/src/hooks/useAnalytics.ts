@@ -2,7 +2,7 @@
  * Custom hook for tracking analytics with debouncing.
  * Consolidates all analytics functionality in one place.
  */
-import { useCallback, useRef, useEffect, useMemo } from 'react';
+import { useCallback, useRef, useMemo, useState } from 'react';
 import { toPng } from 'html-to-image';
 import { analyticsService } from '@/api_services/analytics';
 
@@ -19,6 +19,7 @@ export const useAnalytics = () => {
   const rightScrollTopRef = useRef<number>(0);
   const outermostScrollTopRef = useRef<number>(0);
   const isFirstRender = useRef(true);
+  const [isCapturingScreenshot, setIsCapturingScreenshot] = useState(false);
 
   // Input typing tracking with debouncing
   const trackMWPType = useCallback(() => {
@@ -74,7 +75,7 @@ export const useAnalytics = () => {
 
   // Capture screenshot - define early because it's used by other callbacks
   const captureScreenshot = useCallback(async () => {
-    try {
+    try {      
       // Capture the viewport (what user actually sees) using html-to-image
       const dataURL = await toPng(document.body, {
         // Capture the viewport dimensions (what user sees)
@@ -94,6 +95,8 @@ export const useAnalytics = () => {
       await analyticsService.uploadScreenshot(dataURL, width, height);
     } catch (error) {
       console.error('Failed to capture screenshot:', error);
+    } finally {
+      setIsCapturingScreenshot(false);
     }
   }, []);
 
@@ -140,6 +143,7 @@ export const useAnalytics = () => {
       analyticsService.recordAction({
         type: 'two_column_layout_render',
       });
+      setIsCapturingScreenshot(true);
       // Capture screenshot after a brief delay to ensure layout is fully rendered
       setTimeout(() => {
         captureScreenshot();
@@ -355,6 +359,7 @@ export const useAnalytics = () => {
     startCursorTracking,
     stopCursorTracking,
     captureScreenshot,
+    isCapturingScreenshot,
     // Analytics control
     isAnalyticsEnabled: analyticsService.isAnalyticsEnabled(),
     sessionId: analyticsService.getSessionId(),
@@ -388,5 +393,6 @@ export const useAnalytics = () => {
     startCursorTracking,
     stopCursorTracking,
     captureScreenshot,
+    isCapturingScreenshot,
   ]);
 };
