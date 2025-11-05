@@ -357,6 +357,7 @@ export const useAnalytics = () => {
     captureScreenshot,
     // Analytics control
     isAnalyticsEnabled: analyticsService.isAnalyticsEnabled(),
+    sessionId: analyticsService.getSessionId(),
   }), [
     trackMWPType,
     trackFormulaType,
