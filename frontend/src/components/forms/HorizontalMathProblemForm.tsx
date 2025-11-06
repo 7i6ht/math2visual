@@ -122,7 +122,7 @@ export const HorizontalMathProblemForm = ({
                   <FormControl>
                     <Textarea
                       className={"w-full ring-offset-background responsive-text-font-size"}
-                      placeholder="Add optional hints about the relationships between the visual elements ..."
+                      placeholder="Add hints about the relationships between the visual elements ..."
                       rows={4}
                       spellCheck={false}
                       style={{ minHeight: '100px' }}
