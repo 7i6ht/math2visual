@@ -200,7 +200,7 @@ export const SyntaxEditor: React.FC<SyntaxEditorProps> = ({
     
     // Calculate base height needed for content
     const contentHeight = lines * lineHeight + padding;
-    const availableHeight = Math.min(0.8*window.innerHeight, 600);
+    const availableHeight = 0.9*window.innerHeight;
     
     // Take the minimum between content height and available height
     const calculatedHeight = Math.max(minHeight, Math.min(contentHeight, availableHeight));
