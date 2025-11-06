@@ -126,7 +126,7 @@ export const VisualizationResults = memo(({
                 value="formal"
                 className="responsive-text-font-size"
                 disabled={isDisabled}
-                onClick={() => isAnalyticsEnabled && trackElementClick('tab_formal_click')}
+                {...(isAnalyticsEnabled ? {onClick: () => trackElementClick('tab_formal_click')} : {})}
               >
                 Formal Visual
               </TabsTrigger>
@@ -135,7 +135,7 @@ export const VisualizationResults = memo(({
                 value="intuitive"
                 className="responsive-text-font-size"
                 disabled={isDisabled}
-                onClick={() => isAnalyticsEnabled && trackElementClick('tab_intuitive_click')}
+                {...(isAnalyticsEnabled ? {onClick: () => trackElementClick('tab_intuitive_click')} : {})}
               >
                 Intuitive Visual
               </TabsTrigger>
@@ -147,7 +147,7 @@ export const VisualizationResults = memo(({
               value="missing-svg"
               className="responsive-text-font-size data-[state=active]:bg-destructive/10"
               disabled={isDisabled}
-              onClick={() => isAnalyticsEnabled && trackElementClick('tab_missing_svg_click')}
+              {...(isAnalyticsEnabled ? {onClick: () => trackElementClick('tab_missing_svg_click')} : {})}
             >
               <AlertCircle className="responsive-smaller-icon-font-size mr-2 text-destructive" />
               Missing SVG
