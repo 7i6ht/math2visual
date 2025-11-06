@@ -21,12 +21,14 @@ A modern, interactive React application that enables teachers to generate pedago
 ```
 src/
 ├── api_services/           # Backend API integration
+│   ├── analytics.ts        # Analytics and logging API
 │   ├── generation.ts       # Generation API with request cancellation
 │   └── svgDataset.ts       # SVG dataset management and search
 ├── components/
 │   ├── errors/             # Error handling and display components
 │   │   └── SVGMissingError.tsx
 │   ├── forms/              # Form components with validation
+│   │   ├── HorizontalMathProblemForm.tsx # Horizontal layout form variant
 │   │   ├── MathProblemForm.tsx
 │   │   └── VisualLanguageForm.tsx
 │   ├── layout/             # Application layout and views
@@ -55,6 +57,7 @@ src/
 │   │   ├── input.tsx
 │   │   ├── label.tsx
 │   │   ├── ResponsiveLogo.tsx # Responsive logo component
+│   │   ├── SessionAnalyticsDisplay.tsx # Session analytics visualization
 │   │   ├── sonner.tsx      # Toast notification setup
 │   │   ├── syntax-editor.tsx # Monaco Editor integration
 │   │   ├── syntax-editor.css # Editor styling
@@ -72,6 +75,7 @@ src/
 │   └── HighlightingContext.tsx # Syntax highlighting state
 ├── hooks/                  # Custom React hooks
 │   ├── __tests__/          # Hooks testing structure (in development)
+│   ├── useAnalytics.ts     # Analytics tracking and logging
 │   ├── useAppState.ts      # Global application state
 │   ├── useElementInteractions.ts # Element interaction handling
 │   ├── useEntityQuantityPopup.ts # Quantity popup state
@@ -96,15 +100,20 @@ src/
 ├── types/
 │   ├── index.ts            # TypeScript type definitions
 │   └── visualInteraction.ts # Visual interaction types
-└── utils/
-    ├── download.ts         # Download functionality
-    ├── dsl-cursor-mapping.ts # DSL cursor position mapping
-    ├── dsl-formatter.ts    # DSL formatting utilities
-    ├── dsl-parser.ts       # DSL parsing logic
-    ├── elementUtils.ts     # DOM element utilities
-    ├── mwpUtils.ts         # Math word problem utilities
-    ├── numberUtils.ts      # Number formatting and conversion
-    └── validation.ts       # Validation utilities
+├── utils/
+│   ├── download.ts         # Download functionality
+│   ├── dsl-cursor-mapping.ts # DSL cursor position mapping
+│   ├── dsl-formatter.ts    # DSL formatting utilities
+│   ├── dsl-parser.ts       # DSL parsing logic
+│   ├── elementUtils.ts     # DOM element utilities
+│   ├── mwpUtils.ts         # Math word problem utilities
+│   ├── numberUtils.ts      # Number formatting and conversion
+│   └── validation.ts       # Validation utilities
+├── App.css                 # Global application styles
+├── App.tsx                 # Root application component
+├── index.css               # Global CSS variables and Tailwind imports
+├── main.tsx                # Application entry point
+└── vite-env.d.ts           # Vite environment type definitions
 ```
 
 ## 🚀 Getting Started
