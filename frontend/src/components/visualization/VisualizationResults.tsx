@@ -3,8 +3,6 @@ import { useState, useEffect, useCallback, memo } from "react";
 import { VisualizationSection } from "./VisualizationSection";
 import { MissingSVGSection } from "./MissingSVGSection";
 import { ParseErrorSection } from "./ParseErrorSection";
-import { ArrowRight } from "lucide-react";
-import { useAnalytics } from "@/hooks/useAnalytics";
 
 interface VisualizationResultsProps {
   svgFormal: string | null;
@@ -21,7 +19,6 @@ interface VisualizationResultsProps {
   onNameClick: (event: MouseEvent) => void;
   isPopupOpen?: boolean;
   isDisabled?: boolean;
-  onShowHint: () => void;
 }
 
 export const VisualizationResults = memo(({
@@ -39,17 +36,8 @@ export const VisualizationResults = memo(({
   onNameClick,
   isPopupOpen = false,
   isDisabled = false,
-  onShowHint,
 }: VisualizationResultsProps) => {
   const [openAccordionItems, setOpenAccordionItems] = useState<string[]>([]);
-  const { trackElementClick, isAnalyticsEnabled } = useAnalytics();
-
-  const handleHintLinkClick = useCallback(() => {
-    if (isAnalyticsEnabled) {
-      trackElementClick('hint_link_click');
-    }
-    onShowHint();
-  }, [onShowHint, isAnalyticsEnabled, trackElementClick]);
 
   // Log component rerenders
   useEffect(() => {
@@ -89,25 +77,46 @@ export const VisualizationResults = memo(({
 
   return (
     <div className="h-full w-full">
-      <h2 className="responsive-title-simple font-bold mb-4 text-center">Visuals</h2>
-      
-      <Accordion 
-        type="multiple" 
-        value={openAccordionItems}
-        className="w-full space-y-2"
-        onValueChange={setOpenAccordionItems}
-      >
-        {/* Show parse error section when parse error exists */}
-        {hasParseError && (
+      {/* Show parse error section when parse error exists */}
+      {hasParseError && (
+        <Accordion 
+          type="multiple" 
+          value={openAccordionItems}
+          className="w-full space-y-2"
+          onValueChange={setOpenAccordionItems}
+        >
           <ParseErrorSection message="Could not parse Visual Language." />
-        )}
+        </Accordion>
+      )}
 
-        {/* Hide visualization sections entirely if SVG entities are missing or parse error exists */}
-        {!hasParseError && (
-          <>
+      {/* Show missing SVG section if needed */}
+      {missingSVGEntities.length > 0 && (
+        <Accordion 
+          type="multiple" 
+          value={openAccordionItems}
+          className="w-full space-y-2 mb-6"
+          onValueChange={setOpenAccordionItems}
+        >
+          <MissingSVGSection
+            missingSVGEntities={missingSVGEntities}
+            onRegenerateAfterUpload={onRegenerateAfterUpload}
+            onAllFilesUploaded={onAllFilesUploaded}
+          />
+        </Accordion>
+      )}
+
+      {/* Side-by-side visualization sections */}
+      {!hasParseError && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 lg:gap-8 xl:gap-10 2xl:gap-12 3xl:gap-16 4xl:gap-20 5xl:gap-24">
+          <Accordion 
+            type="multiple" 
+            value={openAccordionItems}
+            className="w-full"
+            onValueChange={setOpenAccordionItems}
+          >
             <VisualizationSection
               type="formal"
-              title="Formal"
+              title="Formal visual"
               svgContent={svgFormal}
               error={filterMissingSvgError(formalError)}
               isOpen={openAccordionItems.includes("formal")}
@@ -119,10 +128,17 @@ export const VisualizationResults = memo(({
               isPopupOpen={isPopupOpen}
               isDisabled={isDisabled}
             />
+          </Accordion>
 
+          <Accordion 
+            type="multiple" 
+            value={openAccordionItems}
+            className="w-full"
+            onValueChange={setOpenAccordionItems}
+          >
             <VisualizationSection
               type="intuitive"
-              title="Intuitive"
+              title="Intuitive visual"
               svgContent={svgIntuitive}
               error={filterMissingSvgError(intuitiveError)}
               isOpen={openAccordionItems.includes("intuitive")}
@@ -134,28 +150,7 @@ export const VisualizationResults = memo(({
               isPopupOpen={isPopupOpen}
               isDisabled={isDisabled}
             />
-          </>
-        )}
-
-        {missingSVGEntities.length > 0 && (
-          <MissingSVGSection
-            missingSVGEntities={missingSVGEntities}
-            onRegenerateAfterUpload={onRegenerateAfterUpload}
-            onAllFilesUploaded={onAllFilesUploaded}
-          />
-        )}
-      </Accordion>
-      
-      {/* Teacher feedback loop trigger */}
-      {(svgFormal || svgIntuitive) && (
-        <div className="mt-4 text-left">
-          <button
-            onClick={isDisabled ? undefined : handleHintLinkClick}
-            className={`text-red-500 responsive-text-font-size group ${isDisabled ? 'cursor-default' : 'cursor-pointer'}`}
-            disabled={isDisabled}
-          >
-            Does not look as expected? <span className={`${isDisabled ? '' : 'group-hover:italic group-hover:text-red-700'}`}> <ArrowRight className="responsive-smaller-icon-font-size inline-block"/> Add more hints ...</span>
-          </button>
+          </Accordion>
         </div>
       )}
     </div>

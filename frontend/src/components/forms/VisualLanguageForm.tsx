@@ -21,7 +21,7 @@ interface VisualLanguageFormProps {
   isDisabled?: boolean;
 }
 
-export const VisualLanguageForm = ({
+export const VisualLanguageForm = ({ // TODO: Remove everything associated with this component and component itself in case it is not needed anymore
   onResult,
   onLoadingChange,
   isDisabled = false,

@@ -25,7 +25,6 @@ interface MathProblemFormProps {
   rows?: number;
   hideSubmit?: boolean;
   showHint?: boolean;
-  hintInputRef?: React.RefObject<HTMLTextAreaElement | null>;
   onReset?: () => void;
 }
 
@@ -39,7 +38,6 @@ export const MathProblemForm = ({
   rows = 8,
   hideSubmit = false,
   showHint = false,
-  hintInputRef,
 }: MathProblemFormProps) => {
   const { mwpHighlightRanges, formulaHighlightRanges, clearHighlightingState } = useHighlightingContext();
   const { trackMWPType, trackFormulaType, trackHintType, isAnalyticsEnabled } = useAnalytics();
@@ -114,16 +112,16 @@ export const MathProblemForm = ({
           name="formula"
           render={({ field }) => (
             <FormItem>
-              <FormControl>
-                <HighlightableInput
-                  className={"w-full responsive-text-font-size"}
-                  placeholder="9 + 7 = 16"
-                  spellCheck={false}
-                  highlightRanges={formulaHighlightRanges}
-                  {...field}
-                  {...(isAnalyticsEnabled ? {onChange: formulaChangeHandler(field.onChange)} : {})}
-                />
-              </FormControl>
+                <FormControl>
+                  <HighlightableInput
+                    className={"w-full responsive-text-font-size"}
+                    placeholder="Optional formula: 9 + 7 = 16"
+                    spellCheck={false}
+                    highlightRanges={formulaHighlightRanges}
+                    {...field}
+                    {...(isAnalyticsEnabled ? {onChange: formulaChangeHandler(field.onChange)} : {})}
+                  />
+                </FormControl>
               <FormMessage />
             </FormItem>
           )}
@@ -141,12 +139,8 @@ export const MathProblemForm = ({
                     placeholder="Add more hints about the relationships between the visual elements ..."
                     rows={rows}
                     spellCheck={false}
-                  {...field}
-                  {...(isAnalyticsEnabled ? {onChange: hintChangeHandler(field.onChange)} : {})}
-                    ref={(el) => {
-                      if (hintInputRef) hintInputRef.current = el;
-                      if (typeof field.ref === 'function') field.ref(el);
-                    }}
+                    {...field}
+                    {...(isAnalyticsEnabled ? {onChange: hintChangeHandler(field.onChange)} : {})}
                   />
                 </FormControl>
                 <FormMessage />

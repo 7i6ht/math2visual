@@ -1,7 +1,6 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect } from "react";
 import { ResponsiveLogo } from "@/components/ui/ResponsiveLogo";
-import { MathProblemForm } from "@/components/forms/MathProblemForm";
-import { VisualLanguageForm } from "@/components/forms/VisualLanguageForm";
+import { HorizontalMathProblemForm } from "@/components/forms/HorizontalMathProblemForm";
 import { VisualizationResults } from "@/components/visualization/VisualizationResults";
 import { GearLoading } from "@/components/ui/gear-loading";
 import { SessionAnalyticsDisplay } from "@/components/ui/SessionAnalyticsDisplay";
@@ -16,7 +15,7 @@ type Props = {
   appState: ReturnType<typeof useAppState>;
 };
 
-export function TwoColumnView({ appState }: Props) {
+export function TwoColumnView({ appState }: Props) { // TODO: Rename?
   const {
     vlFormLoading,
     mpFormLoading,
@@ -29,19 +28,15 @@ export function TwoColumnView({ appState }: Props) {
     mwp,
     formula,
     hint,
-    showHint,
     setMpFormLoading,
-    setVLFormLoading,
     setResults,
     resetResults,
     clearMissingSVGEntities,
     handleRegenerateAfterUpload,
     handleAbort,
-    setShowHint,
   } = appState;
 
-  const { formattedDSL, parsedDSL } = useDSLContext();
-  const hintInputRef = useRef<HTMLTextAreaElement | null>(null);
+  const { parsedDSL } = useDSLContext();
   const { trackColumnScroll, trackTwoColumnLayoutRender, isAnalyticsEnabled, sessionId, isCapturingScreenshot } = useAnalytics();
 
   const { handleVLResult } =
@@ -76,121 +71,84 @@ export function TwoColumnView({ appState }: Props) {
     onVisualsUpdate,
   });
 
-  const handleLeftColumnScroll = useCallback((event: React.UIEvent<HTMLDivElement>) => {
+  const handleMainScroll = useCallback((event: React.UIEvent<HTMLDivElement>) => {
     trackColumnScroll(event, 'left');
   }, [trackColumnScroll]);
 
-  const handleRightColumnScroll = useCallback((event: React.UIEvent<HTMLDivElement>) => {
-    trackColumnScroll(event, 'right');
-  }, [trackColumnScroll]);
-
-  // Track two column layout render and capture screenshot
+  // Track layout render and capture screenshot
   useEffect(() => {
     if (isAnalyticsEnabled) {
       trackTwoColumnLayoutRender();
     }
   }, [isAnalyticsEnabled, trackTwoColumnLayoutRender]);
 
-  // Ensure the field is visible whenever hint text exists
-  useEffect(() => {
-    if (hint?.trim()) {
-      setShowHint(true);
-    }
-  }, [hint, setShowHint]);
-
-  const handleShowHint = useCallback(() => {
-    setShowHint(true);
-    // Focus and scroll to the hint input after DOM update
-    setTimeout(() => {
-      if (hintInputRef.current) {
-        hintInputRef.current.focus();
-        hintInputRef.current.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'center',
-          inline: 'nearest'
-        });
-      }
-    }, 0);
-  }, [setShowHint, hintInputRef]);
-
-
-
   return (
-    <div className="w-full px-1 py-4 sm:px-2 lg:px-4 xl:px-6 2xl:px-8 3xl:px-8 4xl:px-8">
+    <div 
+      className="w-full px-2 py-4 sm:px-4 md:px-6 lg:px-8 xl:px-12 2xl:px-16 3xl:px-20 4xl:px-24"
+      {...(isAnalyticsEnabled ? {onScroll: handleMainScroll} : {})}
+    >
       {isAnalyticsEnabled && <SessionAnalyticsDisplay sessionId={sessionId} isCapturingScreenshot={isCapturingScreenshot} />}
-      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] 3xl:grid-cols-[minmax(0,1fr)_minmax(0,1.8fr)] gap-4 xl:gap-6 2xl:gap-8 3xl:gap-10 min-h-[calc(100vh-2rem)] items-start [@media(min-height:1200px)_and_(max-width:1600px)]:grid-cols-1 [@media(min-height:1400px)_and_(max-width:1800px)]:grid-cols-1">
-        <div 
-          className="flex flex-col space-y-6 xl:space-y-8 xl:sticky xl:top-6 xl:z-10 xl:pr-2"
-          {...(isAnalyticsEnabled ? {onScroll: handleLeftColumnScroll} : {})}
-        >
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 xl:gap-6 2xl:gap-8 3xl:gap-10 flex-1 min-h-0 height-responsive-grid items-stretch [@media(min-height:1200px)_and_(max-width:1600px)]:grid-cols-1 [@media(min-height:1400px)_and_(max-width:1800px)]:grid-cols-1">
-            <div className="space-y-4 flex flex-col">
-              <div className="text-center">
-                <div className="flex items-center justify-center gap-1">
-                  <ResponsiveLogo className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 lg:w-9 lg:h-9 xl:w-10 xl:h-10 2xl:w-12 2xl:h-12 3xl:w-16 3xl:h-16 4xl:w-20 4xl:h-20 5xl:w-24 5xl:h-24" />
-                  <h1 className="responsive-title-simple font-bold">Math2Visual</h1>
-                </div>
-              </div>
-
-              <div className="flex flex-col">
-                <MathProblemForm
-                  onSuccess={setResults}
-                  onLoadingChange={(loading, abortFn) => {
-                    setMpFormLoading(loading, abortFn);
-                  }}
-                  onReset={resetResults}
-                  mwp={mwp}
-                  formula={formula}
-                  hint={hint}
-                  saveInitialValues={appState.saveInitialValues}
-                  rows={9.5}
-                  hideSubmit={false}
-                  showHint={showHint}
-                  hintInputRef={hintInputRef}
-                />
-                {mpFormLoading && (
-                  <div className="animate-in fade-in-0 duration-300">
-                    <GearLoading
-                      onAbort={handleAbort}
-                      showAbortButton={true}
-                    />
-                  </div>
-                )}
+      
+      <div className="w-full mx-auto space-y-4 md:space-y-5 lg:space-y-6 xl:space-y-7 2xl:space-y-8 3xl:space-y-10 4xl:space-y-12 5xl:space-y-14">
+        {/* Math Problem Form with Logo */}
+        <div className="relative">
+          <div className="flex gap-4 md:gap-6 lg:gap-8 3xl:gap-10 4xl:gap-12 5xl:gap-16 items-start">
+            {/* Logo Section with Vertical M2V - constrained height */}
+            <div className="flex-shrink-0 flex flex-col items-center gap-1 max-h-[100px] 2xl:max-h-[120px] 3xl:max-h-[160px] 4xl:max-h-[200px] 5xl:max-h-[280px] 6xl:max-h-[350px]">
+              <ResponsiveLogo className="w-8 h-8 md:w-9 md:h-9 lg:w-10 lg:h-10 xl:w-12 xl:h-12 2xl:w-16 2xl:h-16 3xl:w-20 3xl:h-20 4xl:w-24 4xl:h-24 5xl:w-32 5xl:h-32 6xl:w-40 6xl:h-40" />
+              <div className="flex flex-col items-center leading-tight gap-0">
+                <span className="text-base md:text-lg lg:text-xl xl:text-2xl 2xl:text-3xl font-bold 3xl:text-4xl 4xl:text-5xl 5xl:text-6xl 6xl:text-7xl">M</span>
+                <span className="text-base md:text-lg lg:text-xl xl:text-2xl 2xl:text-3xl font-bold 3xl:text-4xl 4xl:text-5xl 5xl:text-6xl 6xl:text-7xl">2</span>
+                <span className="text-base md:text-lg lg:text-xl xl:text-2xl 2xl:text-3xl font-bold 3xl:text-4xl 4xl:text-5xl 5xl:text-6xl 6xl:text-7xl">V</span>
               </div>
             </div>
 
-            <div className="relative flex flex-col h-full">
-              {formattedDSL && (
-                <VisualLanguageForm
-                  onResult={handleVLResult}
-                  onLoadingChange={(loading, abortFn) => {
-                    setVLFormLoading(loading, abortFn);
-                  }}
-                  isDisabled={mpFormLoading}
-                />
-              )}
-              {(vlFormLoading || uploadGenerating) && (
-                <div className="mt-8 animate-in fade-in-0 duration-300">
-                  <GearLoading
-                    onAbort={handleAbort}
-                    showAbortButton={true}
-                  />
-                </div>
-              )}
-              {mpFormLoading && (
-                <div
-                  className="absolute inset-0 z-10 bg-background/50 dark:bg-black/30 backdrop-blur-[1px] rounded-md pointer-events-none"
-                  aria-hidden="true"
-                />
-              )}
+            {/* Form */}
+            <div className="flex-1">
+              <HorizontalMathProblemForm
+                onSuccess={setResults}
+                onLoadingChange={(loading, abortFn) => {
+                  setMpFormLoading(loading, abortFn);
+                }}
+                onReset={resetResults}
+                mwp={mwp}
+                formula={formula}
+                hint={hint}
+                saveInitialValues={appState.saveInitialValues}
+              />
             </div>
           </div>
         </div>
 
-        <div 
-          className="relative flex flex-col w-full"
-          {...(isAnalyticsEnabled ? {onScroll: handleRightColumnScroll} : {})}
-        >
+        {/* Visual Language Form (DSL Editor) - Hidden */}
+        {/* {formattedDSL && (
+          <div className="relative">
+            <VisualLanguageForm
+              onResult={handleVLResult}
+              onLoadingChange={(loading, abortFn) => {
+                setVLFormLoading(loading, abortFn);
+              }}
+              isDisabled={mpFormLoading}
+            />
+            {(vlFormLoading || uploadGenerating) && (
+              <div className="mt-6 animate-in fade-in-0 duration-300">
+                <GearLoading
+                  onAbort={handleAbort}
+                  showAbortButton={true}
+                />
+              </div>
+            )}
+            {mpFormLoading && (
+              <div
+                className="absolute inset-0 z-10 bg-background/50 dark:bg-black/30 backdrop-blur-[1px] rounded-md pointer-events-none"
+                aria-hidden="true"
+              />
+            )}
+          </div>
+        )} */}
+
+        {/* Visualization Results */}
+        <div className="relative">
           <VisualizationResults
             svgFormal={svgFormal}
             formalError={formalError}
@@ -205,14 +163,21 @@ export function TwoColumnView({ appState }: Props) {
             onEntityQuantityClick={popup.handleEntityQuantityClick}
             onNameClick={popup.handleNameClick}
             isPopupOpen={popup.selectorPopupState.isOpen || popup.namePopupState.isOpen || popup.quantityPopupState.isOpen}
-            onShowHint={handleShowHint}
             isDisabled={mpFormLoading}
           />
           { (mpFormLoading || vlFormLoading || uploadGenerating) && (
-            <div
-              className="absolute inset-0 bg-background/60 dark:bg-black/40 backdrop-blur-[1px] rounded-md pointer-events-none"
-              aria-hidden="true"
-            />
+            <>
+              <div
+                className="absolute inset-0 bg-background/60 dark:bg-black/40 backdrop-blur-[1px] rounded-md pointer-events-none"
+                aria-hidden="true"
+              />
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-auto">
+                <GearLoading
+                  onAbort={handleAbort}
+                  showAbortButton={true}
+                />
+              </div>
+            </>
           )}
         </div>
       </div>
