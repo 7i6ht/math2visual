@@ -2,7 +2,6 @@ import React, { useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { HighlightableTextarea } from "@/components/ui/highlightable-textarea";
 import { HighlightableInput } from "@/components/ui/highlightable-input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Form,
   FormControl,
@@ -24,8 +23,6 @@ interface MathProblemFormProps {
   saveInitialValues: (mwp: string, formula: string, hint: string) => void;
   rows?: number;
   hideSubmit?: boolean;
-  showHint?: boolean;
-  hintInputRef?: React.RefObject<HTMLTextAreaElement | null>;
   onReset?: () => void;
 }
 
@@ -38,11 +35,9 @@ export const MathProblemForm = ({
   saveInitialValues,
   rows = 8,
   hideSubmit = false,
-  showHint = false,
-  hintInputRef,
 }: MathProblemFormProps) => {
   const { mwpHighlightRanges, formulaHighlightRanges, clearHighlightingState } = useHighlightingContext();
-  const { trackMWPType, trackFormulaType, trackHintType, isAnalyticsEnabled } = useAnalytics();
+  const { trackMWPType, trackFormulaType, isAnalyticsEnabled } = useAnalytics();
 
   const handleFormClick = useCallback(() => {
     clearHighlightingState();
@@ -72,12 +67,6 @@ export const MathProblemForm = ({
       onChange(e);
       trackFormulaType();
     }, [trackFormulaType]);
-
-  const hintChangeHandler = useCallback((onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void) => 
-    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-      onChange(e);
-      trackHintType();
-    }, [trackHintType]);
 
   return (
     <Form {...form}>
@@ -128,32 +117,6 @@ export const MathProblemForm = ({
             </FormItem>
           )}
         />
-
-        {showHint && (
-          <FormField
-            control={form.control}
-            name="hint"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <Textarea
-                    className={"w-full ring-offset-background responsive-text-font-size"}
-                    placeholder="Add more hints about the relationships between the visual elements ..."
-                    rows={rows}
-                    spellCheck={false}
-                  {...field}
-                  {...(isAnalyticsEnabled ? {onChange: hintChangeHandler(field.onChange)} : {})}
-                    ref={(el) => {
-                      if (hintInputRef) hintInputRef.current = el;
-                      if (typeof field.ref === 'function') field.ref(el);
-                    }}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        )}
 
         <div className="flex justify-center mt-6">
           {!loading && !hideSubmit && (

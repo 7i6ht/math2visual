@@ -218,19 +218,29 @@ export const SyntaxEditor: React.FC<SyntaxEditorProps> = ({
   // Update height when content changes (only after editor is mounted)
   useEffect(() => {    
     if (isEditorMounted && editorRef.current && containerRef.current && formattedValue) {
-      const fontSize = getResponsiveFontSize();
-      const newHeight = calculateDynamicHeight(formattedValue, fontSize);
-            
-      // Set container height directly (no React re-render)
-      containerRef.current.style.height = newHeight;
-      containerRef.current.style.minHeight = newHeight; // Also set minHeight in case something is constraining it
+      // Check if the container should fill available space (has h-full class)
+      const shouldFillContainer = className?.includes('h-full');
       
-      // Then resize the editor to fill the container
-      const heightValue = parseInt(newHeight);
-      const currentLayout = editorRef.current.getLayoutInfo();
-      editorRef.current.layout({ width: currentLayout.width, height: heightValue });
+      if (shouldFillContainer) {
+        // Remove inline height styles to let h-full work
+        containerRef.current.style.height = '100%';
+        containerRef.current.style.minHeight = '';
+      } else {
+        // Use dynamic height calculation for non-full-height editors
+        const fontSize = getResponsiveFontSize();
+        const newHeight = calculateDynamicHeight(formattedValue, fontSize);
+              
+        // Set container height directly (no React re-render)
+        containerRef.current.style.height = newHeight;
+        containerRef.current.style.minHeight = newHeight; // Also set minHeight in case something is constraining it
+        
+        // Then resize the editor to fill the container
+        const heightValue = parseInt(newHeight);
+        const currentLayout = editorRef.current.getLayoutInfo();
+        editorRef.current.layout({ width: currentLayout.width, height: heightValue });
+      }
     }
-  }, [isEditorMounted, formattedValue, calculateDynamicHeight, getResponsiveFontSize]);
+  }, [isEditorMounted, formattedValue, calculateDynamicHeight, getResponsiveFontSize, className]);
 
   // Initialize and update font size cache and handle window resize
   useEffect(() => {
@@ -240,15 +250,21 @@ export const SyntaxEditor: React.FC<SyntaxEditorProps> = ({
       if (editorRef.current && containerRef.current && formattedValue) {
         const newFontSize = getResponsiveFontSize();
         editorRef.current.updateOptions({ fontSize: newFontSize });
-        const newHeight = calculateDynamicHeight(formattedValue, newFontSize);
         
-        // Set container height directly (no React re-render)
-        containerRef.current.style.height = newHeight;
+        // Check if the container should fill available space (has h-full class)
+        const shouldFillContainer = className?.includes('h-full');
         
-        // Then resize the editor to fill the container
-        const heightValue = parseInt(newHeight);
-        const currentLayout = editorRef.current.getLayoutInfo();
-        editorRef.current.layout({ width: currentLayout.width, height: heightValue });
+        if (!shouldFillContainer) {
+          const newHeight = calculateDynamicHeight(formattedValue, newFontSize);
+          
+          // Set container height directly (no React re-render)
+          containerRef.current.style.height = newHeight;
+          
+          // Then resize the editor to fill the container
+          const heightValue = parseInt(newHeight);
+          const currentLayout = editorRef.current.getLayoutInfo();
+          editorRef.current.layout({ width: currentLayout.width, height: heightValue });
+        }
       }
     };
 
@@ -256,7 +272,7 @@ export const SyntaxEditor: React.FC<SyntaxEditorProps> = ({
     return () => {
       window.removeEventListener('resize', handleWindowResize);
     };
-  }, [getResponsiveFontSize, formattedValue, calculateDynamicHeight]);
+  }, [getResponsiveFontSize, formattedValue, calculateDynamicHeight, className]);
 
   // Add highlighting functionality
   useEffect(() => {

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect } from "react";
 import { ResponsiveLogo } from "@/components/ui/ResponsiveLogo";
 import { MathProblemForm } from "@/components/forms/MathProblemForm";
 import { VisualLanguageForm } from "@/components/forms/VisualLanguageForm";
@@ -29,7 +29,6 @@ export function TwoColumnView({ appState }: Props) {
     mwp,
     formula,
     hint,
-    showHint,
     setMpFormLoading,
     setVLFormLoading,
     setResults,
@@ -37,12 +36,11 @@ export function TwoColumnView({ appState }: Props) {
     clearMissingSVGEntities,
     handleRegenerateAfterUpload,
     handleAbort,
-    setShowHint,
+    setHint,
   } = appState;
 
   const { formattedDSL, parsedDSL } = useDSLContext();
-  const hintInputRef = useRef<HTMLTextAreaElement | null>(null);
-  const { trackColumnScroll, trackTwoColumnLayoutRender, isAnalyticsEnabled, sessionId, isCapturingScreenshot } = useAnalytics();
+  const { trackColumnScroll, trackTwoColumnLayoutRender, trackElementClick, isAnalyticsEnabled, sessionId, isCapturingScreenshot } = useAnalytics();
 
   const { handleVLResult } =
     useVisualizationHandlers({
@@ -91,27 +89,57 @@ export function TwoColumnView({ appState }: Props) {
     }
   }, [isAnalyticsEnabled, trackTwoColumnLayoutRender]);
 
-  // Ensure the field is visible whenever hint text exists
-  useEffect(() => {
-    if (hint?.trim()) {
-      setShowHint(true);
+  const handleRegenerateWithHint = useCallback(async () => {
+    if (!mwp) return;
+    
+    // Track hint regeneration
+    if (isAnalyticsEnabled) {
+      trackElementClick('hint_regenerate_auto');
     }
-  }, [hint, setShowHint]);
-
-  const handleShowHint = useCallback(() => {
-    setShowHint(true);
-    // Focus and scroll to the hint input after DOM update
-    setTimeout(() => {
-      if (hintInputRef.current) {
-        hintInputRef.current.focus();
-        hintInputRef.current.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'center',
-          inline: 'nearest'
-        });
+    
+    // Use the existing MathProblemForm logic by calling saveInitialValues and setResults
+    // This will trigger the generation with the current hint value
+    try {
+      setMpFormLoading(true);
+      
+      const { generationService } = await import('@/api_services/generation');
+      const controller = new AbortController();
+      const abort = () => {
+        controller.abort();
+        setMpFormLoading(false);
+      };
+      
+      setMpFormLoading(true, abort);
+      
+      const result = await generationService.generateFromMathProblem(
+        mwp,
+        formula,
+        hint,
+        controller.signal
+      );
+      
+      setResults(
+        result.visual_language,
+        result.svg_formal,
+        result.svg_intuitive,
+        result.parsedDSL!,
+        result.formal_error || undefined,
+        result.intuitive_error || undefined,
+        result.missing_svg_entities,
+        mwp,
+        formula,
+        result.componentMappings
+      );
+    } catch (error) {
+      console.error('Hint regeneration failed:', error);
+      if (error instanceof Error && error.name !== 'AbortError') {
+        const { toast } = await import('sonner');
+        toast.error(error instanceof Error ? error.message : "An error occurred");
       }
-    }, 0);
-  }, [setShowHint, hintInputRef]);
+    } finally {
+      setMpFormLoading(false);
+    }
+  }, [mwp, formula, hint, setMpFormLoading, setResults, isAnalyticsEnabled, trackElementClick]);
 
 
 
@@ -120,7 +148,7 @@ export function TwoColumnView({ appState }: Props) {
       {isAnalyticsEnabled && <SessionAnalyticsDisplay sessionId={sessionId} isCapturingScreenshot={isCapturingScreenshot} />}
       <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] 3xl:grid-cols-[minmax(0,1fr)_minmax(0,1.8fr)] gap-4 xl:gap-6 2xl:gap-8 3xl:gap-10 min-h-[calc(100vh-2rem)] items-start [@media(min-height:1200px)_and_(max-width:1600px)]:grid-cols-1 [@media(min-height:1400px)_and_(max-width:1800px)]:grid-cols-1">
         <div 
-          className="flex flex-col space-y-6 xl:space-y-8 xl:sticky xl:top-6 xl:z-10 xl:pr-2"
+          className="flex flex-col space-y-6 xl:space-y-8 xl:sticky xl:top-6 xl:z-10 xl:pr-2 xl:h-[calc(100vh-3rem)]"
           {...(isAnalyticsEnabled ? {onScroll: handleLeftColumnScroll} : {})}
         >
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 xl:gap-6 2xl:gap-8 3xl:gap-10 flex-1 min-h-0 height-responsive-grid items-stretch [@media(min-height:1200px)_and_(max-width:1600px)]:grid-cols-1 [@media(min-height:1400px)_and_(max-width:1800px)]:grid-cols-1">
@@ -145,8 +173,6 @@ export function TwoColumnView({ appState }: Props) {
                   saveInitialValues={appState.saveInitialValues}
                   rows={9.5}
                   hideSubmit={false}
-                  showHint={showHint}
-                  hintInputRef={hintInputRef}
                 />
                 {mpFormLoading && (
                   <div className="animate-in fade-in-0 duration-300">
@@ -205,7 +231,9 @@ export function TwoColumnView({ appState }: Props) {
             onEntityQuantityClick={popup.handleEntityQuantityClick}
             onNameClick={popup.handleNameClick}
             isPopupOpen={popup.selectorPopupState.isOpen || popup.namePopupState.isOpen || popup.quantityPopupState.isOpen}
-            onShowHint={handleShowHint}
+            hint={hint}
+            onHintChange={setHint}
+            onRegenerateWithHint={handleRegenerateWithHint}
             isDisabled={mpFormLoading}
           />
           { (mpFormLoading || vlFormLoading || uploadGenerating) && (

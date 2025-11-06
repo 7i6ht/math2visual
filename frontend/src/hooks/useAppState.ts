@@ -182,6 +182,9 @@ export const useAppState = () => {
     setState(prev => ({ ...prev, showHint }));
   }, []);
 
+  const setHint = useCallback((hint: string) => {
+    setState(prev => ({ ...prev, hint }));
+  }, []);
 
   const handleAbort = useCallback(() => {
     // Track abort event if analytics is enabled
@@ -220,6 +223,7 @@ export const useAppState = () => {
     handleAbort,
     saveInitialValues,
     setShowHint,
+    setHint,
   }), [
     state,
     setMpFormLoading,
@@ -232,6 +236,7 @@ export const useAppState = () => {
     handleAbort,
     saveInitialValues,
     setShowHint,
+    setHint,
   ]);
 
   return returnValue;

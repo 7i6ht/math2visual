@@ -59,7 +59,7 @@ export const VisualLanguageForm = ({
 
   return (
     <div className="flex flex-col visual-language-form">
-      <h2 className="responsive-title-simple font-bold mb-3 flex-shrink-0">Visual Language</h2>
+      <h2 className="responsive-text-font-size font-semibold mb-3 flex-shrink-0">Visual Language</h2>
       
       <Form {...form}>
         <div className={`flex flex-col ${isDisabled ? 'pointer-events-none overflow-hidden' : ''}`}>

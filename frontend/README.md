@@ -21,6 +21,7 @@ A modern, interactive React application that enables teachers to generate pedago
 ```
 src/
 ├── api_services/           # Backend API integration
+│   ├── analytics.ts        # Analytics tracking and session management
 │   ├── generation.ts       # Generation API with request cancellation
 │   └── svgDataset.ts       # SVG dataset management and search
 ├── components/
@@ -55,16 +56,18 @@ src/
 │   │   ├── input.tsx
 │   │   ├── label.tsx
 │   │   ├── ResponsiveLogo.tsx # Responsive logo component
+│   │   ├── SessionAnalyticsDisplay.tsx # Analytics session display
 │   │   ├── sonner.tsx      # Toast notification setup
 │   │   ├── syntax-editor.tsx # Monaco Editor integration
 │   │   ├── syntax-editor.css # Editor styling
+│   │   ├── tabs.tsx        # Tab navigation component
 │   │   └── textarea.tsx
 │   └── visualization/      # Visualization display and interaction
 │       ├── DownloadButton.tsx # Multi-format download (SVG/PNG/PDF)
 │       ├── MissingSVGSection.tsx # Missing SVG entity handling
 │       ├── ParseErrorSection.tsx # DSL parsing error display
-│       ├── VisualizationResults.tsx # Results display container
-│       └── VisualizationSection.tsx # Main visualization component
+│       ├── VisualizationResults.tsx # Results display with tabs
+│       └── VisualizationSection.tsx # Individual visualization component
 ├── config/
 │   └── api.ts              # API configuration and endpoints
 ├── contexts/               # React Context providers
@@ -72,6 +75,7 @@ src/
 │   └── HighlightingContext.tsx # Syntax highlighting state
 ├── hooks/                  # Custom React hooks
 │   ├── __tests__/          # Hooks testing structure (in development)
+│   ├── useAnalytics.ts     # Analytics tracking and instrumentation
 │   ├── useAppState.ts      # Global application state
 │   ├── useElementInteractions.ts # Element interaction handling
 │   ├── useEntityQuantityPopup.ts # Quantity popup state

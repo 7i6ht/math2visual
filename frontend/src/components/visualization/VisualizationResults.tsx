@@ -1,9 +1,10 @@
-import { Accordion } from "@/components/ui/accordion";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 import { useState, useEffect, useCallback, memo } from "react";
 import { VisualizationSection } from "./VisualizationSection";
 import { MissingSVGSection } from "./MissingSVGSection";
 import { ParseErrorSection } from "./ParseErrorSection";
-import { ArrowRight } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import { useAnalytics } from "@/hooks/useAnalytics";
 
 interface VisualizationResultsProps {
@@ -21,7 +22,9 @@ interface VisualizationResultsProps {
   onNameClick: (event: MouseEvent) => void;
   isPopupOpen?: boolean;
   isDisabled?: boolean;
-  onShowHint: () => void;
+  hint?: string;
+  onHintChange: (value: string) => void;
+  onRegenerateWithHint?: () => void;
 }
 
 export const VisualizationResults = memo(({
@@ -39,17 +42,26 @@ export const VisualizationResults = memo(({
   onNameClick,
   isPopupOpen = false,
   isDisabled = false,
-  onShowHint,
+  hint = '',
+  onHintChange,
+  onRegenerateWithHint,
 }: VisualizationResultsProps) => {
-  const [openAccordionItems, setOpenAccordionItems] = useState<string[]>([]);
-  const { trackElementClick, isAnalyticsEnabled } = useAnalytics();
+  const [activeTab, setActiveTab] = useState<string>("");
+  const { trackElementClick, trackHintType, isAnalyticsEnabled } = useAnalytics();
 
-  const handleHintLinkClick = useCallback(() => {
+  const handleHintChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    onHintChange(e.target.value);
     if (isAnalyticsEnabled) {
-      trackElementClick('hint_link_click');
+      trackHintType();
     }
-    onShowHint();
-  }, [onShowHint, isAnalyticsEnabled, trackElementClick]);
+  }, [onHintChange, isAnalyticsEnabled, trackHintType]);
+
+  const handleHintBlur = useCallback(() => {
+    // Trigger regeneration if hint is non-empty
+    if (hint.trim() && onRegenerateWithHint && !isDisabled) {
+      onRegenerateWithHint();
+    }
+  }, [hint, onRegenerateWithHint, isDisabled]);
 
   // Log component rerenders
   useEffect(() => {
@@ -68,19 +80,19 @@ export const VisualizationResults = memo(({
   const hasParseError = (formalError && /DSL parse error/i.test(formalError)) || 
                        (intuitiveError && /DSL parse error/i.test(intuitiveError));
     
-  // Auto-expand error items when they're the only ones displayed
-  const getDefaultAccordionItems = useCallback(() => {
+  // Auto-select appropriate tab when content changes
+  const getDefaultTab = useCallback(() => {
     // Check for parse errors first
-    if (hasParseError) return ["parse-error"];
-    if (formalError && intuitiveError && missingSVGEntities.length > 0) return ["missing-svg"];
-    return ["formal", "intuitive"];
+    if (hasParseError) return "parse-error";
+    if (formalError && intuitiveError && missingSVGEntities.length > 0) return "missing-svg";
+    return "formal";
   }, [hasParseError, formalError, intuitiveError, missingSVGEntities]);
 
-  // Update accordion items when props change
+  // Update active tab when props change
   useEffect(() => {
-    const defaultItems = getDefaultAccordionItems();
-    setOpenAccordionItems(defaultItems);
-  }, [getDefaultAccordionItems]);
+    const defaultTab = getDefaultTab();
+    setActiveTab(defaultTab);
+  }, [getDefaultTab]);
   
   // Don't render if no content or errors at all
   if (!svgFormal && !formalError && !svgIntuitive && !intuitiveError && missingSVGEntities.length === 0) {
@@ -89,73 +101,131 @@ export const VisualizationResults = memo(({
 
   return (
     <div className="h-full w-full">
-      <h2 className="responsive-title-simple font-bold mb-4 text-center">Visuals</h2>
-      
-      <Accordion 
-        type="multiple" 
-        value={openAccordionItems}
-        className="w-full space-y-2"
-        onValueChange={setOpenAccordionItems}
+      <Tabs 
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="w-full"
       >
-        {/* Show parse error section when parse error exists */}
+        <TabsList className="w-full grid grid-cols-2 lg:grid-cols-4 h-auto">
+          {/* Show parse error tab when parse error exists */}
+          {hasParseError && (
+            <TabsTrigger 
+              value="parse-error"
+              className="responsive-text-font-size data-[state=active]:bg-destructive/10"
+              disabled={isDisabled}
+            >
+              <AlertCircle className="responsive-smaller-icon-font-size mr-2 text-destructive" />
+              Parse Error
+            </TabsTrigger>
+          )}
+
+          {/* Hide visualization tabs if parse error exists */}
+          {!hasParseError && (
+            <>
+              <TabsTrigger 
+                value="formal"
+                className="responsive-text-font-size"
+                disabled={isDisabled}
+                onClick={() => isAnalyticsEnabled && trackElementClick('tab_formal_click')}
+              >
+                Formal Visual
+              </TabsTrigger>
+
+              <TabsTrigger 
+                value="intuitive"
+                className="responsive-text-font-size"
+                disabled={isDisabled}
+                onClick={() => isAnalyticsEnabled && trackElementClick('tab_intuitive_click')}
+              >
+                Intuitive Visual
+              </TabsTrigger>
+            </>
+          )}
+
+          {missingSVGEntities.length > 0 && (
+            <TabsTrigger 
+              value="missing-svg"
+              className="responsive-text-font-size data-[state=active]:bg-destructive/10"
+              disabled={isDisabled}
+              onClick={() => isAnalyticsEnabled && trackElementClick('tab_missing_svg_click')}
+            >
+              <AlertCircle className="responsive-smaller-icon-font-size mr-2 text-destructive" />
+              Missing SVG
+            </TabsTrigger>
+          )}
+        </TabsList>
+
+        {/* Parse error content */}
         {hasParseError && (
-          <ParseErrorSection message="Could not parse Visual Language." />
+          <TabsContent value="parse-error" className="mt-4">
+            <ParseErrorSection message="Could not parse Visual Language." />
+          </TabsContent>
         )}
 
-        {/* Hide visualization sections entirely if SVG entities are missing or parse error exists */}
+        {/* Visualization contents */}
         {!hasParseError && (
           <>
-            <VisualizationSection
-              type="formal"
-              title="Formal"
-              svgContent={svgFormal}
-              error={filterMissingSvgError(formalError)}
-              isOpen={openAccordionItems.includes("formal")}
-              mwpValue={mwpValue}
-              formulaValue={formulaValue}
-              onEmbeddedSVGClick={onEmbeddedSVGClick}
-              onEntityQuantityClick={onEntityQuantityClick}
-              onNameClick={onNameClick}
-              isPopupOpen={isPopupOpen}
-              isDisabled={isDisabled}
-            />
+            <TabsContent value="formal" className="mt-4">
+              <VisualizationSection
+                type="formal"
+                title="Formal"
+                svgContent={svgFormal}
+                error={filterMissingSvgError(formalError)}
+                isOpen={activeTab === "formal"}
+                mwpValue={mwpValue}
+                formulaValue={formulaValue}
+                onEmbeddedSVGClick={onEmbeddedSVGClick}
+                onEntityQuantityClick={onEntityQuantityClick}
+                onNameClick={onNameClick}
+                isPopupOpen={isPopupOpen}
+                isDisabled={isDisabled}
+              />
+            </TabsContent>
 
-            <VisualizationSection
-              type="intuitive"
-              title="Intuitive"
-              svgContent={svgIntuitive}
-              error={filterMissingSvgError(intuitiveError)}
-              isOpen={openAccordionItems.includes("intuitive")}
-              mwpValue={mwpValue}
-              formulaValue={formulaValue}
-              onEmbeddedSVGClick={onEmbeddedSVGClick}
-              onEntityQuantityClick={onEntityQuantityClick}
-              onNameClick={onNameClick}
-              isPopupOpen={isPopupOpen}
-              isDisabled={isDisabled}
-            />
+            <TabsContent value="intuitive" className="mt-4">
+              <VisualizationSection
+                type="intuitive"
+                title="Intuitive"
+                svgContent={svgIntuitive}
+                error={filterMissingSvgError(intuitiveError)}
+                isOpen={activeTab === "intuitive"}
+                mwpValue={mwpValue}
+                formulaValue={formulaValue}
+                onEmbeddedSVGClick={onEmbeddedSVGClick}
+                onEntityQuantityClick={onEntityQuantityClick}
+                onNameClick={onNameClick}
+                isPopupOpen={isPopupOpen}
+                isDisabled={isDisabled}
+              />
+            </TabsContent>
           </>
         )}
 
+        {/* Missing SVG content */}
         {missingSVGEntities.length > 0 && (
-          <MissingSVGSection
-            missingSVGEntities={missingSVGEntities}
-            onRegenerateAfterUpload={onRegenerateAfterUpload}
-            onAllFilesUploaded={onAllFilesUploaded}
-          />
+          <TabsContent value="missing-svg" className="mt-4">
+            <MissingSVGSection
+              missingSVGEntities={missingSVGEntities}
+              onRegenerateAfterUpload={onRegenerateAfterUpload}
+              onAllFilesUploaded={onAllFilesUploaded}
+            />
+          </TabsContent>
         )}
-      </Accordion>
+      </Tabs>
       
-      {/* Teacher feedback loop trigger */}
-      {(svgFormal || svgIntuitive) && (
+      {/* Hint input - hide when missing SVG tab is active */}
+      {(svgFormal || svgIntuitive) && activeTab !== 'missing-svg' && (
         <div className="mt-4 text-left">
-          <button
-            onClick={isDisabled ? undefined : handleHintLinkClick}
-            className={`text-red-500 responsive-text-font-size group ${isDisabled ? 'cursor-default' : 'cursor-pointer'}`}
+          <Textarea
+            className="w-full ring-offset-background responsive-text-font-size"
+            placeholder="Does not look as expected? Then add more hints about the relationships between the visual elements inside here ..."
+            rows={3}
+            spellCheck={false}
+            value={hint}
+            onChange={handleHintChange}
+            onBlur={handleHintBlur}
             disabled={isDisabled}
-          >
-            Does not look as expected? <span className={`${isDisabled ? '' : 'group-hover:italic group-hover:text-red-700'}`}> <ArrowRight className="responsive-smaller-icon-font-size inline-block"/> Add more hints ...</span>
-          </button>
+          />
         </div>
       )}
     </div>

@@ -1,12 +1,10 @@
 // Individual visualization section component
-import { useRef, useEffect, useCallback } from "react";
-import { AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
+import { useRef, useEffect } from "react";
 import { DownloadButton } from "./DownloadButton";
 import { useHighlighting } from "@/hooks/useHighlighting";
 import { useElementInteractions } from "@/hooks/useElementInteractions";
 import { useSVGResponsive } from "@/hooks/useSVGResponsive";
 import { useHighlightingContext } from "@/contexts/HighlightingContext";
-import { useAnalytics } from "@/hooks/useAnalytics";
 
 interface VisualizationSectionProps {
   type: 'formal' | 'intuitive';
@@ -39,7 +37,6 @@ export const VisualizationSection = ({
 }: VisualizationSectionProps) => {
   const svgRef = useRef<HTMLDivElement | null>(null);
   const { currentDSLPath, hoverSource } = useHighlightingContext();
-  const { trackElementClick, isAnalyticsEnabled } = useAnalytics();
 
   // Handle SVG responsiveness
   const { makeResponsive, setupResizeListener } = useSVGResponsive();
@@ -99,43 +96,29 @@ export const VisualizationSection = ({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentDSLPath, hoverSource, isOpen, type]);
 
-  const handleAccordionClick = useCallback(() => {
-    const action = isOpen ? 'close' : 'open';
-    trackElementClick(`accordion_${type}_${action}`);
-  }, [isOpen, type, trackElementClick]);
-
   return (
-    <AccordionItem value={type} className="border rounded-lg !border-b">
-      <AccordionTrigger 
-        className={`px-4 hover:no-underline ${isDisabled ? 'pointer-events-none cursor-default' : ''}`}
-        disabled={isDisabled}
-        {...(isAnalyticsEnabled ? {onClick: handleAccordionClick} : {})}
-      >
-        <div className="flex items-center justify-between w-full mr-4">
-          <span className="font-medium responsive-text-font-size">{title}</span>
-          <DownloadButton
-            svgContent={svgContent}
-            type={type}
-            title={title}
-            disabled={isDisabled}
-          />
+    <div className="w-full">
+      {error ? (
+        <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-md w-full">
+          <p className="text-destructive font-medium responsive-text-font-size">{error}</p>
         </div>
-      </AccordionTrigger>
-      <AccordionContent className="px-4">
-        {error ? (
-          <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-md w-full">
-            <p className="text-destructive font-medium responsive-text-font-size">{error}</p>
-          </div>
-        ) : svgContent ? (
-          <div className="w-full">
-            <div className="rounded-lg border border-border/50 hover:border-border transition-colors w-full">
-              <div className="p-4 bg-background w-full">
-                <div ref={svgRef} className="w-full" />
-              </div>
+      ) : svgContent ? (
+        <div className="w-full relative">
+          <div className="rounded-lg border border-border/50 hover:border-border transition-colors w-full">
+            <div className="p-4 bg-background w-full">
+              <div ref={svgRef} className="w-full" />
             </div>
           </div>
-        ) : null}
-      </AccordionContent>
-    </AccordionItem>
+          <div className="absolute top-2 right-2">
+            <DownloadButton
+              svgContent={svgContent}
+              type={type}
+              title={title}
+              disabled={isDisabled}
+            />
+          </div>
+        </div>
+      ) : null}
+    </div>
   );
 };

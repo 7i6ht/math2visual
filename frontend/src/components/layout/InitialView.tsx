@@ -17,6 +17,7 @@ export function InitialView({ appState }: Props) {
     resetResults,
     mwp,
     formula,
+    hint,
     saveInitialValues,
     mpFormLoading,
     handleAbort,
@@ -55,6 +56,7 @@ export function InitialView({ appState }: Props) {
             onReset={resetResults}
             mwp={mwp}
             formula={formula}
+            hint={hint}
             saveInitialValues={saveInitialValues}
             rows={5}
             hideSubmit={mpFormLoading}
