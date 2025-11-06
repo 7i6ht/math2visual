@@ -68,7 +68,7 @@ export const VisualizationResults = memo(({
     console.log('VisualizationResults rerendered');
   });
 
-  // Suppress generic missing-SVG errors in the accordion; these are shown
+  // Suppress generic missing-SVG errors in the tabs; these are shown
   // more helpfully in the dedicated MissingSVGSection below
   const filterMissingSvgError = (error: string | null): string | null => {
     if (!error) return error;

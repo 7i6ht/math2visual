@@ -34,7 +34,7 @@ const generationService = {
       const result: ApiResponse = await response.json();
 
       // Special handling for DSL parse errors - return them as successful responses
-      // so they can be displayed in the VisualizationResults accordion
+      // so they can be displayed in the VisualizationResults tabs
       if (!response.ok && result.error && /DSL parse error/i.test(result.error)) {
         return {
           visual_language: request.dsl || "", // Preserve the original DSL input

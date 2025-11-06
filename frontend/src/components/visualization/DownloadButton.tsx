@@ -66,7 +66,7 @@ export const DownloadButton = ({
     format: DownloadFormat,
     event: React.MouseEvent
   ) => {
-    event.stopPropagation(); // Prevent accordion toggle
+    event.stopPropagation();
     if (!svgContent || disabled || isDownloading) return;
 
     setIsDownloading(true);
