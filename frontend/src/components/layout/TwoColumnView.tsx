@@ -172,7 +172,7 @@ export function TwoColumnView({ appState }: Props) {
                   hint={hint}
                   saveInitialValues={appState.saveInitialValues}
                   rows={9.5}
-                  hideSubmit={false}
+                  hideSubmit={mpFormLoading}
                 />
                 {mpFormLoading && (
                   <div className="animate-in fade-in-0 duration-300">
