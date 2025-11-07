@@ -62,8 +62,7 @@ def create_error_response(message: str, status_code: int = 400) -> tuple:
     return jsonify({'error': message}), status_code
 
 
-def get_or_create_session(session_id: str, ip_address: Optional[str] = None, 
-                         user_agent: Optional[str] = None) -> int:
+def get_or_create_session(session_id: str, user_agent: Optional[str] = None) -> int:
     """Get existing session or create a new one. Returns the session database ID."""
     db = next(get_db())
     try:
@@ -79,7 +78,6 @@ def get_or_create_session(session_id: str, ip_address: Optional[str] = None,
         # Create new session
         new_session = UserSession(
             session_id=session_id,
-            ip_address=ip_address,
             user_agent=user_agent
         )
         db.add(new_session)
@@ -100,7 +98,6 @@ def create_session():
         
         session_id = get_or_create_session(
             data['session_id'],
-            ip_address=request.remote_addr,
             user_agent=request.headers.get('User-Agent')
         )
         

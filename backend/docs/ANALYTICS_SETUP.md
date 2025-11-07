@@ -95,7 +95,6 @@ npm run dev
 ### User Sessions
 - **Session Creation**: Unique session IDs stored in localStorage
 - **Session Activity**: Last activity timestamp updates
-- **IP Address**: Optional IP tracking
 - **User Agent**: Browser/device information
 
 ### User Actions (Tracked via `useAnalytics` hook)
@@ -234,7 +233,6 @@ Response:
 ### Data Collection
 - **No Personal Information**: Only technical interaction data
 - **Session-Based**: Actions linked to anonymous session IDs
-- **IP Addresses**: Stored for basic analytics (can be disabled)
 - **User Agents**: For browser/device analytics
 - **LocalStorage**: Session IDs stored client-side
 - **Screenshots**: Screenshots collected/captured of app only
