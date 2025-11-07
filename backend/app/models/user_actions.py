@@ -18,11 +18,9 @@ class UserSession(Base):
     
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     session_id = Column(String(100), unique=True, nullable=False, index=True)
-    ip_address = Column(String(45), nullable=True)  # IPv6 compatible
     user_agent = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     last_activity = Column(DateTime, default=datetime.utcnow, nullable=False)
-    is_active = Column(String(10), default='active', nullable=False)  # active, ended
     
     # Relationships
     actions = relationship("Action", back_populates="session", cascade="all, delete-orphan")
