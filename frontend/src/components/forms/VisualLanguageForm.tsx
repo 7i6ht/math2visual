@@ -27,8 +27,8 @@ export const VisualLanguageForm = ({
   isDisabled = false,
 }: VisualLanguageFormProps) => {
   const { dslHighlightRanges, currentDSLPath, setCurrentDSLPath, clearHighlightingState } = useHighlightingContext();
-  const { componentMappings: contextMappings } = useDSLContext();
-  const effectiveMappings = useMemo(() => (contextMappings ?? {}) as ComponentMapping, [contextMappings]);
+  const { componentMappings: contextMappings, formattedDSL } = useDSLContext();
+  const effectiveMappings = useMemo(() => (contextMappings ?? {}) as ComponentMapping, [contextMappings, formattedDSL]);
   const { trackDSLEditorClick, trackDSLType, trackDSLScroll, isAnalyticsEnabled } = useAnalytics();
   
   const handleCursorPositionChange = useCallback((position: number) => {
@@ -45,7 +45,7 @@ export const VisualLanguageForm = ({
     if (isAnalyticsEnabled) {
       trackDSLEditorClick(dslPath);
     }
-  }, [effectiveMappings, setCurrentDSLPath, isDisabled, isAnalyticsEnabled, trackDSLEditorClick]);
+  }, [effectiveMappings, currentDSLPath, setCurrentDSLPath, isDisabled, isAnalyticsEnabled, trackDSLEditorClick, clearHighlightingState]);
 
   const { 
     form, 
