@@ -18,8 +18,12 @@ export const useAnalytics = () => {
   const leftScrollTopRef = useRef<number>(0);
   const rightScrollTopRef = useRef<number>(0);
   const outermostScrollTopRef = useRef<number>(0);
+  const dslScrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const columnScrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const outermostScrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isFirstRender = useRef(true);
   const [isCapturingScreenshot, setIsCapturingScreenshot] = useState(false);
+  const lastMouseMoveTimeRef = useRef<number>(0);
 
   // Input typing tracking with debouncing
   const trackMWPType = useCallback(() => {
@@ -67,10 +71,15 @@ export const useAnalytics = () => {
   }, []);
 
   const trackDSLScroll = useCallback((direction: 'up' | 'down') => {
-    analyticsService.recordAction({
-      type: `dsl_editor_scroll_${direction}`,
-    });
-    // captureScreenshot();
+    if (dslScrollTimeoutRef.current) {
+      clearTimeout(dslScrollTimeoutRef.current);
+    }
+    dslScrollTimeoutRef.current = setTimeout(() => {
+      analyticsService.recordAction({
+        type: `dsl_editor_scroll_${direction}`,
+      });
+      // captureScreenshot();
+    }, 300);
   }, []);
 
   // Capture screenshot - define early because it's used by other callbacks
@@ -110,14 +119,21 @@ export const useAnalytics = () => {
     const direction = currentScrollTop > previousScrollTop ? 'down' : 
                      currentScrollTop < previousScrollTop ? 'up' : null;
     
-    if (direction) {
-      analyticsService.recordAction({
-        type: `${actionType}_${direction}`,
-      });
-      //captureScreenshot();
-    }
-    
+    // Update scroll position immediately for direction detection
     scrollTopRef.current = currentScrollTop;
+    
+    // Debounce the analytics recording
+    if (direction) {
+      if (columnScrollTimeoutRef.current) {
+        clearTimeout(columnScrollTimeoutRef.current);
+      }
+      columnScrollTimeoutRef.current = setTimeout(() => {
+        analyticsService.recordAction({
+          type: `${actionType}_${direction}`,
+        });
+        //captureScreenshot();
+      }, 300);
+    }
   }, []);
 
   const trackOutermostScroll = useCallback((event: Event) => {
@@ -128,14 +144,21 @@ export const useAnalytics = () => {
     const direction = currentScrollTop > previousScrollTop ? 'down' : 
                      currentScrollTop < previousScrollTop ? 'up' : null;
     
-    if (direction) {
-      analyticsService.recordAction({
-        type: `outermost_scroll_${direction}`,
-      });
-      //captureScreenshot();
-    }
-    
+    // Update scroll position immediately for direction detection
     outermostScrollTopRef.current = currentScrollTop;
+    
+    // Debounce the analytics recording
+    if (direction) {
+      if (outermostScrollTimeoutRef.current) {
+        clearTimeout(outermostScrollTimeoutRef.current);
+      }
+      outermostScrollTimeoutRef.current = setTimeout(() => {
+        analyticsService.recordAction({
+          type: `outermost_scroll_${direction}`,
+        });
+        //captureScreenshot();
+      }, 300);
+    }
   }, []);
 
   const trackTwoColumnLayoutRender = useCallback(() => {
@@ -299,16 +322,24 @@ export const useAnalytics = () => {
     });
   }, []);
 
-  // Cursor tracking
+  // Cursor tracking with throttling
   const handleMouseMove = useCallback((event: MouseEvent) => {
-    const element = event.target as HTMLElement;
-    const elementId = element.id || undefined;
-    const elementType = element.tagName.toLowerCase() || undefined;
+    const now = Date.now();
+    const throttleInterval = 100; // Throttle to at most once per 100ms
+    
+    // Only process if enough time has passed since last execution
+    if (now - lastMouseMoveTimeRef.current >= throttleInterval) {
+      const element = event.target as HTMLElement;
+      const elementId = element.id || undefined;
+      const elementType = element.tagName.toLowerCase() || undefined;
 
-    analyticsService.recordCursorPosition(event.clientX, event.clientY, {
-      element_id: elementId,
-      element_type: elementType,
-    });
+      analyticsService.recordCursorPosition(event.clientX, event.clientY, {
+        element_id: elementId,
+        element_type: elementType,
+      });
+      
+      lastMouseMoveTimeRef.current = now;
+    }
   }, []);
 
   // Start cursor tracking
