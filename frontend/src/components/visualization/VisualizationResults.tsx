@@ -39,11 +39,6 @@ export const VisualizationResults = memo(({
 }: VisualizationResultsProps) => {
   const [openAccordionItems, setOpenAccordionItems] = useState<string[]>([]);
 
-  // Log component rerenders
-  useEffect(() => {
-    console.log('VisualizationResults rerendered');
-  });
-
   // Suppress generic missing-SVG errors in the accordion; these are shown
   // more helpfully in the dedicated MissingSVGSection below
   const filterMissingSvgError = (error: string | null): string | null => {

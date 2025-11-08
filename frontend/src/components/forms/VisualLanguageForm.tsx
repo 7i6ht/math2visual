@@ -34,7 +34,6 @@ export const VisualLanguageForm = ({ // TODO: Remove everything associated with 
   const handleCursorPositionChange = useCallback((position: number) => {
     if (isDisabled) return;
     const dslPath = findDSLPathAtPosition(effectiveMappings, position);
-    console.log('DSL Editor click - Position:', position, 'DSL Path:', dslPath);
     if (dslPath) {
       setCurrentDSLPath(dslPath);
     } else if (currentDSLPath) {
