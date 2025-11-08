@@ -63,11 +63,6 @@ export const VisualizationResults = memo(({
     }
   }, [hint, onRegenerateWithHint, isDisabled]);
 
-  // Log component rerenders
-  useEffect(() => {
-    console.log('VisualizationResults rerendered');
-  });
-
   // Suppress generic missing-SVG errors in the tabs; these are shown
   // more helpfully in the dedicated MissingSVGSection below
   const filterMissingSvgError = (error: string | null): string | null => {
