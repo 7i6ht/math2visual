@@ -5,11 +5,10 @@ import type { ComponentMapping } from "@/types/visualInteraction";
 import type { ParsedOperation } from "@/utils/dsl-parser";
 import { useDSLContext } from "@/contexts/DSLContext";
 import { generationService as service } from "@/api_services/generation";
-import { useAnalytics } from "@/hooks/useAnalytics";
+import { trackGenerationStart, trackGenerationComplete, trackElementClick, isAnalyticsEnabled } from "@/services/analyticsTracker";
 
 export const useAppState = () => {
   const { setGenerationResult, formattedDSL } = useDSLContext();
-  const { trackGenerationStart, trackGenerationComplete, trackElementClick, isAnalyticsEnabled } = useAnalytics();
   const currentAbortFunctionRef = useRef<(() => void) | undefined>(undefined);
   const [state, setState] = useState<AppState>({
     mpFormLoading: false,
@@ -79,7 +78,7 @@ export const useAppState = () => {
     });
 
     // Track generation completion
-    if (isAnalyticsEnabled) {
+    if (isAnalyticsEnabled()) {
       const success = !!(svgFormal || svgIntuitive);
 
       trackGenerationComplete(
@@ -90,7 +89,7 @@ export const useAppState = () => {
         missingSvgEntities
       );
     }
-  }, [setGenerationResult, isAnalyticsEnabled, trackGenerationComplete]);
+  }, [setGenerationResult]);
 
   const resetResults = useCallback(() => {
     setState(prev => ({
@@ -173,10 +172,10 @@ export const useAppState = () => {
     }));
 
     // Track generation start
-    if (isAnalyticsEnabled) {
+    if (isAnalyticsEnabled()) {
       trackGenerationStart(mwp, formula, hint);
     }
-  }, [isAnalyticsEnabled, trackGenerationStart]);
+  }, []);
 
   const setShowHint = useCallback((showHint: boolean) => {
     setState(prev => ({ ...prev, showHint }));
@@ -188,7 +187,7 @@ export const useAppState = () => {
 
   const handleAbort = useCallback(() => {
     // Track abort event if analytics is enabled
-    if (isAnalyticsEnabled) {
+    if (isAnalyticsEnabled()) {
       trackElementClick('abort_button_click');
     }
     
@@ -208,7 +207,7 @@ export const useAppState = () => {
     }));
 
     toast.info('Generation cancelled');
-  }, [isAnalyticsEnabled, trackElementClick]);
+  }, []);
 
   // Memoize the return object to prevent unnecessary re-renders
   const returnValue = useMemo(() => ({

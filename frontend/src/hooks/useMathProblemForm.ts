@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { formSchema } from "@/schemas/validation";
 import { generationService as service } from "@/api_services/generation";
-import { useAnalytics } from "@/hooks/useAnalytics";
+import { trackFormSubmit, trackError, isAnalyticsEnabled } from "@/services/analyticsTracker";
 import type { FormData } from "@/schemas/validation";
 import type { ComponentMapping } from "@/types/visualInteraction";
 import type { ParsedOperation } from "@/utils/dsl-parser";
@@ -29,7 +29,6 @@ export const useMathProblemForm = ({
 }: UseMathProblemFormProps) => {
   const [loading, setLoading] = useState(false);
   const { clearHighlightingState } = useHighlightingContext();
-  const { trackFormSubmit, trackError, isAnalyticsEnabled } = useAnalytics();
   
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -55,7 +54,7 @@ export const useMathProblemForm = ({
     setLoading(true);
     
     // Track form submission
-    if (isAnalyticsEnabled) {
+    if (isAnalyticsEnabled()) {
       trackFormSubmit('math_problem_form_submit', 'mwp: ' + data.mwp + '\nformula: ' + (data.formula || '') + '\nhint: ' + (data.hint || ''));
     }
     
@@ -95,7 +94,7 @@ export const useMathProblemForm = ({
       
       if (error instanceof Error && error.name !== 'AbortError') {
         // Track error
-        if (isAnalyticsEnabled) {
+        if (isAnalyticsEnabled()) {
           trackError('generation_failed', error instanceof Error ? error.message : "An error occurred");
         }
         

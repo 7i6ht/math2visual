@@ -3,7 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRef, useEffect } from "react";
 import { vlFormSchema } from "@/schemas/validation";
 import { generationService as service } from "@/api_services/generation";
-import { useAnalytics } from "@/hooks/useAnalytics";
+import { trackFormSubmit, trackError, isAnalyticsEnabled } from "@/services/analyticsTracker";
 import { toast } from "sonner";
 import { useDSLContext } from "@/contexts/DSLContext";
 import type { VLFormData } from "@/schemas/validation";
@@ -21,7 +21,6 @@ export const useVisualLanguageForm = ({
 }: UseVisualLanguageFormProps) => {
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { formattedDSL, parsedDSL } = useDSLContext();
-  const { trackFormSubmit, trackError, isAnalyticsEnabled } = useAnalytics();
 
   const form = useForm<VLFormData>({
     resolver: zodResolver(vlFormSchema),
@@ -44,7 +43,7 @@ export const useVisualLanguageForm = ({
     }
 
     // Track form submission
-    if (isAnalyticsEnabled) {
+    if (isAnalyticsEnabled()) {
       trackFormSubmit('visual_language_form_change', dslValue);
     }
 
@@ -82,7 +81,7 @@ export const useVisualLanguageForm = ({
     } catch (error) {
       if (error instanceof Error && error.name !== 'AbortError') {
         // Track error
-        if (isAnalyticsEnabled) {
+        if (isAnalyticsEnabled()) {
           trackError('dsl_generation_failed', error instanceof Error ? error.message : "An error occurred");
         }
         

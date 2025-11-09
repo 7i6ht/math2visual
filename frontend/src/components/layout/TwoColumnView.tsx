@@ -1,11 +1,11 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useSyncExternalStore } from "react";
 import { ResponsiveLogo } from "@/components/ui/ResponsiveLogo";
 import { MathProblemForm } from "@/components/forms/MathProblemForm";
 import { VisualLanguageForm } from "@/components/forms/VisualLanguageForm";
 import { VisualizationResults } from "@/components/visualization/VisualizationResults";
 import { GearLoading } from "@/components/ui/gear-loading";
 import { SessionAnalyticsDisplay } from "@/components/ui/SessionAnalyticsDisplay";
-import { useAnalytics } from "@/hooks/useAnalytics";
+import { trackColumnScroll, trackTwoColumnLayoutRender, trackElementClick, isAnalyticsEnabled, getSessionId, subscribeToScreenshotState, getIsCapturingScreenshot } from "@/services/analyticsTracker";
 import { useDSLContext } from "@/contexts/DSLContext";
 import { useVisualizationHandlers } from "@/hooks/useVisualizationHandlers";
 import { usePopupManagement } from "@/hooks/usePopupManagement";
@@ -40,7 +40,13 @@ export function TwoColumnView({ appState }: Props) {
   } = appState;
 
   const { formattedDSL, parsedDSL } = useDSLContext();
-  const { trackColumnScroll, trackTwoColumnLayoutRender, trackElementClick, isAnalyticsEnabled, sessionId, isCapturingScreenshot } = useAnalytics();
+  const analyticsEnabled = isAnalyticsEnabled();
+  const sessionId = getSessionId();
+  const isCapturingScreenshot = useSyncExternalStore(
+    subscribeToScreenshotState,
+    getIsCapturingScreenshot,
+    () => false // Server snapshot (always false on server)
+  );
 
   const { handleVLResult } =
     useVisualizationHandlers({
@@ -76,7 +82,7 @@ export function TwoColumnView({ appState }: Props) {
 
   const handleLeftColumnScroll = useCallback((event: React.UIEvent<HTMLDivElement>) => {
     trackColumnScroll(event, 'left');
-  }, [trackColumnScroll]);
+  }, []);
 
   const handleRightColumnScroll = useCallback((event: React.UIEvent<HTMLDivElement>) => {
     trackColumnScroll(event, 'right');
@@ -84,16 +90,16 @@ export function TwoColumnView({ appState }: Props) {
 
   // Track two column layout render and capture screenshot
   useEffect(() => {
-    if (isAnalyticsEnabled) {
+    if (analyticsEnabled) {
       trackTwoColumnLayoutRender();
     }
-  }, [isAnalyticsEnabled, trackTwoColumnLayoutRender]);
+  }, []);
 
   const handleRegenerateWithHint = useCallback(async () => {
     if (!mwp) return;
     
     // Track hint regeneration
-    if (isAnalyticsEnabled) {
+    if (analyticsEnabled) {
       trackElementClick('hint_regenerate_auto');
     }
     
@@ -139,17 +145,17 @@ export function TwoColumnView({ appState }: Props) {
     } finally {
       setMpFormLoading(false);
     }
-  }, [mwp, formula, hint, setMpFormLoading, setResults, isAnalyticsEnabled, trackElementClick]);
+  }, [mwp, formula, hint, setMpFormLoading, setResults, analyticsEnabled]);
 
 
 
   return (
     <div className="w-full px-1 py-4 sm:px-2 lg:px-4 xl:px-6 2xl:px-8 3xl:px-8 4xl:px-8">
-      {isAnalyticsEnabled && <SessionAnalyticsDisplay sessionId={sessionId} isCapturingScreenshot={isCapturingScreenshot} />}
+      {analyticsEnabled && <SessionAnalyticsDisplay sessionId={sessionId} isCapturingScreenshot={isCapturingScreenshot} />}
       <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] 3xl:grid-cols-[minmax(0,1fr)_minmax(0,1.8fr)] gap-4 xl:gap-6 2xl:gap-8 3xl:gap-10 min-h-[calc(100vh-2rem)] items-start [@media(min-height:1200px)_and_(max-width:1600px)]:grid-cols-1 [@media(min-height:1400px)_and_(max-width:1800px)]:grid-cols-1">
         <div 
           className="flex flex-col space-y-6 xl:space-y-8 xl:sticky xl:top-6 xl:z-10 xl:pr-2 xl:h-[calc(100vh-3rem)]"
-          {...(isAnalyticsEnabled ? {onScroll: handleLeftColumnScroll} : {})}
+          {...(analyticsEnabled ? {onScroll: handleLeftColumnScroll} : {})}
         >
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 xl:gap-6 2xl:gap-8 3xl:gap-10 flex-1 min-h-0 height-responsive-grid items-stretch [@media(min-height:1200px)_and_(max-width:1600px)]:grid-cols-1 [@media(min-height:1400px)_and_(max-width:1800px)]:grid-cols-1">
             <div className="space-y-4 flex flex-col">
@@ -215,7 +221,7 @@ export function TwoColumnView({ appState }: Props) {
 
         <div 
           className="relative flex flex-col w-full"
-          {...(isAnalyticsEnabled ? {onScroll: handleRightColumnScroll} : {})}
+          {...(analyticsEnabled ? {onScroll: handleRightColumnScroll} : {})}
         >
           <VisualizationResults
             svgFormal={svgFormal}

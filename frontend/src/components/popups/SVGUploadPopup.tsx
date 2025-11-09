@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { validateFormatAsync } from '@/utils/validation';
 import { SVGDatasetService } from '@/api_services/svgDataset';
 import { BasePopup } from './BasePopup.tsx';
-import { useAnalytics } from '@/hooks/useAnalytics';
+import { trackSVGUploadPopupType, trackPopupSubmit, trackElementClick, isAnalyticsEnabled } from '@/services/analyticsTracker';
 
 interface SVGUploadPopupProps {
   onClose: () => void;
@@ -24,7 +24,7 @@ export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const filenameInputRef = useRef<HTMLInputElement>(null);
-  const { trackSVGUploadPopupType, trackPopupSubmit, trackElementClick, isAnalyticsEnabled } = useAnalytics();
+  const analyticsEnabled = isAnalyticsEnabled();
 
   // Real-time validation for filename
   useEffect(() => {
@@ -94,7 +94,7 @@ export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
   const handlePopupKeyDown = (event: KeyboardEvent) => {
     if (event.key === 'Enter' && isValidSelection && !isUploading) {
       event.preventDefault();
-      if (isAnalyticsEnabled) {
+      if (analyticsEnabled) {
         trackPopupSubmit('svg_upload', filename.trim(), 'keyboard');
       }
       handleUpload();
@@ -128,7 +128,7 @@ export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
         <div className="relative flex-1">
           <button
             onClick={() => {
-              if (isAnalyticsEnabled) {
+              if (analyticsEnabled) {
                 trackElementClick('svg_upload_file_select_click');
               }
               fileInputRef.current?.click();
@@ -144,7 +144,7 @@ export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
             value={filename}
             onChange={(e) => {
               setFilename(e.target.value);
-              if (isAnalyticsEnabled) {
+              if (analyticsEnabled) {
                 trackSVGUploadPopupType(e.target.value);
               }
             }}
@@ -160,7 +160,7 @@ export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
               className="popup-button-responsive-height w-9 text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 transition-colors duration-200 flex items-center justify-center touch-manipulation"
               title={`View ${uploadFile.name} in new tab`}
               onClick={() => {
-                if (isAnalyticsEnabled) {
+                if (analyticsEnabled) {
                   trackElementClick(`svg_upload_preview_click`, uploadFile.name);
                 }
                 const url = URL.createObjectURL(uploadFile);
@@ -175,7 +175,7 @@ export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
           )}
           <Button
             onClick={() => {
-              if (isAnalyticsEnabled) {
+              if (analyticsEnabled) {
                 trackPopupSubmit('svg_upload', filename.trim());
               }
               handleUpload();

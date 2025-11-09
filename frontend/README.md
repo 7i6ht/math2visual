@@ -89,6 +89,8 @@ src/
 │   ├── useSVGSelector.ts   # SVG selection logic
 │   ├── useVisualizationHandlers.ts # Visualization event handlers
 │   └── useVisualLanguageForm.ts # Visual language form logic
+├── services/               # Module-level services
+│   └── analyticsTracker.ts # Analytics tracking service (module-level state)
 ├── lib/
 │   ├── dsl-utils.ts        # DSL utility functions
 │   └── utils.ts            # General utility functions

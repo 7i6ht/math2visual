@@ -5,7 +5,8 @@ import { VisualizationSection } from "./VisualizationSection";
 import { MissingSVGSection } from "./MissingSVGSection";
 import { ParseErrorSection } from "./ParseErrorSection";
 import { AlertCircle } from "lucide-react";
-import { useAnalytics } from "@/hooks/useAnalytics";
+import { trackElementClick, trackHintType, isAnalyticsEnabled } from "@/services/analyticsTracker";
+import { analyticsService } from "@/api_services/analytics";
 
 interface VisualizationResultsProps {
   svgFormal: string | null;
@@ -47,14 +48,14 @@ export const VisualizationResults = memo(({
   onRegenerateWithHint,
 }: VisualizationResultsProps) => {
   const [activeTab, setActiveTab] = useState<string>("");
-  const { trackElementClick, trackHintType, isAnalyticsEnabled } = useAnalytics();
+  const analyticsEnabled = isAnalyticsEnabled();
 
   const handleHintChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     onHintChange(e.target.value);
-    if (isAnalyticsEnabled) {
+    if (analyticsEnabled) {
       trackHintType();
     }
-  }, [onHintChange, isAnalyticsEnabled, trackHintType]);
+  }, [onHintChange, analyticsEnabled, trackHintType]);
 
   const handleHintBlur = useCallback(() => {
     // Trigger regeneration if hint is non-empty
@@ -121,7 +122,7 @@ export const VisualizationResults = memo(({
                 value="formal"
                 className="responsive-text-font-size"
                 disabled={isDisabled}
-                {...(isAnalyticsEnabled ? {onClick: () => trackElementClick('tab_formal_click')} : {})}
+                {...(analyticsEnabled ? {onClick: () => trackElementClick('tab_formal_click')} : {})}
               >
                 Formal Visual
               </TabsTrigger>
@@ -130,7 +131,7 @@ export const VisualizationResults = memo(({
                 value="intuitive"
                 className="responsive-text-font-size"
                 disabled={isDisabled}
-                {...(isAnalyticsEnabled ? {onClick: () => trackElementClick('tab_intuitive_click')} : {})}
+                {...(analyticsEnabled ? {onClick: () => trackElementClick('tab_intuitive_click')} : {})}
               >
                 Intuitive Visual
               </TabsTrigger>
@@ -142,7 +143,7 @@ export const VisualizationResults = memo(({
               value="missing-svg"
               className="responsive-text-font-size data-[state=active]:bg-destructive/10"
               disabled={isDisabled}
-              {...(isAnalyticsEnabled ? {onClick: () => trackElementClick('tab_missing_svg_click')} : {})}
+              {...(analyticsEnabled ? {onClick: () => trackElementClick('tab_missing_svg_click')} : {})}
             >
               <AlertCircle className="responsive-smaller-icon-font-size mr-2 text-destructive" />
               Missing SVG

@@ -98,27 +98,27 @@ export const VisualizationSection = ({
 
   return (
     <div className="w-full">
-      {error ? (
-        <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-md w-full">
-          <p className="text-destructive font-medium responsive-text-font-size">{error}</p>
-        </div>
-      ) : svgContent ? (
-        <div className="w-full relative">
-          <div className="rounded-lg border border-border/50 hover:border-border transition-colors w-full">
-            <div className="p-4 bg-background w-full">
-              <div ref={svgRef} className="w-full" />
+        {error ? (
+          <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-md w-full">
+            <p className="text-destructive font-medium responsive-text-font-size">{error}</p>
+          </div>
+        ) : svgContent ? (
+          <div className="w-full relative">
+            <div className="rounded-lg border border-border/50 hover:border-border transition-colors w-full">
+              <div className="p-4 bg-background w-full">
+                <div ref={svgRef} className="w-full" />
+              </div>
             </div>
-          </div>
-          <div className="absolute top-2 right-2">
-            <DownloadButton
-              svgContent={svgContent}
-              type={type}
-              title={title}
-              disabled={isDisabled}
-            />
+            <div className="absolute top-2 right-2">
+              <DownloadButton
+                svgContent={svgContent}
+                type={type}
+                title={title}
+                disabled={isDisabled}
+              />
           </div>
         </div>
-      ) : null}
+        ) : null}
     </div>
   );
 };

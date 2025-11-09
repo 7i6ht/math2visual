@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { BasePopup } from "./BasePopup";
-import { useAnalytics } from "@/hooks/useAnalytics";
+import { trackNamePopupType, trackPopupSubmit, isAnalyticsEnabled } from "@/services/analyticsTracker";
 
 interface NamePopupProps {
   onClose: () => void;
@@ -19,7 +19,7 @@ export const NamePopup: React.FC<NamePopupProps> = ({
 }) => {
   const [value, setValue] = useState(initialValue);
   const [isLoading, setIsLoading] = useState(false);
-  const { trackNamePopupType, trackPopupSubmit, isAnalyticsEnabled } = useAnalytics();
+  const analyticsEnabled = isAnalyticsEnabled();
 
 
   // Handle value update
@@ -52,7 +52,7 @@ export const NamePopup: React.FC<NamePopupProps> = ({
   const handlePopupKeyDown = (event: KeyboardEvent) => {
     if (event.key === "Enter" && value.trim() && !isLoading) {
       event.preventDefault();
-      if (isAnalyticsEnabled) {
+      if (analyticsEnabled) {
         trackPopupSubmit('name', value.trim(), 'keyboard');
       }
       handleUpdate();
@@ -73,7 +73,7 @@ export const NamePopup: React.FC<NamePopupProps> = ({
             value={value}
             onChange={(e) => {
               setValue(e.target.value);
-              if (isAnalyticsEnabled) {
+              if (analyticsEnabled) {
                 trackNamePopupType(e.target.value);
               }
             }}
@@ -84,7 +84,7 @@ export const NamePopup: React.FC<NamePopupProps> = ({
           />
           <Button
             onClick={() => {
-              if (isAnalyticsEnabled) {
+              if (analyticsEnabled) {
                 trackPopupSubmit('name', value.trim());
               }
               handleUpdate();

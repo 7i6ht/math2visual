@@ -3,7 +3,7 @@ import { ResponsiveLogo } from "@/components/ui/ResponsiveLogo";
 import { MathProblemForm } from "@/components/forms/MathProblemForm";
 import { GearLoading } from "@/components/ui/gear-loading";
 import { SessionAnalyticsDisplay } from "@/components/ui/SessionAnalyticsDisplay";
-import { useAnalytics } from "@/hooks/useAnalytics";
+import { trackInitialViewRender, isAnalyticsEnabled, getSessionId } from "@/services/analyticsTracker";
 import type { useAppState } from "@/hooks/useAppState";
 
 type Props = {
@@ -22,18 +22,19 @@ export function InitialView({ appState }: Props) {
     mpFormLoading,
     handleAbort,
   } = appState;
-  const { trackInitialViewRender, isAnalyticsEnabled, sessionId } = useAnalytics();
+  const analyticsEnabled = isAnalyticsEnabled();
+  const sessionId = getSessionId();
 
   // Track initial view render
   useEffect(() => {
-    if (isAnalyticsEnabled) {
+    if (analyticsEnabled) {
       trackInitialViewRender();
     }
-  }, [trackInitialViewRender, isAnalyticsEnabled]);
+  }, [analyticsEnabled]);
 
   return (
     <div className="w-full px-3 py-3 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 3xl:px-20 4xl:px-24 5xl:px-32">
-      {isAnalyticsEnabled && <SessionAnalyticsDisplay sessionId={sessionId} />}
+      {analyticsEnabled && <SessionAnalyticsDisplay sessionId={sessionId} />}
       <div className="flex flex-col items-center justify-center min-h-[calc(100vh-1.5rem)] sm:min-h-[calc(100vh-2rem)] lg:min-h-[calc(100vh-2rem)] xl:min-h-[calc(100vh-2rem)] 2xl:min-h-[calc(100vh-2rem)] 3xl:min-h-[calc(100vh-2rem)] 4xl:min-h-[calc(100vh-2rem)] 5xl:min-h-[calc(100vh-2rem)]">
         <div className="text-center space-y-2 sm:space-y-3 md:space-y-4 lg:space-y-4 xl:space-y-6 2xl:space-y-8 3xl:space-y-10">
           <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 md:gap-4 lg:gap-4 xl:gap-6 2xl:gap-8 3xl:gap-10 mb-2 sm:mb-3 md:mb-4 lg:mb-4 xl:mb-6 2xl:mb-8 3xl:mb-10">

@@ -3,7 +3,7 @@ import { toast } from "sonner";
 import { SVGDatasetService } from "@/api_services/svgDataset";
 import { ValidationError } from "@/types";
 import { Upload as UploadIcon } from "lucide-react";
-import { useAnalytics } from "@/hooks/useAnalytics";
+import { trackDragOver, trackDrop, trackElementClick, isAnalyticsEnabled } from "@/services/analyticsTracker";
 
 interface UseSVGMissingErrorArgs {
   missingSVGEntities: string[];
@@ -20,9 +20,6 @@ export const useSVGMissingError = ({
   const [currentEntityIndex, setCurrentEntityIndex] = useState(0);
   const [uploadLoading, setUploadLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
-  // Use analytics hook directly
-  const { trackDragOver, trackDrop, trackElementClick, isAnalyticsEnabled } = useAnalytics();
 
   const handleUploadAndRegenerate = async (file: File): Promise<void> => {
     if (!onGenerate) return;
@@ -144,7 +141,7 @@ export const useSVGMissingError = ({
     if (files.length === 0) return;
 
     // Track drop event if analytics is enabled
-    if (isAnalyticsEnabled) {
+    if (isAnalyticsEnabled()) {
       trackDrop('svg_upload_drop_zone');
     }
 
@@ -157,7 +154,7 @@ export const useSVGMissingError = ({
     setIsDragOver(true);
     
     // Track drag over event if analytics is enabled
-    if (isAnalyticsEnabled) {
+    if (isAnalyticsEnabled()) {
       trackDragOver('svg_upload_drop_zone');
     }
   };
@@ -178,7 +175,7 @@ export const useSVGMissingError = ({
 
   const openFileDialog = () => {
     // Track upload button click if analytics is enabled
-    if (isAnalyticsEnabled) {
+    if (isAnalyticsEnabled()) {
       const isLastEntity = currentEntityIndex === missingSVGEntities.length - 1;
       const action = isLastEntity ? 'upload_regenerate' : 'upload';
       trackElementClick(`svg_${action}_button_click`);
@@ -205,13 +202,13 @@ export const useSVGMissingError = ({
 
   const handleGenerateClick = useCallback(() => {
     // Track generate button click if analytics is enabled
-    if (isAnalyticsEnabled) {
+    if (isAnalyticsEnabled()) {
       trackElementClick('svg_generate_button_click');
     }
     if (onGenerate) {
       onGenerate(undefined);
     }
-  }, [isAnalyticsEnabled, trackElementClick, onGenerate]);
+  }, [onGenerate]);
 
   return {
     // state
