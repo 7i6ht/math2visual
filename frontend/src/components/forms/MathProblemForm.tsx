@@ -10,7 +10,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useMathProblemForm } from "@/hooks/useMathProblemForm";
-import { useAnalytics } from "@/hooks/useAnalytics";
+import { trackMWPType, trackFormulaType, isAnalyticsEnabled } from "@/services/analyticsTracker";
 import type { ParsedOperation } from "@/utils/dsl-parser";
 import { useHighlightingContext } from "@/contexts/HighlightingContext";
 
@@ -35,7 +35,7 @@ export const MathProblemForm = ({
   hideSubmit = false,
 }: MathProblemFormProps) => {
   const { mwpHighlightRanges, formulaHighlightRanges, clearHighlightingState } = useHighlightingContext();
-  const { trackMWPType, trackFormulaType, isAnalyticsEnabled } = useAnalytics();
+  const analyticsEnabled = isAnalyticsEnabled();
 
   const handleFormClick = useCallback(() => {
     clearHighlightingState();
@@ -57,13 +57,13 @@ export const MathProblemForm = ({
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       onChange(e);
       trackMWPType();
-    }, [trackMWPType]);
+    }, []);
 
   const formulaChangeHandler = useCallback((onChange: (e: React.ChangeEvent<HTMLInputElement>) => void) => 
     (e: React.ChangeEvent<HTMLInputElement>) => {
       onChange(e);
       trackFormulaType();
-    }, [trackFormulaType]);
+    }, []);
 
   return (
     <Form {...form}>
@@ -87,7 +87,7 @@ export const MathProblemForm = ({
                     }
                   }}
                   {...field}
-                  {...(isAnalyticsEnabled ? {onChange: mwpChangeHandler(field.onChange)} : {})}
+                  {...(analyticsEnabled ? {onChange: mwpChangeHandler(field.onChange)} : {})}
                 />
               </FormControl>
               <FormMessage />
@@ -107,7 +107,7 @@ export const MathProblemForm = ({
                     spellCheck={false}
                     highlightRanges={formulaHighlightRanges}
                     {...field}
-                    {...(isAnalyticsEnabled ? {onChange: formulaChangeHandler(field.onChange)} : {})}
+                    {...(analyticsEnabled ? {onChange: formulaChangeHandler(field.onChange)} : {})}
                   />
                 </FormControl>
               <FormMessage />

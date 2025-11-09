@@ -11,7 +11,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useMathProblemForm } from "@/hooks/useMathProblemForm";
-import { useAnalytics } from "@/hooks/useAnalytics";
+import { trackMWPType, trackFormulaType, trackHintType, isAnalyticsEnabled } from "@/services/analyticsTracker";
 import type { ParsedOperation } from "@/utils/dsl-parser";
 import { useHighlightingContext } from "@/contexts/HighlightingContext";
 
@@ -34,7 +34,7 @@ export const HorizontalMathProblemForm = ({
   saveInitialValues,
 }: HorizontalMathProblemFormProps) => {
   const { mwpHighlightRanges, formulaHighlightRanges, clearHighlightingState } = useHighlightingContext();
-  const { trackMWPType, trackFormulaType, trackHintType, isAnalyticsEnabled } = useAnalytics();
+  const analyticsEnabled = isAnalyticsEnabled();
 
   const handleFormClick = useCallback(() => {
     clearHighlightingState();
@@ -57,19 +57,19 @@ export const HorizontalMathProblemForm = ({
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       onChange(e);
       trackMWPType();
-    }, [trackMWPType]);
+    }, []);
 
   const formulaChangeHandler = useCallback((onChange: (e: React.ChangeEvent<HTMLInputElement>) => void) => 
     (e: React.ChangeEvent<HTMLInputElement>) => {
       onChange(e);
       trackFormulaType();
-    }, [trackFormulaType]);
+    }, []);
 
   const hintChangeHandler = useCallback((onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void) => 
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       onChange(e);
       trackHintType();
-    }, [trackHintType]);
+    }, []);
 
   return (
     <Form {...form}>
@@ -100,7 +100,7 @@ export const HorizontalMathProblemForm = ({
                         }
                       }}
                       {...field}
-                      {...(isAnalyticsEnabled ? {onChange: mwpChangeHandler(field.onChange)} : {})}
+                      {...(analyticsEnabled ? {onChange: mwpChangeHandler(field.onChange)} : {})}
                     />
                   </FormControl>
                   <FormMessage />
@@ -127,7 +127,7 @@ export const HorizontalMathProblemForm = ({
                       spellCheck={false}
                       style={{ minHeight: '100px' }}
                       {...field}
-                      {...(isAnalyticsEnabled ? {onChange: hintChangeHandler(field.onChange)} : {})}
+                      {...(analyticsEnabled ? {onChange: hintChangeHandler(field.onChange)} : {})}
                     />
                   </FormControl>
                   <FormMessage />
@@ -155,7 +155,7 @@ export const HorizontalMathProblemForm = ({
                         spellCheck={false}
                         highlightRanges={formulaHighlightRanges}
                         {...field}
-                        {...(isAnalyticsEnabled ? {onChange: formulaChangeHandler(field.onChange)} : {})}
+                        {...(analyticsEnabled ? {onChange: formulaChangeHandler(field.onChange)} : {})}
                       />
                     </FormControl>
                     <FormMessage />

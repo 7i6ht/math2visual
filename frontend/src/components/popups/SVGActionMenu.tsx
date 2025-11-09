@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { SVGSearchPopup } from "./SVGSearchPopup";
 import { SVGUploadPopup } from "./SVGUploadPopup";
 import { BasePopup } from "./BasePopup";
-import { useAnalytics } from "@/hooks/useAnalytics";
+import { trackElementClick, isAnalyticsEnabled } from "@/services/analyticsTracker";
 
 interface SVGActionMenuProps {
   onClosePopup: () => void;
@@ -24,7 +24,7 @@ export const SVGActionMenu: React.FC<SVGActionMenuProps> = ({
   const [activePopup, setActivePopup] = useState<"search" | "upload" | null>(
     null
   );
-  const { trackElementClick, isAnalyticsEnabled } = useAnalytics();
+  const analyticsEnabled = isAnalyticsEnabled();
 
   const handleClosePopup = useCallback(() => {
     setActivePopup(null);
@@ -50,7 +50,7 @@ export const SVGActionMenu: React.FC<SVGActionMenuProps> = ({
                 className="cursor-pointer responsive-text-font-size touch-manipulation flex items-center gap-1"
                 onMouseDown={(e) => e.stopPropagation()}
                 onClick={() => {
-                  if (isAnalyticsEnabled) {
+                  if (analyticsEnabled) {
                     trackElementClick('svg_action_menu_search_click');
                   }
                   setActivePopup("search");
@@ -62,7 +62,7 @@ export const SVGActionMenu: React.FC<SVGActionMenuProps> = ({
                 className="cursor-pointer responsive-text-font-size touch-manipulation flex items-center gap-1"
                 onMouseDown={(e) => e.stopPropagation()}
                 onClick={() => {
-                  if (isAnalyticsEnabled) {
+                  if (analyticsEnabled) {
                     trackElementClick('svg_action_menu_upload_click');
                   }
                   setActivePopup("upload");

@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Download, FileImage, File, FileText } from "lucide-react";
 import { downloadSvg, downloadPng, downloadPdf, generateVisualizationFilename } from "@/utils/download";
-import { useAnalytics } from "@/hooks/useAnalytics";
+import { trackDownload, trackError, isAnalyticsEnabled } from "@/services/analyticsTracker";
 import { toast } from "sonner";
 import { useState } from "react";
 import type { DownloadFormat } from "@/types";
@@ -58,7 +58,7 @@ export const DownloadButton = ({
   disabled = false,
 }: DownloadButtonProps) => {
   const [isDownloading, setIsDownloading] = useState(false);
-  const { trackDownload, trackError, isAnalyticsEnabled } = useAnalytics();
+  const analyticsEnabled = isAnalyticsEnabled();
 
   const handleDownload = async (
     handler: (svgContent: string,
@@ -75,7 +75,7 @@ export const DownloadButton = ({
     );
 
     // Track download start
-    if (isAnalyticsEnabled) {
+    if (analyticsEnabled) {
       trackDownload(format, `${type}_${format}`);
     }
 
@@ -83,7 +83,7 @@ export const DownloadButton = ({
       await handler(svgContent, type);
       
       // Track successful download
-      if (isAnalyticsEnabled) {
+      if (analyticsEnabled) {
         trackDownload(format, `${type}_${format}`);
       }
       
@@ -95,7 +95,7 @@ export const DownloadButton = ({
       console.error("Download failed:", error);
       
       // Track download error
-      if (isAnalyticsEnabled) {
+      if (analyticsEnabled) {
         trackError(`${type}_download_${format}_failed`, error instanceof Error ? error.message : "Download failed");
       }
       

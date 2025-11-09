@@ -2,7 +2,7 @@
 import { AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { AlertCircle } from "lucide-react";
 import { SVGMissingError } from "@/components/errors/SVGMissingError";
-import { useAnalytics } from "@/hooks/useAnalytics";
+import { trackElementClick, isAnalyticsEnabled } from "@/services/analyticsTracker";
 
 interface MissingSVGSectionProps {
   missingSVGEntities: string[];
@@ -15,12 +15,12 @@ export const MissingSVGSection = ({
   onRegenerateAfterUpload,
   onAllFilesUploaded,
 }: MissingSVGSectionProps) => {
-  const { trackElementClick, isAnalyticsEnabled } = useAnalytics();
+  const analyticsEnabled = isAnalyticsEnabled();
   return (
     <AccordionItem value="missing-svg" className="border rounded-lg !border-b bg-destructive/5 border-destructive/20">
       <AccordionTrigger 
         className="px-4 hover:no-underline"
-        {...(isAnalyticsEnabled ? {onClick: () => {
+        {...(analyticsEnabled ? {onClick: () => {
           trackElementClick('accordion_missing_svg_click');
         }} : {})}
       >

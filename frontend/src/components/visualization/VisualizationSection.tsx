@@ -6,7 +6,7 @@ import { useHighlighting } from "@/hooks/useHighlighting";
 import { useElementInteractions } from "@/hooks/useElementInteractions";
 import { useSVGResponsive } from "@/hooks/useSVGResponsive";
 import { useHighlightingContext } from "@/contexts/HighlightingContext";
-import { useAnalytics } from "@/hooks/useAnalytics";
+import { trackElementClick, isAnalyticsEnabled } from "@/services/analyticsTracker";
 
 interface VisualizationSectionProps {
   type: 'formal' | 'intuitive';
@@ -39,7 +39,7 @@ export const VisualizationSection = ({
 }: VisualizationSectionProps) => {
   const svgRef = useRef<HTMLDivElement | null>(null);
   const { currentDSLPath, hoverSource } = useHighlightingContext();
-  const { trackElementClick, isAnalyticsEnabled } = useAnalytics();
+  const analyticsEnabled = isAnalyticsEnabled();
 
   // Handle SVG responsiveness
   const { makeResponsive, setupResizeListener } = useSVGResponsive();
@@ -109,7 +109,7 @@ export const VisualizationSection = ({
       <AccordionTrigger 
         className={`px-4 hover:no-underline ${isDisabled ? 'pointer-events-none cursor-default' : ''}`}
         disabled={isDisabled}
-        {...(isAnalyticsEnabled ? {onClick: handleAccordionClick} : {})}
+        {...(analyticsEnabled ? {onClick: handleAccordionClick} : {})}
       >
         <div className="flex items-center justify-between w-full mr-4">
           <span className="font-medium responsive-text-font-size">{title}</span>

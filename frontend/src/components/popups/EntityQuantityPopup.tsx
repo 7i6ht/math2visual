@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { BasePopup } from "./BasePopup";
-import { useAnalytics } from "@/hooks/useAnalytics";
+import { trackEntityQuantityPopupType, trackPopupSubmit, isAnalyticsEnabled } from "@/services/analyticsTracker";
 
 interface EntityQuantityPopupProps {
   onClose: () => void;
@@ -20,7 +20,7 @@ export const EntityQuantityPopup: React.FC<EntityQuantityPopupProps> = ({
   const [quantity, setQuantity] = useState(initialQuantity.toString());
   const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const { trackEntityQuantityPopupType, trackPopupSubmit, isAnalyticsEnabled } = useAnalytics();
+  const analyticsEnabled = isAnalyticsEnabled();
 
   // Focus input on mount
   useEffect(() => {
@@ -37,7 +37,7 @@ export const EntityQuantityPopup: React.FC<EntityQuantityPopupProps> = ({
     // Allow empty string or positive integers only
     if (value === "" || /^[1-9]\d*$/.test(value)) {
       setQuantity(value);
-      if (isAnalyticsEnabled) {
+      if (analyticsEnabled) {
         trackEntityQuantityPopupType(value);
       }
     }
@@ -80,7 +80,7 @@ export const EntityQuantityPopup: React.FC<EntityQuantityPopupProps> = ({
   const handlePopupKeyDown = (event: KeyboardEvent) => {
     if (event.key === "Enter" && quantity && !isLoading) {
       event.preventDefault();
-      if (isAnalyticsEnabled) {
+      if (analyticsEnabled) {
         trackPopupSubmit('entity_quantity', quantity, 'keyboard');
       }
       handleUpdate();
@@ -109,7 +109,7 @@ export const EntityQuantityPopup: React.FC<EntityQuantityPopupProps> = ({
           />
           <Button
             onClick={() => {
-              if (isAnalyticsEnabled) {
+              if (analyticsEnabled) {
                 trackPopupSubmit('entity_quantity', quantity);
               }
               handleUpdate();

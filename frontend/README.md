@@ -75,7 +75,6 @@ src/
 │   └── HighlightingContext.tsx # Syntax highlighting state
 ├── hooks/                  # Custom React hooks
 │   ├── __tests__/          # Hooks testing structure (in development)
-│   ├── useAnalytics.ts     # Analytics tracking and logging
 │   ├── useAppState.ts      # Global application state
 │   ├── useElementInteractions.ts # Element interaction handling
 │   ├── useEntityQuantityPopup.ts # Quantity popup state
@@ -89,6 +88,8 @@ src/
 │   ├── useSVGSelector.ts   # SVG selection logic
 │   ├── useVisualizationHandlers.ts # Visualization event handlers
 │   └── useVisualLanguageForm.ts # Visual language form logic
+├── services/               # Module-level services
+│   └── analyticsTracker.ts # Analytics tracking service (module-level state)
 ├── lib/
 │   ├── dsl-utils.ts        # DSL utility functions
 │   └── utils.ts            # General utility functions

@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useRef, useEffect } from 'react';
 import { isTextElement, isBoxElement, isEmbeddedSvgElement, isContainerNameElement, isAttrNameElement } from '../utils/elementUtils';
 import { useHighlightingContext } from '@/contexts/HighlightingContext';
-import { useAnalytics } from './useAnalytics';
+import { trackSVGElementHover, trackSVGElementClick, isAnalyticsEnabled } from '@/services/analyticsTracker';
 
 interface UseElementInteractionsProps {
   svgRef: React.RefObject<HTMLDivElement | null>;
@@ -27,7 +27,6 @@ export const useElementInteractions = ({
   isDisabled = false,
 }: UseElementInteractionsProps) => {
   const { currentDSLPath, setSelectedElement, clearHighlightingState } = useHighlightingContext();
-  const { trackSVGElementHover, trackSVGElementClick, isAnalyticsEnabled } = useAnalytics();
   const currentDSLPathRef = useRef(currentDSLPath);
   
   // Keep the ref in sync with the current value
@@ -63,7 +62,7 @@ export const useElementInteractions = ({
   
       // Add event listeners
       // Track hover analytics if enabled
-      if (isAnalyticsEnabled) {
+      if (isAnalyticsEnabled()) {
          svgElem.onmouseenter = () => {
            const currentPath = currentDSLPathRef.current;
            if (currentPath !== dslPath) {
@@ -117,7 +116,7 @@ export const useElementInteractions = ({
         };
       }
 
-      if (svgElem.onclick && isAnalyticsEnabled) {
+      if (svgElem.onclick && isAnalyticsEnabled()) {
         const originalClickHandler = svgElem.onclick;
         svgElem.onclick = (event: PointerEvent) => {
           const action_type = `svg_element_click`;
@@ -126,7 +125,6 @@ export const useElementInteractions = ({
         };
       }
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     svgRef,
     sectionType,
@@ -137,10 +135,6 @@ export const useElementInteractions = ({
     onEntityQuantityClick,
     onNameClick,
     isPopupOpen,
-    trackSVGElementHover,
-    trackSVGElementClick,
-    isAnalyticsEnabled,
-    // trackSVGElementHover and isAnalyticsEnabled are stable references and don't need to be dependencies
   ]);
 
   const returnValue = useMemo(() => ({

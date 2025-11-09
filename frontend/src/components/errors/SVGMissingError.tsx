@@ -1,7 +1,7 @@
 import { FileUp, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSVGMissingError } from "@/hooks/useSVGMissingError";
-import { useAnalytics } from "@/hooks/useAnalytics";
+import { trackElementClick, isAnalyticsEnabled } from "@/services/analyticsTracker";
 
 const PROVIDERS: Array<{
   key: string;
@@ -42,7 +42,7 @@ export const SVGMissingError = ({
   onGenerate,
   onAllFilesUploaded,
 }: SVGMissingErrorProps) => {
-  const { trackElementClick, isAnalyticsEnabled } = useAnalytics();
+  const analyticsEnabled = isAnalyticsEnabled();
   
   const {
     isDragOver,
@@ -160,7 +160,7 @@ export const SVGMissingError = ({
                   <button
                     key={p.key}
                     type="button"
-                    {...(isAnalyticsEnabled ? {
+                    {...(analyticsEnabled ? {
                       onClick: () => {
                         trackElementClick(`external_link_click`, p.key);
                         window.open(p.url(missingSvgName));

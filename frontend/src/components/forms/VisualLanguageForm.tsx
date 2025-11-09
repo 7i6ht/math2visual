@@ -9,7 +9,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useVisualLanguageForm } from "@/hooks/useVisualLanguageForm";
-import { useAnalytics } from "@/hooks/useAnalytics";
+import { trackDSLEditorClick, trackDSLType, trackDSLScroll, isAnalyticsEnabled } from "@/services/analyticsTracker";
 import type { ComponentMapping } from "@/types/visualInteraction";
 import type { ParsedOperation } from "@/utils/dsl-parser";
 import { useHighlightingContext } from "@/contexts/HighlightingContext";
@@ -29,7 +29,7 @@ export const VisualLanguageForm = ({ // TODO: Remove everything associated with 
   const { dslHighlightRanges, currentDSLPath, setCurrentDSLPath, clearHighlightingState } = useHighlightingContext();
   const { componentMappings: contextMappings, formattedDSL } = useDSLContext();
   const effectiveMappings = useMemo(() => (contextMappings ?? {}) as ComponentMapping, [contextMappings, formattedDSL]);
-  const { trackDSLEditorClick, trackDSLType, trackDSLScroll, isAnalyticsEnabled } = useAnalytics();
+  const analyticsEnabled = isAnalyticsEnabled();
   
   const handleCursorPositionChange = useCallback((position: number) => {
     if (isDisabled) return;
@@ -41,10 +41,10 @@ export const VisualLanguageForm = ({ // TODO: Remove everything associated with 
     }
     
     // Track DSL editor click with analytics
-    if (isAnalyticsEnabled) {
+    if (analyticsEnabled) {
       trackDSLEditorClick(dslPath);
     }
-  }, [effectiveMappings, currentDSLPath, setCurrentDSLPath, isDisabled, isAnalyticsEnabled, trackDSLEditorClick, clearHighlightingState]);
+  }, [effectiveMappings, currentDSLPath, setCurrentDSLPath, isDisabled, analyticsEnabled, clearHighlightingState]);
 
   const { 
     form, 
@@ -72,7 +72,7 @@ export const VisualLanguageForm = ({ // TODO: Remove everything associated with 
                     value={field.value}
                     onChange={(value) => {
                       field.onChange(value);
-                      if (isAnalyticsEnabled) {
+                      if (analyticsEnabled) {
                         trackDSLType();
                       }
                       handleDebouncedChange(value);
@@ -80,7 +80,7 @@ export const VisualLanguageForm = ({ // TODO: Remove everything associated with 
                     className="w-full"
                     highlightRanges={dslHighlightRanges}
                     onCursorPositionChange={handleCursorPositionChange}
-                    {...(isAnalyticsEnabled ? {onScroll: trackDSLScroll} : {})}
+                    {...(analyticsEnabled ? {onScroll: (direction: 'up' | 'down') => trackDSLScroll(direction)} : {})}
                   />
                 </FormControl>
                 <FormMessage/>

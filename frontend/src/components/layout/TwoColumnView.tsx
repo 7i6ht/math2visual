@@ -1,10 +1,10 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useSyncExternalStore } from "react";
 import { ResponsiveLogo } from "@/components/ui/ResponsiveLogo";
 import { HorizontalMathProblemForm } from "@/components/forms/HorizontalMathProblemForm";
 import { VisualizationResults } from "@/components/visualization/VisualizationResults";
 import { GearLoading } from "@/components/ui/gear-loading";
 import { SessionAnalyticsDisplay } from "@/components/ui/SessionAnalyticsDisplay";
-import { useAnalytics } from "@/hooks/useAnalytics";
+import { trackColumnScroll, trackTwoColumnLayoutRender, isAnalyticsEnabled, getSessionId, subscribeToScreenshotState, getIsCapturingScreenshot } from "@/services/analyticsTracker";
 import { useDSLContext } from "@/contexts/DSLContext";
 import { useVisualizationHandlers } from "@/hooks/useVisualizationHandlers";
 import { usePopupManagement } from "@/hooks/usePopupManagement";
@@ -37,7 +37,13 @@ export function TwoColumnView({ appState }: Props) { // TODO: Rename?
   } = appState;
 
   const { parsedDSL } = useDSLContext();
-  const { trackColumnScroll, trackTwoColumnLayoutRender, isAnalyticsEnabled, sessionId, isCapturingScreenshot } = useAnalytics();
+  const analyticsEnabled = isAnalyticsEnabled();
+  const sessionId = getSessionId();
+  const isCapturingScreenshot = useSyncExternalStore(
+    subscribeToScreenshotState,
+    getIsCapturingScreenshot,
+    () => false // Server snapshot (always false on server)
+  );
 
   const { handleVLResult } =
     useVisualizationHandlers({
@@ -73,21 +79,21 @@ export function TwoColumnView({ appState }: Props) { // TODO: Rename?
 
   const handleMainScroll = useCallback((event: React.UIEvent<HTMLDivElement>) => {
     trackColumnScroll(event, 'left');
-  }, [trackColumnScroll]);
+  }, []);
 
   // Track layout render and capture screenshot
   useEffect(() => {
-    if (isAnalyticsEnabled) {
+    if (analyticsEnabled) {
       trackTwoColumnLayoutRender();
     }
-  }, [isAnalyticsEnabled, trackTwoColumnLayoutRender]);
+  }, [analyticsEnabled]);
 
   return (
     <div 
       className="w-full px-2 py-4 sm:px-4 md:px-6 lg:px-8 xl:px-12 2xl:px-16 3xl:px-20 4xl:px-24"
-      {...(isAnalyticsEnabled ? {onScroll: handleMainScroll} : {})}
+      {...(analyticsEnabled ? {onScroll: handleMainScroll} : {})}
     >
-      {isAnalyticsEnabled && <SessionAnalyticsDisplay sessionId={sessionId} isCapturingScreenshot={isCapturingScreenshot} />}
+      {analyticsEnabled && <SessionAnalyticsDisplay sessionId={sessionId} isCapturingScreenshot={isCapturingScreenshot}/>}
       
       <div className="w-full mx-auto space-y-4 md:space-y-5 lg:space-y-6 xl:space-y-7 2xl:space-y-8 3xl:space-y-10 4xl:space-y-12 5xl:space-y-14">
         {/* Math Problem Form with Logo */}

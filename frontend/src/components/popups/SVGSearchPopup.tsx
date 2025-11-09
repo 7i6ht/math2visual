@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { SVGDatasetService } from '@/api_services/svgDataset';
 import { BasePopup } from './BasePopup.tsx';
-import { useAnalytics } from '@/hooks/useAnalytics';
+import { trackSVGSearchPopupType, trackPopupSubmit, isAnalyticsEnabled } from '@/services/analyticsTracker';
 
 interface SVGFile {
   filename: string;
@@ -33,7 +33,7 @@ export const SVGSearchPopup: React.FC<SVGSearchPopupProps> = ({
   const previewContainerRef = useRef<HTMLDivElement>(null);
   const thumbnailsRowRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const { trackSVGSearchPopupType, trackPopupSubmit, isAnalyticsEnabled } = useAnalytics();
+  const analyticsEnabled = isAnalyticsEnabled();
 
   // Calculate pagination
   const totalPages = Math.ceil(searchResults.length / Math.max(1, imagesPerPage));
@@ -157,7 +157,7 @@ export const SVGSearchPopup: React.FC<SVGSearchPopupProps> = ({
   const handlePopupKeyDown = (event: KeyboardEvent) => {
     if (event.key === 'Enter' && selectedFile) {
       event.preventDefault();
-      if (isAnalyticsEnabled) {
+      if (analyticsEnabled) {
         trackPopupSubmit('svg_search', selectedFile.name, 'keyboard');
       }
       handleFileSelect(selectedFile);
@@ -190,7 +190,7 @@ export const SVGSearchPopup: React.FC<SVGSearchPopupProps> = ({
             value={searchQuery}
             onChange={(e) => {
               setSearchQuery(e.target.value);
-              if (isAnalyticsEnabled) {
+              if (analyticsEnabled) {
                 trackSVGSearchPopupType(e.target.value);
               }
             }}
@@ -203,7 +203,7 @@ export const SVGSearchPopup: React.FC<SVGSearchPopupProps> = ({
         <Button
           onClick={() => {
             if (selectedFile) {
-              if (isAnalyticsEnabled) {
+              if (analyticsEnabled) {
                 trackPopupSubmit('svg_search', selectedFile.name);
               }
               handleFileSelect(selectedFile);
