@@ -71,13 +71,13 @@ body {
   height: 100%;
   min-width: 320px;
   min-height: 100vh;
-  overflow-x: hidden;
   /* Ensure proper scaling on all screen sizes */
   box-sizing: border-box;
 }
 
 /* Ensure all elements use border-box sizing for consistent scaling */
-*, *::before, *::after {
+/* Exclude SVG elements as they use their own coordinate system */
+*:not(svg):not(svg *), *:not(svg):not(svg *)::before, *:not(svg):not(svg *)::after {
   box-sizing: border-box;
 }
 
@@ -121,7 +121,10 @@ h1 {
   /* Base cursor styling for all interactive SVG elements */
   [data-dsl-path] {
     cursor: pointer;
-    transition: all 0.2s ease-in-out;
+    /* Only transition visual properties, not layout/transform properties */
+    transition: stroke 0.2s ease-in-out, stroke-width 0.2s ease-in-out, 
+                fill 0.2s ease-in-out, filter 0.2s ease-in-out, 
+                opacity 0.2s ease-in-out;
   }
   
   /* Ensure consistent transform reference for operation groups across all states */
