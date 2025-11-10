@@ -86,11 +86,24 @@ export const VisualizationResults = memo(({
     return "formal";
   }, [hasParseError, formalError, intuitiveError, missingSVGEntities]);
 
-  // Update active tab when props change
-  useEffect(() => {
-    const defaultTab = getDefaultTab();
-    setActiveTab(defaultTab);
-  }, [getDefaultTab]);
+  // Update active tab only when:
+  // 1. No tab is selected (initial state)
+  // 2. Current tab becomes invalid (e.g., parse error tab but no parse error anymore)
+  useEffect(() => {    
+    // Only set default tab if:
+    // - No tab is currently active (initial state)
+    // - Current tab is invalid (e.g., parse-error tab but no parse error, or vice versa)
+    const isCurrentTabInvalid = 
+      (activeTab === "parse-error" && !hasParseError) ||
+      (activeTab === "missing-svg" && missingSVGEntities.length === 0) ||
+      (activeTab === "formal" && hasParseError) ||
+      (activeTab === "intuitive" && hasParseError);
+    
+    if (!activeTab || isCurrentTabInvalid) {
+      const defaultTab = getDefaultTab();
+      setActiveTab(defaultTab);
+    }
+  }, [getDefaultTab, activeTab, hasParseError, missingSVGEntities.length]);
   
   // Don't render if no content or errors at all
   if (!svgFormal && !formalError && !svgIntuitive && !intuitiveError && missingSVGEntities.length === 0) {
