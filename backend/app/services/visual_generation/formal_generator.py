@@ -985,7 +985,7 @@ class FormalVisualGenerator:
                 entity_dsl_path = e.get('_dsl_path', '')
                 rect_elem = etree.SubElement(svg_root, "rect", x=str(x), y=str(box_y),
                                 width=str(w), height=str(h), stroke="black", fill="none",
-                                style="pointer-events: stroke;")
+                                style="pointer-events: all;")
                 rect_elem.set('data-dsl-path', entity_dsl_path)
                 rect_elem.set('visual-element-path', entity_dsl_path)
                 
