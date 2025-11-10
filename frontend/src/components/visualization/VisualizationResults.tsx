@@ -6,7 +6,6 @@ import { MissingSVGSection } from "./MissingSVGSection";
 import { ParseErrorSection } from "./ParseErrorSection";
 import { AlertCircle } from "lucide-react";
 import { trackElementClick, trackHintType, isAnalyticsEnabled } from "@/services/analyticsTracker";
-import { analyticsService } from "@/api_services/analytics";
 
 interface VisualizationResultsProps {
   svgFormal: string | null;
@@ -71,6 +70,9 @@ export const VisualizationResults = memo(({
     // Backend raises FileNotFoundError as: "SVG file not found: <path>"
     return /SVG file not found/i.test(error) ? null : error;
   };
+
+  const filteredFormalError = filterMissingSvgError(formalError);
+  const filteredIntuitiveError = filterMissingSvgError(intuitiveError);
 
   // Detect if this is a parse error by checking error message content
   const hasParseError = (formalError && /DSL parse error/i.test(formalError)) || 
@@ -166,7 +168,7 @@ export const VisualizationResults = memo(({
                 type="formal"
                 title="Formal"
                 svgContent={svgFormal}
-                error={filterMissingSvgError(formalError)}
+                error={filteredFormalError}
                 isOpen={activeTab === "formal"}
                 mwpValue={mwpValue}
                 formulaValue={formulaValue}
@@ -183,7 +185,7 @@ export const VisualizationResults = memo(({
                 type="intuitive"
                 title="Intuitive"
                 svgContent={svgIntuitive}
-                error={filterMissingSvgError(intuitiveError)}
+                error={filteredIntuitiveError}
                 isOpen={activeTab === "intuitive"}
                 mwpValue={mwpValue}
                 formulaValue={formulaValue}
@@ -210,7 +212,10 @@ export const VisualizationResults = memo(({
       </Tabs>
       
       {/* Hint input - hide when missing SVG tab is active */}
-      {(svgFormal || svgIntuitive) && activeTab !== 'missing-svg' && (
+      {((svgFormal || svgIntuitive) && (
+        (activeTab === 'formal' && !filteredFormalError) || 
+        (activeTab === 'intuitive' && !filteredIntuitiveError)
+      )) && (
         <div className="mt-4 text-left">
           <Textarea
             className="w-full ring-offset-background responsive-text-font-size"
