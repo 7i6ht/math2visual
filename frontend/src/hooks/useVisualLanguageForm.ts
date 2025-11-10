@@ -30,9 +30,11 @@ export const useVisualLanguageForm = ({
   });
 
   // Update form value when formattedDSL changes
+  // Use reset() instead of setValue() to ensure the form field updates even when
+  // the context value appears unchanged (e.g., regenerating same DSL after manual edit)
   useEffect(() => {
     if (formattedDSL !== null) {
-      form.setValue("dsl", formattedDSL);
+      form.reset({ dsl: formattedDSL }, { keepDefaultValues: false });
     }
   }, [formattedDSL, form]);
 
@@ -59,8 +61,11 @@ export const useVisualLanguageForm = ({
     try {
       const result = await service.generateFromDSL(dslValue, controller.signal);
 
-      // Choose the DSL to display (keep previous if generation errored)
-      const visualLanguageToUse = (result.formal_error || result.intuitive_error)
+      // Choose the DSL to display (keep previous only if parse error)
+      const hasParseError = (result.formal_error && /Visual Language parse error/i.test(result.formal_error)) || 
+                           (result.intuitive_error && /Visual Language parse error/i.test(result.intuitive_error));
+      
+      const visualLanguageToUse = hasParseError
         ? (formattedDSL || "")
         : result.visual_language;
 

@@ -75,8 +75,8 @@ export const VisualizationResults = memo(({
   const filteredIntuitiveError = filterMissingSvgError(intuitiveError);
 
   // Detect if this is a parse error by checking error message content
-  const hasParseError = (formalError && /DSL parse error/i.test(formalError)) || 
-                       (intuitiveError && /DSL parse error/i.test(intuitiveError));
+  const hasParseError = (formalError && /Visual Language parse error/i.test(formalError)) || 
+                       (intuitiveError && /Visual Language parse error/i.test(intuitiveError));
     
   // Auto-select appropriate tab when content changes
   const getDefaultTab = useCallback(() => {
