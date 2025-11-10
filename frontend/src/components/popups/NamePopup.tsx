@@ -24,22 +24,23 @@ export const NamePopup: React.FC<NamePopupProps> = ({
 
   // Handle value update
   const handleUpdate = async () => {
-    if (!value.trim()) {
-      toast.error(`Please enter a name`);
-      return;
-    }
-
+    const trimmedValue = value.trim();
+    
     // Don't update if value hasn't changed
-    if (value.trim() === initialValue) {
+    if (trimmedValue === initialValue) {
       onClose();
       return;
     }
 
     setIsLoading(true);
     try {
-      await onUpdate(value.trim());
+      await onUpdate(trimmedValue);
       onClose();
-      toast.success(`Name updated to "${value.trim()}"`);
+      if (trimmedValue) {
+        toast.success(`Name updated to "${trimmedValue}"`);
+      } else {
+        toast.success(`Name deleted`);
+      }
     } catch (err) {
       console.error(`Failed to update name:`, err);
       toast.error(`Failed to update name. Please try again.`);
@@ -50,16 +51,19 @@ export const NamePopup: React.FC<NamePopupProps> = ({
 
   // Handle keyboard events for popup
   const handlePopupKeyDown = (event: KeyboardEvent) => {
-    if (event.key === "Enter" && value.trim() && !isLoading) {
+    const trimmedValue = value.trim();
+    // Allow Enter if value has changed (even if empty) and not loading
+    if (event.key === "Enter" && trimmedValue !== initialValue && !isLoading) {
       event.preventDefault();
       if (analyticsEnabled) {
-        trackPopupSubmit('name', value.trim(), 'keyboard');
+        trackPopupSubmit('name', trimmedValue, 'keyboard');
       }
       handleUpdate();
     }
   };
 
-  const isValidValue = value.trim().length > 0;
+  // Value is valid if it's different from initial value (allows deletion by clearing)
+  const hasChanged = value.trim() !== initialValue;
 
   return (
     <BasePopup
@@ -77,7 +81,7 @@ export const NamePopup: React.FC<NamePopupProps> = ({
                 trackNamePopupType(e.target.value);
               }
             }}
-            placeholder={"Enter name"}
+            placeholder={"Name"}
             spellCheck={false}
             className="rounded-r-none border-r-0 popup-button-responsive-height responsive-text-font-size focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation text-center px-1"
             disabled={isLoading}
@@ -89,7 +93,7 @@ export const NamePopup: React.FC<NamePopupProps> = ({
               }
               handleUpdate();
             }}
-            disabled={!isValidValue || isLoading}
+            disabled={!hasChanged || isLoading}
             className="px-2 rounded-l-none popup-button-responsive-height responsive-text-font-size !text-primary-foreground focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation flex-shrink-0"
           >
             {isLoading ? (
@@ -99,13 +103,6 @@ export const NamePopup: React.FC<NamePopupProps> = ({
             )}
           </Button>
         </div>
-
-        {/* Validation hint */}
-        {value && !isValidValue && (
-          <div className="text-xs text-red-600 px-1 responsive-text-font-size">
-            Please enter a name
-          </div>
-        )}
       </div>
     </BasePopup>
   );

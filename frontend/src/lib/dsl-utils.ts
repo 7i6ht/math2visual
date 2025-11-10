@@ -158,7 +158,10 @@ export function updateMWPText(mwpText: string, changes: DSLChange[]): string {
     container_name: (t, o, n) => replaceContainerNames(t, o, n),
   };
 
-  changes.forEach(({ type, oldValue, newValue }) => {
+  // Filter out changes where newValue is empty (deletion) - don't update MWP text for deletions
+  const changesToApply = changes.filter(({ newValue }) => newValue);
+
+  changesToApply.forEach(({ type, oldValue, newValue }) => {
     updatedText = handlers[type](updatedText, oldValue, newValue);
   });
   
