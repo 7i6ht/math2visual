@@ -48,8 +48,8 @@ export const VisualizationResults = memo(({
   };
 
   // Detect if this is a parse error by checking error message content
-  const hasParseError = (formalError && /DSL parse error/i.test(formalError)) || 
-                       (intuitiveError && /DSL parse error/i.test(intuitiveError));
+  const hasParseError = (formalError && /Visual Language parse error/i.test(formalError)) || 
+                       (intuitiveError && /Visual Language parse error/i.test(intuitiveError));
     
   // Auto-expand error items when they're the only ones displayed
   const getDefaultAccordionItems = useCallback(() => {
