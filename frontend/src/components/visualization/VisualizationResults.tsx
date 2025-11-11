@@ -9,6 +9,7 @@ interface VisualizationResultsProps {
   formalError: string | null;
   svgIntuitive: string | null;
   intuitiveError: string | null;
+  hasParseError?: boolean;
   missingSVGEntities?: string[];
   mwpValue?: string;
   formulaValue?: string;
@@ -26,6 +27,7 @@ export const VisualizationResults = memo(({
   formalError,
   svgIntuitive,
   intuitiveError,
+  hasParseError = false,
   missingSVGEntities = [],
   mwpValue = '',
   formulaValue = '',
@@ -46,10 +48,6 @@ export const VisualizationResults = memo(({
     // Backend raises FileNotFoundError as: "SVG file not found: <path>"
     return /SVG file not found/i.test(error) ? null : error;
   };
-
-  // Detect if this is a parse error by checking error message content
-  const hasParseError = (formalError && /Visual Language parse error/i.test(formalError)) || 
-                       (intuitiveError && /Visual Language parse error/i.test(intuitiveError));
     
   // Auto-expand error items when they're the only ones displayed
   const getDefaultAccordionItems = useCallback(() => {

@@ -101,7 +101,10 @@ def generate():
         data_intuitive = copy.deepcopy(data_formal)
     except ValueError as e:
         print(f"Visual Language parse error: {e}")
-        return jsonify({"error": f"Visual Language parse error."}), 500
+        return jsonify({
+            "error": f"Visual Language parse error.",
+            "is_parse_error": True
+        }), 500
     
     
     formal_error = None

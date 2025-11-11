@@ -23,6 +23,7 @@ export function TwoColumnView({ appState }: Props) { // TODO: Rename?
     svgIntuitive,
     formalError,
     intuitiveError,
+    hasParseError,
     missingSVGEntities,
     uploadGenerating,
     mwp,
@@ -69,7 +70,8 @@ export function TwoColumnView({ appState }: Props) { // TODO: Rename?
       data.missing_svg_entities,
       undefined,
       undefined,
-      data.componentMappings
+      data.componentMappings,
+      undefined // Popup updates shouldn't introduce parse errors
     );
   }, [handleVLResult, parsedDSL]);
 
@@ -160,6 +162,7 @@ export function TwoColumnView({ appState }: Props) { // TODO: Rename?
             formalError={formalError}
             svgIntuitive={svgIntuitive}
             intuitiveError={intuitiveError}
+            hasParseError={hasParseError}
             missingSVGEntities={missingSVGEntities}
             mwpValue={mwp}
             formulaValue={formula}

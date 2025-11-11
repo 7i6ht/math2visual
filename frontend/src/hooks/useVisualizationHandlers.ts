@@ -21,7 +21,8 @@ export type VisualizationHandlersDeps = {
     missing?: string[] | undefined,
     mwp?: string,
     formula?: string | undefined,
-    componentMappings?: ComponentMapping | undefined
+    componentMappings?: ComponentMapping | undefined,
+    hasParseError?: boolean
   ) => void
 };
 
@@ -49,7 +50,8 @@ export const useVisualizationHandlers = ({
     nextMissing?: string[],
     nextMWPOverride?: string,
     nextFormula?: string,
-    nextMappings?: ComponentMapping
+    nextMappings?: ComponentMapping,
+    nextHasParseError?: boolean
   ) => {
     let nextMWP = nextMWPOverride ?? mwp;
     if (!nextMWPOverride) {
@@ -82,7 +84,8 @@ export const useVisualizationHandlers = ({
       mergedMissing ?? undefined,
       nextMWP,
       mergedFormula ?? undefined,
-      mergedMappings || undefined
+      mergedMappings || undefined,
+      nextHasParseError
     );
   };
 

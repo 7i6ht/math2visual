@@ -17,6 +17,7 @@ export const useAppState = () => {
     svgIntuitive: null,
     formalError: null,
     intuitiveError: null,
+    hasParseError: false,
     currentAbortFunction: undefined,
     missingSVGEntities: [],
     uploadGenerating: false,
@@ -56,7 +57,8 @@ export const useAppState = () => {
     missingSvgEntities?: string[],
     mwp?: string,
     formula?: string,
-    componentMappings?: ComponentMapping
+    componentMappings?: ComponentMapping,
+    hasParseError?: boolean
   ) => {
     setState(prev => ({
       ...prev,
@@ -64,6 +66,7 @@ export const useAppState = () => {
       svgIntuitive,
       formalError: formalError || null,
       intuitiveError: intuitiveError || null,
+      hasParseError: hasParseError || false,
       missingSVGEntities: missingSvgEntities|| [],
       hasCompletedGeneration: true,
       ...(mwp !== undefined && { mwp }),
@@ -98,6 +101,7 @@ export const useAppState = () => {
       svgIntuitive: null,
       formalError: null,
       intuitiveError: null,
+      hasParseError: false,
       missingSVGEntities: [],
     }));
   }, []);
@@ -134,7 +138,8 @@ export const useAppState = () => {
         result.missing_svg_entities,
         undefined,
         undefined,
-        result.componentMappings
+        result.componentMappings,
+        undefined // Regenerating with existing valid DSL shouldn't introduce parse errors
       );
       
       // Check if regeneration was successful
