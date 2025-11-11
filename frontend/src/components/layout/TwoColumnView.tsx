@@ -154,13 +154,13 @@ export function TwoColumnView({ appState }: Props) {
   return (
     <div className="w-full px-1 py-4 sm:px-2 lg:px-4 xl:px-6 2xl:px-8 3xl:px-8 4xl:px-8">
       {analyticsEnabled && <SessionAnalyticsDisplay sessionId={sessionId} isCapturingScreenshot={isCapturingScreenshot} />}
-      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] 3xl:grid-cols-[minmax(0,1fr)_minmax(0,1.8fr)] gap-4 xl:gap-6 2xl:gap-8 3xl:gap-10 min-h-[calc(100vh-2rem)] items-start [@media(min-height:1200px)_and_(max-width:1600px)]:grid-cols-1 [@media(min-height:1400px)_and_(max-width:1800px)]:grid-cols-1">
+      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] 3xl:grid-cols-[minmax(0,1fr)_minmax(0,1.8fr)] gap-4 xl:gap-6 2xl:gap-8 3xl:gap-10 min-h-[calc(100vh-2rem)] items-start">
         <div 
           className="flex flex-col space-y-6 xl:space-y-8 xl:sticky xl:top-6 xl:z-10 xl:pr-2 xl:h-[calc(100vh-3rem)]"
           {...(analyticsEnabled ? {onScroll: handleLeftColumnScroll} : {})}
         >
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 xl:gap-6 2xl:gap-8 3xl:gap-10 flex-1 min-h-0 height-responsive-grid items-stretch [@media(min-height:1200px)_and_(max-width:1600px)]:grid-cols-1 [@media(min-height:1400px)_and_(max-width:1800px)]:grid-cols-1">
-            <div className="space-y-4 flex flex-col">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 xl:gap-6 2xl:gap-8 3xl:gap-10 flex-1 min-h-0 height-responsive-grid items-stretch lg:[@media(max-aspect-ratio:3/4)]:grid-cols-1 lg:[@media(max-aspect-ratio:3/4)]:items-start lg:[@media(max-aspect-ratio:3/4)]:flex lg:[@media(max-aspect-ratio:3/4)]:flex-col">
+            <div className="space-y-4 flex flex-col w-full">
               <div className="text-center">
                 <div className="flex items-center justify-center gap-1">
                   <ResponsiveLogo className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 lg:w-9 lg:h-9 xl:w-10 xl:h-10 2xl:w-12 2xl:h-12 3xl:w-16 3xl:h-16 4xl:w-20 4xl:h-20 5xl:w-24 5xl:h-24" />
@@ -168,7 +168,7 @@ export function TwoColumnView({ appState }: Props) {
                 </div>
               </div>
 
-              <div className="flex flex-col">
+              <div className="flex flex-col w-full">
                 <MathProblemForm
                   onSuccess={setResults}
                   onLoadingChange={(loading, abortFn) => {
@@ -193,7 +193,7 @@ export function TwoColumnView({ appState }: Props) {
               </div>
             </div>
 
-            <div className="relative flex flex-col h-full">
+            <div className="relative flex flex-col h-full w-full [@media(max-aspect-ratio:3/4)]:mt-4">
               {formattedDSL && (
                 <VisualLanguageForm
                   onResult={handleVLResult}
