@@ -9,9 +9,10 @@ import { useDSLContext } from "@/contexts/DSLContext";
 import type { VLFormData } from "@/schemas/validation";
 import type { ComponentMapping } from "@/types/visualInteraction";
 import type { ParsedOperation } from "@/utils/dsl-parser";
+import { parseWithErrorHandling } from "@/utils/dsl-parser";
 
 interface UseVisualLanguageFormProps {
-  onResult: (vl: string, svgFormal: string | null, svgIntuitive: string | null, parsedDSL: ParsedOperation, currentParsedDSL: ParsedOperation, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], mwp?: string, formula?: string, componentMappings?: ComponentMapping) => void;
+  onResult: (vl: string, svgFormal: string | null, svgIntuitive: string | null, parsedDSL: ParsedOperation, currentParsedDSL: ParsedOperation, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], mwp?: string, formula?: string, componentMappings?: ComponentMapping, hasParseError?: boolean) => void;
   onLoadingChange: (loading: boolean, abortFn?: () => void) => void;
 }
 
@@ -47,6 +48,36 @@ export const useVisualLanguageForm = ({
       trackFormSubmit('visual_language_form_change', dslValue);
     }
 
+    // Validate DSL on frontend before sending to backend
+    const validatedParsedDSL = parseWithErrorHandling(dslValue);
+    if (!validatedParsedDSL) {
+      // Parse error - show error state without making API call
+      toast.error('Visual Language syntax error. Please check your input.');
+      
+      // Show parse error in UI
+      onResult(
+        dslValue,
+        null,
+        null,
+        { operation: 'unknown', entities: [] }, // Empty but valid ParsedOperation for parse error case
+        parsedDSL!, // current parsed DSL for comparison
+        'Visual Language parse error.',
+        undefined,
+        [],
+        undefined,
+        undefined,
+        undefined,
+        true // hasParseError
+      );
+      
+      // Track error
+      if (isAnalyticsEnabled()) {
+        trackError('dsl_parse_error_frontend', 'Invalid DSL syntax');
+      }
+      
+      return;
+    }
+
     // Create abort controller for this request
     const controller = new AbortController();
     const abort = () => {
@@ -71,7 +102,8 @@ export const useVisualLanguageForm = ({
         result.missing_svg_entities,
         undefined, // mwp - unchanged
         undefined, // formula - unchanged
-        result.componentMappings
+        result.componentMappings,
+        result.is_parse_error
       );
     } catch (error) {
       if (error instanceof Error && error.name !== 'AbortError') {

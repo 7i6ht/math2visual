@@ -35,7 +35,7 @@ const generationService = {
 
       // Special handling for Visual Language parse errors - return them as successful responses
       // so they can be displayed in the VisualizationResults tabs
-      if (!response.ok && result.error && /Visual Language parse error/i.test(result.error)) {
+      if (!response.ok && result.is_parse_error) {
         return {
           visual_language: request.dsl || "", // Preserve the original DSL input
           svg_formal: null,

@@ -12,6 +12,7 @@ interface VisualizationResultsProps {
   formalError: string | null;
   svgIntuitive: string | null;
   intuitiveError: string | null;
+  hasParseError?: boolean;
   missingSVGEntities?: string[];
   mwpValue?: string;
   formulaValue?: string;
@@ -32,6 +33,7 @@ export const VisualizationResults = memo(({
   formalError,
   svgIntuitive,
   intuitiveError,
+  hasParseError = false,
   missingSVGEntities = [],
   mwpValue = '',
   formulaValue = '',
@@ -73,10 +75,6 @@ export const VisualizationResults = memo(({
 
   const filteredFormalError = filterMissingSvgError(formalError);
   const filteredIntuitiveError = filterMissingSvgError(intuitiveError);
-
-  // Detect if this is a parse error by checking error message content
-  const hasParseError = (formalError && /Visual Language parse error/i.test(formalError)) || 
-                       (intuitiveError && /Visual Language parse error/i.test(intuitiveError));
     
   // Auto-select appropriate tab when content changes
   const getDefaultTab = useCallback(() => {

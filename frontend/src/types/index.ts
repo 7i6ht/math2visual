@@ -28,6 +28,7 @@ export interface ApiResponse {
   formal_error?: string;
   intuitive_error?: string;
   error?: string;
+  is_parse_error?: boolean;
   missing_svg_entities?: string[];
   componentMappings?: ComponentMapping;
 }
@@ -79,6 +80,7 @@ export interface AppState {
   svgIntuitive: string | null;
   formalError: string | null;
   intuitiveError: string | null;
+  hasParseError: boolean;
   currentAbortFunction: (() => void) | undefined;
   missingSVGEntities: string[];
   uploadGenerating: boolean;
