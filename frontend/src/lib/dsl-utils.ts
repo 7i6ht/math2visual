@@ -1,5 +1,6 @@
 import { numberToWord } from '@/utils/numberUtils';
 import type { ParsedOperation, ParsedEntity } from '@/utils/dsl-parser';
+import pluralize from 'pluralize';
 
 /**
  * DSL parsing and MWP text update utilities
@@ -170,13 +171,35 @@ export function updateMWPText(mwpText: string, changes: DSLChange[]): string {
 
 /**
  * Replace entity names in MWP text
+ * Handles proper pluralization using the pluralize library (e.g., "peach" → "peaches")
  */
 function replaceEntityNames(text: string, oldName: string, newName: string): string {
-  // Simple approach: match the base word with optional trailing 's' (plural)
-  // Mirrors the pattern used in useHighlighting.ts for container names
-  const regex = new RegExp(`\\b(${oldName})(s?)\\b`, 'gi');
-  return text.replace(regex, (_match, _base: string, plural: string) => {
-    return plural ? `${newName}s` : newName;
+  
+  // Get plural forms using the pluralize library
+  const oldPlural = pluralize(oldName);
+  const newPlural = pluralize(newName);
+  
+  // Create a regex that matches both singular and plural forms
+  // Use alternation with the longer form first to prevent partial matches
+  const pattern = oldPlural.length > oldName.length 
+    ? `\\b(${oldPlural}|${oldName})\\b`
+    : `\\b(${oldName}|${oldPlural})\\b`;
+  
+  const regex = new RegExp(pattern, 'gi');
+  
+  return text.replace(regex, (match) => {
+    // Determine if the matched word is plural by comparing with the plural form
+    const isPlural = match.toLowerCase() === oldPlural.toLowerCase();
+    
+    // Preserve the case of the original match
+    const result = isPlural ? newPlural : newName;
+    
+    // Match the case pattern of the original text
+    if (match[0] === match[0].toUpperCase()) {
+      // First letter was uppercase
+      return result.charAt(0).toUpperCase() + result.slice(1).toLowerCase();
+    }
+    return result.toLowerCase();
   });
 }
 
