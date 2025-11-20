@@ -86,11 +86,11 @@ h3.responsive-title-simple {
   h1.responsive-title-simple,
   h2.responsive-title-simple,
   h3.responsive-title-simple {
-    /* Allow larger text for very large screens */
+    /* Allow larger text for very large screens with balanced scaling */
     font-size: clamp(
       1.5rem, /* 24px minimum - larger than normal */
-      calc(2vw + 1.5vh), /* More aggressive scaling for large screens */
-      6rem /* 96px maximum - much larger for TVs */
+      calc(1.5vw + 1.2vh), /* Balanced scaling for large screens */
+      4.5rem /* 72px maximum - balanced between too small and too large */
     );
   }
 }
@@ -548,9 +548,9 @@ div.responsive-smaller-text-font-size {
   p.responsive-smaller-text-font-size,
   div.responsive-smaller-text-font-size {
     font-size: clamp(
-      1.5rem, /* 24px minimum - slightly smaller for better proportion */
-      calc(1.1vw + 1vh), /* More aggressive scaling for large screens - reduced */
-      3.5rem /* 56px maximum - slightly smaller */
+      1.125rem, /* 18px minimum - further reduced for better proportion */
+      calc(0.75vw + 0.75vh), /* Further reduced scaling for large screens */
+      2.625rem /* 42px maximum - further reduced for better readability */
     );
     line-height: 1.35;
   }

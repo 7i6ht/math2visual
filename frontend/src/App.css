@@ -168,8 +168,8 @@
   transform-origin: center;
 }
 
-/* Height-based layout switching */
-@media (min-height: 1200px) {
+/* Aspect-ratio-based layout switching: stack on tall/narrow screens */
+@media (max-aspect-ratio: 3/4) {
   /* Use more specific selectors to override grid layout */
   .height-responsive-grid,
   .height-responsive-grid.grid-cols-2 {
@@ -194,8 +194,8 @@
   }
 }
 
-/* Two-column layout: Visual Language form matches left column height */
-@media (max-height: 1199px) {
+/* Side-by-side layout: Visual Language form matches left column height */
+@media (min-aspect-ratio: 3/4) {
   /* Use more specific selectors to ensure proper height inheritance */
   .height-responsive-grid .visual-language-form,
   .height-responsive-grid .visual-language-form[style*="height"] {
