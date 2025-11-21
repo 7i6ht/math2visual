@@ -10,15 +10,18 @@ import type { VLFormData } from "@/schemas/validation";
 import type { ComponentMapping } from "@/types/visualInteraction";
 import type { ParsedOperation } from "@/utils/dsl-parser";
 import { parseWithErrorHandling } from "@/utils/dsl-parser";
+import { detectDSLChanges, updateMWPText } from "@/lib/dsl-utils";
 
 interface UseVisualLanguageFormProps {
-  onResult: (vl: string, svgFormal: string | null, svgIntuitive: string | null, parsedDSL: ParsedOperation, currentParsedDSL: ParsedOperation, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], mwp?: string, formula?: string, componentMappings?: ComponentMapping, hasParseError?: boolean) => void;
+  onResult: (vl: string, svgFormal: string | null, svgIntuitive: string | null, parsedDSL: ParsedOperation, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], mwp?: string, formula?: string, componentMappings?: ComponentMapping, hasParseError?: boolean) => void;
   onLoadingChange: (loading: boolean, abortFn?: () => void) => void;
+  mwp: string;
 }
 
 export const useVisualLanguageForm = ({
   onResult,
   onLoadingChange,
+  mwp,
 }: UseVisualLanguageFormProps) => {
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { formattedDSL, parsedDSL } = useDSLContext();
@@ -60,7 +63,6 @@ export const useVisualLanguageForm = ({
         null,
         null,
         { operation: 'unknown', entities: [] }, // Empty but valid ParsedOperation for parse error case
-        parsedDSL!, // current parsed DSL for comparison
         'Visual Language parse error.',
         undefined,
         [],
@@ -78,6 +80,28 @@ export const useVisualLanguageForm = ({
       return;
     }
 
+    // Detect DSL changes and update MWP text and DSL before sending to backend
+    let updatedMWP = mwp;
+    let updatedDSL = dslValue;
+    
+    if (parsedDSL) {
+      const changes = detectDSLChanges(parsedDSL, validatedParsedDSL);
+      if (changes.length > 0) {
+        updatedMWP = updateMWPText(mwp, changes);
+        
+        // Filter for entity_type changes and collect distinct old->new mappings
+        const entityTypeReplacements = changes
+          .filter(change => change.type === 'entity_type' && change.oldValue && change.newValue)
+          .reduce((map, change) => map.set(change.oldValue, change.newValue), new Map<string, string>());
+        
+        // Replace all occurrences of each old entity type with the new one in the DSL
+        entityTypeReplacements.forEach((newValue, oldValue) => {
+          const regex = new RegExp(`\\b${oldValue}\\b`, 'g');
+          updatedDSL = updatedDSL.replace(regex, newValue);
+        });
+      }
+    }
+
     // Create abort controller for this request
     const controller = new AbortController();
     const abort = () => {
@@ -88,20 +112,19 @@ export const useVisualLanguageForm = ({
     onLoadingChange(true, abort);
 
     try {
-      const result = await service.generateFromDSL(dslValue, controller.signal);
+      const result = await service.generateFromDSL(updatedDSL, controller.signal);
 
-      // Pass results up with service-provided mappings
+      // Pass results up with service-provided mappings and updated MWP
       onResult(
         result.visual_language,
         result.svg_formal,
         result.svg_intuitive,
         result.parsedDSL!,
-        parsedDSL!, // current parsed DSL for comparison
         result.formal_error,
         result.intuitive_error,
         result.missing_svg_entities,
-        undefined, // mwp - unchanged
-        undefined, // formula - unchanged
+        updatedMWP, // Pass the updated MWP
+        undefined, // formula - unchanged // TODO
         result.componentMappings,
         result.is_parse_error
       );

@@ -1,7 +1,6 @@
 import { useDSLContext } from "@/contexts/DSLContext";
 import type { ParsedOperation } from "@/utils/dsl-parser";
 import type { ComponentMapping } from "@/types/visualInteraction";
-import { detectDSLChanges, updateMWPText } from "@/lib/dsl-utils";
 
 export type VisualizationHandlersDeps = {
   svgFormal: string | null;
@@ -44,23 +43,14 @@ export const useVisualizationHandlers = ({
     nextSvgFormal: string | null,
     nextSvgIntuitive: string | null,
     nextParsedDSL: ParsedOperation,
-    currentParsedDSL: ParsedOperation,
     nextFormalError?: string,
     nextIntuitiveError?: string,
     nextMissing?: string[],
-    nextMWPOverride?: string,
+    nextMWP?: string,
     nextFormula?: string,
     nextMappings?: ComponentMapping,
     nextHasParseError?: boolean
   ) => {
-    let nextMWP = nextMWPOverride ?? mwp;
-    if (!nextMWPOverride) {
-      const changes = detectDSLChanges(currentParsedDSL, nextParsedDSL);
-      if (changes.length > 0) {
-        nextMWP = updateMWPText(mwp, changes);
-      }
-    }
-
     const mergedSvgFormal = nextSvgFormal ?? svgFormal;
     const mergedSvgIntuitive = nextSvgIntuitive ?? svgIntuitive;
 
@@ -70,6 +60,7 @@ export const useVisualizationHandlers = ({
       nextIntuitiveError !== undefined ? nextIntuitiveError : intuitiveError;
     const mergedMissing =
       nextMissing !== undefined ? nextMissing : missingSVGEntities;
+    const mergedMWP = nextMWP !== undefined ? nextMWP : mwp;
     const mergedFormula = nextFormula !== undefined ? nextFormula : formula;
     const mergedMappings =
       nextMappings !== undefined ? nextMappings : contextComponentMappings;
@@ -82,7 +73,7 @@ export const useVisualizationHandlers = ({
       mergedFormalError,
       mergedIntuitiveError,
       mergedMissing ?? undefined,
-      nextMWP,
+      mergedMWP,
       mergedFormula ?? undefined,
       mergedMappings || undefined,
       nextHasParseError

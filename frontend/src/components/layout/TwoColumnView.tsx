@@ -40,7 +40,7 @@ export function TwoColumnView({ appState }: Props) {
     setHint,
   } = appState;
 
-  const { formattedDSL, parsedDSL } = useDSLContext();
+  const { formattedDSL } = useDSLContext();
   const analyticsEnabled = isAnalyticsEnabled();
   const sessionId = getSessionId();
   const isCapturingScreenshot = useSyncExternalStore(
@@ -67,7 +67,6 @@ export function TwoColumnView({ appState }: Props) {
       data.svg_formal,
       data.svg_intuitive,
       data.parsedDSL,
-      parsedDSL!,
       data.formal_error ?? undefined,
       data.intuitive_error ?? undefined,
       data.missing_svg_entities,
@@ -76,7 +75,7 @@ export function TwoColumnView({ appState }: Props) {
       data.componentMappings,
       undefined // Popup updates shouldn't introduce parse errors
     );
-  }, [handleVLResult, parsedDSL]);
+  }, [handleVLResult]);
 
   const popup = usePopupManagement({
     onVisualsUpdate,
@@ -200,6 +199,7 @@ export function TwoColumnView({ appState }: Props) {
                   onLoadingChange={(loading, abortFn) => {
                     setVLFormLoading(loading, abortFn);
                   }}
+                  mwp={mwp}
                   isDisabled={mpFormLoading}
                 />
               )}

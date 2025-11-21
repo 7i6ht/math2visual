@@ -16,14 +16,16 @@ import { useHighlightingContext } from "@/contexts/HighlightingContext";
 import { useDSLContext } from "@/contexts/DSLContext";
 
 interface VisualLanguageFormProps {
-  onResult: (vl: string, svgFormal: string | null, svgIntuitive: string | null, parsedDSL: ParsedOperation, currentParsedDSL: ParsedOperation, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], mwp?: string, formula?: string, componentMappings?: ComponentMapping) => void;
+  onResult: (vl: string, svgFormal: string | null, svgIntuitive: string | null, parsedDSL: ParsedOperation, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], mwp?: string, formula?: string, componentMappings?: ComponentMapping) => void;
   onLoadingChange: (loading: boolean, abortFn?: () => void) => void;
+  mwp: string;
   isDisabled?: boolean;
 }
 
 export const VisualLanguageForm = ({
   onResult,
   onLoadingChange,
+  mwp,
   isDisabled = false,
 }: VisualLanguageFormProps) => {
   const { dslHighlightRanges, currentDSLPath, setCurrentDSLPath, clearHighlightingState } = useHighlightingContext();
@@ -52,6 +54,7 @@ export const VisualLanguageForm = ({
   } = useVisualLanguageForm({
     onResult,
     onLoadingChange,
+    mwp,
   });
 
   
