@@ -6,6 +6,7 @@ import { generationService as service } from "@/api_services/generation";
 import { trackFormSubmit, trackError, isAnalyticsEnabled } from "@/services/analyticsTracker";
 import { toast } from "sonner";
 import { useDSLContext } from "@/contexts/DSLContext";
+import { useHighlightingContext } from "@/contexts/HighlightingContext";
 import type { VLFormData } from "@/schemas/validation";
 import type { ComponentMapping } from "@/types/visualInteraction";
 import type { ParsedOperation } from "@/utils/dsl-parser";
@@ -27,6 +28,7 @@ export const useVisualLanguageForm = ({
 }: UseVisualLanguageFormProps) => {
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { formattedDSL, parsedDSL } = useDSLContext();
+  const { setMwpHighlightRanges, setFormulaHighlightRanges } = useHighlightingContext();
 
   const form = useForm<VLFormData>({
     resolver: zodResolver(vlFormSchema),
@@ -93,6 +95,10 @@ export const useVisualLanguageForm = ({
         const updated = updateMWPInput(mwp, formula, changes);
         updatedMWP = updated.mwp;
         updatedFormula = updated.formula ?? null;
+        
+        // Clear highlighting ranges since text positions have changed
+        setMwpHighlightRanges([]);
+        setFormulaHighlightRanges([]);
         
         // Filter for entity_type changes and collect distinct old->new mappings
         const entityTypeReplacements = changes
