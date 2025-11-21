@@ -147,10 +147,16 @@ export function detectDSLChanges(oldParsedDSL: ParsedOperation, newParsedDSL: Pa
 }
 
 /**
- * Update MWP text based on DSL changes
+ * Update MWP text and optional formula based on DSL changes
+ * Formula is only updated based on entity_quantity changes
  */
-export function updateMWPText(mwpText: string, changes: DSLChange[]): string {
-  let updatedText = mwpText;
+export function updateMWPInput(
+  mwpText: string, 
+  formula: string | null | undefined, 
+  changes: DSLChange[]
+): { mwp: string; formula: string | null | undefined } {
+  let updatedMWP = mwpText;
+  let updatedFormula = formula;
   
   const handlers: Record<DSLChange["type"], (t: string, o: string, n: string) => string> = {
     entity_name: (t, o, n) => replaceEntityNames(t, o, n),
@@ -159,14 +165,23 @@ export function updateMWPText(mwpText: string, changes: DSLChange[]): string {
     container_name: (t, o, n) => replaceContainerNames(t, o, n),
   };
 
-  // Filter out changes where newValue is empty (deletion) - don't update MWP text for deletions
+  // Filter out changes where newValue is empty (deletion) - don't update text for deletions
   const changesToApply = changes.filter(({ newValue }) => newValue);
 
+  // Update MWP text with all changes
   changesToApply.forEach(({ type, oldValue, newValue }) => {
-    updatedText = handlers[type](updatedText, oldValue, newValue);
+    updatedMWP = handlers[type](updatedMWP, oldValue, newValue);
   });
   
-  return updatedText;
+  // Update formula only with entity_quantity changes
+  if (updatedFormula) {
+    const quantityChanges = changesToApply.filter(({ type }) => type === 'entity_quantity');
+    quantityChanges.forEach(({ oldValue, newValue }) => {
+      updatedFormula = replaceQuantities(updatedFormula!, oldValue, newValue);
+    });
+  }
+  
+  return { mwp: updatedMWP, formula: updatedFormula };
 }
 
 /**

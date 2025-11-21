@@ -19,6 +19,7 @@ interface VisualLanguageFormProps {
   onResult: (vl: string, svgFormal: string | null, svgIntuitive: string | null, parsedDSL: ParsedOperation, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], mwp?: string, formula?: string, componentMappings?: ComponentMapping) => void;
   onLoadingChange: (loading: boolean, abortFn?: () => void) => void;
   mwp: string;
+  formula: string | null;
   isDisabled?: boolean;
 }
 
@@ -26,6 +27,7 @@ export const VisualLanguageForm = ({
   onResult,
   onLoadingChange,
   mwp,
+  formula,
   isDisabled = false,
 }: VisualLanguageFormProps) => {
   const { dslHighlightRanges, currentDSLPath, setCurrentDSLPath, clearHighlightingState } = useHighlightingContext();
@@ -55,6 +57,7 @@ export const VisualLanguageForm = ({
     onResult,
     onLoadingChange,
     mwp,
+    formula,
   });
 
   

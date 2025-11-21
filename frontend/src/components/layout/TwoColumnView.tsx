@@ -200,6 +200,7 @@ export function TwoColumnView({ appState }: Props) {
                     setVLFormLoading(loading, abortFn);
                   }}
                   mwp={mwp}
+                  formula={formula}
                   isDisabled={mpFormLoading}
                 />
               )}

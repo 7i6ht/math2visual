@@ -10,18 +10,20 @@ import type { VLFormData } from "@/schemas/validation";
 import type { ComponentMapping } from "@/types/visualInteraction";
 import type { ParsedOperation } from "@/utils/dsl-parser";
 import { parseWithErrorHandling } from "@/utils/dsl-parser";
-import { detectDSLChanges, updateMWPText } from "@/lib/dsl-utils";
+import { detectDSLChanges, updateMWPInput } from "@/lib/dsl-utils";
 
 interface UseVisualLanguageFormProps {
   onResult: (vl: string, svgFormal: string | null, svgIntuitive: string | null, parsedDSL: ParsedOperation, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], mwp?: string, formula?: string, componentMappings?: ComponentMapping, hasParseError?: boolean) => void;
   onLoadingChange: (loading: boolean, abortFn?: () => void) => void;
   mwp: string;
+  formula: string | null;
 }
 
 export const useVisualLanguageForm = ({
   onResult,
   onLoadingChange,
   mwp,
+  formula,
 }: UseVisualLanguageFormProps) => {
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { formattedDSL, parsedDSL } = useDSLContext();
@@ -80,14 +82,17 @@ export const useVisualLanguageForm = ({
       return;
     }
 
-    // Detect DSL changes and update MWP text and DSL before sending to backend
+    // Detect DSL changes and update MWP, formula, and DSL before sending to backend
     let updatedMWP = mwp;
+    let updatedFormula = formula;
     let updatedDSL = dslValue;
     
     if (parsedDSL) {
       const changes = detectDSLChanges(parsedDSL, validatedParsedDSL);
       if (changes.length > 0) {
-        updatedMWP = updateMWPText(mwp, changes);
+        const updated = updateMWPInput(mwp, formula, changes);
+        updatedMWP = updated.mwp;
+        updatedFormula = updated.formula ?? null;
         
         // Filter for entity_type changes and collect distinct old->new mappings
         const entityTypeReplacements = changes
@@ -124,7 +129,7 @@ export const useVisualLanguageForm = ({
         result.intuitive_error,
         result.missing_svg_entities,
         updatedMWP, // Pass the updated MWP
-        undefined, // formula - unchanged // TODO
+        updatedFormula ?? undefined, // Pass the updated formula
         result.componentMappings,
         result.is_parse_error
       );
