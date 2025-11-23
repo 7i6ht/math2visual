@@ -87,14 +87,14 @@ export function TwoColumnView({ appState }: Props) {
 
   const handleRightColumnScroll = useCallback((event: React.UIEvent<HTMLDivElement>) => {
     trackColumnScroll(event, 'right');
-  }, [trackColumnScroll]);
+  }, []);
 
   // Track two column layout render and capture screenshot
   useEffect(() => {
     if (analyticsEnabled) {
       trackTwoColumnLayoutRender();
     }
-  }, []);
+  }, [analyticsEnabled]);
 
   const handleRegenerateWithHint = useCallback(async () => {
     if (!mwp) return;
