@@ -46,6 +46,7 @@ let outermostScrollTop = 0;
 let dslScrollTimeout: ReturnType<typeof setTimeout> | null = null;
 let columnScrollTimeout: ReturnType<typeof setTimeout> | null = null;
 let outermostScrollTimeout: ReturnType<typeof setTimeout> | null = null;
+let panelResizeTimeout: ReturnType<typeof setTimeout> | null = null;
 let isFirstRender = true;
 let lastMouseMoveTime = 0;
 let mouseMoveHandler: ((event: MouseEvent) => void) | null = null;
@@ -206,6 +207,21 @@ export function trackOutermostScroll(event: Event): void {
       //captureScreenshot();
     }, 1500);
   }
+}
+
+// Panel resize tracking with debouncing
+export function trackPanelResize(sizes: number[]): void {
+  if (panelResizeTimeout) {
+    clearTimeout(panelResizeTimeout);
+  }
+  panelResizeTimeout = setTimeout(() => {
+    analyticsService.recordAction({
+      type: 'panel_resize',
+      data: JSON.stringify({
+        sizes: sizes.map(s => Math.round(s * 10) / 10) // Round to 1 decimal place
+      }),
+    });
+  }, 1000); // Debounce for 1 second after user stops resizing
 }
 
 export function trackTwoColumnLayoutRender(): void {

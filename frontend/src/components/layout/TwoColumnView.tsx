@@ -6,7 +6,7 @@ import { VisualizationResults } from "@/components/visualization/VisualizationRe
 import { GearLoading } from "@/components/ui/gear-loading";
 import { SessionAnalyticsDisplay } from "@/components/ui/SessionAnalyticsDisplay";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
-import { trackColumnScroll, trackTwoColumnLayoutRender, trackElementClick, isAnalyticsEnabled, getSessionId, subscribeToScreenshotState, getIsCapturingScreenshot } from "@/services/analyticsTracker";
+import { trackColumnScroll, trackTwoColumnLayoutRender, trackElementClick, trackPanelResize, isAnalyticsEnabled, getSessionId, subscribeToScreenshotState, getIsCapturingScreenshot } from "@/services/analyticsTracker";
 import { useDSLContext } from "@/contexts/DSLContext";
 import { useVisualizationHandlers } from "@/hooks/useVisualizationHandlers";
 import { usePopupManagement } from "@/hooks/usePopupManagement";
@@ -266,6 +266,7 @@ export function TwoColumnView({ appState }: Props) {
             direction="horizontal" 
             className="flex gap-4 2xl:gap-6 3xl:gap-8"
             style={{ overflow: 'visible' }}
+            {...(analyticsEnabled ? {onLayout: trackPanelResize} : {})}
           >
             {/* Math Problem Column */}
             <ResizablePanel 
