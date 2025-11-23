@@ -45,10 +45,10 @@ export const GearLoading = ({
         {/* Cancel button positioned next to the gears */}
         {showAbortButton && onAbort && (
         <Button
-          variant="ghost"
+          variant="outline"
           size="sm"
           onClick={onAbort}
-          className="text-xs sm:text-sm md:text-sm lg:text-base xl:text-lg 2xl:text-xl 3xl:text-2xl 4xl:text-3xl 5xl:text-4xl text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-all duration-200 border border-muted-foreground/20 hover:border-destructive/30 h-6 sm:h-7 md:h-8 lg:h-9 xl:h-10 2xl:h-12 3xl:h-14 4xl:h-16 5xl:h-18 px-2 sm:px-2 md:px-3 lg:px-4 xl:px-5 2xl:px-6 3xl:px-8 4xl:px-10 5xl:px-12"
+          className="bg-background hover:bg-background text-xs sm:text-sm md:text-sm lg:text-base xl:text-lg 2xl:text-xl 3xl:text-2xl 4xl:text-3xl 5xl:text-4xl text-muted-foreground hover:text-destructive transition-all duration-200 border border-muted-foreground/20 hover:border-destructive h-6 sm:h-7 md:h-8 lg:h-9 xl:h-10 2xl:h-12 3xl:h-14 4xl:h-16 5xl:h-18 px-2 sm:px-2 md:px-3 lg:px-4 xl:px-5 2xl:px-6 3xl:px-8 4xl:px-10 5xl:px-12"
           title="Cancel generation"
           aria-label="Cancel generation"
         >

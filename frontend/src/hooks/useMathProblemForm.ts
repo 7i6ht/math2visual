@@ -11,7 +11,7 @@ import type { ParsedOperation } from "@/utils/dsl-parser";
 import { useHighlightingContext } from "@/contexts/HighlightingContext";
 
 interface UseMathProblemFormProps {
-  onSuccess: (vl: string, svgFormal: string | null, svgIntuitive: string | null, parsedDSL: ParsedOperation, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], mwp?: string, formula?: string, componentMappings?: ComponentMapping, hasParseError?: boolean) => void;
+  onSuccess: (vl: string, svgFormal: string | null, svgIntuitive: string | null, parsedDSL: ParsedOperation, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], mwp?: string, formula?: string, hint?: string, componentMappings?: ComponentMapping, hasParseError?: boolean) => void;
   onLoadingChange: (loading: boolean, abortFn?: () => void) => void;
   mwp?: string;
   formula?: string;
@@ -87,6 +87,7 @@ export const useMathProblemForm = ({
         result.missing_svg_entities,
         data.mwp,
         data.formula || "",
+        data.hint || "",
         result.componentMappings,
         result.is_parse_error
       );

@@ -1,11 +1,10 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Textarea } from "@/components/ui/textarea";
 import { useState, useEffect, useCallback, memo } from "react";
 import { VisualizationSection } from "./VisualizationSection";
 import { MissingSVGSection } from "./MissingSVGSection";
 import { ParseErrorSection } from "./ParseErrorSection";
 import { AlertCircle } from "lucide-react";
-import { trackElementClick, trackHintType, isAnalyticsEnabled } from "@/services/analyticsTracker";
+import { trackElementClick, isAnalyticsEnabled } from "@/services/analyticsTracker";
 
 interface VisualizationResultsProps {
   svgFormal: string | null;
@@ -23,9 +22,6 @@ interface VisualizationResultsProps {
   onNameClick: (event: MouseEvent) => void;
   isPopupOpen?: boolean;
   isDisabled?: boolean;
-  hint?: string;
-  onHintChange: (value: string) => void;
-  onRegenerateWithHint?: () => void;
 }
 
 export const VisualizationResults = memo(({
@@ -44,26 +40,9 @@ export const VisualizationResults = memo(({
   onNameClick,
   isPopupOpen = false,
   isDisabled = false,
-  hint = '',
-  onHintChange,
-  onRegenerateWithHint,
 }: VisualizationResultsProps) => {
   const [activeTab, setActiveTab] = useState<string>("");
   const analyticsEnabled = isAnalyticsEnabled();
-
-  const handleHintChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    onHintChange(e.target.value);
-    if (analyticsEnabled) {
-      trackHintType();
-    }
-  }, [onHintChange, analyticsEnabled, trackHintType]);
-
-  const handleHintBlur = useCallback(() => {
-    // Trigger regeneration if hint is non-empty
-    if (hint.trim() && onRegenerateWithHint && !isDisabled) {
-      onRegenerateWithHint();
-    }
-  }, [hint, onRegenerateWithHint, isDisabled]);
 
   // Suppress generic missing-SVG errors in the tabs; these are shown
   // more helpfully in the dedicated MissingSVGSection below
@@ -221,25 +200,6 @@ export const VisualizationResults = memo(({
           </TabsContent>
         )}
       </Tabs>
-      
-      {/* Hint input - hide when missing SVG tab is active */}
-      {((svgFormal || svgIntuitive) && (
-        (activeTab === 'formal' && !filteredFormalError) || 
-        (activeTab === 'intuitive' && !filteredIntuitiveError)
-      )) && (
-        <div className="mt-4 text-left">
-          <Textarea
-            className="w-full ring-offset-background responsive-text-font-size"
-            placeholder="Does not look as expected? Then add more hints about the relationships between the visual elements inside here ..."
-            rows={3}
-            spellCheck={false}
-            value={hint}
-            onChange={handleHintChange}
-            onBlur={handleHintBlur}
-            disabled={isDisabled}
-          />
-        </div>
-      )}
     </div>
   );
 });

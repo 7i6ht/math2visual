@@ -20,6 +20,7 @@ export type VisualizationHandlersDeps = {
     missing?: string[] | undefined,
     mwp?: string,
     formula?: string | undefined,
+    hint?: string | undefined,
     componentMappings?: ComponentMapping | undefined,
     hasParseError?: boolean
   ) => void
@@ -75,6 +76,7 @@ export const useVisualizationHandlers = ({
       mergedMissing ?? undefined,
       mergedMWP,
       mergedFormula ?? undefined,
+      undefined, // hint - not modified by VL form
       mergedMappings || undefined,
       nextHasParseError
     );

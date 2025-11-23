@@ -26,7 +26,6 @@ export const useAppState = () => {
     mwp: "",
     formula: "",
     hint: "",
-    showHint: false,
   });
 
   const setMpFormLoading = useCallback((mpFormLoading: boolean, abortFn?: () => void) => {
@@ -57,6 +56,7 @@ export const useAppState = () => {
     missingSvgEntities?: string[],
     mwp?: string,
     formula?: string,
+    hint?: string,
     componentMappings?: ComponentMapping,
     hasParseError?: boolean
   ) => {
@@ -71,6 +71,7 @@ export const useAppState = () => {
       hasCompletedGeneration: true,
       ...(mwp !== undefined && { mwp }),
       ...(formula !== undefined && { formula }),
+      ...(hint !== undefined && { hint }),
     }));
 
     // Also update DSL context so consumers can read formatted DSL, mappings, and parsed AST
@@ -138,6 +139,7 @@ export const useAppState = () => {
         result.missing_svg_entities,
         undefined,
         undefined,
+        undefined,
         result.componentMappings,
         undefined // Regenerating with existing valid DSL shouldn't introduce parse errors
       );
@@ -182,14 +184,6 @@ export const useAppState = () => {
     }
   }, []);
 
-  const setShowHint = useCallback((showHint: boolean) => {
-    setState(prev => ({ ...prev, showHint }));
-  }, []);
-
-  const setHint = useCallback((hint: string) => {
-    setState(prev => ({ ...prev, hint }));
-  }, []);
-
   const handleAbort = useCallback(() => {
     // Track abort event if analytics is enabled
     if (isAnalyticsEnabled()) {
@@ -226,8 +220,6 @@ export const useAppState = () => {
     handleRegenerateAfterUpload,
     handleAbort,
     saveInitialValues,
-    setShowHint,
-    setHint,
   }), [
     state,
     setMpFormLoading,
@@ -239,8 +231,6 @@ export const useAppState = () => {
     handleRegenerateAfterUpload,
     handleAbort,
     saveInitialValues,
-    setShowHint,
-    setHint,
   ]);
 
   return returnValue;

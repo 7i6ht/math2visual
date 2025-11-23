@@ -37,7 +37,6 @@ export function TwoColumnView({ appState }: Props) {
     clearMissingSVGEntities,
     handleRegenerateAfterUpload,
     handleAbort,
-    setHint,
   } = appState;
 
   const { formattedDSL } = useDSLContext();
@@ -96,19 +95,20 @@ export function TwoColumnView({ appState }: Props) {
     }
   }, [analyticsEnabled]);
 
-  const handleRegenerateWithHint = useCallback(async () => {
-    if (!mwp) return;
+  const handleRegenerate = useCallback(async (
+    analyticsEventName: string,
+    currentMwp: string,
+    currentFormula: string,
+    currentHint: string
+  ) => {
+    if (!currentMwp) return;
     
-    // Track hint regeneration
+    // Track regeneration
     if (analyticsEnabled) {
-      trackElementClick('hint_regenerate_auto');
+      trackElementClick(analyticsEventName);
     }
     
-    // Use the existing MathProblemForm logic by calling saveInitialValues and setResults
-    // This will trigger the generation with the current hint value
     try {
-      setMpFormLoading(true);
-      
       const { generationService } = await import('@/api_services/generation');
       const controller = new AbortController();
       const abort = () => {
@@ -119,9 +119,9 @@ export function TwoColumnView({ appState }: Props) {
       setMpFormLoading(true, abort);
       
       const result = await generationService.generateFromMathProblem(
-        mwp,
-        formula,
-        hint,
+        currentMwp,
+        currentFormula,
+        currentHint,
         controller.signal
       );
       
@@ -133,12 +133,14 @@ export function TwoColumnView({ appState }: Props) {
         result.formal_error || undefined,
         result.intuitive_error || undefined,
         result.missing_svg_entities,
-        mwp,
-        formula,
-        result.componentMappings
+        currentMwp,
+        currentFormula,
+        currentHint,
+        result.componentMappings,
+        result.is_parse_error
       );
     } catch (error) {
-      console.error('Hint regeneration failed:', error);
+      console.error('Regeneration failed:', error);
       if (error instanceof Error && error.name !== 'AbortError') {
         const { toast } = await import('sonner');
         toast.error(error instanceof Error ? error.message : "An error occurred");
@@ -146,14 +148,24 @@ export function TwoColumnView({ appState }: Props) {
     } finally {
       setMpFormLoading(false);
     }
-  }, [mwp, formula, hint, setMpFormLoading, setResults, analyticsEnabled]);
+  }, [setMpFormLoading, setResults, analyticsEnabled]);
+
+  const handleRegenerateOnBlur = useCallback(async (
+    fieldName: 'mwp' | 'formula' | 'hint',
+    currentMwp: string,
+    currentFormula: string,
+    currentHint: string
+  ) => {
+    await handleRegenerate(`${fieldName}_regenerate_auto`, currentMwp, currentFormula, currentHint);
+  }, [handleRegenerate]);
 
 
+  const isFormLoading = mpFormLoading || vlFormLoading || uploadGenerating;
 
   return (
     <div className="w-full px-1 py-4 sm:px-2 lg:px-4 xl:px-6 2xl:px-8 3xl:px-8 4xl:px-8">
       {analyticsEnabled && <SessionAnalyticsDisplay sessionId={sessionId} isCapturingScreenshot={isCapturingScreenshot} />}
-      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] 3xl:grid-cols-[minmax(0,1fr)_minmax(0,1.8fr)] gap-4 xl:gap-6 2xl:gap-8 3xl:gap-10 min-h-[calc(100vh-2rem)] items-start">
+      <div className="relative grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] 3xl:grid-cols-[minmax(0,1fr)_minmax(0,1.8fr)] gap-4 xl:gap-6 2xl:gap-8 3xl:gap-10 min-h-[calc(100vh-2rem)] items-start">
         <div 
           className="flex flex-col space-y-6 xl:space-y-8 xl:sticky xl:top-6 xl:z-10 xl:pr-2 xl:h-[calc(100vh-3rem)]"
           {...(analyticsEnabled ? {onScroll: handleLeftColumnScroll} : {})}
@@ -179,16 +191,11 @@ export function TwoColumnView({ appState }: Props) {
                   hint={hint}
                   saveInitialValues={appState.saveInitialValues}
                   rows={9.5}
-                  hideSubmit={mpFormLoading}
+                  hideSubmit={true}
+                  onRegenerateOnBlur={handleRegenerateOnBlur}
+                  isDisabled={isFormLoading}
+                  showHintInput={!!(svgFormal || svgIntuitive) && !hasParseError}
                 />
-                {mpFormLoading && (
-                  <div className="animate-in fade-in-0 duration-300">
-                    <GearLoading
-                      onAbort={handleAbort}
-                      showAbortButton={true}
-                    />
-                  </div>
-                )}
               </div>
             </div>
 
@@ -201,21 +208,7 @@ export function TwoColumnView({ appState }: Props) {
                   }}
                   mwp={mwp}
                   formula={formula}
-                  isDisabled={mpFormLoading}
-                />
-              )}
-              {(vlFormLoading || uploadGenerating) && (
-                <div className="mt-8 animate-in fade-in-0 duration-300">
-                  <GearLoading
-                    onAbort={handleAbort}
-                    showAbortButton={true}
-                  />
-                </div>
-              )}
-              {mpFormLoading && (
-                <div
-                  className="absolute inset-0 z-10 bg-background/50 dark:bg-black/30 backdrop-blur-[1px] rounded-md pointer-events-none"
-                  aria-hidden="true"
+                  isDisabled={isFormLoading}
                 />
               )}
             </div>
@@ -241,18 +234,27 @@ export function TwoColumnView({ appState }: Props) {
             onEntityQuantityClick={popup.handleEntityQuantityClick}
             onNameClick={popup.handleNameClick}
             isPopupOpen={popup.selectorPopupState.isOpen || popup.namePopupState.isOpen || popup.quantityPopupState.isOpen}
-            hint={hint}
-            onHintChange={setHint}
-            onRegenerateWithHint={handleRegenerateWithHint}
-            isDisabled={mpFormLoading}
+            isDisabled={isFormLoading}
           />
-          { (mpFormLoading || vlFormLoading || uploadGenerating) && (
+        </div>
+        
+        {/* Loading overlay for Visual Language Form and Visualization Results */}
+        {isFormLoading && (
+          <>
             <div
-              className="absolute inset-0 bg-background/60 dark:bg-black/40 backdrop-blur-[1px] rounded-md pointer-events-none"
+              className="absolute inset-0 bg-background/60 dark:bg-black/40 backdrop-blur-[1px] z-40"
               aria-hidden="true"
             />
-          )}
-        </div>
+            <div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none">
+              <div className="animate-in fade-in-0 duration-300 pointer-events-auto">
+                <GearLoading
+                  onAbort={handleAbort}
+                  showAbortButton={true}
+                />
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
       <PopupManager
