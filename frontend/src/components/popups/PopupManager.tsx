@@ -3,7 +3,7 @@ import { EntityQuantityPopup } from "@/components/popups/EntityQuantityPopup";
 import { NamePopup } from "@/components/popups/NamePopup";
 
 type Props = {
-  selectorPopupState: { isOpen: boolean; dslPath: string; currentValue: string };
+  selectorPopupState: { isOpen: boolean; dslPath: string; currentValue: string; entityName: string };
   closeSelectorPopup: () => void;
   updateSVG: (newType: string) => Promise<void>;
 
@@ -33,6 +33,7 @@ export function PopupManager({
         <SVGActionMenu
           onClosePopup={closeSelectorPopup}
           onEmbeddedSVGChange={updateSVG}
+          entityName={selectorPopupState.entityName}
         />
       )}
 

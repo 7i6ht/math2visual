@@ -3,7 +3,7 @@ import { ResponsiveLogo } from "@/components/ui/ResponsiveLogo";
 import { MathProblemForm } from "@/components/forms/MathProblemForm";
 import { VisualLanguageForm } from "@/components/forms/VisualLanguageForm";
 import { VisualizationResults } from "@/components/visualization/VisualizationResults";
-import { GearLoading } from "@/components/ui/gear-loading";
+import { SparklesLoading } from "@/components/ui/sparkles-loading";
 import { SessionAnalyticsDisplay } from "@/components/ui/SessionAnalyticsDisplay";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { trackColumnScroll, trackTwoColumnLayoutRender, trackElementClick, trackPanelResize, isAnalyticsEnabled, getSessionId, subscribeToScreenshotState, getIsCapturingScreenshot } from "@/services/analyticsTracker";
@@ -354,7 +354,7 @@ export function TwoColumnView({ appState }: Props) {
           />
           <div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none">
             <div className="animate-in fade-in-0 duration-300 pointer-events-auto">
-              <GearLoading
+              <SparklesLoading
                 onAbort={handleAbort}
                 showAbortButton={true}
               />

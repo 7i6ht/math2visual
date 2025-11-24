@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { Search, Upload } from "lucide-react";
+import { Search, Upload, Sparkles } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -9,19 +9,22 @@ import {
 import { Button } from "@/components/ui/button";
 import { SVGSearchPopup } from "./SVGSearchPopup";
 import { SVGUploadPopup } from "./SVGUploadPopup";
+import { SVGGeneratePopup } from "./SVGGeneratePopup";
 import { BasePopup } from "./BasePopup";
 import { trackElementClick, isAnalyticsEnabled } from "@/services/analyticsTracker";
 
 interface SVGActionMenuProps {
   onClosePopup: () => void;
   onEmbeddedSVGChange: (newType: string) => Promise<void>;
+  entityName: string;
 }
 
 export const SVGActionMenu: React.FC<SVGActionMenuProps> = ({
   onClosePopup,
   onEmbeddedSVGChange,
+  entityName,
 }) => {
-  const [activePopup, setActivePopup] = useState<"search" | "upload" | null>(
+  const [activePopup, setActivePopup] = useState<"search" | "upload" | "generate" | null>(
     null
   );
   const analyticsEnabled = isAnalyticsEnabled();
@@ -70,9 +73,30 @@ export const SVGActionMenu: React.FC<SVGActionMenuProps> = ({
               >
                 <Upload className="responsive-smaller-icon-font-size flex-shrink-0" /> Upload
               </DropdownMenuItem>
+              <DropdownMenuItem
+                className="cursor-pointer responsive-text-font-size touch-manipulation flex items-center gap-1"
+                onMouseDown={(e) => e.stopPropagation()}
+                onClick={() => {
+                  if (analyticsEnabled) {
+                    trackElementClick('svg_action_menu_generate_click');
+                  }
+                  setActivePopup("generate");
+                }}
+              >
+                <Sparkles className="responsive-smaller-icon-font-size flex-shrink-0" /> Generate
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </BasePopup>
+      )}
+
+      {/* Generate Popup */}
+      {activePopup === "generate" && (
+        <SVGGeneratePopup
+          onClose={handleClosePopup}
+          onGenerate={onEmbeddedSVGChange}
+          entityName={entityName}
+        />
       )}
 
       {/* Search Popup */}

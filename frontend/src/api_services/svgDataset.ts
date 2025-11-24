@@ -13,6 +13,95 @@ export interface SVGSearchResponse {
 
 export class SVGDatasetService {
   /**
+   * Generate SVG using AI
+   */
+  static async generateSVG(entityName: string, signal?: AbortSignal): Promise<{
+    success: boolean;
+    svg_content?: string;
+    temp_filename?: string;
+    error?: string;
+  }> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/svg-dataset/generate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ entity_name: entityName }),
+        signal,
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || `SVG generation failed with status ${response.status}`);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('SVG generation error:', error);
+      throw new Error(
+        error instanceof Error ? error.message : 'Failed to generate SVG'
+      );
+    }
+  }
+
+  /**
+   * Confirm generated SVG and move it to the dataset
+   */
+  static async confirmGeneratedSVG(tempFilename: string): Promise<{
+    success: boolean;
+    filename?: string;
+    error?: string;
+  }> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/svg-dataset/confirm-generated`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ temp_filename: tempFilename }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || `Confirmation of temporary SVG failed with status ${response.status}`);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('SVG confirmation error:', error);
+      throw new Error(
+        error instanceof Error ? error.message : 'Failed to confirm SVG'
+      );
+    }
+  }
+
+  /**
+   * Delete temporary SVG file
+   */
+  static async deleteTemporarySVG(tempFilename: string): Promise<void> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/svg-dataset/delete-temp`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ temp_filename: tempFilename }),
+      });
+
+      if (!response.ok) {
+        const result = await response.json();
+        throw new Error(result.error || `Deletion of temporary SVG failed with status ${response.status}`);
+      }
+    } catch (error) {
+      console.error('SVG deletion error:', error);
+      // Don't throw - this is a cleanup operation
+    }
+  }
+
+  /**
    * Search SVG files in the dataset
    */
   static async searchSVGFiles(query: string, limit: number = 20): Promise<SVGSearchResponse> {

@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { ResponsiveLogo } from "@/components/ui/ResponsiveLogo";
 import { MathProblemForm } from "@/components/forms/MathProblemForm";
-import { GearLoading } from "@/components/ui/gear-loading";
+import { SparklesLoading } from "@/components/ui/sparkles-loading";
 import { SessionAnalyticsDisplay } from "@/components/ui/SessionAnalyticsDisplay";
 import { trackInitialViewRender, isAnalyticsEnabled, getSessionId } from "@/services/analyticsTracker";
 import type { useAppState } from "@/hooks/useAppState";
@@ -65,7 +65,7 @@ export function InitialView({ appState }: Props) {
 
           {mpFormLoading && (
             <div className="animate-in fade-in-0 slide-in-from-bottom-4 duration-500">
-              <GearLoading
+              <SparklesLoading
                 onAbort={handleAbort}
                 showAbortButton={true}
               />

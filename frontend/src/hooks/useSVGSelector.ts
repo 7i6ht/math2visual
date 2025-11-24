@@ -11,6 +11,7 @@ interface SVGSelectorState {
   isOpen: boolean;
   dslPath: string;
   currentValue: string;
+  entityName: string;
 }
 
 interface UseSVGSelectorProps {
@@ -37,6 +38,7 @@ export const useSVGSelector = ({
     isOpen: false,
     dslPath: '',
     currentValue: '',
+    entityName: '',
   });
 
   // Close the selector and clear highlight
@@ -67,13 +69,20 @@ export const useSVGSelector = ({
     // Trigger highlight via existing system
     setSelectedElement(targetEl);
 
+    // Extract current type value
     const typeMapping = componentMappings?.[normalizedDslPath];
     const currentValue = typeMapping?.property_value || "";
+
+    // Extract entity name from *_name path (e.g., entity_type -> entity_name)
+    const namePath = normalizedDslPath ? normalizedDslPath.slice(0, -4) + "name" : "";
+    const nameMapping = componentMappings?.[namePath];
+    const entityName = nameMapping?.property_value || "";
 
     setSelectorState({
       isOpen: true,
       dslPath: normalizedDslPath,
       currentValue,
+      entityName,
     });
   }, [setSelectedElement, componentMappings]);
 

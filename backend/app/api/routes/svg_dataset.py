@@ -3,14 +3,21 @@ SVG Dataset API routes for fetching, searching, and uploading SVG files.
 """
 import os
 import re
+import tempfile
+import shutil
 from flask import Blueprint, request, jsonify, send_file
 from typing import List, Dict, Optional
 
 from app.config.storage_config import get_svg_dataset_path
 from app.services.validation.svg_validator import validate_file
+from app.services.svg_generation.svg_generator import generate_svg_icon
 from werkzeug.utils import secure_filename
 
 svg_dataset_bp = Blueprint('svg_dataset', __name__)
+
+# Temporary storage directory for generated SVGs
+TEMP_SVG_DIR = os.path.join(os.path.dirname(__file__), "../../../storage/temp_svgs")
+os.makedirs(TEMP_SVG_DIR, exist_ok=True)
 
 
 @svg_dataset_bp.route("/api/svg-dataset/search", methods=["GET"])
@@ -301,5 +308,199 @@ def serve_svg_file(filename):
     except Exception as e:
         print(f"❌ Error serving {filename}: {str(e)}")
         return jsonify({"error": f"Failed to serve file: {str(e)}"}), 500
+
+
+@svg_dataset_bp.route("/api/svg-dataset/generate", methods=["POST"])
+def generate_svg():
+    """
+    Generate an SVG icon using AI and store it temporarily.
+    
+    Expects:
+        - entity_name: Name of the entity/container to generate icon for
+        
+    Returns:
+        JSON response with SVG content and temporary filename
+    """
+    try:
+        body = request.json or {}
+        entity_name = body.get('entity_name', '').strip()
+        
+        if not entity_name:
+            return jsonify({
+                "success": False,
+                "error": "Entity name is required"
+            }), 400
+        
+        print(f"🎨 Generating SVG icon for: {entity_name}")
+        
+        # Generate SVG using Gemini
+        success, svg_content, error = generate_svg_icon(entity_name)
+        
+        if not success or not svg_content:
+            return jsonify({
+                "success": False,
+                "error": error or "Failed to generate SVG"
+            }), 500
+        
+        # Count existing files with the same name in the dataset
+        svg_dataset_dir = get_svg_dataset_path()
+        count = 0
+        base_name = entity_name.lower().replace(' ', '-')
+        
+        # Count files matching the pattern: base_name.svg or base_name-N.svg
+        pattern = re.compile(rf'^{re.escape(base_name)}(-\d+)?\.svg$', re.IGNORECASE)
+        count = sum(1 for f in os.listdir(svg_dataset_dir) if pattern.match(f))
+        
+        # Generate temporary filename
+        temp_filename = f"{base_name}-{count}.svg"
+        temp_path = os.path.join(TEMP_SVG_DIR, temp_filename)
+        
+        # Validate the generated SVG
+        is_valid, validation_error, validation_details = validate_file(
+            svg_content.encode('utf-8'), 
+            temp_filename, 
+            include_antivirus=False  # Skip antivirus for AI-generated content
+        )
+        
+        if not is_valid:
+            return jsonify({
+                "success": False,
+                "error": f"Generated SVG validation failed: {validation_error}"
+            }), 400
+        
+        # Save to temporary location
+        with open(temp_path, 'w', encoding='utf-8') as f:
+            f.write(svg_content)
+        
+        print(f"✅ SVG generated and saved to: {temp_path}")
+        
+        return jsonify({
+            "success": True,
+            "svg_content": svg_content,
+            "temp_filename": temp_filename,
+            "message": f"SVG icon for '{entity_name}' generated successfully"
+        })
+        
+    except Exception as e:
+        print(f"❌ Generation failed: {str(e)}")
+        return jsonify({
+            "success": False,
+            "error": f"Generation failed: {str(e)}"
+        }), 500
+
+
+@svg_dataset_bp.route("/api/svg-dataset/confirm-generated", methods=["POST"])
+def confirm_generated_svg():
+    """
+    Move a generated SVG from temporary storage to the dataset.
+    
+    Expects:
+        - temp_filename: The temporary filename to confirm
+        
+    Returns:
+        JSON response with success status and final filename
+    """
+    try:
+        body = request.json or {}
+        temp_filename = body.get('temp_filename', '').strip()
+        
+        if not temp_filename:
+            return jsonify({
+                "success": False,
+                "error": "Temporary filename is required"
+            }), 400
+        
+        # Sanitize filename to prevent path traversal
+        temp_filename = secure_filename(temp_filename)
+        if not temp_filename or not temp_filename.endswith('.svg'):
+            return jsonify({
+                "success": False,
+                "error": "Invalid filename"
+            }), 400
+        
+        temp_path = os.path.join(TEMP_SVG_DIR, temp_filename)
+        
+        if not os.path.exists(temp_path):
+            return jsonify({
+                "success": False,
+                "error": "Temporary file not found"
+            }), 404
+        
+        # Move to dataset
+        svg_dataset_dir = get_svg_dataset_path()
+        final_path = os.path.join(svg_dataset_dir, temp_filename)
+        
+        # Check if file already exists in dataset
+        if os.path.exists(final_path):
+            return jsonify({
+                "success": False,
+                "error": f"File '{temp_filename}' already exists in dataset"
+            }), 409
+        
+        # Move the file
+        shutil.move(temp_path, final_path)
+        
+        print(f"✅ Confirmed SVG moved to dataset: {final_path}")
+        
+        return jsonify({
+            "success": True,
+            "filename": temp_filename,
+            "message": f"SVG '{temp_filename}' added to dataset"
+        })
+        
+    except Exception as e:
+        print(f"❌ Confirmation of temporary SVG failed: {str(e)}")
+        return jsonify({
+            "success": False,
+            "error": f"Confirmation of temporary SVG failed: {str(e)}"
+        }), 500
+
+
+@svg_dataset_bp.route("/api/svg-dataset/delete-temp", methods=["POST"])
+def delete_temporary_svg():
+    """
+    Delete a temporary SVG file.
+    
+    Expects:
+        - temp_filename: The temporary filename to delete
+        
+    Returns:
+        JSON response with success status
+    """
+    try:
+        body = request.json or {}
+        temp_filename = body.get('temp_filename', '').strip()
+        
+        if not temp_filename:
+            return jsonify({
+                "success": False,
+                "error": "Temporary filename is required"
+            }), 400
+        
+        # Sanitize filename to prevent path traversal
+        temp_filename = secure_filename(temp_filename)
+        if not temp_filename or not temp_filename.endswith('.svg'):
+            return jsonify({
+                "success": False,
+                "error": "Invalid filename"
+            }), 400
+        
+        temp_path = os.path.join(TEMP_SVG_DIR, temp_filename)
+        
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
+            print(f"🗑️ Deleted temporary SVG: {temp_path}")
+        
+        return jsonify({
+            "success": True,
+            "message": "Temporary file deleted"
+        })
+        
+    except Exception as e:
+        print(f"❌ Deletion of temporary SVG failed: {str(e)}")
+        return jsonify({
+            "success": False,
+            "error": f"Deletion of temporary SVG failed: {str(e)}"
+        }), 500
 
 
