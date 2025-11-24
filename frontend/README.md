@@ -40,6 +40,7 @@ src/
 │   │   ├── NamePopup.tsx   # Name editing popup
 │   │   ├── PopupManager.tsx # Centralized popup state management
 │   │   ├── SVGActionMenu.tsx # SVG selection and upload menu
+│   │   ├── SVGGeneratePopup.tsx # AI-powered SVG icon generation
 │   │   ├── SVGSearchPopup.tsx # SVG search and selection
 │   │   └── SVGUploadPopup.tsx # SVG upload interface
 │   ├── ui/                 # ShadCN UI components and custom UI
@@ -188,7 +189,8 @@ The application handles various error scenarios:
 
 - **Request Cancellation**: Abort ongoing generation requests
 - **Visual Language Editing**: Modify and regenerate from custom VL using Monaco Editor
-- **Interactive SVG Management**: Search, upload, and manage SVGs
+- **Interactive SVG Management**: Search, upload, and AI-generate SVG icons
+- **AI-Powered SVG Generation**: Generate custom SVG icons using Google Gemini
 - **Popup-based Interactions**: Entity quantity editing and name modification
 - **Multiple Download Formats**: Export in SVG, PNG, or PDF
 

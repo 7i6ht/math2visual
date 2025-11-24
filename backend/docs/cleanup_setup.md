@@ -4,7 +4,12 @@ This document explains how to set up periodic cleanup of temporary files generat
 
 ## Overview
 
-The Math2Visual API generates temporary SVG files for each request using unique UUIDs to prevent conflicts in parallel requests. These files are not cleaned up immediately after the response to avoid blocking the API. Instead, a periodic cleanup job removes old files.
+The Math2Visual API generates temporary files in two locations:
+
+1. **Visualization Output** (`storage/output/`): Temporary SVG files for visualization requests using unique UUIDs to prevent conflicts in parallel requests.
+2. **SVG Generation** (`storage/temp_svgs/`): Temporary AI-generated SVG icons that haven't been confirmed by the user yet.
+
+These files are not cleaned up immediately to avoid blocking the API. Instead, a periodic cleanup job removes old files.
 
 ## Files
 
@@ -17,17 +22,20 @@ The Math2Visual API generates temporary SVG files for each request using unique 
 You can run the cleanup script manually:
 
 ```bash
-# Clean up files older than 24 hours (default)
+# Clean up with defaults (output files >24h, temp SVGs >1h)
 cd backend
 python scripts/cleanup_temp_files.py
 
-# Clean up files older than 1 hour
+# Clean up output files older than 1 hour
 python scripts/cleanup_temp_files.py --age-hours 1
 
-# Dry run to see what would be cleaned
+# Clean up temp SVG files older than 30 minutes
+python scripts/cleanup_temp_files.py --temp-svg-age-hours 0.5
+
+# Dry run to see what would be cleaned (both directories)
 python scripts/cleanup_temp_files.py --dry-run
 
-# Show storage statistics
+# Show storage statistics (both directories)
 python scripts/cleanup_temp_files.py --stats
 ```
 
@@ -42,11 +50,14 @@ crontab -e
 
 ### 2. Add cleanup job
 ```bash
-# Clean up every 6 hours, files older than 24 hours
-0 */6 * * * cd /path/to/math2visual/backend && python scripts/cleanup_temp_files.py --age-hours 24 >> /var/log/math2visual_cleanup.log 2>&1
+# Recommended: Clean up every hour (output files >24h, temp SVGs >1h)
+0 * * * * cd /path/to/math2visual/backend && python scripts/cleanup_temp_files.py >> /var/log/math2visual_cleanup.log 2>&1
 
-# Or clean up daily at 2 AM, files older than 12 hours
-0 2 * * * cd /path/to/math2visual/backend && python scripts/cleanup_temp_files.py --age-hours 12 >> /var/log/math2visual_cleanup.log 2>&1
+# Alternative: Clean up every 6 hours with custom thresholds
+0 */6 * * * cd /path/to/math2visual/backend && python scripts/cleanup_temp_files.py --age-hours 24 --temp-svg-age-hours 2 >> /var/log/math2visual_cleanup.log 2>&1
+
+# More aggressive: Clean up temp SVGs every 30 minutes
+*/30 * * * * cd /path/to/math2visual/backend && python scripts/cleanup_temp_files.py --temp-svg-age-hours 0.5 >> /var/log/math2visual_cleanup.log 2>&1
 ```
 
 ### 3. Make script executable (optional)
@@ -57,14 +68,25 @@ chmod +x backend/scripts/cleanup_temp_files.py
 ## Configuration
 
 ### File Patterns Cleaned
-By default, the cleanup removes files matching these patterns:
+
+#### Visualization Output Directory (`storage/output/`)
 - `formal_*-*-*-*-*.svg` - Temporary formal visualization files (formal_{uuid}.svg)
 - `intuitive_*-*-*-*-*.svg` - Temporary intuitive visualization files (intuitive_{uuid}.svg)
 
-### Age Threshold
+#### Temp SVG Directory (`storage/temp_svgs/`)
+- `*.svg` - All temporary AI-generated SVG icon files
+
+### Age Thresholds
+
+#### Visualization Output Files
 - Default: 24 hours
 - Configurable via `--age-hours` parameter
 - Files older than this threshold are removed
+
+#### Temp SVG Files
+- Default: 1 hour
+- Configurable via `--temp-svg-age-hours` parameter
+- Shorter threshold since these are meant to be very temporary (user-aborted generations)
 
 ### Archive Files
 Archive files are only created when running in **debug mode** (`FLASK_DEBUG=true`):
@@ -94,11 +116,17 @@ tail -f /var/log/math2visual_cleanup.log
 
 ### Manual Verification
 ```bash
-# Check what files exist
+# Check what files exist in output directory
 ls -la storage/output/
 
-# Check file ages
+# Check what files exist in temp SVG directory
+ls -la storage/temp_svgs/
+
+# Check file ages in output directory
 find storage/output/ -name "*.svg" -type f -exec ls -la {} \;
+
+# Check file ages in temp SVG directory
+find storage/temp_svgs/ -name "*.svg" -type f -exec ls -la {} \;
 ```
 
 ## Troubleshooting
@@ -106,16 +134,21 @@ find storage/output/ -name "*.svg" -type f -exec ls -la {} \;
 ### Permission Issues
 If cleanup fails due to permissions:
 ```bash
-# Ensure the cleanup script can write to the output directory
-chmod 755 storage/output/
-chown -R www-data:www-data storage/output/  # Adjust user/group as needed
+# Ensure the cleanup script can write to both directories
+chmod 755 storage/output/ storage/temp_svgs/
+chown -R www-data:www-data storage/output/ storage/temp_svgs/  # Adjust user/group as needed
 ```
 
 ### Disk Space Issues
 If storage is filling up:
-1. Reduce the age threshold: `--age-hours 6`
-2. Run cleanup more frequently in cron
-3. Check for very large files: `find storage/output/ -size +10M`
+1. Reduce the age thresholds: `--age-hours 6 --temp-svg-age-hours 0.5`
+2. Run cleanup more frequently in cron (e.g., every 30 minutes)
+3. Check for very large files: 
+   ```bash
+   find storage/output/ -size +10M
+   find storage/temp_svgs/ -size +10M
+   ```
+4. Monitor both directories: `python scripts/cleanup_temp_files.py --stats`
 
 ### Cleanup Not Running
 1. Check cron service: `systemctl status cron`
@@ -134,3 +167,22 @@ If storage is filling up:
 - Cleanup only removes files matching specific patterns
 - Archive files with timestamps are preserved by default
 - Cleanup errors are logged but don't affect API functionality
+- Temp SVG files are cleaned more aggressively (1 hour default) to prevent accumulation from aborted generations
+
+## Use Cases
+
+### Why Two Directories?
+
+1. **Visualization Output** (`storage/output/`): 
+   - Created during normal API operations
+   - Persist longer (24h) for debugging and caching
+   - May be referenced by active sessions
+
+2. **Temp SVG Directory** (`storage/temp_svgs/`):
+   - Created when users generate AI SVG icons
+   - Only needed until user confirms or cancels
+   - Should be cleaned quickly (1h) to handle:
+     - User-aborted generations
+     - Browser crashes/closes
+     - Network interruptions
+     - Race conditions between frontend and backend

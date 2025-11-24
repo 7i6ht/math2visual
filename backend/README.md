@@ -41,6 +41,9 @@ backend/
 │   │   │   ├── __init__.py
 │   │   │   ├── gpt_generator.py
 │   │   │   └── model_generator.py
+│   │   ├── svg_generation/                 # AI-powered SVG icon generation
+│   │   │   ├── __init__.py
+│   │   │   └── svg_generator.py            # Gemini-based SVG generation
 │   │   ├── validation/                     # Input/output validation
 │   │   │   ├── __init__.py
 │   │   │   ├── security_scanner.py         # ClamAV integration
@@ -54,7 +57,8 @@ backend/
 │   ├── storage/                            # Application storage
 │   │   ├── datasets/                       # Dataset files
 │   │   ├── models/                         # ML model files
-│   │   ├── output/                         # Generated outputs
+│   │   ├── output/                         # Generated outputs (temp visualization files)
+│   │   ├── temp_svgs/                      # Temporary AI-generated SVG icons
 │   │   └── analytics/                      # Analytics data storage (screenshots, etc.)
 │   └── utils/                              # Utility functions
 │       ├── __init__.py
@@ -70,6 +74,7 @@ backend/
 │   │   ├── base_model/                     # Base language models
 │   │   └── check-point/                    # Fine-tuned adapters
 │   ├── output/                             # Generated visualizations
+│   ├── temp_svgs/                          # Temporary AI-generated SVG icons
 │   └── analytics/                          # Analytics data storage
 │       ├── *.png                           # User session screenshots
 │       └── heatmaps/                       # Generated heatmap visualizations
