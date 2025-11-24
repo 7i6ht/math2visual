@@ -115,30 +115,31 @@ export const SVGGeneratePopup: React.FC<SVGGeneratePopupProps> = ({
     <BasePopup 
       onClose={handleCancel} 
       onKeyDown={handlePopupKeyDown}
-      className="w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 flex items-center justify-center overflow-hidden"
+      className="w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 lg:w-[28rem] lg:h-[28rem] xl:w-[32rem] xl:h-[32rem] 2xl:w-[36rem] 2xl:h-[36rem] 3xl:w-[42rem] 3xl:h-[42rem] 4xl:w-[48rem] 4xl:h-[48rem] 5xl:w-[56rem] 5xl:h-[56rem] flex items-center justify-center overflow-hidden"
     >
       {isGenerating ? (
-        <div className="flex flex-col items-center justify-center gap-4">
+        <div className="flex flex-col items-center justify-center gap-3 sm:gap-4 md:gap-5 lg:gap-6 xl:gap-7 2xl:gap-8">
           <div className="relative">
-            <Loader2 className="w-12 h-12 text-blue-500 animate-spin" />
-            <Sparkles className="w-6 h-6 text-yellow-500 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+            <Loader2 className="responsive-icon-font-size text-blue-500 animate-spin" />
+            <Sparkles className="responsive-smaller-icon-font-size text-yellow-500 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
           </div>
-          <p className="text-sm text-gray-600 text-center">
+          <p className="responsive-text-font-size text-gray-600 text-center">
             Generating {entityName} icon...
           </p>
         </div>
       ) : generatedSVG ? (
         <div 
           ref={containerRef}
-          className="w-full h-full cursor-pointer hover:bg-gray-50 transition-colors rounded-lg p-4"
+          className="w-full h-full cursor-pointer hover:bg-gray-50 transition-colors rounded-lg p-3 sm:p-4 md:p-5 lg:p-6 xl:p-7 2xl:p-8 3xl:p-10 4xl:p-12 5xl:p-14"
           onDoubleClick={handleConfirm}
         >
           <div 
-            className="svg-preview-container w-full h-[calc(100%-2rem)] flex items-center justify-center"
+            className="svg-preview-container w-full flex items-center justify-center"
+            style={{ height: 'calc(100% - 3rem)' }}
             dangerouslySetInnerHTML={{ __html: generatedSVG }}
           />
-          <p className="text-xs text-gray-500 text-center h-8 flex items-center justify-center">
-            Double-click or press Enter to confirm
+          <p className="responsive-smaller-text-font-size text-gray-500 text-center flex items-center justify-center" style={{ height: '3rem' }}>
+            Double-click / 'Enter' to confirm
           </p>
         </div>
       ) : null}
