@@ -115,13 +115,13 @@ export const SVGGeneratePopup: React.FC<SVGGeneratePopupProps> = ({
     <BasePopup 
       onClose={handleCancel} 
       onKeyDown={handlePopupKeyDown}
-      className="w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 lg:w-[28rem] lg:h-[28rem] xl:w-[32rem] xl:h-[32rem] 2xl:w-[36rem] 2xl:h-[36rem] 3xl:w-[42rem] 3xl:h-[42rem] 4xl:w-[48rem] 4xl:h-[48rem] 5xl:w-[56rem] 5xl:h-[56rem] flex items-center justify-center overflow-hidden"
+      className="w-48 h-48 sm:w-56 sm:h-56 md:w-64 md:h-64 lg:w-[18rem] lg:h-[18rem] xl:w-[20rem] xl:h-[20rem] 2xl:w-[22rem] 2xl:h-[22rem] 3xl:w-[24rem] 3xl:h-[24rem] 4xl:w-[26rem] 4xl:h-[26rem] 5xl:w-[28rem] 5xl:h-[28rem] flex items-center justify-center overflow-hidden"
     >
       {isGenerating ? (
-        <div className="flex flex-col items-center justify-center gap-3 sm:gap-4 md:gap-5 lg:gap-6 xl:gap-7 2xl:gap-8">
+        <div className="flex flex-col items-center justify-center gap-3">
           <div className="relative">
-            <Loader2 className="responsive-icon-font-size text-blue-500 animate-spin" />
-            <Sparkles className="responsive-smaller-icon-font-size text-yellow-500 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+            <Loader2 className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-16 lg:h-16 xl:w-18 xl:h-18 2xl:w-20 2xl:h-20 3xl:w-24 3xl:h-24 4xl:w-28 4xl:h-28 5xl:w-32 5xl:h-32 text-blue-500 animate-spin" />
+            <Sparkles className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 lg:w-8 lg:h-8 xl:w-9 xl:h-9 2xl:w-10 2xl:h-10 3xl:w-12 3xl:h-12 4xl:w-14 4xl:h-14 5xl:w-16 5xl:h-16 text-yellow-500 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
           </div>
           <p className="responsive-text-font-size text-gray-600 text-center">
             Generating {entityName} icon...
@@ -130,7 +130,7 @@ export const SVGGeneratePopup: React.FC<SVGGeneratePopupProps> = ({
       ) : generatedSVG ? (
         <div 
           ref={containerRef}
-          className="w-full h-full cursor-pointer hover:bg-gray-50 transition-colors rounded-lg p-3 sm:p-4 md:p-5 lg:p-6 xl:p-7 2xl:p-8 3xl:p-10 4xl:p-12 5xl:p-14"
+          className="w-full h-full cursor-pointer hover:bg-gray-50 transition-colors rounded-lg p-3 sm:p-3 md:p-4 lg:p-4 xl:p-4 2xl:p-5 3xl:p-5 4xl:p-6 5xl:p-6"
           onDoubleClick={handleConfirm}
         >
           <div 
