@@ -41,12 +41,15 @@ export const useMathProblemForm = ({
 
   // Update form values when initial values change (only for the two-column layout)
   useEffect(() => {
-    if (mwp || formula || hint) {
-      form.setValue("mwp", mwp);
-      form.setValue("formula", formula);
-      form.setValue("hint", hint);
-    }
-  }, [mwp, formula, hint, form]);
+    form.reset({
+      mwp: mwp,
+      formula: formula,
+      hint: hint,
+    }, {
+      keepDirty: false,
+      keepTouched: false,
+    });
+  }, [mwp, formula, hint]);
 
 
   const handleSubmit = async (data: FormData) => {
