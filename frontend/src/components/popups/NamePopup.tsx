@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { BasePopup } from "./BasePopup";
-import { trackNamePopupType, trackPopupSubmit, isAnalyticsEnabled } from "@/services/analyticsTracker";
+import { trackNamePopupType, trackPopupSubmit, trackPopupCancel, isAnalyticsEnabled } from "@/services/analyticsTracker";
 
 interface NamePopupProps {
   onClose: () => void;
@@ -21,6 +21,13 @@ export const NamePopup: React.FC<NamePopupProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const analyticsEnabled = isAnalyticsEnabled();
 
+  // Handle cancel (click outside)
+  const handleCancel = useCallback(() => {
+    if (analyticsEnabled) {
+      trackPopupCancel('name', 'click_outside');
+    }
+    onClose();
+  }, [analyticsEnabled, onClose]);
 
   // Handle value update
   const handleUpdate = async () => {
@@ -67,7 +74,7 @@ export const NamePopup: React.FC<NamePopupProps> = ({
 
   return (
     <BasePopup
-      onClose={onClose}
+      onClose={handleCancel}
       onKeyDown={handlePopupKeyDown}
     >
       <div className="flex flex-col gap-2">

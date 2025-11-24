@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { BasePopup } from "./BasePopup";
-import { trackEntityQuantityPopupType, trackPopupSubmit, isAnalyticsEnabled } from "@/services/analyticsTracker";
+import { trackEntityQuantityPopupType, trackPopupSubmit, trackPopupCancel, isAnalyticsEnabled } from "@/services/analyticsTracker";
 
 interface EntityQuantityPopupProps {
   onClose: () => void;
@@ -21,6 +21,14 @@ export const EntityQuantityPopup: React.FC<EntityQuantityPopupProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const analyticsEnabled = isAnalyticsEnabled();
+
+  // Handle cancel (click outside)
+  const handleCancel = useCallback(() => {
+    if (analyticsEnabled) {
+      trackPopupCancel('entity_quantity', 'click_outside');
+    }
+    onClose();
+  }, [analyticsEnabled, onClose]);
 
   // Focus input on mount
   useEffect(() => {
@@ -91,7 +99,7 @@ export const EntityQuantityPopup: React.FC<EntityQuantityPopupProps> = ({
 
   return (
     <BasePopup
-      onClose={onClose}
+      onClose={handleCancel}
       onKeyDown={handlePopupKeyDown}
     >
       <div className="flex flex-col gap-2">

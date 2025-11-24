@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Loader2, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import { SVGDatasetService } from '@/api_services/svgDataset';
 import { BasePopup } from './BasePopup.tsx';
-import { trackPopupSubmit, isAnalyticsEnabled } from '@/services/analyticsTracker';
+import { trackPopupSubmit, trackPopupCancel, isAnalyticsEnabled } from '@/services/analyticsTracker';
 
 interface SVGGeneratePopupProps {
   onClose: () => void;
@@ -83,7 +83,12 @@ export const SVGGeneratePopup: React.FC<SVGGeneratePopupProps> = ({
   };
 
   // Handle cancellation (click outside)
-  const handleCancel = async () => {
+  const handleCancel = useCallback(async () => {
+    // Track cancellation
+    if (analyticsEnabled) {
+      trackPopupCancel('svg_generate', 'click_outside');
+    }
+
     // Abort ongoing generation
     if (isGenerating && abortControllerRef.current) {
       abortControllerRef.current.abort('SVG generation cancelled by user');
@@ -98,7 +103,7 @@ export const SVGGeneratePopup: React.FC<SVGGeneratePopupProps> = ({
       }
     }
     onClose();
-  };
+  }, [analyticsEnabled, isGenerating, tempFilename, onClose]);
 
   // Handle keyboard events
   const handlePopupKeyDown = (event: KeyboardEvent) => {

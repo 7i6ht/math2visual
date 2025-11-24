@@ -325,6 +325,15 @@ export function trackPopupSubmit(popupType: string, value: string, elementType: 
   });
 }
 
+export function trackPopupCancel(popupType: string, reason: 'click_outside' | 'escape_key' = 'click_outside'): void {
+  const actionType = `${popupType}_popup_cancel`;
+
+  analyticsService.recordAction({
+    type: actionType,
+    data: JSON.stringify({ reason: reason }),
+  });
+}
+
 export function trackDragOver(action_type: string, dslPath?: string): void {
   analyticsService.recordAction({
     type: action_type,

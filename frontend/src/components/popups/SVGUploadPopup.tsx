@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { validateFormatAsync } from '@/utils/validation';
 import { SVGDatasetService } from '@/api_services/svgDataset';
 import { BasePopup } from './BasePopup.tsx';
-import { trackSVGUploadPopupType, trackPopupSubmit, trackElementClick, isAnalyticsEnabled } from '@/services/analyticsTracker';
+import { trackSVGUploadPopupType, trackPopupSubmit, trackPopupCancel, trackElementClick, isAnalyticsEnabled } from '@/services/analyticsTracker';
 
 interface SVGUploadPopupProps {
   onClose: () => void;
@@ -25,6 +25,14 @@ export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const filenameInputRef = useRef<HTMLInputElement>(null);
   const analyticsEnabled = isAnalyticsEnabled();
+
+  // Handle cancel (click outside)
+  const handleCancel = useCallback(() => {
+    if (analyticsEnabled) {
+      trackPopupCancel('svg_upload', 'click_outside');
+    }
+    onClose();
+  }, [analyticsEnabled, onClose]);
 
   // Real-time validation for filename
   useEffect(() => {
@@ -122,7 +130,7 @@ export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
   const isValidSelection = uploadFile && filename.trim() && !validationError;
 
   return (
-    <BasePopup onClose={onClose} onKeyDown={handlePopupKeyDown} className="popup-upload-width max-h-[90vh]">
+    <BasePopup onClose={handleCancel} onKeyDown={handlePopupKeyDown} className="popup-upload-width max-h-[90vh]">
       {/* Upload Form */}
       <div className="flex gap-0 group focus-within:ring-[3px] focus-within:ring-ring/50 focus-within:ring-offset-0 focus-within:border-ring rounded-md transition-all duration-200 border border-ring ring-[3px] ring-ring/50 ring-offset-0">
         <div className="relative flex-1">

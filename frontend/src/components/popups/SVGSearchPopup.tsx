@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { SVGDatasetService } from '@/api_services/svgDataset';
 import { BasePopup } from './BasePopup.tsx';
-import { trackSVGSearchPopupType, trackPopupSubmit, isAnalyticsEnabled } from '@/services/analyticsTracker';
+import { trackSVGSearchPopupType, trackPopupSubmit, trackPopupCancel, isAnalyticsEnabled } from '@/services/analyticsTracker';
 
 interface SVGFile {
   filename: string;
@@ -34,6 +34,14 @@ export const SVGSearchPopup: React.FC<SVGSearchPopupProps> = ({
   const thumbnailsRowRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const analyticsEnabled = isAnalyticsEnabled();
+
+  // Handle cancel (click outside)
+  const handleCancel = useCallback(() => {
+    if (analyticsEnabled) {
+      trackPopupCancel('svg_search', 'click_outside');
+    }
+    onClose();
+  }, [analyticsEnabled, onClose]);
 
   // Calculate pagination
   const totalPages = Math.ceil(searchResults.length / Math.max(1, imagesPerPage));
@@ -180,7 +188,7 @@ export const SVGSearchPopup: React.FC<SVGSearchPopupProps> = ({
   }, []);
 
   return (
-    <BasePopup onClose={onClose} onKeyDown={handlePopupKeyDown} className="popup-search-width max-h-[90vh]">
+    <BasePopup onClose={handleCancel} onKeyDown={handlePopupKeyDown} className="popup-search-width max-h-[90vh]">
       {/* Search Input */}
       <div className="flex gap-0 group focus-within:ring-[3px] focus-within:ring-ring/50 focus-within:ring-offset-0 focus-within:border-ring rounded-md transition-all duration-200 border border-ring ring-[3px] ring-ring/50 ring-offset-0">
         <div className="relative flex-1">
