@@ -78,10 +78,15 @@ export const VisualLanguageForm = ({
                     value={field.value}
                     onChange={(value) => {
                       field.onChange(value);
-                      if (analyticsEnabled) {
-                        trackDSLType();
+                      // Only track analytics and trigger debounced change for user-initiated changes
+                      // If value matches formattedDSL, it's a programmatic update from popups
+                      const isUserInput = value !== formattedDSL;
+                      if (isUserInput) {
+                        if (analyticsEnabled) {
+                          trackDSLType();
+                        }
+                        handleDebouncedChange(value);
                       }
-                      handleDebouncedChange(value);
                     }}
                     className="w-full"
                     highlightRanges={dslHighlightRanges}

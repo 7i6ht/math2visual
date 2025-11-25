@@ -195,3 +195,77 @@ export const findAllNameOccurrencesInText = (
   
   return allMatches.map(match => [match.index!, match.index! + match[0].length] as [number, number]);
 };
+
+/**
+ * Replace entity names in MWP text
+ * Handles proper pluralization using the pluralize library (e.g., "peach" → "peaches")
+ */
+export function replaceEntityNames(text: string, oldName: string, newName: string): string {
+  // Get plural forms using the pluralize library
+  const oldPlural = pluralize(oldName);
+  const newPlural = pluralize(newName);
+  
+  // Create a regex that matches both singular and plural forms
+  // Use alternation with the longer form first to prevent partial matches
+  const pattern = oldPlural.length > oldName.length 
+    ? `\\b(${oldPlural}|${oldName})\\b`
+    : `\\b(${oldName}|${oldPlural})\\b`;
+  
+  const regex = new RegExp(pattern, 'gi');
+  
+  return text.replace(regex, (match) => {
+    // Determine if the matched word is plural by comparing with the plural form
+    const isPlural = match.toLowerCase() === oldPlural.toLowerCase();
+    
+    // Preserve the case of the original match
+    const result = isPlural ? newPlural : newName;
+    
+    // Match the case pattern of the original text
+    if (match[0] === match[0].toUpperCase()) {
+      // First letter was uppercase
+      return result.charAt(0).toUpperCase() + result.slice(1).toLowerCase();
+    }
+    return result.toLowerCase();
+  });
+}
+
+/**
+ * Replace quantities in MWP text (handles both numeric and text forms)
+ */
+export function replaceQuantities(text: string, oldQuantity: string, newQuantity: string): string {
+  const oldNum = parseFloat(oldQuantity);
+  const newNum = parseFloat(newQuantity);
+  
+  if (isNaN(oldNum) || isNaN(newNum)) {
+    // If either value isn't a number, do simple text replacement
+    const regex = new RegExp(`\\b${oldQuantity}\\b`, 'gi');
+    return text.replace(regex, newQuantity);
+  }
+  
+  // Convert numbers to text form for better MWP readability
+  const oldText = numberToWord(oldNum);
+  // Ensure replacement word is lower case for inline prose
+  const newText = numberToWord(newNum).toLowerCase();
+  
+  // Replace both numeric and text forms
+  let updatedText = text;
+  
+  // Replace numeric form
+  const numericRegex = new RegExp(`\\b${oldQuantity}\\b`, 'gi');
+  updatedText = updatedText.replace(numericRegex, newQuantity);
+  
+  // Replace text form
+  const textRegex = new RegExp(`\\b${oldText}\\b`, 'gi');
+  updatedText = updatedText.replace(textRegex, newText);
+  
+  return updatedText;
+}
+
+/**
+ * Replace container names in MWP text
+ */
+export function replaceContainerNames(text: string, oldName: string, newName: string): string {
+  // Use word boundaries to avoid partial replacements
+  const regex = new RegExp(`\\b${oldName}\\b`, 'gi');
+  return text.replace(regex, newName);
+}

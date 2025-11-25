@@ -4,6 +4,7 @@ import { useDSLContext } from '@/contexts/DSLContext';
 import { useHighlightingContext } from '@/contexts/HighlightingContext';
 import { DSLFormatter } from '@/utils/dsl-formatter';
 import { trackOpenPopup, isAnalyticsEnabled } from '@/services/analyticsTracker';
+import { replaceContainerNames } from '@/utils/mwpUtils';
 import type { ParsedOperation } from '@/utils/dsl-parser';
 import type { ComponentMapping } from '@/types/visualInteraction';
 
@@ -14,6 +15,8 @@ interface NamePopupState {
 }
 
 interface UseNamePopupProps {
+  mwp: string;
+  formula: string | null;
   onVisualsUpdate: (data: {
     visual_language: string;
     svg_formal: string | null;
@@ -23,10 +26,14 @@ interface UseNamePopupProps {
     missing_svg_entities: string[];
     componentMappings: ComponentMapping;
     parsedDSL: ParsedOperation;
+    mwp?: string;
+    formula?: string | null;
   }) => void;
 }
 
 export const useNamePopup = ({
+  mwp,
+  formula,
   onVisualsUpdate
 }: UseNamePopupProps) => {
   const { parsedDSL, componentMappings } = useDSLContext();
@@ -93,6 +100,10 @@ export const useNamePopup = ({
       const formatter = new DSLFormatter();
       const updatedDSL = formatter.formatWithRanges(updatedParsedDSL);
 
+      // Update MWP text with the name change
+      const oldValue = popupState.initialValue;
+      const updatedMWP = replaceContainerNames(mwp, oldValue, newValue);
+
       // Generate new visuals with updated DSL
       const abortController = new AbortController();
       const data = await generationService.generateFromDSL(updatedDSL, abortController.signal);
@@ -107,13 +118,15 @@ export const useNamePopup = ({
         missing_svg_entities: data.missing_svg_entities || [],
         componentMappings: data.componentMappings || {},
         parsedDSL: data.parsedDSL!,
+        mwp: updatedMWP,
+        formula: formula, // formula doesn't change for name updates
       });
 
     } catch (error) {
       console.error('Field value update failed:', error);
       throw error;
     }
-  }, [parsedDSL, popupState.dslPath, onVisualsUpdate]);
+  }, [parsedDSL, popupState.dslPath, popupState.initialValue, mwp, formula, onVisualsUpdate]);
 
   return {
     popupState,

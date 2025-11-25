@@ -12,6 +12,8 @@ import { useVisualizationHandlers } from "@/hooks/useVisualizationHandlers";
 import { usePopupManagement } from "@/hooks/usePopupManagement";
 import { PopupManager } from "@/components/popups/PopupManager";
 import type { useAppState } from "@/hooks/useAppState";
+import type { ComponentMapping } from "@/types/visualInteraction";
+import type { ParsedOperation } from "@/utils/dsl-parser";
 
 type Props = {
   appState: ReturnType<typeof useAppState>;
@@ -61,7 +63,18 @@ export function TwoColumnView({ appState }: Props) {
       setResults
     });
 
-  const onVisualsUpdate = useCallback((data: any) => {
+  const onVisualsUpdate = useCallback((data: {
+    visual_language: string;
+    svg_formal: string | null;
+    svg_intuitive: string | null;
+    formal_error: string | null;
+    intuitive_error: string | null;
+    missing_svg_entities: string[];
+    componentMappings: ComponentMapping;
+    parsedDSL: ParsedOperation;
+    mwp?: string;
+    formula?: string | null;
+  }) => {
     handleVLResult(
       data.visual_language,
       data.svg_formal,
@@ -70,14 +83,16 @@ export function TwoColumnView({ appState }: Props) {
       data.formal_error ?? undefined,
       data.intuitive_error ?? undefined,
       data.missing_svg_entities,
-      undefined,
-      undefined,
+      data.mwp,
+      data.formula ?? undefined,
       data.componentMappings,
       undefined // Popup updates shouldn't introduce parse errors
     );
   }, [handleVLResult]);
 
   const popup = usePopupManagement({
+    mwp,
+    formula,
     onVisualsUpdate,
   });
 

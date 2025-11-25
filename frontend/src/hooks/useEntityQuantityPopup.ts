@@ -4,6 +4,7 @@ import { useDSLContext } from '@/contexts/DSLContext';
 import { useHighlightingContext } from '@/contexts/HighlightingContext';
 import { DSLFormatter } from '@/utils/dsl-formatter';
 import { trackOpenPopup, isAnalyticsEnabled } from '@/services/analyticsTracker';
+import { replaceQuantities } from '@/utils/mwpUtils';
 import type { ParsedOperation, ParsedEntity } from '@/utils/dsl-parser';
 import type { ComponentMapping } from '@/types/visualInteraction';
 
@@ -14,6 +15,8 @@ interface EntityQuantityPopupState {
 }
 
 interface UseEntityQuantityPopupProps {
+  mwp: string;
+  formula: string | null;
   onVisualsUpdate: (data: {
     visual_language: string;
     svg_formal: string | null;
@@ -23,10 +26,14 @@ interface UseEntityQuantityPopupProps {
     missing_svg_entities: string[];
     componentMappings: ComponentMapping;
     parsedDSL: ParsedOperation;
+    mwp?: string;
+    formula?: string | null;
   }) => void;
 }
 
 export const useEntityQuantityPopup = ({
+  mwp,
+  formula,
   onVisualsUpdate
 }: UseEntityQuantityPopupProps) => {
   const { parsedDSL } = useDSLContext();
@@ -97,6 +104,12 @@ export const useEntityQuantityPopup = ({
       const formatter = new DSLFormatter();
       const updatedDSL = formatter.formatWithRanges(updatedParsedDSL);
 
+      // Update MWP and formula with the quantity change
+      const oldQuantity = popupState.initialQuantity.toString();
+      const newQuantityStr = newQuantity.toString();
+      const updatedMWP = replaceQuantities(mwp, oldQuantity, newQuantityStr);
+      const updatedFormula = formula ? replaceQuantities(formula, oldQuantity, newQuantityStr) : formula;
+
       // Generate new visuals with updated DSL
       const abortController = new AbortController();
       const data = await generationService.generateFromDSL(updatedDSL, abortController.signal);
@@ -111,13 +124,15 @@ export const useEntityQuantityPopup = ({
         missing_svg_entities: data.missing_svg_entities || [],
         componentMappings: data.componentMappings || {},
         parsedDSL: data.parsedDSL!,
+        mwp: updatedMWP,
+        formula: updatedFormula,
       });
 
     } catch (error) {
       console.error('Entity quantity update failed:', error);
       throw error;
     }
-  }, [parsedDSL, popupState.dslPath, onVisualsUpdate]);
+  }, [parsedDSL, popupState.dslPath, popupState.initialQuantity, mwp, formula, onVisualsUpdate]);
 
   return {
     popupState,

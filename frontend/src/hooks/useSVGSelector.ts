@@ -6,6 +6,8 @@ import type { ComponentMapping } from '@/types/visualInteraction';
 import type { ParsedOperation } from '@/utils/dsl-parser';
 import { useHighlightingContext } from '@/contexts/HighlightingContext';
 import { useDSLContext } from '@/contexts/DSLContext';
+import { replaceEntityTypeInDSL, sanitizeEntityName } from '@/lib/dsl-utils';
+import { replaceEntityNames } from '@/utils/mwpUtils';
 
 interface SVGSelectorState {
   isOpen: boolean;
@@ -15,6 +17,8 @@ interface SVGSelectorState {
 }
 
 interface UseSVGSelectorProps {
+  mwp: string;
+  formula: string | null;
   onVisualsUpdate: (data: {
     visual_language: string;
     svg_formal: string | null;
@@ -24,10 +28,14 @@ interface UseSVGSelectorProps {
     missing_svg_entities: string[];
     componentMappings: ComponentMapping;
     parsedDSL: ParsedOperation;
+    mwp?: string;
+    formula?: string | null;
   }) => void;
 }
 
 export const useSVGSelector = ({
+  mwp,
+  formula,
   onVisualsUpdate,
 }: UseSVGSelectorProps) => {
   // Use highlighting context
@@ -99,6 +107,13 @@ export const useSVGSelector = ({
       // Use regex to replace all occurrences of the old type with the new type
       const updatedDSL = replaceEntityTypeInDSL(formattedDSL, selectorState.currentValue, newType);
 
+      // Update MWP text - replace old entity type with new entity type in entity names
+      // Use sanitized values since entity types in DSL may contain special characters
+      // but in the MWP they appear as sanitized entity names (letters and spaces only)
+      const sanitizedOldType = sanitizeEntityName(selectorState.currentValue);
+      const sanitizedNewType = sanitizeEntityName(newType);
+      const updatedMWP = replaceEntityNames(mwp, sanitizedOldType, sanitizedNewType);
+
       // Generate new visuals with updated DSL
       const abortController = new AbortController();
       const data = await generationService.generateFromDSL(updatedDSL, abortController.signal);
@@ -113,6 +128,8 @@ export const useSVGSelector = ({
         missing_svg_entities: data.missing_svg_entities || [],
         componentMappings: data.componentMappings || {},
         parsedDSL: data.parsedDSL!,
+        mwp: updatedMWP,
+        formula: formula, // formula doesn't change for entity type updates
       });
 
       // Dismiss the loading toast and show success
@@ -130,7 +147,7 @@ export const useSVGSelector = ({
       );
       throw error; // Re-throw so the popup can handle it
     }
-  }, [formattedDSL, selectorState.currentValue, onVisualsUpdate, closeSelector]);
+  }, [formattedDSL, selectorState.currentValue, mwp, formula, onVisualsUpdate, closeSelector]);
 
   return {
     selectorState,
@@ -139,23 +156,3 @@ export const useSVGSelector = ({
     updateEmbeddedSVG,
   };
 };
-
-/**
- * Replace all occurrences of the old value with the new value in DSL string
- */
-function replaceEntityTypeInDSL(dsl: string, oldType: string, newType: string): string {
-  if (!dsl || !oldType || !newType) {
-    return dsl;
-  }
-
-  // Simple replacement of all occurrences using word boundaries
-  const pattern = new RegExp(`\\b${oldType}\\b`, 'g');
-  const updatedDSL = dsl.replace(pattern, newType);
-  
-  // Check if any replacements were made
-  if (updatedDSL === dsl) {
-    throw new Error(`Could not find '${oldType}' in DSL`);
-  }
-  
-  return updatedDSL;
-}

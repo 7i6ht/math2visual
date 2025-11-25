@@ -11,7 +11,7 @@ import type { VLFormData } from "@/schemas/validation";
 import type { ComponentMapping } from "@/types/visualInteraction";
 import type { ParsedOperation } from "@/utils/dsl-parser";
 import { parseWithErrorHandling } from "@/utils/dsl-parser";
-import { detectDSLChanges, updateMWPInput } from "@/lib/dsl-utils";
+import { detectDSLChanges, updateMWPInput, replaceEntityTypeInDSL } from "@/lib/dsl-utils";
 
 interface UseVisualLanguageFormProps {
   onResult: (vl: string, svgFormal: string | null, svgIntuitive: string | null, parsedDSL: ParsedOperation, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], mwp?: string, formula?: string, componentMappings?: ComponentMapping, hasParseError?: boolean) => void;
@@ -106,9 +106,13 @@ export const useVisualLanguageForm = ({
           .reduce((map, change) => map.set(change.oldValue, change.newValue), new Map<string, string>());
         
         // Replace all occurrences of each old entity type with the new one in the DSL
+        // Uses sophisticated replacement that handles type: and name: fields differently
         entityTypeReplacements.forEach((newValue, oldValue) => {
-          const regex = new RegExp(`\\b${oldValue}\\b`, 'g');
-          updatedDSL = updatedDSL.replace(regex, newValue);
+          try {
+            updatedDSL = replaceEntityTypeInDSL(updatedDSL, oldValue, newValue);
+          } catch (error) {
+            console.warn(`Failed to replace entity type '${oldValue}' with '${newValue}':`, error);
+          }
         });
       }
     }
@@ -154,7 +158,7 @@ export const useVisualLanguageForm = ({
   };
 
   // Debounced change handler managed by the hook
-  const handleDebouncedChange = (value: string, delayMs = 800) => {
+  const handleDebouncedChange = (value: string, delayMs = 1500) => {
 
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);

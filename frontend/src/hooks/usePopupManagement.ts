@@ -6,6 +6,8 @@ import type { ComponentMapping } from "@/types/visualInteraction";
 import type { ParsedOperation } from "@/utils/dsl-parser";
 
 export type PopupManagementDeps = {
+  mwp: string;
+  formula: string | null;
   onVisualsUpdate: (data: {
     visual_language: string;
     svg_formal: string | null;
@@ -15,31 +17,33 @@ export type PopupManagementDeps = {
     missing_svg_entities: string[];
     componentMappings: ComponentMapping;
     parsedDSL: ParsedOperation;
+    mwp?: string;
+    formula?: string | null;
   }) => void;
 };
 
-export const usePopupManagement = ({ onVisualsUpdate }: PopupManagementDeps) => {
+export const usePopupManagement = ({ mwp, formula, onVisualsUpdate }: PopupManagementDeps) => {
 
   const {
     selectorState : selectorPopupState,
     openSelector : openSelectorPopup,
     closeSelector : closeSelectorPopup,
     updateEmbeddedSVG : updateSVG,
-  } = useSVGSelector({ onVisualsUpdate });
+  } = useSVGSelector({ mwp, formula, onVisualsUpdate });
 
   const {
     popupState: quantityPopupState,
     openPopup: openQuantityPopup,
     closePopup: closeQuantityPopup,
     updateEntityQuantity,
-  } = useEntityQuantityPopup({ onVisualsUpdate });
+  } = useEntityQuantityPopup({ mwp, formula, onVisualsUpdate });
 
   const {
     popupState: namePopupState,
     openPopup: openNamePopup,
     closePopup: closeNamePopup,
     updateFieldValue: updateName,
-  } = useNamePopup({ onVisualsUpdate });
+  } = useNamePopup({ mwp, formula, onVisualsUpdate });
 
   const handleEmbeddedSVGClick = useCallback(
     (event: MouseEvent) => openSelectorPopup(event),
