@@ -6,6 +6,9 @@ import re
 from typing import Optional, Tuple
 from dotenv import load_dotenv
 import google.generativeai as genai
+import logging
+
+logger = logging.getLogger(__name__)
 
 # Load environment variables
 load_dotenv(override=True)
@@ -63,7 +66,7 @@ Requirements:
         
     except Exception as e:
         error_msg = f"SVG generation failed: {str(e)}"
-        print(error_msg)
+        logger.error(error_msg)
         return False, None, error_msg
 
 

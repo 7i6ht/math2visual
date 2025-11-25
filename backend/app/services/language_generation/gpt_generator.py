@@ -2,6 +2,9 @@ import os
 from openai import OpenAI
 from dotenv import load_dotenv
 import time
+import logging
+
+logger = logging.getLogger(__name__)
 
 # Load environment variables from .env file
 load_dotenv(override=True)
@@ -18,7 +21,7 @@ def generate_response(prompt, model):
              )
             return completion.choices[0].message.content
         except Exception as e:
-            print(f"Error {e} occurred while generating response. Retrying in 2 seconds...")
+            logger.warning(f"Error {e} occurred while generating response. Retrying in 2 seconds...")
             time.sleep(2)
 
 def generate_prompt(mwp, formula=None, hint=None):
@@ -211,4 +214,4 @@ if __name__ == "__main__":
     output_path = os.path.join(output_dir, 'visual_language.txt')
     with open(output_path, 'w') as f:
         f.write(visual_language)
-    print(visual_language)
+    logger.info(visual_language)

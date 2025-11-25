@@ -3,6 +3,9 @@ import argparse
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 from peft import PeftModel
+import logging
+
+logger = logging.getLogger(__name__)
 
 # --- Prompt construction ---
 def create_prompt(mwp: str, formula: str = None, hint: str = None) -> str:
@@ -39,7 +42,7 @@ class VisualLanguageGenerator:
             bnb_4bit_compute_dtype=torch.bfloat16
         )
         # Load base model
-        print("Loading base model...")
+        logger.info("Loading base model...")
         base = AutoModelForCausalLM.from_pretrained(
             base_model_id,
             quantization_config=bnb_config,
@@ -47,13 +50,13 @@ class VisualLanguageGenerator:
             trust_remote_code=True
         )
         # Load PEFT adapter
-        print("Loading fine-tuned adapter...")
+        logger.info("Loading fine-tuned adapter...")
         self.model = PeftModel.from_pretrained(base, adapter_dir)
         self.model.eval()
         self.model.config.use_cache = True
 
         # Load tokenizer
-        print("Loading tokenizer...")
+        logger.info("Loading tokenizer...")
         self.tokenizer = AutoTokenizer.from_pretrained(
             base_model_id,
             padding_side="left",
@@ -121,4 +124,4 @@ if __name__ == "__main__":
         f.write(vl)
 
     # Print result
-    print(vl)
+    logger.info(vl)

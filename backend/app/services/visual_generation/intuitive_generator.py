@@ -8,11 +8,14 @@ import random
 import copy
 import difflib
 import inflect
+import logging
+
+logger = logging.getLogger(__name__)
 
 class IntuitiveVisualGenerator():
 
     def __init__(self):
-        print("__init__")
+        logger.debug("__init__")
         self.error_message = ""
         self._svg_directory_cache = {}
         self._missing_svg_entities = []
@@ -33,13 +36,12 @@ class IntuitiveVisualGenerator():
 
     def get_missing_entities(self):
         """Return a de-duplicated list of missing SVG entity base names (preserve order)."""
-        print("get_missing_entities")
-        print("get_missing_entities")
+        logger.debug("get_missing_entities")
         return list(dict.fromkeys(self._missing_svg_entities))
 
 
     def remove_svg_blanks(self, svg_path, output_path):
-        print("remove_svg_blanks")
+        logger.debug("remove_svg_blanks")
 
         # Parse the SVG
         parser = etree.XMLParser(remove_blank_text=True)
@@ -90,16 +92,16 @@ class IntuitiveVisualGenerator():
         # Write the cleaned SVG back
         tree.write(output_path, pretty_print=True, xml_declaration=True, encoding="utf-8")
 
-        print(f"Cleaned SVG saved to {output_path}")
+        logger.info(f"Cleaned SVG saved to {output_path}")
 
     def render_svgs_from_data(self, output_file, resources_path, data):
-        print("render_svgs_from_data")
+        logger.debug("render_svgs_from_data")
         NS = "http://www.w3.org/2000/svg"
         svg_root = etree.Element("svg", nsmap={None: NS})
 
         
         def get_priority(op_name):
-            print("get_priority")
+            logger.debug("get_priority")
             """
             Returns a numeric priority for an operation name.
             Higher number => higher precedence.
@@ -113,7 +115,7 @@ class IntuitiveVisualGenerator():
                 return 0
 
         def can_skip_same_precedence(parent_op, child_op):
-            print("can_skip_same_precedence")
+            logger.debug("can_skip_same_precedence")
             """
             Returns True if we can safely omit parentheses around the child sub-expression
             when the parent_op and child_op have the same precedence.
@@ -142,7 +144,7 @@ class IntuitiveVisualGenerator():
             current_path="",
             current_visual_element_path=""
         ):
-            print("extract_operations_and_containers")
+            logger.debug("extract_operations_and_containers")
             if operations is None:
                 operations = []
             if containers is None:
@@ -195,8 +197,8 @@ class IntuitiveVisualGenerator():
                     # Strictly higher priority => definitely bracket
                     need_brackets = True
                 elif parent_priority == current_priority:
-                    print("container_name: ", container_name)
-                    print("parent_container_name: ", parent_container_name)
+                    logger.debug(f"container_name: {container_name}")
+                    logger.debug(f"parent_container_name: {parent_container_name}")
                     # Possibly skip brackets if the parent/child op is associative
                     # and container_name is the same, etc. Tweak logic as desired:
                     if not can_skip_same_precedence(parent_op, op):
@@ -278,7 +280,7 @@ class IntuitiveVisualGenerator():
 
         
         def extract_operations_and_containers_for_comparison(data, current_path="", current_visual_element_path=""):
-            print("extract_operations_and_containers_for_comparison")
+            logger.debug("extract_operations_and_containers_for_comparison")
             """
             Extract two sides (compare1 and compare2) from a top-level comparison.
             We assume data["operation"] == "comparison".
@@ -344,7 +346,7 @@ class IntuitiveVisualGenerator():
             
         #     return containers
         def update_container_types_optimized(containers, result_containers):
-            print("update_container_types_optimized")
+            logger.debug("update_container_types_optimized")
             """
             Update the container_type for containers in the same group (by container_type)
             when there is more than one unique container_name. In addition, treat the last
@@ -405,11 +407,10 @@ class IntuitiveVisualGenerator():
             return containers, result_containers
         
         def handle_multiplication(operations, containers, svg_root, resources_path,result_containers,start_x = 50,start_y = 150):
-            print("handle_multiplication")
-            print("Handling multiplication")
+            logger.debug("Handling multiplication")
             # We assume exactly 2 containers, where the second is the multiplier
             if containers[1].get("item", {}).get("entity_quantity", 0) > 12:
-                print("No INTUITIVE visual can be generated because of multiplier has entity_quantity higher than 12")
+                logger.warning("No INTUITIVE visual can be generated because of multiplier has entity_quantity higher than 12")
                 self.error_message = "No INTUITIVE visual can be generated because of multiplier has entity_quantity higher than 12"
 
                 return
@@ -590,7 +591,7 @@ class IntuitiveVisualGenerator():
             
             repeated_ents = [e for e in containers if e.get("layout") != "multiplier"]
             container_name = containers[0].get('container_name',"")
-            print("container_name: ",container_name)
+            logger.debug(f"container_name: {container_name}")
             # 2) Decide how to lay out repeated containers in a grid
             count = len(repeated_ents)
             if container_name == "row":
@@ -659,9 +660,9 @@ class IntuitiveVisualGenerator():
                     max_y = y_val
 
             def embed_svg(file_path, x, y, width, height):
-                print("embed_svg")
+                logger.debug("embed_svg")
                 if not os.path.exists(file_path):
-                    print("SVG file not found:", file_path)
+                    logger.debug(f"SVG file not found: {file_path}")
                     # Get the directory and base name from the file_path
                     dir_path = os.path.dirname(file_path)
                     base_name = os.path.splitext(os.path.basename(file_path))[0]
@@ -719,9 +720,9 @@ class IntuitiveVisualGenerator():
                     
                     if found_path:
                         file_path = found_path
-                        print("Found alternative SVG file:", file_path)
+                        logger.info(f"Found alternative SVG file: {file_path}")
                     else:
-                        print("SVG file not found using alternative search:", file_path)
+                        logger.warning(f"SVG file not found using alternative search: {file_path}")
                         self.error_message = f"SVG file not found using alternative search: {file_path}"
                         raise FileNotFoundError(f"SVG file not found: {file_path}")
 
@@ -735,22 +736,21 @@ class IntuitiveVisualGenerator():
                 update_max_dimensions(x + width, y + height)
                 return root
             def get_figure_svg_path(attr_type):
-                print("get_figure_svg_path")
+                logger.debug("get_figure_svg_path")
                 if attr_type:
                     return os.path.join(resources_path, f"{attr_type}.svg")
                 self.error_message = "Cannot find figure path for attr_type: " + attr_type
-                print("Cannot find figure path for attr_type: ", attr_type)
+                logger.debug(f"Cannot find figure path for attr_type: {attr_type}")
                 return None
 
         
             def embed_top_figures_and_text(parent, box_x, box_y, box_width, container_type, container_name, attr_type, attr_name, entity_dsl_path="", entity_visual_element_path=""):
-                print("embed_top_figures_and_text")
-                print("calling embed_top_figures_and_text")
+                logger.debug("calling embed_top_figures_and_text")
                 # print("container_type", container_type)
                 # print("container_name", container_name)
                 items = []
                 show_something = container_name or container_type or attr_name or attr_type
-                print("container_type", container_type)
+                logger.debug(f"container_type {container_type}")
                 if not show_something:
                     items.append(("text", ""))
                 else:
@@ -760,7 +760,7 @@ class IntuitiveVisualGenerator():
                         if figure_path and os.path.exists(figure_path):
                             items.append(("svg", container_type))
                         else:
-                            print(f"SVG for container_type '{container_type}' does not exist. Ignoring container_type.")
+                            logger.debug(f"SVG for container_type '{container_type}' does not exist. Ignoring container_type.")
                     
                     if container_name:
                         items.append(("text", container_name))
@@ -834,8 +834,8 @@ class IntuitiveVisualGenerator():
             
 
             def draw_entity(e):
-                print("draw_entity")
-                print('new entity:', e)
+                logger.debug("draw_entity")
+                logger.debug(f"new entity: {e}")
                 q = e["item"].get("entity_quantity", 0)
                 t = e["item"].get("entity_type", "apple")
                 container_name = e.get("container_name", "").strip()
@@ -1074,7 +1074,7 @@ class IntuitiveVisualGenerator():
 
             # Draw containers
             for entity in containers:  # Assuming exactly two containers
-                print("entity: ", entity)
+                logger.debug(f"entity: {entity}")
                 draw_entity(entity)
             
             # Draw operator
@@ -1167,7 +1167,7 @@ class IntuitiveVisualGenerator():
             return True, str(float(svg_root.attrib["width"]) - start_x), str(float(svg_root.attrib["height"]) - MARGIN + 15)
             
         def is_int(value):
-            print("is_int")
+            logger.debug("is_int")
             try:
                 # Convert to float first, then check if it can be cast to an integer
                 float_value = float(value)
@@ -1190,7 +1190,7 @@ class IntuitiveVisualGenerator():
             divisor_entity = containers[1]
             
             if not is_int(dividend_entity["item"].get("entity_quantity", 0)) or not is_int(divisor_entity["item"].get("entity_quantity", 1)):
-                print("One or both of the containers are not integers.")
+                logger.warning("One or both of the containers are not integers.")
                 self.error_message = "One or both of the containers are not integers."
                 return
             else:
@@ -1199,7 +1199,7 @@ class IntuitiveVisualGenerator():
 
 
             if divisor_entity_quantity <= 0:
-                print("Cannot divide by zero or negative entity_quantity.")
+                logger.warning("Cannot divide by zero or negative entity_quantity.")
                 self.error_message = "Cannot divide by zero or negative entity_quantity."
                 return
             
@@ -1207,7 +1207,7 @@ class IntuitiveVisualGenerator():
             if dividend_entity_quantity % divisor_entity_quantity == 0:
                 result_count = dividend_entity_quantity // divisor_entity_quantity
             else:
-                print(f"INTUITIVE visual not possible: {dividend_entity_quantity} cannot be evenly divided by {divisor_entity_quantity}")
+                logger.warning(f"INTUITIVE visual not possible: {dividend_entity_quantity} cannot be evenly divided by {divisor_entity_quantity}")
                 self.error_message = f"INTUITIVE visual not possible: {dividend_entity_quantity} cannot be evenly divided by {divisor_entity_quantity}"
                 return None
             
@@ -1215,7 +1215,7 @@ class IntuitiveVisualGenerator():
             if(dividend_entity["item"].get("entity_type", "") == divisor_entity["item"].get("entity_type", "") and dividend_entity["item"].get("entity_type", "") and divisor_entity["item"].get("entity_type", "")):
     
                 flag_division_entity_type_same = True
-                print("entity_type equal")
+                logger.debug("entity_type equal")
                 if(result_count > 12):
                     self.error_message = "Division result rectangle number higher than 12."
                     return
@@ -1248,7 +1248,7 @@ class IntuitiveVisualGenerator():
             elif(dividend_entity["item"].get("entity_type", "") != divisor_entity["item"].get("entity_type", "") and dividend_entity["item"].get("entity_type", "") and divisor_entity["item"].get("entity_type", "")):
                 
                 flag_division_entity_type_same = False
-                print("entity_type different")
+                logger.debug("entity_type different")
                 if(divisor_entity_quantity > 12):
                     self.error_message = "Division result rectangle number higher than 12."
                     return
@@ -1278,7 +1278,7 @@ class IntuitiveVisualGenerator():
 
                 containers = replicated
             else:
-                print("Division requires entity_type of containers.")
+                logger.warning("Division requires entity_type of containers.")
                 self.error_message = "Division requires entity_type of containers."
                 return
 
@@ -1496,9 +1496,9 @@ class IntuitiveVisualGenerator():
                     max_y = y_val
 
             def embed_svg(file_path, x, y, width, height):
-                print("embed_svg")
+                logger.debug("embed_svg")
                 if not os.path.exists(file_path):
-                    print("SVG file not found:", file_path)
+                    logger.debug(f"SVG file not found: {file_path}")
                     # Get the directory and base name from the file_path
                     dir_path = os.path.dirname(file_path)
                     base_name = os.path.splitext(os.path.basename(file_path))[0]
@@ -1555,9 +1555,9 @@ class IntuitiveVisualGenerator():
                     
                     if found_path:
                         file_path = found_path
-                        print("Found alternative SVG file:", file_path)
+                        logger.info(f"Found alternative SVG file: {file_path}")
                     else:
-                        print("SVG file not found using alternative search:", file_path)
+                        logger.warning(f"SVG file not found using alternative search: {file_path}")
                         self.error_message = f"SVG file not found using alternative search: {file_path}"
                         raise FileNotFoundError(f"SVG file not found: {file_path}")
 
@@ -1571,19 +1571,18 @@ class IntuitiveVisualGenerator():
                 update_max_dimensions(x + width, y + height)
                 return root
             def get_figure_svg_path(attr_type):
-                print("get_figure_svg_path")
+                logger.debug("get_figure_svg_path")
                 if attr_type:
                     return os.path.join(resources_path, f"{attr_type}.svg")
                 return None
 
         
             def embed_top_figures_and_text(parent, box_x, box_y, box_width, container_type, container_name, attr_type, attr_name, entity_dsl_path="", entity_visual_element_path=""):
-                print("embed_top_figures_and_text")
-                print("calling embed_top_figures_and_text")
+                logger.debug("calling embed_top_figures_and_text")
 
                 items = []
                 show_something = container_name or container_type or attr_name or attr_type
-                print("container_type", container_type)
+                logger.debug(f"container_type {container_type}")
                 if not show_something:
                     items.append(("text", ""))
                 else:
@@ -1593,7 +1592,7 @@ class IntuitiveVisualGenerator():
                         if figure_path and os.path.exists(figure_path):
                             items.append(("svg", container_type))
                         else:
-                            print(f"SVG for container_type '{container_type}' does not exist. Ignoring container_type.")
+                            logger.debug(f"SVG for container_type '{container_type}' does not exist. Ignoring container_type.")
                     
                     if container_name:
                         items.append(("text", container_name))
@@ -1665,8 +1664,8 @@ class IntuitiveVisualGenerator():
             
 
             def draw_entity(e):
-                print("draw_entity")
-                print('new entity:', e)
+                logger.debug("draw_entity")
+                logger.debug(f"new entity: {e}")
                 q = e["item"].get("entity_quantity", 0)
                 t = e["item"].get("entity_type", "apple")
                 container_name = e.get("container_name", "").strip()
@@ -1915,7 +1914,7 @@ class IntuitiveVisualGenerator():
 
             # Draw containers
             for entity in containers:  # Assuming exactly two containers
-                print("entity: ", entity)
+                logger.debug(f"entity: {entity}")
                 draw_entity(entity)
             
             # Draw operator
@@ -1933,7 +1932,7 @@ class IntuitiveVisualGenerator():
             svg_root.attrib["width"] = str(final_width)
             svg_root.attrib["height"] = str(final_height)
 
-            print("flag_division_entity_type_same", flag_division_entity_type_same)
+            logger.debug(f"flag_division_entity_type_same {flag_division_entity_type_same}")
             # Draw big box
             if len(containers) > 1 and flag_division_entity_type_same:
                 big_box_x = 20 # Add padding on the left
@@ -1944,7 +1943,7 @@ class IntuitiveVisualGenerator():
                 # Embed text and figures at the top of the big box
                 # result_container = result_containers[-1]
                 container_entity = original_containers[0]
-                print('container_entity', container_entity)
+                logger.debug(f"container_entity {container_entity}")
                 container_dsl_path = container_entity.get('_dsl_path', '')
                 container_visual_element_path = container_entity.get('_visual_element_path', '')
                 embed_top_figures_and_text(svg_root, big_box_x, big_box_y, big_box_width, container_entity['container_type'], container_entity['container_name'], container_entity['attr_type'], container_entity['attr_name'], container_dsl_path, container_visual_element_path)
@@ -1992,7 +1991,7 @@ class IntuitiveVisualGenerator():
                 # Embed text and figures at the top of the big box
                 # result_container = result_containers[-1]
                 container_entity = original_containers[0]
-                print('container_entity', container_entity)
+                logger.debug(f"container_entity {container_entity}")
                 container_dsl_path = container_entity.get('_dsl_path', '')
                 container_visual_element_path = container_entity.get('_visual_element_path', '')
                 embed_top_figures_and_text(svg_root, big_box_x, big_box_y, big_box_width, container_entity['container_type'], container_entity['container_name'], container_entity['attr_type'], container_entity['attr_name'], container_dsl_path, container_visual_element_path)
@@ -2064,8 +2063,7 @@ class IntuitiveVisualGenerator():
             return True, str(float(svg_root.attrib["width"]) - start_x), str(float(svg_root.attrib["height"]) - MARGIN + 15)
             
         def handle_surplus(operations, containers, svg_root, resources_path,result_containers,start_x = 50 ,start_y = 150):
-            print("handle_surplus")
-            print("Handling surplus")
+            logger.debug("Handling surplus")
             if len(containers) != 2:
                 self.error_message = "Division requires exactly two containers, but it contains more."
                 print("Division requires exactly two containers.")
@@ -2080,7 +2078,7 @@ class IntuitiveVisualGenerator():
 
             if divisor_entity_quantity <= 0:
                 self.error_message = "Cannot divide by zero or negative entity_quantity."
-                print("Cannot divide by zero or negative entity_quantity.")
+                logger.warning("Cannot divide by zero or negative entity_quantity.")
                 return
 
             # Calculate the number of results
@@ -2089,7 +2087,7 @@ class IntuitiveVisualGenerator():
             flag_division_entity_type_same = True
             if(dividend_entity["item"].get("entity_type", "") == divisor_entity["item"].get("entity_type", "") and dividend_entity["item"].get("entity_type", "") and divisor_entity["item"].get("entity_type", "")):
                 flag_division_entity_type_same = True
-                print("entity_type equal")
+                logger.debug("entity_type equal")
                 # Create replicated containers based on the result count
                 visual_entity = copy.deepcopy(dividend_entity)
                 visual_entity["item"]["entity_quantity"] = divisor_entity_quantity
@@ -2118,7 +2116,7 @@ class IntuitiveVisualGenerator():
 
             elif(dividend_entity["item"].get("entity_type", "") != divisor_entity["item"].get("entity_type", "") and dividend_entity["item"].get("entity_type", "") and divisor_entity["item"].get("entity_type", "")):
                 flag_division_entity_type_same = False
-                print("entity_type different")
+                logger.debug("entity_type different")
                 # Create replicated containers based on the result count
                 visual_entity = copy.deepcopy(dividend_entity)
                 visual_entity["item"]["entity_quantity"] = result_count
@@ -2145,7 +2143,7 @@ class IntuitiveVisualGenerator():
 
                 containers = replicated
             else:
-                print("Surplus requires entity_type of containers.")
+                logger.warning("Surplus requires entity_type of containers.")
                 self.error_message = "Surplus requires entity_type of containers."
                 return
 
@@ -2391,9 +2389,9 @@ class IntuitiveVisualGenerator():
                     max_y = y_val
 
             def embed_svg(file_path, x, y, width, height):
-                print("embed_svg")
+                logger.debug("embed_svg")
                 if not os.path.exists(file_path):
-                    print("SVG file not found:", file_path)
+                    logger.debug(f"SVG file not found: {file_path}")
                     # Get the directory and base name from the file_path
                     dir_path = os.path.dirname(file_path)
                     base_name = os.path.splitext(os.path.basename(file_path))[0]
@@ -2450,9 +2448,9 @@ class IntuitiveVisualGenerator():
                     
                     if found_path:
                         file_path = found_path
-                        print("Found alternative SVG file:", file_path)
+                        logger.info(f"Found alternative SVG file: {file_path}")
                     else:
-                        print("SVG file not found using alternative search:", file_path)
+                        logger.warning(f"SVG file not found using alternative search: {file_path}")
                         self.error_message = f"SVG file not found using alternative search: {file_path}"
                         raise FileNotFoundError(f"SVG file not found: {file_path}")
 
@@ -2467,20 +2465,19 @@ class IntuitiveVisualGenerator():
                 return root
 
             def get_figure_svg_path(attr_type):
-                print("get_figure_svg_path")
+                logger.debug("get_figure_svg_path")
                 if attr_type:
                     return os.path.join(resources_path, f"{attr_type}.svg")
                 return None
 
         
             def embed_top_figures_and_text(parent, box_x, box_y, box_width, container_type, container_name, attr_type, attr_name, entity_dsl_path="", entity_visual_element_path=""):
-                print("embed_top_figures_and_text")
-                print("calling embed_top_figures_and_text")
+                logger.debug("calling embed_top_figures_and_text")
                 # print("container_type", container_type)
                 # print("container_name", container_name)
                 items = []
                 show_something = container_name or container_type or attr_name or attr_type
-                print("container_type", container_type)
+                logger.debug(f"container_type {container_type}")
                 if not show_something:
                     items.append(("text", ""))
                 else:
@@ -2490,7 +2487,7 @@ class IntuitiveVisualGenerator():
                         if figure_path and os.path.exists(figure_path):
                             items.append(("svg", container_type))
                         else:
-                            print(f"SVG for container_type '{container_type}' does not exist. Ignoring container_type.")
+                            logger.debug(f"SVG for container_type '{container_type}' does not exist. Ignoring container_type.")
                     
                     if container_name:
                         items.append(("text", container_name))
@@ -2562,8 +2559,8 @@ class IntuitiveVisualGenerator():
             
 
             def draw_entity(e):
-                print("draw_entity")
-                print('new entity:', e)
+                logger.debug("draw_entity")
+                logger.debug(f"new entity: {e}")
                 q = e["item"].get("entity_quantity", 0)
                 t = e["item"].get("entity_type", "apple")
                 container_name = e.get("container_name", "").strip()
@@ -2818,7 +2815,7 @@ class IntuitiveVisualGenerator():
 
             # Draw containers
             for entity in containers:  # Assuming exactly two containers
-                print("entity: ", entity)
+                logger.debug(f"entity: {entity}")
                 draw_entity(entity)
             
             # Draw operator
@@ -2897,12 +2894,11 @@ class IntuitiveVisualGenerator():
             return True, str(float(svg_root.attrib["width"]) - start_x), str(float(svg_root.attrib["height"]) - MARGIN + 15)
             
         def handle_area(operations, containers, svg_root, resources_path, result_containers,start_x = 100,start_y = 100):
-            print("handle_area")
-            print("Handling area")
+            logger.debug("Handling area")
             
             if len(containers) != 2:
                 self.error_message = "Area calculation requires exactly two containers (length, width), requirements do not met."
-                print("Area calculation requires exactly two containers (length, width).")
+                logger.warning("Area calculation requires exactly two containers (length, width).")
                 return
 
             # 1. Extract length and width
@@ -2914,7 +2910,7 @@ class IntuitiveVisualGenerator():
             # 2. Extract shape info from result_containers[0]
             if not result_containers:
                 self.error_message = "No result_containers provided for the shape."
-                print("No result_containers provided for the shape.")
+                logger.warning("No result_containers provided for the shape.")
                 return
             result_e = result_containers[0]
             container_type = result_e.get("container_type", "").strip()  
@@ -2938,9 +2934,9 @@ class IntuitiveVisualGenerator():
             # 5. Helper to embed an SVG file
     
             def embed_svg(file_path, x, y, width, height):
-                print("embed_svg")
+                logger.debug("embed_svg")
                 if not os.path.exists(file_path):
-                    print("SVG file not found:", file_path)
+                    logger.debug(f"SVG file not found: {file_path}")
                     # Get the directory and base name from the file_path
                     dir_path = os.path.dirname(file_path)
                     base_name = os.path.splitext(os.path.basename(file_path))[0]
@@ -2997,9 +2993,9 @@ class IntuitiveVisualGenerator():
                     
                     if found_path:
                         file_path = found_path
-                        print("Found alternative SVG file:", file_path)
+                        logger.info(f"Found alternative SVG file: {file_path}")
                     else:
-                        print("SVG file not found using alternative search:", file_path)
+                        logger.warning(f"SVG file not found using alternative search: {file_path}")
                         self.error_message = f"SVG file not found using alternative search: {file_path}"
                         raise FileNotFoundError(f"SVG file not found: {file_path}")
 
@@ -3015,7 +3011,7 @@ class IntuitiveVisualGenerator():
                 return root
             # 6. Helper to construct the path to the shape SVG
             def get_figure_svg_path(name):
-                print("get_figure_svg_path")
+                logger.debug("get_figure_svg_path")
                 if name:
                     return os.path.join(resources_path, f"{name}.svg")
                 return None
@@ -3040,8 +3036,8 @@ class IntuitiveVisualGenerator():
             clean_shape_path = get_figure_svg_path(container_type + "_clean")
             if shape_path and os.path.exists(shape_path):
                 self.remove_svg_blanks(shape_path, clean_shape_path)
-                print('shape_display_width', shape_display_width)
-                print('shape_display_height', shape_display_height)
+                logger.debug(f"shape_display_width {shape_display_width}")
+                logger.debug(f"shape_display_height {shape_display_height}")
                 shape_svg = embed_svg(clean_shape_path, shape_x, shape_y, 
                                     shape_display_width, shape_display_height)
                 # Annotate shape with DSL metadata for entity_type hover
@@ -3051,7 +3047,7 @@ class IntuitiveVisualGenerator():
                 svg_root.append(shape_svg)
             else:
                 # If the SVG does not exist, draw an orange rectangle
-                print(f"No valid SVG found for container_type = '{container_type}'. Drawing an orange box instead.")
+                logger.debug(f"No valid SVG found for container_type = '{container_type}'. Drawing an orange box instead.")
                 rectangle = etree.SubElement(svg_root, "rect",
                                             x=str(shape_x),
                                             y=str(shape_y),
@@ -3181,8 +3177,7 @@ class IntuitiveVisualGenerator():
             
         
         def handle_tvq_final(operations, containers, svg_root, resources_path, result_containers,start_x = 50,start_y = 150):
-            print("handle_tvq_final")
-            print("Handling tvq_final")
+            logger.debug("Handling tvq_final")
             # Constants
             UNIT_SIZE = 40
             APPLE_SCALE = 0.75
@@ -3229,7 +3224,7 @@ class IntuitiveVisualGenerator():
 
                 else:
                     self.error_message = f"Unsupported operation: {operation}"
-                    print(f"Unsupported operation: {operation}")
+                    logger.warning(f"Unsupported operation: {operation}")
                     return
 
             # A list of colors for successive subtraction operations
@@ -3259,12 +3254,12 @@ class IntuitiveVisualGenerator():
                     the_entity["subtract_from_addition_index"] = current_addition_index
                 else:
                     self.error_message = f"Unsupported operation: {operation}"
-                    print(f"Unsupported operation: {operation}")
+                    logger.warning(f"Unsupported operation: {operation}")
                     return
 
-            print("Before allocation:")
-            print("addition_containers:", addition_containers)
-            print("subtrahend_containers:", subtrahend_containers)
+            logger.debug("Before allocation:")
+            logger.debug(f"addition_containers: {addition_containers}")
+            logger.debug(f"subtrahend_containers: {subtrahend_containers}")
 
             # 2) Initialize a list to track subtractions on each addition entity
             for a_ent in addition_containers:
@@ -3280,7 +3275,7 @@ class IntuitiveVisualGenerator():
                 temp_entity_quantity = float(s_qty_to_allocate)
                 if not temp_entity_quantity.is_integer():
                     self.error_message = "Cannot generate INTUITIVE visual because the subtrahend entity_quantity is not an integer"
-                    print("Cannot generate INTUITIVE visual because the subtrahend entity_quantity is not an integer")
+                    logger.warning("Cannot generate INTUITIVE visual because the subtrahend entity_quantity is not an integer")
                     return
                 addition_index = s_ent["subtract_from_addition_index"]
                 # Assign color to this subtraction operation
@@ -3324,23 +3319,23 @@ class IntuitiveVisualGenerator():
                 # If s_qty_to_allocate > 0 after this loop, we ran out of additions 
                 # to match. You can handle leftover if needed.
 
-            print("\nAfter allocation:")
-            print("addition_containers:", addition_containers)
-            print("subtrahend_containers:", subtrahend_containers)
+            logger.debug("After allocation:")
+            logger.debug(f"addition_containers: {addition_containers}")
+            logger.debug(f"subtrahend_containers: {subtrahend_containers}")
 
             # 4) Final check: If an addition entity has subtractions AND entity_quantity > 10 => print message
             for a_ent in addition_containers:
                 # If there's anything in a_ent["subtractions"], it participated in a subtraction
                 if a_ent["subtrahend_entity_quantity"] and a_ent["item"]["entity_quantity"] > 10: #
                     self.error_message = "Cannot generate INTUITIVE visual because the minuend entity_quantity higher than 10"
-                    print("Cannot generate INTUITIVE visual because the minuend entity_quantity higher than 10")
+                    logger.warning("Cannot generate INTUITIVE visual because the minuend entity_quantity higher than 10")
                     return
     
             for a_ent in subtrahend_containers:
                 # If there's anything in a_ent["subtractions"], it participated in a subtraction
                 if a_ent["item"]["entity_quantity"] > 10:
                     self.error_message = "Cannot generate INTUITIVE visual because the subtrahend entity_quantity higher than 10"
-                    print("Cannot generate INTUITIVE visual because the subtrahend entity_quantity higher than 10")
+                    logger.warning("Cannot generate INTUITIVE visual because the subtrahend entity_quantity higher than 10")
                     return
             # If desired, set 'containers' to just the addition_containers
             containers = addition_containers        
@@ -3542,9 +3537,9 @@ class IntuitiveVisualGenerator():
 
         
             def embed_svg(file_path, x, y, width, height):
-                print("embed_svg")
+                logger.debug("embed_svg")
                 if not os.path.exists(file_path):
-                    print("SVG file not found:", file_path)
+                    logger.debug(f"SVG file not found: {file_path}")
                     # Get the directory and base name from the file_path
                     dir_path = os.path.dirname(file_path)
                     base_name = os.path.splitext(os.path.basename(file_path))[0]
@@ -3601,9 +3596,9 @@ class IntuitiveVisualGenerator():
                     
                     if found_path:
                         file_path = found_path
-                        print("Found alternative SVG file:", file_path)
+                        logger.info(f"Found alternative SVG file: {file_path}")
                     else:
-                        print("SVG file not found using alternative search:", file_path)
+                        logger.warning(f"SVG file not found using alternative search: {file_path}")
                         self.error_message = f"SVG file not found using alternative search: {file_path}"
                         raise FileNotFoundError(f"SVG file not found: {file_path}")
 
@@ -3618,18 +3613,17 @@ class IntuitiveVisualGenerator():
                 return root
             
             def get_figure_svg_path(attr_type):
-                print("get_figure_svg_path")
+                logger.debug("get_figure_svg_path")
                 if attr_type:
                     return os.path.join(resources_path, f"{attr_type}.svg")
                 return None
 
         
             def embed_top_figures_and_text(parent, box_x, box_y, box_width, container_type, container_name, attr_type, attr_name, entity_dsl_path="", entity_visual_element_path=""):
-                print("embed_top_figures_and_text")
-                print("calling embed_top_figures_and_text")
+                logger.debug("calling embed_top_figures_and_text")
                 items = []
                 show_something = container_name or container_type or attr_name or attr_type
-                print("container_type", container_type)
+                logger.debug(f"container_type {container_type}")
                 if not show_something:
                     items.append(("text", ""))
                 else:
@@ -3639,7 +3633,7 @@ class IntuitiveVisualGenerator():
                         if figure_path and os.path.exists(figure_path):
                             items.append(("svg", container_type))
                         else:
-                            print(f"SVG for container_type '{container_type}' does not exist. Ignoring container_type.")
+                            logger.debug(f"SVG for container_type '{container_type}' does not exist. Ignoring container_type.")
                     
                     if container_name:
                         items.append(("text", container_name))
@@ -3719,7 +3713,7 @@ class IntuitiveVisualGenerator():
                     
 
             def draw_entity(e):
-                print("draw_entity")
+                logger.debug("draw_entity")
                 q = e["item"].get("entity_quantity", 0)
                 t = e["item"].get("entity_type", "apple")
                 container_name = e.get("container_name", "").strip()
@@ -3909,7 +3903,7 @@ class IntuitiveVisualGenerator():
                             "color": color
                         })
 
-                    print("sub_segments:", sub_segments)
+                    logger.debug(f"sub_segments: {sub_segments}")
                     # 2) Now draw items AND crosses in the same loop
                     # ----------------------------------------------
                     if layout in ["normal", "row", "column"]:
@@ -3994,7 +3988,7 @@ class IntuitiveVisualGenerator():
 
             # Draw containers
             for entity in containers:  # Assuming exactly two containers
-                print("entity: ", entity)
+                logger.debug(f"entity: {entity}")
                 draw_entity(entity)
             
     
@@ -4125,22 +4119,22 @@ class IntuitiveVisualGenerator():
                 result_i = comp_result_container_list[i]
                 svg_width = 0
                 svg_height = 0
-                print(f"handle_comparison loop, operations_i: {operations_i}")
-                print(f"handle_comparison loop, containers_i: {containers_i}")
-                print(f"handle_comparison, result_i: {result_i}")
+                logger.debug(f"handle_comparison loop, operations_i: {operations_i}")
+                logger.debug(f"handle_comparison loop, containers_i: {containers_i}")
+                logger.debug(f"handle_comparison, result_i: {result_i}")
 
                 if all(op["entity_type"] in ["addition", "subtraction"] for op in operations_i):
-                    print("Handling tvq_final")
+                    logger.debug("Handling tvq_final")
                     try:
                         created, w, h = handle_tvq_final(operations_i,containers_i,svg_root,resources_path,result_i,start_x=current_x,start_y=current_y)
                     except Exception as e:
-                        print(f"Error in handle_tvq_final: {e}")
+                        logger.error(f"Error in handle_tvq_final: {e}")
                         import traceback
                         traceback.print_exc()
                         return
                     svg_width, svg_height = int(float(w)), int(float(h))
                 elif all(op["entity_type"] == "multiplication" for op in operations_i) and len(operations_i) == 1:
-                    print("Handling multiplication")
+                    logger.debug("Handling multiplication")
                     try:
                         created, w, h = handle_multiplication(
                         operations_i,
@@ -4151,13 +4145,13 @@ class IntuitiveVisualGenerator():
                         start_x=current_x,
                         start_y=current_y)
                     except Exception as e:
-                        print(f"Error in handle_multiplication: {e}")
+                        logger.error(f"Error in handle_multiplication: {e}")
                         import traceback
                         traceback.print_exc()
                         return
                     svg_width, svg_height = int(float(w)), int(float(h))
                 elif all(op["entity_type"] == "division" for op in operations_i) and len(operations_i) == 1:
-                    print("Handling division")
+                    logger.debug("Handling division")
                     try:
                         created, w, h = handle_division(
                         operations_i,
@@ -4168,13 +4162,13 @@ class IntuitiveVisualGenerator():
                         start_x=current_x,
                         start_y=current_y)
                     except Exception as e:
-                        print(f"Error in handle_division: {e}")
+                        logger.error(f"Error in handle_division: {e}")
                         import traceback
                         traceback.print_exc()
                         return
                     svg_width, svg_height = int(float(w)), int(float(h))
                 elif all(op["entity_type"] == "surplus" for op in operations_i) and len(operations_i) == 1:
-                    print("Handling surplus")
+                    logger.debug("Handling surplus")
                     try:
                         created, w, h = handle_surplus(
                             operations_i,
@@ -4185,13 +4179,13 @@ class IntuitiveVisualGenerator():
                             start_x=current_x,
                             start_y=current_y)
                     except Exception as e:
-                        print(f"Error in handle_surplus: {e}")
+                        logger.error(f"Error in handle_surplus: {e}")
                         import traceback
                         traceback.print_exc()
                         return
                     svg_width, svg_height = int(float(w)), int(float(h))
                 elif all(op["entity_type"] == "area" for op in operations_i) and len(operations_i) == 1:
-                    print("Handling area")
+                    logger.debug("Handling area")
                     try:
                         created, w, h = handle_area(
                             operations_i,
@@ -4202,13 +4196,13 @@ class IntuitiveVisualGenerator():
                             start_x=current_x,
                             start_y=current_y)
                     except Exception as e:
-                        print(f"Error in handle_area: {e}")
+                        logger.error(f"Error in handle_area: {e}")
                         import traceback
                         traceback.print_exc()
                         return
                     svg_width, svg_height = int(float(w)), int(float(h))
                 elif all(op["entity_type"] in ["addition", "subtraction"] for op in operations_i):
-                    print("Handling tvq_final (mixed add/sub)")
+                    logger.debug("Handling tvq_final (mixed add/sub)")
                     try:
                         created, w, h = handle_tvq_final(
                         operations_i,
@@ -4219,7 +4213,7 @@ class IntuitiveVisualGenerator():
                         start_x=current_x,
                         start_y=current_y)
                     except Exception as e:
-                        print(f"Error in handle_tvq_final (mixed add/sub): {e}")
+                        logger.error(f"Error in handle_tvq_final (mixed add/sub): {e}")
                         import traceback
                         traceback.print_exc()
                         return
@@ -4228,7 +4222,7 @@ class IntuitiveVisualGenerator():
 
                 current_x += svg_width + 110  # spacing
 
-            print(f"handle_comparison, entity_box: {entity_boxes}")
+            logger.debug(f"handle_comparison, entity_box: {entity_boxes}")
             # draw balance scale
             draw_balance_scale(svg_root, entity_boxes, comparison_dsl_path)
 

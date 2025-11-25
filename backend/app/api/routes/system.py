@@ -1,7 +1,7 @@
 """
 System API routes for monitoring and debugging.
 """
-from flask import Blueprint, request, jsonify, current_app, abort
+from flask import Blueprint, jsonify, current_app, abort
 from functools import wraps
 import os
 

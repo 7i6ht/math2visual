@@ -1,7 +1,7 @@
 """
 Generation API routes for visual language processing and SVG generation.
 """
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 import os
 import shutil
 import copy
@@ -100,7 +100,7 @@ def generate():
         # Create deep copy to avoid mutations
         data_intuitive = copy.deepcopy(data_formal)
     except ValueError as e:
-        print(f"Visual Language parse error: {e}")
+        current_app.logger.error(f"Visual Language parse error: {e}")
         return jsonify({
             "error": f"Visual Language parse error.",
             "is_parse_error": True

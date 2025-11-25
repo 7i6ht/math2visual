@@ -2,9 +2,7 @@
 Analytics API routes for user action recording and analysis.
 """
 from flask import Blueprint, request, jsonify
-from sqlalchemy.orm import Session
-from sqlalchemy import desc, func, and_
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Optional, Dict, Any, List
 import uuid
 import os

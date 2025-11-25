@@ -7,6 +7,9 @@ from collections import defaultdict
 import difflib
 import inflect
 import re
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class FormalVisualGenerator:
@@ -282,7 +285,7 @@ class FormalVisualGenerator:
                                     start_y=current_y)
                 except:
                     created = False
-                    print("Error in handle_all_except_comparison exception")
+                    logger.error("Error in handle_all_except_comparison exception")
                 svg_width, svg_height = int(float(w)), int(float(h))
                 entity_boxes[i] = (current_x, current_y, svg_width, svg_height)
 
@@ -769,7 +772,7 @@ class FormalVisualGenerator:
         
             def embed_svg(file_path, x, y, width, height):
                 if not os.path.exists(file_path):
-                    print("SVG file not found:", file_path)
+                    logger.debug(f"SVG file not found: {file_path}")
                     # Get the directory and base name from the file_path
                     dir_path = os.path.dirname(file_path)
                     base_name = os.path.splitext(os.path.basename(file_path))[0]
@@ -827,9 +830,9 @@ class FormalVisualGenerator:
                     
                     if found_path:
                         file_path = found_path
-                        print("Found alternative SVG file:", file_path)
+                        logger.info(f"Found alternative SVG file: {file_path}")
                     else:
-                        print("SVG file not found using alternative search:", file_path)
+                        logger.warning(f"SVG file not found using alternative search: {file_path}")
                         self.error_message = f"SVG file not found using alternative search: {file_path}"
                         raise FileNotFoundError(f"SVG file not found: {file_path}")
 
@@ -861,7 +864,7 @@ class FormalVisualGenerator:
                         if figure_path and os.path.exists(figure_path):
                             items.append(("svg", container_type))
                         else:
-                            print(f"SVG for container_type '{container_type}' does not exist. Ignoring container_type.")
+                            logger.debug(f"SVG for container_type '{container_type}' does not exist. Ignoring container_type.")
                     
                     if container_name:
                         items.append(("text", container_name))
@@ -1011,7 +1014,7 @@ class FormalVisualGenerator:
                                                                 dominant_baseline="middle")
                         text_element.text = ")"
                 except:
-                    print("No bracket")
+                    logger.debug("No bracket")
 
                 # y + h 
                 update_max_dimensions(x + w, y + h)
@@ -1299,7 +1302,7 @@ class FormalVisualGenerator:
                             compare2_operations, compare2_entities, compare2_result_entities,
                             svg_root,resources_path, comparison_dsl_path=comparison_dsl_path)
             except:
-                print("Error in handle_comparison exception")
+                logger.error("Error in handle_comparison exception")
                 created = False
         else:
             operations, entities, result_entities = extract_operations_and_entities(data, current_path="")
@@ -1332,5 +1335,5 @@ class FormalVisualGenerator:
                 f.write(etree.tostring(svg_root, pretty_print=True))
             display(SVG(output_file))
         else:
-            print("error_message: ",self.error_message)
+            logger.error(f"error_message: {self.error_message}")
         return created
