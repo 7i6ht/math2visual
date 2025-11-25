@@ -24,6 +24,10 @@ class FormalVisualGenerator:
         """Return a de-duplicated list of missing SVG entity base names (preserve order)."""
         return list(dict.fromkeys(self._missing_svg_entities))
 
+    def get_error_message(self):
+        """Return the error message if visual generation failed."""
+        return self.error_message if self.error_message else None
+
 
 
     def render_svgs_from_data(self, output_file, resources_path, data):
@@ -833,7 +837,7 @@ class FormalVisualGenerator:
                         logger.info(f"Found alternative SVG file: {file_path}")
                     else:
                         logger.warning(f"SVG file not found using alternative search: {file_path}")
-                        self.error_message = f"SVG file not found using alternative search: {file_path}"
+                        self.error_message = f"SVG file not found using alternative search: {file_path}."
                         raise FileNotFoundError(f"SVG file not found: {file_path}")
 
                 # If file_path exists now, parse and update attributes.
