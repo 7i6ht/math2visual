@@ -415,7 +415,7 @@ class IntuitiveVisualGenerator():
             # We assume exactly 2 containers, where the second is the multiplier
             if containers[1].get("item", {}).get("entity_quantity", 0) > 12:
                 logger.warning("No INTUITIVE visual can be generated because of multiplier has entity_quantity higher than 12")
-                self.error_message = "No INTUITIVE visual can be generated because of multiplier has entity quantity higher than 12."
+                self.error_message = "No visual can be generated because of multiplier has entity quantity higher than 12."
 
                 return
             if len(containers) == 2 and containers[1]["item"].get("entity_type", "") == "multiplier":
@@ -743,7 +743,7 @@ class IntuitiveVisualGenerator():
                 logger.debug("get_figure_svg_path")
                 if attr_type:
                     return os.path.join(resources_path, f"{attr_type}.svg")
-                self.error_message = "Cannot find figure path for attr_type: " + attr_type + "."
+                self.error_message = "Cannot find figure path for attribute type: " + attr_type + "."
                 logger.debug(f"Cannot find figure path for attr_type: {attr_type}")
                 return None
 
@@ -1195,7 +1195,7 @@ class IntuitiveVisualGenerator():
             
             if not is_int(dividend_entity["item"].get("entity_quantity", 0)) or not is_int(divisor_entity["item"].get("entity_quantity", 1)):
                 logger.warning("One or both of the containers are not integers.")
-                self.error_message = "One or both of the containers are not integers."
+                self.error_message = "One or both of the entity quantities are not integers."
                 return
             else:
                 dividend_entity_quantity = int(dividend_entity["item"].get("entity_quantity", 0))
@@ -1204,7 +1204,7 @@ class IntuitiveVisualGenerator():
 
             if divisor_entity_quantity <= 0:
                 logger.warning("Cannot divide by zero or negative entity_quantity.")
-                self.error_message = "Cannot divide by zero or negative entity quantity."
+                self.error_message = "Cannot divide by zero or a negative entity quantity."
                 return
             
             # Calculate the number of results
@@ -1212,7 +1212,7 @@ class IntuitiveVisualGenerator():
                 result_count = dividend_entity_quantity // divisor_entity_quantity
             else:
                 logger.warning(f"INTUITIVE visual not possible: {dividend_entity_quantity} cannot be evenly divided by {divisor_entity_quantity}")
-                self.error_message = f"INTUITIVE visual not possible: {dividend_entity_quantity} cannot be evenly divided by {divisor_entity_quantity}"
+                self.error_message = f"Cannot generate visual: {dividend_entity_quantity} cannot be evenly divided by {divisor_entity_quantity}."
                 return None
             
             flag_division_entity_type_same = True
@@ -1221,7 +1221,7 @@ class IntuitiveVisualGenerator():
                 flag_division_entity_type_same = True
                 logger.debug("entity_type equal")
                 if(result_count > 12):
-                    self.error_message = "Division result rectangle number higher than 12."
+                    self.error_message = "Cannot generate visual: Division result rectangle number is higher than 12."
                     return
                 # Create replicated containers based on the result count
                 visual_entity = copy.deepcopy(dividend_entity)
@@ -1254,7 +1254,7 @@ class IntuitiveVisualGenerator():
                 flag_division_entity_type_same = False
                 logger.debug("entity_type different")
                 if(divisor_entity_quantity > 12):
-                    self.error_message = "Division result rectangle number higher than 12."
+                    self.error_message = "Cannot generate visual: Division result rectangle number is higher than 12."
                     return
                 # Create replicated containers based on the result count
                 visual_entity = copy.deepcopy(dividend_entity)
@@ -1562,7 +1562,7 @@ class IntuitiveVisualGenerator():
                         logger.info(f"Found alternative SVG file: {file_path}")
                     else:
                         logger.warning(f"SVG file not found using alternative search: {file_path}")
-                        self.error_message = f"SVG file not found for {base_name}."
+                        self.error_message = f"Cannot generate visual: SVG file not found for {base_name}."
                         raise FileNotFoundError(f"SVG file not found: {file_path}")
 
                 # If file_path exists now, parse and update attributes.
@@ -2069,7 +2069,7 @@ class IntuitiveVisualGenerator():
         def handle_surplus(operations, containers, svg_root, resources_path,result_containers,start_x = 50 ,start_y = 150):
             logger.debug("Handling surplus")
             if len(containers) != 2:
-                self.error_message = "Division requires exactly two containers, but it contains more than two."
+                self.error_message = "Cannot generate visual: Division requires exactly two containers, but it contains more than two."
                 print("Division requires exactly two containers.")
                 return
             original_containers = containers
@@ -2081,7 +2081,7 @@ class IntuitiveVisualGenerator():
             divisor_entity_quantity = int(divisor_entity["item"].get("entity_quantity", 1))
 
             if divisor_entity_quantity <= 0:
-                self.error_message = "Cannot divide by zero or negative entity quantity."
+                self.error_message = "Cannot generate visual: Cannot divide by zero or a negative entity quantity."
                 logger.warning("Cannot divide by zero or negative entity_quantity.")
                 return
 
@@ -2148,7 +2148,7 @@ class IntuitiveVisualGenerator():
                 containers = replicated
             else:
                 logger.warning("Surplus requires entity_type of containers.")
-                self.error_message = "Surplus requires entity type to be the same for both containers."
+                self.error_message = "Cannot generate visual: Surplus requires entity type to be the same for both containers."
                 return
 
 
@@ -2455,7 +2455,7 @@ class IntuitiveVisualGenerator():
                         logger.info(f"Found alternative SVG file: {file_path}")
                     else:
                         logger.warning(f"SVG file not found using alternative search: {file_path}")
-                        self.error_message = f"SVG file not found for {base_name}."
+                        self.error_message = f"Cannot generate visual: SVG file not found for {base_name}."
                         raise FileNotFoundError(f"SVG file not found: {file_path}")
 
                 # If file_path exists now, parse and update attributes.
@@ -2901,7 +2901,7 @@ class IntuitiveVisualGenerator():
             logger.debug("Handling area")
             
             if len(containers) != 2:
-                self.error_message = "Area calculation requires exactly two containers (length, width), requirements do not met."
+                self.error_message = "Cannot generate visual: Area calculation requires exactly two containers (length, width), requirements do not met."
                 logger.warning("Area calculation requires exactly two containers (length, width).")
                 return
 
@@ -2913,7 +2913,7 @@ class IntuitiveVisualGenerator():
 
             # 2. Extract shape info from result_containers[0]
             if not result_containers:
-                self.error_message = "No result_containers provided for the shape."
+                self.error_message = "Cannot generate visual: No result container provided in visual language."
                 logger.warning("No result_containers provided for the shape.")
                 return
             result_e = result_containers[0]
@@ -3000,7 +3000,7 @@ class IntuitiveVisualGenerator():
                         logger.info(f"Found alternative SVG file: {file_path}")
                     else:
                         logger.warning(f"SVG file not found using alternative search: {file_path}")
-                        self.error_message = f"SVG file not found for {base_name}."
+                        self.error_message = f"Cannot generate visual: SVG file not found for {base_name}."
                         raise FileNotFoundError(f"SVG file not found: {file_path}")
 
                 # If file_path exists now, parse and update attributes.
@@ -3227,7 +3227,7 @@ class IntuitiveVisualGenerator():
                     subtraction_index.append(i)
 
                 else:
-                    self.error_message = f"Unsupported operation: {operation}."
+                    self.error_message = f"Cannot generate visual: Unsupported operation: {operation}."
                     logger.warning(f"Unsupported operation: {operation}")
                     return
 
@@ -3257,7 +3257,7 @@ class IntuitiveVisualGenerator():
                     subtraction_index.append(i)
                     the_entity["subtract_from_addition_index"] = current_addition_index
                 else:
-                    self.error_message = f"Unsupported operation: {operation}."
+                    self.error_message = f"Cannot generate visual: Unsupported operation: {operation}."
                     logger.warning(f"Unsupported operation: {operation}")
                     return
 
@@ -3278,7 +3278,7 @@ class IntuitiveVisualGenerator():
                 s_qty_to_allocate = s_ent["item"]["entity_quantity"]
                 temp_entity_quantity = float(s_qty_to_allocate)
                 if not temp_entity_quantity.is_integer():
-                    self.error_message = "Cannot generate INTUITIVE visual because the subtrahend entity quantity is not an integer."
+                    self.error_message = "Cannot generate visual: The subtrahend entity quantity is not an integer."
                     logger.warning("Cannot generate INTUITIVE visual because the subtrahend entity_quantity is not an integer")
                     return
                 addition_index = s_ent["subtract_from_addition_index"]
@@ -3331,14 +3331,14 @@ class IntuitiveVisualGenerator():
             for a_ent in addition_containers:
                 # If there's anything in a_ent["subtractions"], it participated in a subtraction
                 if a_ent["subtrahend_entity_quantity"] and a_ent["item"]["entity_quantity"] > 10: #
-                    self.error_message = "Cannot generate INTUITIVE visual because the minuend entity quantity higher than 10."
+                    self.error_message = "Cannot generate visual: The minuend entity quantity is higher than 10."
                     logger.warning("Cannot generate INTUITIVE visual because the minuend entity_quantity higher than 10")
                     return
     
             for a_ent in subtrahend_containers:
                 # If there's anything in a_ent["subtractions"], it participated in a subtraction
                 if a_ent["item"]["entity_quantity"] > 10:
-                    self.error_message = "Cannot generate INTUITIVE visual because the subtrahend entity quantity higher than 10."
+                    self.error_message = "Cannot generate visual: The subtrahend entity quantity is higher than 10."
                     logger.warning("Cannot generate INTUITIVE visual because the subtrahend entity_quantity higher than 10")
                     return
             # If desired, set 'containers' to just the addition_containers
@@ -3603,7 +3603,7 @@ class IntuitiveVisualGenerator():
                         logger.info(f"Found alternative SVG file: {file_path}")
                     else:
                         logger.warning(f"SVG file not found using alternative search: {file_path}")
-                        self.error_message = f"SVG file not found for {base_name}."
+                        self.error_message = f"Cannot generate visual: SVG file not found for {base_name}."
                         raise FileNotFoundError(f"SVG file not found: {file_path}")
 
                 # If file_path exists now, parse and update attributes.
@@ -4492,7 +4492,7 @@ class IntuitiveVisualGenerator():
                             svg_root,resources_path, comparison_dsl_path=comparison_dsl_path)
             except Exception as e:
                 print("Error in handle_comparison: ",e)
-                self.error_message = "Error in handle_comparison."
+                self.error_message = "Cannot generate visual: Error in handling the comparison."
                 created = False
         else:
             operations, containers, result_containers = extract_operations_and_containers(data, current_path="", current_visual_element_path="i")
