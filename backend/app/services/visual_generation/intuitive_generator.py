@@ -727,7 +727,7 @@ class IntuitiveVisualGenerator():
                         logger.info(f"Found alternative SVG file: {file_path}")
                     else:
                         logger.warning(f"SVG file not found using alternative search: {file_path}")
-                        self.error_message = f"SVG file not found using alternative search: {file_path}."
+                        self.error_message = f"SVG file not found for {base_name}."
                         raise FileNotFoundError(f"SVG file not found: {file_path}")
 
                 # If file_path exists now, parse and update attributes.
@@ -1562,7 +1562,7 @@ class IntuitiveVisualGenerator():
                         logger.info(f"Found alternative SVG file: {file_path}")
                     else:
                         logger.warning(f"SVG file not found using alternative search: {file_path}")
-                        self.error_message = f"SVG file not found using alternative search: {file_path}."
+                        self.error_message = f"SVG file not found for {base_name}."
                         raise FileNotFoundError(f"SVG file not found: {file_path}")
 
                 # If file_path exists now, parse and update attributes.
@@ -2455,7 +2455,7 @@ class IntuitiveVisualGenerator():
                         logger.info(f"Found alternative SVG file: {file_path}")
                     else:
                         logger.warning(f"SVG file not found using alternative search: {file_path}")
-                        self.error_message = f"SVG file not found using alternative search: {file_path}."
+                        self.error_message = f"SVG file not found for {base_name}."
                         raise FileNotFoundError(f"SVG file not found: {file_path}")
 
                 # If file_path exists now, parse and update attributes.
@@ -3000,7 +3000,7 @@ class IntuitiveVisualGenerator():
                         logger.info(f"Found alternative SVG file: {file_path}")
                     else:
                         logger.warning(f"SVG file not found using alternative search: {file_path}")
-                        self.error_message = f"SVG file not found using alternative search: {file_path}."
+                        self.error_message = f"SVG file not found for {base_name}."
                         raise FileNotFoundError(f"SVG file not found: {file_path}")
 
                 # If file_path exists now, parse and update attributes.
@@ -3603,7 +3603,7 @@ class IntuitiveVisualGenerator():
                         logger.info(f"Found alternative SVG file: {file_path}")
                     else:
                         logger.warning(f"SVG file not found using alternative search: {file_path}")
-                        self.error_message = f"SVG file not found using alternative search: {file_path}."
+                        self.error_message = f"SVG file not found for {base_name}."
                         raise FileNotFoundError(f"SVG file not found: {file_path}")
 
                 # If file_path exists now, parse and update attributes.
