@@ -79,29 +79,6 @@ export class SVGDatasetService {
   }
 
   /**
-   * Delete temporary SVG file
-   */
-  static async deleteTemporarySVG(tempFilename: string): Promise<void> {
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/svg-dataset/delete-temp`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ temp_filename: tempFilename }),
-      });
-
-      if (!response.ok) {
-        const result = await response.json();
-        throw new Error(result.error || `Deletion of temporary SVG failed with status ${response.status}`);
-      }
-    } catch (error) {
-      console.error('SVG deletion error:', error);
-      // Don't throw - this is a cleanup operation
-    }
-  }
-
-  /**
    * Search SVG files in the dataset
    */
   static async searchSVGFiles(query: string, limit: number = 20): Promise<SVGSearchResponse> {

@@ -94,16 +94,8 @@ export const SVGGeneratePopup: React.FC<SVGGeneratePopupProps> = ({
       abortControllerRef.current.abort('SVG generation cancelled by user');
     }
 
-    // Delete temporary file if it exists
-    if (tempFilename) {
-      try {
-        await SVGDatasetService.deleteTemporarySVG(tempFilename);
-      } catch (err) {
-        console.error('Failed to delete temporary SVG:', err);
-      }
-    }
     onClose();
-  }, [analyticsEnabled, isGenerating, tempFilename, onClose]);
+  }, [analyticsEnabled, isGenerating, onClose]);
 
   // Handle keyboard events
   const handlePopupKeyDown = (event: KeyboardEvent) => {
