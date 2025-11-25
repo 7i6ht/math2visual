@@ -289,6 +289,93 @@ Serve SVG files from the dataset.
 
 **Response:** SVG file content with appropriate headers
 
+#### `POST /api/svg-dataset/generate`
+Generate an SVG icon using AI (Gemini) based on an entity name.
+
+**Request Body:**
+```json
+{
+  "entity_name": "apple"
+}
+```
+
+**Example using curl:**
+```bash
+curl -X POST http://localhost:5000/api/svg-dataset/generate \
+  -H "Content-Type: application/json" \
+  -d '{"entity_name": "apple"}'
+```
+
+**Response (Success):**
+```json
+{
+  "success": true,
+  "svg_content": "<svg>...</svg>",
+  "temp_filename": "temp_apple_1234567890.svg"
+}
+```
+
+**Response (Error):**
+```json
+{
+  "success": false,
+  "error": "Entity name is required"
+}
+```
+
+**Notes:**
+- The generated SVG is stored temporarily in `storage/temp_svgs/`
+- The `temp_filename` must be used with the confirm endpoint to save permanently
+- Temporary SVGs are subject to automatic cleanup if not confirmed
+- This endpoint uses the Gemini AI model configured via `GOOGLE_API_KEY`
+
+#### `POST /api/svg-dataset/confirm-generated`
+Confirm and permanently save a previously generated SVG from the temporary storage to the dataset.
+
+**Request Body:**
+```json
+{
+  "temp_filename": "temp_apple_1234567890.svg"
+}
+```
+
+**Example using curl:**
+```bash
+curl -X POST http://localhost:5000/api/svg-dataset/confirm-generated \
+  -H "Content-Type: application/json" \
+  -d '{"temp_filename": "temp_apple_1234567890.svg"}'
+```
+
+**Response (Success):**
+```json
+{
+  "success": true,
+  "filename": "apple.svg"
+}
+```
+
+**Response (Error - File not found):**
+```json
+{
+  "success": false,
+  "error": "Temporary SVG file not found"
+}
+```
+
+**Response (Error - File already exists):**
+```json
+{
+  "success": false,
+  "error": "SVG with name 'apple' already exists in the dataset"
+}
+```
+
+**Notes:**
+- This endpoint moves the SVG from `storage/temp_svgs/` to the permanent dataset
+- The final filename is derived from the temporary filename (removes `temp_` prefix and timestamp)
+- Once confirmed, the temporary file is deleted
+- If a file with the same name already exists in the dataset, the operation fails
+
 ### Validation Error Responses
 
 **Response (Content validation error - Malicious content detected):**
@@ -553,10 +640,19 @@ python -m pytest --cov=app tests/
 ## 🛠️ Development
 
 ### Adding New SVG Entities
+
+**Option 1: Manual Upload**
 1. Create SVG file following naming conventions
 2. Check if name exists via `/api/svg-dataset/check-exists` endpoint
 3. Upload via `/api/svg-dataset/upload` endpoint
 4. SVG will be validated and added to dataset
+5. Use `/api/svg-dataset/search` to find and manage existing entities
+
+**Option 2: AI-Powered Generation**
+1. Check if name exists via `/api/svg-dataset/check-exists` endpoint
+2. Generate SVG via `/api/svg-dataset/generate` endpoint with entity name
+3. Review the generated SVG content
+4. Confirm and save via `/api/svg-dataset/confirm-generated` endpoint
 5. Use `/api/svg-dataset/search` to find and manage existing entities
 
 ### Extending Visual Language
