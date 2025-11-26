@@ -96,7 +96,7 @@ export const useElementInteractions = ({
           onNameClick(event);
         };
       } else if (isTextElement(svgElem)) {
-        svgElem.style.MouseEvents = 'auto';
+        svgElem.style.pointerEvents = 'auto';
         // Add click handler for entity quantity editing if path ends with entity_quantity
         if (dslPath.endsWith('/entity_quantity')) {
           svgElem.onclick = (event: MouseEvent) => {
@@ -121,7 +121,7 @@ export const useElementInteractions = ({
         svgElem.onclick = (event: MouseEvent) => {
           const action_type = `svg_element_click`;
           trackSVGElementClick(action_type, dslPath);
-          originalClickHandler.call(svgElem, event);
+          originalClickHandler.call(svgElem, event as PointerEvent);
         };
       }
     });
