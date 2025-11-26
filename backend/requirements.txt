@@ -33,7 +33,7 @@ matplotlib-inline==0.1.7
 more-itertools==10.7.0
 mpmath==1.3.0
 networkx==3.5
-numpy==2.3.2
+numpy
 nvidia-cublas-cu12==12.4.5.8
 nvidia-cuda-cupti-cu12==12.4.127
 nvidia-cuda-nvrtc-cu12==12.4.127
