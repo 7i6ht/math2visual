@@ -91,26 +91,26 @@ export const useElementInteractions = ({
       // Determine element type and setup appropriate interactions
       // Check smaller/internal elements first, then containers, to avoid event blocking
       if (isContainerNameElement(svgElem) || isAttrNameElement(svgElem)) {
-        svgElem.onclick = (event: PointerEvent) => {
+        svgElem.onclick = (event: MouseEvent) => {
           event.stopPropagation();
           onNameClick(event);
         };
       } else if (isTextElement(svgElem)) {
-        svgElem.style.pointerEvents = 'auto';
+        svgElem.style.MouseEvents = 'auto';
         // Add click handler for entity quantity editing if path ends with entity_quantity
         if (dslPath.endsWith('/entity_quantity')) {
-          svgElem.onclick = (event: PointerEvent) => {
+          svgElem.onclick = (event: MouseEvent) => {
             event.stopPropagation();
             onEntityQuantityClick(event);
           };
         }
       } else if (isEmbeddedSvgElement(svgElem)) {
-        svgElem.onclick = (event: PointerEvent) => {
+        svgElem.onclick = (event: MouseEvent) => {
           event.stopPropagation();
           onEmbeddedSVGClick(event);
         };
       } else if (isBoxElement(svgElem)) {
-        svgElem.onclick = (event: PointerEvent) => {
+        svgElem.onclick = (event: MouseEvent) => {
           event.stopPropagation();
           onEntityQuantityClick(event);
         };
@@ -118,7 +118,7 @@ export const useElementInteractions = ({
 
       if (svgElem.onclick && isAnalyticsEnabled()) {
         const originalClickHandler = svgElem.onclick;
-        svgElem.onclick = (event: PointerEvent) => {
+        svgElem.onclick = (event: MouseEvent) => {
           const action_type = `svg_element_click`;
           trackSVGElementClick(action_type, dslPath);
           originalClickHandler.call(svgElem, event);
