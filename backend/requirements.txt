@@ -49,7 +49,7 @@ nvidia-nvtx-cu12==12.4.127
 openai==1.93.0
 packaging==25.0
 parso==0.8.4
-peft==0.14.1.dev0
+peft==0.15.0
 pexpect==4.9.0
 pillow==11.3.0
 pip==25.1
