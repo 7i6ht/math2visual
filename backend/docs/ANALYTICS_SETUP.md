@@ -309,11 +309,6 @@ SELECT * FROM cursor_positions ORDER BY timestamp DESC LIMIT 10;
 SELECT * FROM screenshots ORDER BY created_at DESC LIMIT 10;
 ```
 
-#### Using SQLite
-```bash
-# Connect to database
-sqlite3 analytics.db
-
 # Run the same queries as above
 ```
 
