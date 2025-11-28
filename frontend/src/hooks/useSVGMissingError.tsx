@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback } from "react";
+import { useRef, useState, useCallback, useEffect } from "react";
 import { toast } from "sonner";
 import { SVGDatasetService } from "@/api_services/svgDataset";
 import { ValidationError } from "@/types";
@@ -19,27 +19,18 @@ export const useSVGMissingError = ({
   const [isDragOver, setIsDragOver] = useState(false);
   const [currentEntityIndex, setCurrentEntityIndex] = useState(0);
   const [uploadLoading, setUploadLoading] = useState(false);
+  const [generateLoading, setGenerateLoading] = useState(false);
+  const [generatedSVG, setGeneratedSVG] = useState<string | null>(null);
+  const [tempFilename, setTempFilename] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleUploadAndRegenerate = async (file: File): Promise<void> => {
-    if (!onGenerate) return;
-    const [toastId, uploadSuccess] = await handleUploadOnly(file);
-    if (!uploadSuccess) return;
-    try {
-      await onGenerate(toastId);
-    } catch (error) {
-      console.error("Upload and regenerate failed:", error);
-      toast.error("Upload and regenerate failed", {
-        id: toastId,
-        description:
-          error instanceof Error
-            ? error.message
-            : "Failed to regenerate visualizations",
-      });
-    }
-  };
+  // Clear preview when entity index changes
+  useEffect(() => {
+    setGeneratedSVG(null);
+    setTempFilename(null);
+  }, [currentEntityIndex]);
 
-  const handleUploadOnly = async (file: File): Promise<[string, boolean]> => {
+  const handleUpload = async (file: File): Promise<void> => {
     const uploadToastId = `upload-${Date.now()}`;
     const filename = missingSVGEntities[currentEntityIndex];
 
@@ -58,7 +49,9 @@ export const useSVGMissingError = ({
 
       // Check if all files have been uploaded
       const totalFiles = missingSVGEntities.length;
-      if (currentEntityIndex === totalFiles - 1 && onAllFilesUploaded) {
+      const isLastEntity = currentEntityIndex === totalFiles - 1;
+      
+      if (isLastEntity && onAllFilesUploaded) {
         toast.success("All missing files have been uploaded!", {
           id: uploadToastId,
         });
@@ -67,7 +60,20 @@ export const useSVGMissingError = ({
         toast.success("SVG file uploaded successfully", { id: uploadToastId });
       }
 
-      return [uploadToastId, true];
+      // Regenerate visuals after every upload
+      if (onGenerate) {
+        try {
+          await onGenerate(uploadToastId);
+        } catch (error) {
+          console.error("Regeneration after upload failed:", error);
+          toast.error("Upload succeeded but regeneration failed", {
+            description:
+              error instanceof Error
+                ? error.message
+                : "Failed to regenerate visualizations",
+          });
+        }
+      }
     } catch (uploadError) {
       console.error("Upload failed:", uploadError);
 
@@ -81,8 +87,6 @@ export const useSVGMissingError = ({
       if (ValidationError.isValidationError(uploadError)) {
         errorTitle = uploadError.title;
         errorDescription = uploadError.message;
-        
-        // Log validation details for debugging
       } else if (uploadError instanceof Error) {
         // Fallback to basic string matching for legacy errors
         if (uploadError.message.includes("Network error")) {
@@ -100,8 +104,6 @@ export const useSVGMissingError = ({
         id: uploadToastId,
         description: errorDescription,
       });
-
-      return [uploadToastId, false];
     } finally {
       setUploadLoading(false);
       // Clear the file input after each upload attempt (success or failure)
@@ -122,15 +124,7 @@ export const useSVGMissingError = ({
       return;
     }
 
-    const isMultipleEntities = missingSVGEntities.length > 1;
-    const isLastEntity = currentEntityIndex === missingSVGEntities.length - 1;
-
-    if (isMultipleEntities && !isLastEntity) {
-      handleUploadOnly(file);
-      return;
-    }
-
-    handleUploadAndRegenerate(file);
+    handleUpload(file);
   };
 
   const handleDrop = (e: React.DragEvent) => {
@@ -176,23 +170,14 @@ export const useSVGMissingError = ({
   const openFileDialog = () => {
     // Track upload button click if analytics is enabled
     if (isAnalyticsEnabled()) {
-      const isLastEntity = currentEntityIndex === missingSVGEntities.length - 1;
-      const action = isLastEntity ? 'upload_regenerate' : 'upload';
-      trackElementClick(`svg_${action}_button_click`);
+      trackElementClick('svg_upload_button_click');
     }
     fileInputRef.current?.click();
   };
 
   const getButtonText = () => {
     if (uploadLoading) return "Processing...";
-
-    const isLastEntity = currentEntityIndex === missingSVGEntities.length - 1;
-    const isMultipleEntities = missingSVGEntities.length > 1;
-    if (isMultipleEntities && !isLastEntity) {
-      return "Upload";
-    }
-
-    return "Upload & Regenerate"; // Is single entity or last entity
+    return "Upload";
   };
 
   const getButtonIcon = () => {
@@ -200,21 +185,137 @@ export const useSVGMissingError = ({
     return <UploadIcon className="responsive-icon-font-size mr-2" />;
   };
 
-  const handleGenerateClick = useCallback(() => {
+  const handleGenerate = useCallback(async (): Promise<void> => {
+    if (generateLoading || uploadLoading) return;
+    
+    const entityName = missingSVGEntities[currentEntityIndex];
+    if (!entityName) return;
+
     // Track generate button click if analytics is enabled
     if (isAnalyticsEnabled()) {
       trackElementClick('svg_generate_button_click');
     }
-    if (onGenerate) {
-      onGenerate(undefined);
+
+    try {
+      setGenerateLoading(true);
+
+      // Generate SVG
+      const generateResult = await SVGDatasetService.generateSVG(entityName);
+      
+      if (!generateResult.success || !generateResult.svg_content || !generateResult.temp_filename) {
+        throw new Error(generateResult.error || "Generation failed");
+      }
+
+      // Store the generated SVG for preview
+      setGeneratedSVG(generateResult.svg_content);
+      setTempFilename(generateResult.temp_filename);
+    } catch (error) {
+      console.error("Generate failed:", error);
+      
+      let errorTitle = "Generation failed";
+      let errorDescription =
+        error instanceof Error
+          ? error.message
+          : "An unexpected error occurred";
+
+      toast.error(errorTitle, {
+        description: errorDescription,
+      });
+    } finally {
+      setGenerateLoading(false);
     }
-  }, [onGenerate]);
+  }, [missingSVGEntities, currentEntityIndex, generateLoading, uploadLoading]);
+
+  const handleConfirmGenerated = useCallback(async (): Promise<void> => {
+    if (!tempFilename || generateLoading || uploadLoading) return;
+    
+    const entityName = missingSVGEntities[currentEntityIndex];
+    if (!entityName) return;
+
+    const confirmToastId = `confirm-${Date.now()}`;
+    
+    try {
+      setGenerateLoading(true);
+      
+      toast.loading("Adding SVG to dataset...", { id: confirmToastId });
+
+      // Ensure the filename is the entity name (with .svg extension)
+      const finalFilename = entityName.endsWith('.svg') ? entityName : `${entityName}.svg`;
+
+      // Confirm and add to dataset
+      const confirmResult = await SVGDatasetService.confirmGeneratedSVG(
+        tempFilename,
+        finalFilename
+      );
+
+      if (!confirmResult.success || !confirmResult.filename) {
+        throw new Error(confirmResult.error || "Failed to add SVG to dataset");
+      }
+
+      // Clear preview
+      setGeneratedSVG(null);
+      setTempFilename(null);
+
+      // Check if this was the last entity before incrementing
+      const totalFiles = missingSVGEntities.length;
+      const isLastEntity = currentEntityIndex === totalFiles - 1;
+
+      // Move to next entity
+      setCurrentEntityIndex((prev) => prev + 1);
+
+      toast.success("SVG generated and added to dataset!", {
+        id: confirmToastId,
+      });
+
+      // Regenerate visuals after confirmation
+      if (onGenerate) {
+        try {
+          await onGenerate(confirmToastId);
+        } catch (error) {
+          console.error("Regeneration after generation failed:", error);
+          toast.error("Generation succeeded but regeneration failed", {
+            description:
+              error instanceof Error
+                ? error.message
+                : "Failed to regenerate visualizations",
+          });
+        }
+      }
+
+      if (isLastEntity && onAllFilesUploaded) {
+        onAllFilesUploaded();
+      }
+    } catch (error) {
+      console.error("Confirm generated SVG failed:", error);
+      
+      let errorTitle = "Failed to add SVG";
+      let errorDescription =
+        error instanceof Error
+          ? error.message
+          : "An unexpected error occurred";
+
+      toast.error(errorTitle, {
+        id: confirmToastId,
+        description: errorDescription,
+      });
+    } finally {
+      setGenerateLoading(false);
+    }
+  }, [tempFilename, missingSVGEntities, currentEntityIndex, generateLoading, uploadLoading, onGenerate, onAllFilesUploaded]);
+
+  const handleDiscardGenerated = useCallback(() => {
+    setGeneratedSVG(null);
+    setTempFilename(null);
+  }, []);
 
   return {
     // state
     isDragOver,
     uploadLoading,
+    generateLoading,
     currentEntityIndex,
+    generatedSVG,
+    tempFilename,
     // refs
     fileInputRef,
     // handlers
@@ -223,7 +324,9 @@ export const useSVGMissingError = ({
     handleDragLeave,
     handleFileInputChange,
     openFileDialog,
-    handleGenerateClick,
+    handleGenerateClick: handleGenerate,
+    handleConfirmGenerated,
+    handleDiscardGenerated,
     // ui helpers
     getButtonText,
     getButtonIcon,

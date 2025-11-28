@@ -1,4 +1,4 @@
-import { FileUp, ExternalLink } from "lucide-react";
+import { FileUp, ExternalLink, Sparkles, Loader2, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSVGMissingError } from "@/hooks/useSVGMissingError";
 import { trackElementClick, isAnalyticsEnabled } from "@/services/analyticsTracker";
@@ -47,7 +47,9 @@ export const SVGMissingError = ({
   const {
     isDragOver,
     uploadLoading,
+    generateLoading,
     currentEntityIndex,
+    generatedSVG,
     fileInputRef,
     handleDrop,
     handleDragOver,
@@ -55,6 +57,8 @@ export const SVGMissingError = ({
     handleFileInputChange,
     openFileDialog,
     handleGenerateClick,
+    handleConfirmGenerated,
+    handleDiscardGenerated,
     getButtonText,
     getButtonIcon,
   } = useSVGMissingError({
@@ -64,7 +68,6 @@ export const SVGMissingError = ({
   });
 
   const missingSvgName = missingSVGEntities[currentEntityIndex];
-  const isLastEntity = currentEntityIndex === missingSVGEntities.length - 1;
 
   return (
     <div>
@@ -113,32 +116,71 @@ export const SVGMissingError = ({
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
           >
-            <FileUp className="responsive-icon-font-size mx-auto mb-3 md:mb-4 lg:mb-5 xl:mb-6 2xl:mb-8 3xl:mb-10 4xl:mb-12 5xl:mb-16 6xl:mb-20 7xl:mb-24 text-muted-foreground" />
-            <p className="responsive-text-font-size text-muted-foreground mb-4 md:mb-6 lg:mb-8 xl:mb-10 2xl:mb-12 3xl:mb-14 4xl:mb-16 5xl:mb-20 6xl:mb-24 7xl:mb-28">
-              Drag and drop your SVG file here
-            </p>
+            {generateLoading ? (
+              <div className="flex flex-col items-center justify-center gap-3">
+                <div className="relative">
+                  <Loader2 className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-16 lg:h-16 xl:w-18 xl:h-18 2xl:w-20 2xl:h-20 3xl:w-24 3xl:h-24 4xl:w-28 4xl:h-28 5xl:w-32 5xl:h-32 text-blue-500 animate-spin" />
+                  <Sparkles className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 lg:w-8 lg:h-8 xl:w-9 xl:h-9 2xl:w-10 2xl:h-10 3xl:w-12 3xl:h-12 4xl:w-14 4xl:h-14 5xl:w-16 5xl:h-16 text-yellow-500 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+                </div>
+                <p className="responsive-text-font-size text-muted-foreground">
+                  Generating "{missingSvgName}" icon...
+                </p>
+              </div>
+            ) : generatedSVG ? (
+              <div className="flex flex-col items-center justify-center gap-4 md:gap-5 lg:gap-6">
+                <div
+                  className="svg-preview-container w-full h-[280px] flex items-center justify-center bg-background/50 rounded-md p-4 md:p-5 lg:p-6 overflow-hidden [&_svg]:max-w-full [&_svg]:max-h-full [&_svg]:w-full [&_svg]:h-full"
+                  dangerouslySetInnerHTML={{ __html: generatedSVG }}
+                />
+                <div className="flex flex-col sm:flex-row gap-3 md:gap-4 lg:gap-5 justify-center items-center w-full">
+                  <Button
+                    onClick={handleConfirmGenerated}
+                    disabled={uploadLoading || generateLoading}
+                    className="button-responsive-size !responsive-text-font-size w-full sm:w-auto min-w-[120px] md:min-w-[140px] lg:min-w-[160px]"
+                  >
+                    <Check className="responsive-icon-font-size mr-2" />
+                    Confirm
+                  </Button>
+                  <Button
+                    onClick={handleDiscardGenerated}
+                    disabled={uploadLoading || generateLoading}
+                    variant="outline"
+                    className="button-responsive-size !responsive-text-font-size w-full sm:w-auto min-w-[120px] md:min-w-[140px] lg:min-w-[160px]"
+                  >
+                    <X className="responsive-icon-font-size mr-2" />
+                    Discard
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <FileUp className="responsive-icon-font-size mx-auto mb-3 md:mb-4 lg:mb-5 xl:mb-6 2xl:mb-8 3xl:mb-10 4xl:mb-12 5xl:mb-16 6xl:mb-20 7xl:mb-24 text-muted-foreground" />
+                <p className="responsive-text-font-size text-muted-foreground mb-4 md:mb-6 lg:mb-8 xl:mb-10 2xl:mb-12 3xl:mb-14 4xl:mb-16 5xl:mb-20 6xl:mb-24 7xl:mb-28">
+                  Drag and drop your SVG file here
+                </p>
 
-            <div className="flex flex-col sm:flex-row gap-3 md:gap-4 lg:gap-5 xl:gap-6 2xl:gap-8 3xl:gap-10 4xl:gap-12 5xl:gap-16 6xl:gap-20 7xl:gap-24 justify-center items-center">
-              <Button
-                onClick={openFileDialog}
-                disabled={uploadLoading}
-                className="button-responsive-size !responsive-text-font-size w-full sm:w-auto min-w-[150px] md:min-w-[180px] lg:min-w-[200px] xl:min-w-[220px] 2xl:min-w-[250px] 3xl:min-w-[280px] 4xl:min-w-[320px] 5xl:min-w-[360px] 6xl:min-w-[400px] 7xl:min-w-[440px]"
-              >
-                {getButtonIcon()}
-                {getButtonText()}
-              </Button>
+                <div className="flex flex-col sm:flex-row gap-3 md:gap-4 lg:gap-5 xl:gap-6 2xl:gap-8 3xl:gap-10 4xl:gap-12 5xl:gap-16 6xl:gap-20 7xl:gap-24 justify-center items-center">
+                  <Button
+                    onClick={openFileDialog}
+                    disabled={uploadLoading || generateLoading}
+                    className="button-responsive-size !responsive-text-font-size w-full sm:w-auto min-w-[150px] md:min-w-[180px] lg:min-w-[200px] xl:min-w-[220px] 2xl:min-w-[250px] 3xl:min-w-[280px] 4xl:min-w-[320px] 5xl:min-w-[360px] 6xl:min-w-[400px] 7xl:min-w-[440px]"
+                  >
+                    {getButtonIcon()}
+                    {getButtonText()}
+                  </Button>
 
-              {!isLastEntity && missingSVGEntities.length > 1 && (
-                <Button
-                  onClick={handleGenerateClick}
-                  disabled={uploadLoading}
-                  variant="outline"
-                  className="button-responsive-size !responsive-text-font-size w-full sm:w-auto min-w-[120px] md:min-w-[140px] lg:min-w-[160px] xl:min-w-[180px] 2xl:min-w-[200px] 3xl:min-w-[220px] 4xl:min-w-[240px] 5xl:min-w-[260px] 6xl:min-w-[280px] 7xl:min-w-[300px]"
-                >
-                  Generate
-                </Button>
-              )}
-            </div>
+                  <Button
+                    onClick={handleGenerateClick}
+                    disabled={uploadLoading || generateLoading}
+                    variant="outline"
+                    className="button-responsive-size !responsive-text-font-size w-full sm:w-auto min-w-[120px] md:min-w-[140px] lg:min-w-[160px] xl:min-w-[180px] 2xl:min-w-[200px] 3xl:min-w-[220px] 4xl:min-w-[240px] 5xl:min-w-[260px] 6xl:min-w-[280px] 7xl:min-w-[300px]"
+                  >
+                    <Sparkles className="responsive-icon-font-size mr-2" />
+                    Generate
+                  </Button>
+                </div>
+              </>
+            )}
 
             <input
               ref={fileInputRef}

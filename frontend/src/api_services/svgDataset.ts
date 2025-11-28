@@ -49,18 +49,26 @@ export class SVGDatasetService {
   /**
    * Confirm generated SVG and move it to the dataset
    */
-  static async confirmGeneratedSVG(tempFilename: string): Promise<{
+  static async confirmGeneratedSVG(tempFilename: string, finalFilename?: string): Promise<{
     success: boolean;
     filename?: string;
     error?: string;
   }> {
     try {
+      const body: { temp_filename: string; final_filename?: string } = {
+        temp_filename: tempFilename,
+      };
+      
+      if (finalFilename) {
+        body.final_filename = finalFilename;
+      }
+
       const response = await fetch(`${API_BASE_URL}/api/svg-dataset/confirm-generated`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ temp_filename: tempFilename }),
+        body: JSON.stringify(body),
       });
 
       const result = await response.json();

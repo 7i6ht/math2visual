@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { ResponsiveLogo } from "@/components/ui/ResponsiveLogo";
 import { MathProblemForm } from "@/components/forms/MathProblemForm";
 import { VisualLanguageForm } from "@/components/forms/VisualLanguageForm";
@@ -45,6 +45,7 @@ export function TwoColumnView({ appState }: Props) {
   const { formattedDSL } = useDSLContext();
   const analyticsEnabled = isAnalyticsEnabled();
   const sessionId = getSessionId();
+  const [isVisualPanelCollapsed, setIsVisualPanelCollapsed] = useState(false);
   const isCapturingScreenshot = useSyncExternalStore(
     subscribeToScreenshotState,
     getIsCapturingScreenshot,
@@ -277,69 +278,76 @@ export function TwoColumnView({ appState }: Props) {
       {formattedDSL && (
         // Resizable layout when Visual Language editor is visible (desktop only)
         <div className="hidden xl:block relative min-h-[calc(100vh-2rem)]">
-          <ResizablePanelGroup 
-            direction="horizontal" 
-            className="flex gap-4 2xl:gap-6 3xl:gap-8"
-            style={{ overflow: 'visible' }}
-            {...(analyticsEnabled ? {onLayout: trackPanelResize} : {})}
-          >
-            {/* Math Problem Column */}
-            <ResizablePanel 
-              defaultSize={20} 
-              minSize={15}
-              maxSize={45}
-              className="flex flex-col"
+          <div className="xl:sticky xl:top-6 xl:h-[calc(100vh-3rem)]">
+            <ResizablePanelGroup 
+              direction="horizontal" 
+              className="flex gap-4 2xl:gap-6 3xl:gap-8 h-full"
               style={{ overflow: 'visible' }}
+              {...(analyticsEnabled ? {onLayout: trackPanelResize} : {})}
             >
-              <div 
-                className="flex flex-col xl:sticky xl:top-6 xl:z-10 xl:h-[calc(100vh-3rem)]"
-                {...(analyticsEnabled ? {onScroll: handleLeftColumnScroll} : {})}
+              {/* Math Problem Column */}
+              <ResizablePanel 
+                defaultSize={20} 
+                minSize={15}
+                maxSize={45}
+                className="flex flex-col min-w-0"
+                style={{ overflow: 'visible' }}
               >
-                {mathProblemColumn}
-              </div>
-            </ResizablePanel>
+                <div 
+                  className="flex flex-col xl:sticky xl:top-6 xl:z-10 xl:h-[calc(100vh-3rem)]"
+                  {...(analyticsEnabled ? {onScroll: handleLeftColumnScroll} : {})}
+                >
+                  {mathProblemColumn}
+                </div>
+              </ResizablePanel>
 
-            <ResizableHandle 
-              withHandle 
-              className="w-1 bg-border hover:bg-blue-500 transition-colors"
-            />
+              <ResizableHandle 
+                withHandle 
+                className="w-1 bg-border hover:bg-blue-500 transition-colors"
+              />
 
-            {/* Visual Language Column */}
-            <ResizablePanel 
-              defaultSize={20}
-              minSize={15}
-              maxSize={45}
-              collapsible={true}
-              collapsedSize={0}
-              className="flex flex-col"
-            >
-              <div 
-                className="flex flex-col xl:sticky xl:top-6 xl:z-10 xl:h-[calc(100vh-3rem)]"
-                {...(analyticsEnabled ? {onScroll: handleLeftColumnScroll} : {})}
+              {/* Visual Language Column */}
+              <ResizablePanel 
+                defaultSize={20}
+                minSize={15}
+                maxSize={45}
+                collapsible={true}
+                collapsedSize={0}
+                className="flex flex-col min-w-0"
+                style={{ overflow: 'visible' }}
+                onCollapse={() => setIsVisualPanelCollapsed(true)}
+                onExpand={() => setIsVisualPanelCollapsed(false)}
               >
-                {visualLanguageColumn}
-              </div>
-            </ResizablePanel>
+                <div 
+                  className={`flex flex-col xl:sticky xl:top-6 xl:z-10 xl:h-[calc(100vh-3rem)] ${isVisualPanelCollapsed ? "hidden" : ""}`}
+                  {...(analyticsEnabled ? {onScroll: handleLeftColumnScroll} : {})}
+                >
+                  {visualLanguageColumn}
+                </div>
+              </ResizablePanel>
 
-            <ResizableHandle 
-              withHandle 
-              className="w-1 bg-border hover:bg-blue-500 transition-colors"
-            />
+              <ResizableHandle 
+                withHandle 
+                className="w-1 bg-border hover:bg-blue-500 transition-colors"
+              />
 
-            {/* Visualization Results Column */}
-            <ResizablePanel 
-              defaultSize={60}
-              minSize={30}
-              className="flex flex-col"
-            >
-              <div 
-                className="relative flex flex-col w-full"
-                {...(analyticsEnabled ? {onScroll: handleRightColumnScroll} : {})}
+              {/* Visualization Results Column */}
+              <ResizablePanel 
+                defaultSize={60}
+                minSize={30}
+                className="flex flex-col min-w-0"
               >
-                {visualizationResults}
-              </div>
-            </ResizablePanel>
-          </ResizablePanelGroup>
+                <div className="flex flex-col w-full h-full overflow-hidden">
+                  <div 
+                    className="relative flex flex-col w-full flex-1 overflow-auto pr-1"
+                    {...(analyticsEnabled ? {onScroll: handleRightColumnScroll} : {})}
+                  >
+                    {visualizationResults}
+                  </div>
+                </div>
+              </ResizablePanel>
+            </ResizablePanelGroup>
+          </div>
         </div>
       )}
 
