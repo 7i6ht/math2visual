@@ -263,7 +263,33 @@ export const useHighlighting = ({
   }, [mwpValue, onMWPRangeHighlight]);
 
   /**
-   * Trigger highlighting for embedded SVG components (entity_type)
+   * Trigger highlighting for entity_type components
+   * Highlights the entity_name in the MWP (not the entity_type value)
+   */
+  const triggerEntityTypeHighlight = useCallback((mappings: ComponentMapping, basePath: string, targetElement: Element) => {
+    const mapping = mappings[basePath];
+    triggerHighlight(mapping, {
+      applyVisualHighlight: () => {
+        const embeddedSvgEl = targetElement as SVGGraphicsElement;
+        // Apply CSS class and set custom transform origin
+        embeddedSvgEl.classList.add('highlighted-svg');
+      },
+      applyMWPHighlight: () => {
+        // For entity_type, we need to highlight the entity_name in the MWP, not the entity_type value
+        // Derive the entity_name path from the entity_type path (basePath always ends with 'entity_type')
+        const entityNamePath = basePath.slice(0, -11) + 'entity_name';
+        const entityNameMapping = mappings[entityNamePath];
+        if (entityNameMapping) {
+          handleMWPHighlight(entityNameMapping);
+        } else {
+          handleMWPHighlight(mapping);
+        }
+      }
+    });
+  }, [triggerHighlight, handleMWPHighlight]);
+
+  /**
+   * Trigger highlighting for embedded SVG components (container_type, attr_type)
    */
   const triggerEmbeddedSvgHighlight = useCallback((mapping: ComponentMappingEntry | undefined, currentTargetElement: Element) => {
     triggerHighlight(mapping, {
@@ -352,7 +378,7 @@ export const useHighlighting = ({
       'entity_quantity': () => triggerEntityQuantityHighlightText(mapping, targetElement),
       'container_name': () => triggerContainerNameHighlight(mapping, targetElement),
       'attr_name': () => triggerAttrNameHighlight(mapping, targetElement),
-      'entity_type': () => triggerEmbeddedSvgHighlight(mapping, targetElement),
+      'entity_type': () => triggerEntityTypeHighlight(mappings, basePath, targetElement),
       'container_type': () => triggerEmbeddedSvgHighlight(mapping, targetElement),
       'attr_type': () => triggerEmbeddedSvgHighlight(mapping, targetElement),
       'operation': () => triggerOperationHighlight(mapping, dslPath, targetElement),
@@ -369,7 +395,7 @@ export const useHighlighting = ({
       // Special case for entity containers (boxes)
       triggerBoxHighlight(mapping, dslPath, targetElement);
     }
-  }, [triggerEntityQuantityHighlightText, triggerContainerNameHighlight, triggerAttrNameHighlight, triggerEmbeddedSvgHighlight, triggerBoxHighlight, triggerOperationHighlight, triggerResultContainerHighlight, mappings]);
+  }, [triggerEntityQuantityHighlightText, triggerContainerNameHighlight, triggerAttrNameHighlight, triggerEntityTypeHighlight, triggerEmbeddedSvgHighlight, triggerBoxHighlight, triggerOperationHighlight, triggerResultContainerHighlight, mappings]);
 
   /**
    * Highlight the visual element corresponding to the current DSL path
