@@ -20,9 +20,41 @@ export const useSVGMissingError = ({
   const [currentEntityIndex, setCurrentEntityIndex] = useState(0);
   const [uploadLoading, setUploadLoading] = useState(false);
   const [generateLoading, setGenerateLoading] = useState(false);
+  const [isGeneratingSVG, setIsGeneratingSVG] = useState(false);
   const [generatedSVG, setGeneratedSVG] = useState<string | null>(null);
   const [tempFilename, setTempFilename] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const generationAbortControllerRef = useRef<AbortController | null>(null);
+  const abortedByUserRef = useRef(false);
+
+  const abortGeneration = useCallback(
+    (options?: { markUserInitiated?: boolean }) => {
+      if (!generationAbortControllerRef.current) return false;
+
+      const { markUserInitiated = true } = options || {};
+
+      if (markUserInitiated) {
+        abortedByUserRef.current = true;
+      }
+
+      const abortReason = markUserInitiated ? "SVG generation cancelled by user" : "SVG generation aborted";
+      generationAbortControllerRef.current.abort(abortReason);
+      generationAbortControllerRef.current = null;
+      setIsGeneratingSVG(false);
+      setGenerateLoading(false);
+      setGeneratedSVG(null);
+      setTempFilename(null);
+
+      return true;
+    },
+    []
+  );
+
+  useEffect(() => {
+    return () => {
+      abortGeneration({ markUserInitiated: false });
+    };
+  }, [abortGeneration]);
 
   // Clear preview when entity index changes
   useEffect(() => {
@@ -30,9 +62,17 @@ export const useSVGMissingError = ({
     setTempFilename(null);
   }, [currentEntityIndex]);
 
+  useEffect(() => {
+    setCurrentEntityIndex((prev) => {
+      if (missingSVGEntities.length === 0) return 0;
+      return Math.min(prev, missingSVGEntities.length - 1);
+    });
+  }, [missingSVGEntities]);
+
   const handleUpload = async (file: File): Promise<void> => {
     const uploadToastId = `upload-${Date.now()}`;
-    const filename = missingSVGEntities[currentEntityIndex];
+    const baseName = missingSVGEntities[currentEntityIndex];
+    const filename = `${baseName}.svg`;
 
     try {
       setUploadLoading(true);
@@ -47,11 +87,9 @@ export const useSVGMissingError = ({
 
       setCurrentEntityIndex((prev) => prev + 1);
 
-      // Check if all files have been uploaded
-      const totalFiles = missingSVGEntities.length;
-      const isLastEntity = currentEntityIndex === totalFiles - 1;
-      
-      if (isLastEntity && onAllFilesUploaded) {
+      const hasOtherMissingEntities = missingSVGEntities.length > 1;
+
+      if (!hasOtherMissingEntities && onAllFilesUploaded) {
         toast.success("All missing files have been uploaded!", {
           id: uploadToastId,
         });
@@ -186,7 +224,7 @@ export const useSVGMissingError = ({
   };
 
   const handleGenerate = useCallback(async (): Promise<void> => {
-    if (generateLoading || uploadLoading) return;
+    if (generateLoading || uploadLoading || isGeneratingSVG) return;
     
     const entityName = missingSVGEntities[currentEntityIndex];
     if (!entityName) return;
@@ -197,10 +235,17 @@ export const useSVGMissingError = ({
     }
 
     try {
+      abortGeneration({ markUserInitiated: false });
+
+      const controller = new AbortController();
+      generationAbortControllerRef.current = controller;
+      abortedByUserRef.current = false;
+
       setGenerateLoading(true);
+      setIsGeneratingSVG(true);
 
       // Generate SVG
-      const generateResult = await SVGDatasetService.generateSVG(entityName);
+      const generateResult = await SVGDatasetService.generateSVG(entityName, controller.signal);
       
       if (!generateResult.success || !generateResult.svg_content || !generateResult.temp_filename) {
         throw new Error(generateResult.error || "Generation failed");
@@ -211,20 +256,28 @@ export const useSVGMissingError = ({
       setTempFilename(generateResult.temp_filename);
     } catch (error) {
       console.error("Generate failed:", error);
-      
-      let errorTitle = "Generation failed";
-      let errorDescription =
-        error instanceof Error
-          ? error.message
-          : "An unexpected error occurred";
+      if (error instanceof Error && error.name === "AbortError") {
+        if (!abortedByUserRef.current) {
+          toast.info("Generation cancelled");
+        }
+      } else {
+        let errorTitle = "Generation failed";
+        let errorDescription =
+          error instanceof Error
+            ? error.message
+            : "An unexpected error occurred";
 
-      toast.error(errorTitle, {
-        description: errorDescription,
-      });
+        toast.error(errorTitle, {
+          description: errorDescription,
+        });
+      }
     } finally {
+      setIsGeneratingSVG(false);
       setGenerateLoading(false);
+      generationAbortControllerRef.current = null;
+      abortedByUserRef.current = false;
     }
-  }, [missingSVGEntities, currentEntityIndex, generateLoading, uploadLoading]);
+  }, [missingSVGEntities, currentEntityIndex, generateLoading, uploadLoading, isGeneratingSVG, abortGeneration]);
 
   const handleConfirmGenerated = useCallback(async (): Promise<void> => {
     if (!tempFilename || generateLoading || uploadLoading) return;
@@ -256,10 +309,6 @@ export const useSVGMissingError = ({
       setGeneratedSVG(null);
       setTempFilename(null);
 
-      // Check if this was the last entity before incrementing
-      const totalFiles = missingSVGEntities.length;
-      const isLastEntity = currentEntityIndex === totalFiles - 1;
-
       // Move to next entity
       setCurrentEntityIndex((prev) => prev + 1);
 
@@ -282,7 +331,9 @@ export const useSVGMissingError = ({
         }
       }
 
-      if (isLastEntity && onAllFilesUploaded) {
+      const hasOtherMissingEntities = missingSVGEntities.length > 1;
+
+      if (!hasOtherMissingEntities && onAllFilesUploaded) {
         onAllFilesUploaded();
       }
     } catch (error) {
@@ -308,11 +359,31 @@ export const useSVGMissingError = ({
     setTempFilename(null);
   }, []);
 
+  const handleSelectMissingEntity = useCallback((index: number) => {
+    if (
+      uploadLoading ||
+      index < 0 ||
+      index >= missingSVGEntities.length ||
+      index === currentEntityIndex
+    ) {
+      return;
+    }
+
+    if (isGeneratingSVG) {
+      abortGeneration();
+    } else if (generateLoading) {
+      return;
+    }
+
+    setCurrentEntityIndex(index);
+  }, [uploadLoading, missingSVGEntities.length, currentEntityIndex, isGeneratingSVG, abortGeneration, generateLoading]);
+
   return {
     // state
     isDragOver,
     uploadLoading,
     generateLoading,
+    isGeneratingSVG,
     currentEntityIndex,
     generatedSVG,
     tempFilename,
@@ -325,8 +396,10 @@ export const useSVGMissingError = ({
     handleFileInputChange,
     openFileDialog,
     handleGenerateClick: handleGenerate,
+    handleAbortGeneration: abortGeneration,
     handleConfirmGenerated,
     handleDiscardGenerated,
+    handleSelectMissingEntity,
     // ui helpers
     getButtonText,
     getButtonIcon,

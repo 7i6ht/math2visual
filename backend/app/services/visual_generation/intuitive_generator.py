@@ -764,6 +764,7 @@ class IntuitiveVisualGenerator():
                         if figure_path and os.path.exists(figure_path):
                             items.append(("svg", container_type))
                         else:
+                            self._missing_svg_entities.append(container_type)
                             logger.debug(f"SVG for container_type '{container_type}' does not exist. Ignoring container_type.")
                     
                     if container_name:
@@ -773,6 +774,9 @@ class IntuitiveVisualGenerator():
                         figure_path = get_figure_svg_path(attr_type)
                         if figure_path and os.path.exists(figure_path):
                             items.append(("svg", attr_type))
+                        else:
+                            self._missing_svg_entities.append(attr_type)
+                            logger.debug(f"SVG for attr_type '{attr_type}' does not exist. Ignoring attr_type.")
                         items.append(("text", attr_name))
 
                 total_width = 0
@@ -1596,6 +1600,7 @@ class IntuitiveVisualGenerator():
                         if figure_path and os.path.exists(figure_path):
                             items.append(("svg", container_type))
                         else:
+                            self._missing_svg_entities.append(container_type)
                             logger.debug(f"SVG for container_type '{container_type}' does not exist. Ignoring container_type.")
                     
                     if container_name:
@@ -1605,6 +1610,9 @@ class IntuitiveVisualGenerator():
                         figure_path = get_figure_svg_path(attr_type)
                         if figure_path and os.path.exists(figure_path):
                             items.append(("svg", attr_type))
+                        else:
+                            self._missing_svg_entities.append(attr_type)
+                            logger.debug(f"SVG for attr_type '{attr_type}' does not exist. Ignoring attr_type.")
                         items.append(("text", attr_name))
 
                 total_width = 0
@@ -2491,6 +2499,7 @@ class IntuitiveVisualGenerator():
                         if figure_path and os.path.exists(figure_path):
                             items.append(("svg", container_type))
                         else:
+                            self._missing_svg_entities.append(container_type)
                             logger.debug(f"SVG for container_type '{container_type}' does not exist. Ignoring container_type.")
                     
                     if container_name:
@@ -2500,6 +2509,9 @@ class IntuitiveVisualGenerator():
                         figure_path = get_figure_svg_path(attr_type)
                         if figure_path and os.path.exists(figure_path):
                             items.append(("svg", attr_type))
+                        else:
+                            self._missing_svg_entities.append(attr_type)
+                            logger.debug(f"SVG for attr_type '{attr_type}' does not exist. Ignoring attr_type.")
                         items.append(("text", attr_name))
 
                 total_width = 0
@@ -3637,6 +3649,7 @@ class IntuitiveVisualGenerator():
                         if figure_path and os.path.exists(figure_path):
                             items.append(("svg", container_type))
                         else:
+                            self._missing_svg_entities.append(container_type)
                             logger.debug(f"SVG for container_type '{container_type}' does not exist. Ignoring container_type.")
                     
                     if container_name:
@@ -3646,6 +3659,9 @@ class IntuitiveVisualGenerator():
                         figure_path = get_figure_svg_path(attr_type)
                         if figure_path and os.path.exists(figure_path):
                             items.append(("svg", attr_type))
+                        else:
+                            self._missing_svg_entities.append(attr_type)
+                            logger.debug(f"SVG for attr_type '{attr_type}' does not exist. Ignoring attr_type.")
                         items.append(("text", attr_name))
 
                 # Simulate the needed width for all items

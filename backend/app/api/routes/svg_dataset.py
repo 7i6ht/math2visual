@@ -342,15 +342,17 @@ def generate_svg():
         
         # Count existing files with the same name in the dataset
         svg_dataset_dir = get_svg_dataset_path()
-        count = 0
         base_name = entity_name.lower().replace(' ', '-')
         
         # Count files matching the pattern: base_name.svg or base_name-N.svg
         pattern = re.compile(rf'^{re.escape(base_name)}(-\d+)?\.svg$', re.IGNORECASE)
         count = sum(1 for f in os.listdir(svg_dataset_dir) if pattern.match(f))
         
-        # Generate temporary filename
-        temp_filename = f"{base_name}-{count}.svg"
+        # Generate temporary filename (only append suffix if needed)
+        if count == 0:
+            temp_filename = f"{base_name}.svg"
+        else:
+            temp_filename = f"{base_name}-{count}.svg"
         temp_path = os.path.join(TEMP_SVG_DIR, temp_filename)
         
         # Validate the generated SVG

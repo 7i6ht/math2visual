@@ -1,4 +1,4 @@
-import { FileUp, ExternalLink, Sparkles, Loader2, Check, X } from "lucide-react";
+import { FileUp, ExternalLink, Sparkles, Loader2, Check, X, CircleStop } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSVGMissingError } from "@/hooks/useSVGMissingError";
 import { trackElementClick, isAnalyticsEnabled } from "@/services/analyticsTracker";
@@ -48,6 +48,7 @@ export const SVGMissingError = ({
     isDragOver,
     uploadLoading,
     generateLoading,
+    isGeneratingSVG,
     currentEntityIndex,
     generatedSVG,
     fileInputRef,
@@ -57,8 +58,10 @@ export const SVGMissingError = ({
     handleFileInputChange,
     openFileDialog,
     handleGenerateClick,
+    handleAbortGeneration,
     handleConfirmGenerated,
     handleDiscardGenerated,
+    handleSelectMissingEntity,
     getButtonText,
     getButtonIcon,
   } = useSVGMissingError({
@@ -78,31 +81,38 @@ export const SVGMissingError = ({
             SVG file required for visual generation is missing from the dataset. Attempted to find and pick the closest matching representation in dataset instead. 
           </span>
 
-          {/* Missing File Info */}
-          <div className="bg-background/50 rounded-md p-3 md:p-4 lg:p-5 xl:p-6 2xl:p-8 3xl:p-10 4xl:p-12 5xl:p-16 6xl:p-20 7xl:p-24 mb-4 md:mb-6 lg:mb-8 xl:mb-10 2xl:mb-12 3xl:mb-14 4xl:mb-16 5xl:mb-20 6xl:mb-24 7xl:mb-28">
-            {missingSVGEntities.length > 1 ? (
-              <div>
-                <p className="responsive-text-font-size mb-2 md:mb-3 lg:mb-4 xl:mb-5 2xl:mb-6 3xl:mb-8 4xl:mb-10 5xl:mb-12 6xl:mb-14 7xl:mb-16">
-                  <span className="font-medium">Missing files:</span>{" "}
-                  <span className="text-muted-foreground">
-                    {currentEntityIndex + 1} of {missingSVGEntities.length}
+          {/* Missing File Selection */}
+          <div className="bg-background/50 rounded-md p-4 md:p-5 lg:p-6 xl:p-7 2xl:p-8 3xl:p-10 4xl:p-12 5xl:p-14 6xl:p-16 7xl:p-20 mb-4 md:mb-6 lg:mb-8 xl:mb-10 2xl:mb-12 3xl:mb-14 4xl:mb-16 5xl:mb-20 6xl:mb-24 7xl:mb-28 space-y-3">
+            <p className="responsive-text-font-size font-medium text-muted-foreground">
+              Select the missing entity to upload or generate an icon:
+            </p>
+            <div className="flex flex-wrap gap-2 md:gap-3 lg:gap-4 xl:gap-5 2xl:gap-6 3xl:gap-8">
+              {missingSVGEntities.map((entity, index) => {
+                const isSelected = index === currentEntityIndex;
+                return (
+                  <span
+                    key={entity + index}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => handleSelectMissingEntity(index)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        handleSelectMissingEntity(index);
+                      }
+                    }}
+                    className={`inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm md:text-base transition-colors cursor-pointer bg-white ${
+                      isSelected
+                        ? "border-primary text-primary shadow-sm"
+                        : "border-input text-muted-foreground hover:border-primary/50 hover:text-primary"
+                    }`}
+                  >
+                    <span className="w-2 h-2 rounded-full bg-primary/60" aria-hidden />
+                    {entity}
                   </span>
-                </p>
-                <p className="responsive-text-font-size">
-                  <span className="font-medium">Current file:</span>{" "}
-                  <code className="bg-muted px-1.5 py-0.5 md:px-2 md:py-1 lg:px-2.5 lg:py-1.5 xl:px-3 xl:py-2 2xl:px-4 2xl:py-2.5 3xl:px-5 3xl:py-3 4xl:px-6 4xl:py-4 5xl:px-8 5xl:py-5 6xl:px-10 6xl:py-6 7xl:px-12 7xl:py-8 rounded !responsive-text-font-size">
-                    {missingSvgName}
-                  </code>
-                </p>
-              </div>
-            ) : (
-              <p className="responsive-text-font-size">
-                <span className="font-medium">Missing file:</span>{" "}
-                <code className="bg-muted px-1.5 py-0.5 md:px-2 md:py-1 lg:px-2.5 lg:py-1.5 xl:px-3 xl:py-2 2xl:px-4 2xl:py-2.5 3xl:px-5 3xl:py-3 4xl:px-6 4xl:py-4 5xl:px-8 5xl:py-5 6xl:px-10 6xl:py-6 7xl:px-12 7xl:py-8 rounded !responsive-text-font-size">
-                  {missingSvgName}
-                </code>
-              </p>
-            )}
+                );
+              })}
+            </div>
           </div>
 
           {/* Upload Area */}
@@ -116,7 +126,7 @@ export const SVGMissingError = ({
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
           >
-            {generateLoading ? (
+            {isGeneratingSVG ? (
               <div className="flex flex-col items-center justify-center gap-3">
                 <div className="relative">
                   <Loader2 className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-16 lg:h-16 xl:w-18 xl:h-18 2xl:w-20 2xl:h-20 3xl:w-24 3xl:h-24 4xl:w-28 4xl:h-28 5xl:w-32 5xl:h-32 text-blue-500 animate-spin" />
@@ -125,6 +135,15 @@ export const SVGMissingError = ({
                 <p className="responsive-text-font-size text-muted-foreground">
                   Generating "{missingSvgName}" icon...
                 </p>
+                <Button
+                  onClick={() => handleAbortGeneration()}
+                  variant="outline"
+                  disabled={!isGeneratingSVG}
+                  className="button-responsive-size !responsive-text-font-size"
+                >
+                  <CircleStop className="responsive-icon-font-size mr-2" />
+                  Cancel generation
+                </Button>
               </div>
             ) : generatedSVG ? (
               <div className="flex flex-col items-center justify-center gap-4 md:gap-5 lg:gap-6">
