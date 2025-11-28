@@ -15,7 +15,7 @@ export class SVGDatasetService {
   /**
    * Generate SVG using AI
    */
-  static async generateSVG(entityName: string, signal?: AbortSignal): Promise<{
+  static async generateSVG(entityType: string, signal?: AbortSignal): Promise<{
     success: boolean;
     svg_content?: string;
     temp_filename?: string;
@@ -27,7 +27,7 @@ export class SVGDatasetService {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ entity_name: entityName }),
+        body: JSON.stringify({ entity_type: entityType }),
         signal,
       });
 

@@ -16,13 +16,13 @@ import { trackElementClick, isAnalyticsEnabled } from "@/services/analyticsTrack
 interface SVGActionMenuProps {
   onClosePopup: () => void;
   onEmbeddedSVGChange: (newType: string) => Promise<void>;
-  entityName: string;
+  sanitizedEntityType: string;
 }
 
 export const SVGActionMenu: React.FC<SVGActionMenuProps> = ({
   onClosePopup,
   onEmbeddedSVGChange,
-  entityName,
+  sanitizedEntityType,
 }) => {
   const [activePopup, setActivePopup] = useState<"search" | "upload" | "generate" | null>(
     null
@@ -95,7 +95,7 @@ export const SVGActionMenu: React.FC<SVGActionMenuProps> = ({
         <SVGGeneratePopup
           onClose={handleClosePopup}
           onGenerate={onEmbeddedSVGChange}
-          entityName={entityName}
+          sanitizedEntityType={sanitizedEntityType}
         />
       )}
 

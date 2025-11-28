@@ -314,25 +314,25 @@ def generate_svg():
     Generate an SVG icon using AI and store it temporarily.
     
     Expects:
-        - entity_name: Name of the entity/container to generate icon for
+        - entity_type: Sanitized entity type to generate icon for
         
     Returns:
         JSON response with SVG content and temporary filename
     """
     try:
         body = request.json or {}
-        entity_name = body.get('entity_name', '').strip()
+        entity_type = body.get('entity_type', '').strip()
         
-        if not entity_name:
+        if not entity_type:
             return jsonify({
                 "success": False,
-                "error": "Entity name is required"
+                "error": "Entity type is required"
             }), 400
         
-        current_app.logger.info(f"🎨 Generating SVG icon for: {entity_name}")
+        current_app.logger.info(f"🎨 Generating SVG icon for: {entity_type}")
         
         # Generate SVG using Gemini
-        success, svg_content, error = generate_svg_icon(entity_name)
+        success, svg_content, error = generate_svg_icon(entity_type)
         
         if not success or not svg_content:
             return jsonify({
@@ -342,7 +342,7 @@ def generate_svg():
         
         # Count existing files with the same name in the dataset
         svg_dataset_dir = get_svg_dataset_path()
-        base_name = entity_name.lower().replace(' ', '-')
+        base_name = entity_type.lower().replace(' ', '-')
         
         # Count files matching the pattern: base_name.svg or base_name-N.svg
         pattern = re.compile(rf'^{re.escape(base_name)}(-\d+)?\.svg$', re.IGNORECASE)
@@ -378,7 +378,7 @@ def generate_svg():
             "success": True,
             "svg_content": svg_content,
             "temp_filename": temp_filename,
-            "message": f"SVG icon for '{entity_name}' generated successfully"
+            "message": f"SVG icon for '{entity_type}' generated successfully"
         })
         
     except Exception as e:
