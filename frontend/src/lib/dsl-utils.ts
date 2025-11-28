@@ -159,7 +159,7 @@ export function updateMWPInput(
   
   const handlers: Record<DSLChange["type"], (t: string, o: string, n: string) => string> = {
     entity_name: (t, o, n) => replaceEntityNames(t, o, n),
-    entity_type: (t, o, n) => replaceEntityNames(t, o, n),
+    entity_type: (t) => t, // entity_type changes should not update MWP text
     entity_quantity: (t, o, n) => replaceQuantities(t, o, n),
     container_name: (t, o, n) => replaceContainerNames(t, o, n),
   };
