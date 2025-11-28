@@ -352,7 +352,7 @@ def generate_svg():
         if count == 0:
             temp_filename = f"{base_name}.svg"
         else:
-            temp_filename = f"{base_name}-{count}.svg"
+            temp_filename = f"{base_name}-{count+1}.svg"
         temp_path = os.path.join(TEMP_SVG_DIR, temp_filename)
         
         # Validate the generated SVG
