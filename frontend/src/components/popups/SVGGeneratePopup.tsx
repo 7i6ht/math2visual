@@ -121,7 +121,7 @@ export const SVGGeneratePopup: React.FC<SVGGeneratePopupProps> = ({
             <Sparkles className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 lg:w-8 lg:h-8 xl:w-9 xl:h-9 2xl:w-10 2xl:h-10 3xl:w-12 3xl:h-12 4xl:w-14 4xl:h-14 5xl:w-16 5xl:h-16 text-yellow-500 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
           </div>
           <p className="responsive-text-font-size text-gray-600 text-center">
-            Generating {sanitizedEntityType} icon...
+            Generating "{sanitizedEntityType}" icon...
           </p>
         </div>
       ) : generatedSVG ? (
