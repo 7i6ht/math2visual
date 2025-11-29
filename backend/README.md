@@ -64,7 +64,8 @@ backend/
 │       ├── __init__.py
 │       ├── cleanup.py
 │       └── validation_constants.py
-├── app.py                                  # Application entry point
+├── app.py                                  # Application entry point (development)
+├── wsgi.py                                 # WSGI entry point (production, for Gunicorn)
 ├── gunicorn.conf.py                        # Gunicorn WSGI server configuration
 ├── math2visual.yml                         # Conda environment file
 ├── requirements.txt                        # Python dependencies
@@ -149,7 +150,7 @@ python app.py
 ./scripts/start_production.sh
 
 # Or directly with Gunicorn
-gunicorn --config gunicorn.conf.py app:app
+gunicorn --config gunicorn.conf.py wsgi:app
 ```
 
 The server will start on `http://localhost:5000` by default.

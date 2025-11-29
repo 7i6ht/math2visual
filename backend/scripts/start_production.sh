@@ -33,8 +33,8 @@ warning() {
 }
 
 # Check if we're in the right directory
-if [ ! -f "$BACKEND_DIR/app.py" ]; then
-    error "app.py not found. Please run this script from the backend directory or ensure the project structure is correct."
+if [ ! -f "$BACKEND_DIR/wsgi.py" ]; then
+    error "wsgi.py not found. Please run this script from the backend directory or ensure the project structure is correct."
     exit 1
 fi
 
@@ -99,4 +99,4 @@ exec gunicorn \
     --access-logfile - \
     --error-logfile - \
     --log-level info \
-    app:app
+    wsgi:app

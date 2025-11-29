@@ -63,20 +63,20 @@ chmod +x scripts/start_production.sh
 
 ```bash
 # Basic production start
-gunicorn --config gunicorn.conf.py app:app
+gunicorn --config gunicorn.conf.py wsgi:app
 
 # With logging
-gunicorn --config gunicorn.conf.py --access-logfile - --error-logfile - app:app
+gunicorn --config gunicorn.conf.py --access-logfile - --error-logfile - wsgi:app
 ```
 
 ### Option 3: Custom Configuration
 
 ```bash
 # Custom worker count
-gunicorn --workers 8 --bind 0.0.0.0:5000 --timeout 120 app:app
+gunicorn --workers 8 --bind 0.0.0.0:5000 --timeout 120 wsgi:app
 
 # With specific log files
-gunicorn --config gunicorn.conf.py --access-logfile logs/access.log --error-logfile logs/error.log app:app
+gunicorn --config gunicorn.conf.py --access-logfile logs/access.log --error-logfile logs/error.log wsgi:app
 ```
 
 ## Configuration
@@ -184,7 +184,7 @@ User=www-data
 Group=www-data
 WorkingDirectory=/path/to/math2visual/backend
 Environment=PATH=/path/to/math2visual/backend/venv/bin
-ExecStart=/path/to/math2visual/backend/venv/bin/gunicorn --config gunicorn.conf.py app:app
+ExecStart=/path/to/math2visual/backend/venv/bin/gunicorn --config gunicorn.conf.py wsgi:app
 ExecReload=/bin/kill -s HUP $MAINPID
 Restart=always
 RestartSec=3
@@ -255,13 +255,13 @@ chmod +x /path/to/math2visual/backend/scripts/start_production.sh
 1. **Out of Memory**
    ```bash
    # Reduce workers
-   gunicorn --workers 2 --config gunicorn.conf.py app:app
+   gunicorn --workers 2 --config gunicorn.conf.py wsgi:app
    ```
 
 2. **Timeout Errors**
    ```bash
    # Increase timeout
-   gunicorn --timeout 180 --config gunicorn.conf.py app:app
+   gunicorn --timeout 180 --config gunicorn.conf.py wsgi:app
    ```
 
 3. **Port Already in Use**
@@ -269,14 +269,14 @@ chmod +x /path/to/math2visual/backend/scripts/start_production.sh
    # Check what's using the port
    lsof -i :5000
    # Kill the process or use different port
-   gunicorn --bind 0.0.0.0:5001 --config gunicorn.conf.py app:app
+   gunicorn --bind 0.0.0.0:5001 --config gunicorn.conf.py wsgi:app
    ```
 
 ### Debug Mode
 
 ```bash
 # Run in debug mode
-FLASK_DEBUG=true gunicorn --config gunicorn.conf.py app:app
+FLASK_DEBUG=true gunicorn --config gunicorn.conf.py wsgi:app
 ```
 
 ### Log Analysis
