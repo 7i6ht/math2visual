@@ -55,9 +55,11 @@ frontend/
 │   │   │   ├── highlightable-textarea.tsx # Textarea with highlighting
 │   │   │   ├── input.tsx
 │   │   │   ├── label.tsx
+│   │   │   ├── resizable.tsx              # Resizable panel component
 │   │   │   ├── ResponsiveLogo.tsx         # Responsive logo component
 │   │   │   ├── SessionAnalyticsDisplay.tsx # Analytics session display
 │   │   │   ├── sonner.tsx                 # Toast notification setup
+│   │   │   ├── sparkles-loading.tsx       # Loading animation component
 │   │   │   ├── syntax-editor.tsx          # Monaco Editor integration
 │   │   │   ├── syntax-editor.css          # Editor styling
 │   │   │   ├── tabs.tsx                   # Tab navigation component
@@ -114,15 +116,21 @@ frontend/
 │   ├── App.tsx            # Main application component
 │   ├── App.css            # Application styles
 │   ├── main.tsx           # Application entry point
-│   └── index.css          # Global CSS styles
+│   ├── index.css          # Global CSS styles
+│   └── vite-env.d.ts      # Vite environment type definitions
 ├── public/                # Static assets (copied to dist on build)
 │   ├── favicon.ico
 │   ├── index.html
-│   └── ...                # Other static files
-├── dist/                  # Production build output (generated)
+│   ├── manifest.json      # Web app manifest
+│   ├── robots.txt         # Robots.txt for SEO
+│   └── ...                # Other static files (logos, icons, etc.)
+├── dist/                  # Production build output (generated, gitignored)
 ├── docs/                  # Documentation
 │   └── PRODUCTION_DEPLOYMENT.md # Production deployment guide
-├── node_modules/          # Dependencies (generated)
+├── node_modules/          # Dependencies (generated, gitignored)
+├── .env                   # Environment variables (gitignored, create from .env.example)
+├── .env.example           # Environment variables template
+├── .gitignore             # Git ignore rules
 ├── index.html             # HTML template
 ├── package.json           # Dependencies and scripts
 ├── package-lock.json      # Locked dependency versions

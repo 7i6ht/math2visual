@@ -52,63 +52,6 @@ diverse narrative structures found in MWPs.
 
 6. **Export**: Download visualizations in your preferred format
 
-## 📁 Project Structure
-
-```
-math2visual/
-├── backend/                  # Flask backend application
-│   ├── app/                  # Main application package
-│   │   ├── api/              # API layer (routes, middleware)
-│   │   ├── config/           # Configuration management
-│   │   ├── models/           # Data models
-│   │   ├── services/         # Business logic (generation, validation, etc.)
-│   │   └── utils/            # Utility functions
-│   ├── app.py                # Application entry point (development)
-│   ├── wsgi.py               # WSGI entry point (production, for Gunicorn)
-│   ├── gunicorn.conf.py      # Gunicorn WSGI server configuration
-│   ├── requirements.txt      # Python dependencies
-│   ├── storage/              # Local storage directory
-│   │   ├── datasets/svg_dataset/  # SVG entity library (1,549 files)
-│   │   ├── models/           # ML model checkpoints
-│   │   ├── output/           # Generated visualizations
-│   │   └── analytics/        # Analytics data storage
-│   ├── scripts/              # Setup and management scripts
-│   ├── docs/                 # Backend documentation
-│   │   ├── PRODUCTION_DEPLOYMENT.md
-│   │   ├── JUICEFS_SETUP.md
-│   │   ├── CLAMAV_SETUP.md
-│   │   └── ANALYTICS_SETUP.md
-│   ├── config_templates/     # Configuration templates
-│   └── tests/                # Test suite
-├── frontend/                 # React frontend application
-│   ├── src/                  # Source code
-│   │   ├── api_services/     # Backend API integration
-│   │   ├── components/       # React components
-│   │   ├── config/           # Configuration files
-│   │   ├── contexts/         # React Context providers
-│   │   ├── hooks/            # Custom React hooks
-│   │   ├── services/         # Module-level services
-│   │   ├── lib/              # Library utilities
-│   │   ├── schemas/          # Validation schemas
-│   │   ├── styles/           # Global styles
-│   │   ├── types/            # TypeScript type definitions
-│   │   └── utils/            # Utility functions
-│   ├── public/               # Static assets
-│   ├── dist/                 # Production build output (generated)
-│   ├── docs/                 # Frontend documentation
-│   │   └── PRODUCTION_DEPLOYMENT.md
-│   ├── package.json          # Dependencies and scripts
-│   ├── vite.config.ts        # Vite build configuration
-│   └── tailwind.config.js    # Tailwind CSS configuration
-├── images/                   # Project images and assets
-├── package.json              # Root package.json (for convenience scripts)
-└── README.md                 # This file
-```
-
-For detailed structure information, see:
-- **[Backend Structure](backend/README.md#-project-structure)**: Complete backend file organization
-- **[Frontend Structure](frontend/README.md#-project-structure)**: Complete frontend file organization
-
 ## 🏛️ System Overview
 
 ```mermaid
@@ -204,7 +147,7 @@ flowchart TD
    ```bash
    python app.py
    ```
-   Backend will run on `http://localhost:5000`
+   Backend will run on `http://localhost:5001`
 
 3. **Frontend Setup**
    ```bash
@@ -223,16 +166,10 @@ flowchart TD
 
 ## 📖 Documentation
 
-### Frontend
-- **[Frontend README](frontend/README.md)**: React application structure, component usage, and development workflows
-- **[Frontend Production Deployment](frontend/docs/PRODUCTION_DEPLOYMENT.md)**: Production deployment guide for the React frontend
-
-### Backend
-- **[Backend README](backend/README.md)**: Comprehensive Flask API reference, storage configuration, and deployment guides
-- **[Backend Production Deployment](backend/docs/PRODUCTION_DEPLOYMENT.md)**: Production deployment guide with Gunicorn
+- **[Frontend Documentation](frontend/README.md)**: React application structure, component usage, and development workflows
+- **[Backend Documentation](backend/README.md)**: Comprehensive Flask API reference, storage configuration, and deployment guides
 - **[JuiceFS Setup Guide](backend/docs/JUICEFS_SETUP.md)**: Distributed storage configuration
 - **[Security Setup Guide](backend/docs/CLAMAV_SETUP.md)**: ClamAV antivirus integration
-- **[Analytics Setup Guide](backend/docs/ANALYTICS_SETUP.md)**: User analytics and tracking setup
 
 
 ## 📄 License
