@@ -45,9 +45,6 @@ OPENAI_API_KEY=your_openai_api_key
 SVG_STORAGE_MODE=local  # or 'juicefs'
 SVG_DATASET_PATH=/path/to/svg/dataset
 SVG_CACHE_SIZE=100
-
-# Production Settings
-FLASK_ENV=production
 ```
 
 ## Deployment Options

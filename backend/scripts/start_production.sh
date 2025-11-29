@@ -81,7 +81,6 @@ mkdir -p storage/output
 mkdir -p logs
 
 # Set environment variables
-export FLASK_ENV=production
 export PYTHONPATH="$BACKEND_DIR:$PYTHONPATH"
 
 # Display configuration

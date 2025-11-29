@@ -38,11 +38,6 @@ limit_request_field_size = 8190
 # keyfile = "/path/to/keyfile"
 # certfile = "/path/to/certfile"
 
-# Environment variables
-raw_env = [
-    "FLASK_ENV=production",
-]
-
 # Worker lifecycle
 def when_ready(server):
     """Called just after the server is started."""
