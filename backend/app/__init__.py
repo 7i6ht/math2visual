@@ -1,7 +1,8 @@
 """
 Flask application factory for Math2Visual backend.
 """
-from flask import Flask
+import os
+from flask import Flask, send_from_directory
 from flask_cors import CORS
 
 from app.config.storage_config import validate_storage_config, storage_config
@@ -15,7 +16,11 @@ from app.api.middleware.error_handlers import register_error_handlers
 
 def create_app():
     """Create and configure the Flask application."""
-    app = Flask(__name__)
+    # Determine static folder path (for serving frontend in Docker)
+    static_folder = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static')
+    static_folder = static_folder if os.path.exists(static_folder) else None
+    
+    app = Flask(__name__, static_folder=static_folder, static_url_path='')
     CORS(app)
     
     # Validate storage configuration on startup
@@ -42,5 +47,27 @@ def create_app():
     
     # Register error handlers
     register_error_handlers(app)
+    
+    # Serve frontend static files if they exist (for Docker deployment)
+    if static_folder and os.path.exists(static_folder):
+        @app.route('/', defaults={'path': ''}, methods=['GET'])
+        @app.route('/<path:path>', methods=['GET'])
+        def serve_frontend(path):
+            """Serve frontend static files and handle client-side routing."""
+            # Don't interfere with API routes - let Flask handle 404 for unmatched API routes
+            if path.startswith('api'):
+                from flask import abort
+                abort(404)
+            
+            # Try to serve the requested file if it exists
+            if path:
+                file_path = os.path.join(static_folder, path)
+                if os.path.exists(file_path) and os.path.isfile(file_path):
+                    return send_from_directory(static_folder, path)
+            
+            # For client-side routing, serve index.html for all non-API routes
+            return send_from_directory(static_folder, 'index.html')
+        
+        print(f"✅ Frontend static files configured: {static_folder}")
     
     return app
