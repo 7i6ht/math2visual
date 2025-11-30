@@ -14,7 +14,11 @@ from werkzeug.utils import secure_filename
 svg_dataset_bp = Blueprint('svg_dataset', __name__)
 
 # Temporary storage directory for generated SVGs
-TEMP_SVG_DIR = os.path.join(os.path.dirname(__file__), "../../../storage/temp_svgs")
+# Use absolute path based on app root directory
+_base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+TEMP_SVG_DIR = os.path.join(_base_dir, "storage", "temp_svgs")
+# Resolve to absolute path to avoid relative path issues
+TEMP_SVG_DIR = os.path.abspath(TEMP_SVG_DIR)
 os.makedirs(TEMP_SVG_DIR, exist_ok=True)
 
 

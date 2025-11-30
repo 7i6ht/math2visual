@@ -50,7 +50,12 @@ logs/
 *.log
 
 # Storage (will be mounted or created at runtime)
-backend/storage/
+# Exclude specific storage subdirectories, but include SVG dataset (needed for image generation)
+backend/storage/analytics/
+backend/storage/output/
+backend/storage/temp_svgs/
+backend/storage/models/
+# Note: backend/storage/datasets/svg_dataset/ is NOT excluded - it's needed in the image
 frontend/dist/
 
 # Test files

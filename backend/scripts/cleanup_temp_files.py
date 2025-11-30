@@ -37,10 +37,14 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from app.utils.cleanup import FileCleanupManager
 
 # Define output directory path (same as in generation.py)
-output_dir = os.path.join(os.path.dirname(__file__), "../app/../../../storage/output")
+# In container: /app/scripts/cleanup_temp_files.py -> /app/storage/output
+# Use absolute path based on /app working directory for reliability
+# os.path.dirname(__file__) = /app/scripts
+# os.path.dirname(os.path.dirname(__file__)) = /app
+output_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "storage", "output")
 
 # Define temp SVG directory for generated icons
-temp_svg_dir = os.path.join(os.path.dirname(__file__), "../app/../../../storage/temp_svgs")
+temp_svg_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "storage", "temp_svgs")
 
 
 def format_bytes(bytes_value: int) -> str:

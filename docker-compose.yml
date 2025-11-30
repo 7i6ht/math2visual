@@ -1,0 +1,74 @@
+services:
+  app:
+    build: .
+    container_name: math2visual
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      # Mount Let's Encrypt certificates (read-only)
+      - ./certbot/conf:/etc/letsencrypt:ro
+      - ./certbot/www:/var/www/certbot:ro
+      # Mount nginx.conf for easy updates without rebuilding
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      # Mount backend storage directory directly for persistence
+      # This allows user uploads and analytics to persist, and uses the existing backend/storage structure
+      - ./backend/storage:/app/storage
+    environment:
+      # Add your environment variables here
+      - OPENAI_API_KEY=
+      - GEMINI_API_KEY=
+      - SVG_STORAGE_MODE=local
+      - SVG_DATASET_PATH=/app/storage/datasets/svg_dataset
+      # - DATABASE_URL=postgresql://...
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import socket; s = socket.socket(); s.settimeout(2); result = s.connect_ex(('127.0.0.1', 80)); s.close(); exit(0 if result == 0 else 1)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Certbot for initial certificate setup (run manually)
+  # Usage: docker-compose run --rm certbot-init certbot certonly --webroot -w /var/www/certbot -d your-domain.com --email your-email@example.com
+  certbot-init:
+    image: certbot/certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    # This service should be run manually, not started automatically
+
+  # Certbot for automatic renewal
+  certbot-renew:
+    image: certbot/certbot
+    container_name: certbot-renew
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --quiet --deploy-hook \"docker exec math2visual nginx -s reload\"; sleep 12h & wait $${!}; done;'"
+    restart: unless-stopped
+
+  # Cleanup service for temporary files (runs via cron every hour)
+  cleanup:
+    build: .
+    container_name: math2visual-cleanup
+    volumes:
+      - ./backend/storage:/app/storage
+      - ./cleanup-logs:/var/log
+    environment:
+      - CLEANUP_OUTPUT_AGE_HOURS=24
+      - CLEANUP_TEMP_SVG_AGE_HOURS=1
+    # Set up cron job and start cron daemon
+    command: >
+      /bin/bash -c "
+      echo '0 * * * * appuser cd /app && python scripts/cleanup_temp_files.py --age-hours $${CLEANUP_OUTPUT_AGE_HOURS:-24} --temp-svg-age-hours $${CLEANUP_TEMP_SVG_AGE_HOURS:-1} >> /var/log/cleanup.log 2>&1' > /etc/cron.d/cleanup-cron &&
+      chmod 0644 /etc/cron.d/cleanup-cron &&
+      printenv | grep -E '^CLEANUP_' >> /etc/environment &&
+      touch /var/log/cleanup.log &&
+      chown appuser:appuser /var/log/cleanup.log &&
+      cron -f
+      "
+    restart: unless-stopped
+    depends_on:
+      - app
+

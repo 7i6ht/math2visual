@@ -34,9 +34,8 @@ limit_request_line = 4094
 limit_request_fields = 100
 limit_request_field_size = 8190
 
-# SSL (uncomment and configure if needed)
-# keyfile = "/path/to/keyfile"
-# certfile = "/path/to/certfile"
+# Note: SSL/TLS is handled by Nginx reverse proxy
+# Gunicorn runs on HTTP (localhost:5000) and Nginx handles HTTPS termination
 
 # Worker lifecycle
 def when_ready(server):

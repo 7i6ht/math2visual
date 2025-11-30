@@ -22,7 +22,7 @@ ENV VITE_BACKEND_URL=${VITE_BACKEND_URL}
 # Build for production
 RUN npm run build
 
-# Stage 2: Backend with frontend static files
+# Stage 2: Backend with Nginx
 FROM python:3.12-slim AS backend
 
 # Set environment variables
@@ -31,49 +31,69 @@ ENV PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 
-# Install system dependencies
+# Install system dependencies including Nginx and cron (for cleanup service)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libpq-dev \
     libmagic1 \
     libxml2-dev \
     libxslt1-dev \
+    nginx \
+    cron \
+    procps \
     && rm -rf /var/lib/apt/lists/*
 
 # Create app user for security
 RUN useradd -m -u 1000 appuser && \
-    mkdir -p /app /app/logs /app/static && \
+    mkdir -p /app /app/storage/output /app/storage/temp_svgs && \
     chown -R appuser:appuser /app
 
 # Set working directory
 WORKDIR /app
 
-# Switch to app user
-USER appuser
-
 # Copy requirements first for better layer caching
 COPY --chown=appuser:appuser backend/requirements.txt .
 
-# Install Python dependencies
+# Install Python dependencies as appuser
+# Switch to appuser to install packages in the correct location
+USER appuser
 RUN pip install --user --no-cache-dir -r requirements.txt && \
     pip install --user gunicorn
 
 # Add user's local bin to PATH
 ENV PATH=/home/appuser/.local/bin:$PATH
 
+# Switch back to root for remaining operations (file copies, nginx setup)
+USER root
+
 # Copy backend application code
 COPY --chown=appuser:appuser backend/ .
 
-# Copy built frontend from frontend-builder stage
-COPY --from=frontend-builder --chown=appuser:appuser /app/frontend/dist ./static
+# Copy SVG dataset (needed for image generation)
+# This ensures the dataset is included even if .dockerignore excludes other storage
+COPY --chown=appuser:appuser backend/storage/datasets/svg_dataset ./storage/datasets/svg_dataset
 
-# Expose port
-EXPOSE 5000
+# Ensure storage directories have correct permissions for appuser
+RUN chown -R appuser:appuser /app/storage && \
+    chmod -R 755 /app/storage
 
-# Health check (checks if the server port is listening)
+# Copy built frontend to Nginx html directory
+COPY --from=frontend-builder /app/frontend/dist /usr/share/nginx/html
+
+# Copy Nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Copy entrypoint script
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+
+# Expose ports 80 (HTTP) and 443 (HTTPS)
+EXPOSE 80 443
+
+# Health check (checks if Nginx is responding)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD python -c "import socket; s = socket.socket(); s.settimeout(2); result = s.connect_ex(('127.0.0.1', 5000)); s.close(); exit(0 if result == 0 else 1)"
+    CMD python -c "import socket; s = socket.socket(); s.settimeout(2); result = s.connect_ex(('127.0.0.1', 80)); s.close(); exit(0 if result == 0 else 1)"
 
-# Default command (can be overridden)
-CMD ["gunicorn", "--config", "gunicorn.conf.py", "wsgi:app"]
+# Default command (starts both Gunicorn and Nginx)
+CMD ["/docker-entrypoint.sh"]
 
