@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useSVGMissingError } from "@/hooks/useSVGMissingError";
 import { trackElementClick, isAnalyticsEnabled } from "@/services/analyticsTracker";
 import { sanitizeEntityName } from "@/lib/dsl-utils";
+import { cn } from "@/lib/utils";
 
 const PROVIDERS: Array<{
   key: string;
@@ -102,11 +103,12 @@ export const SVGMissingError = ({
                         handleSelectMissingEntity(index);
                       }
                     }}
-                    className={`inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm md:text-base transition-colors cursor-pointer bg-white ${
+                    className={cn(
+                      "inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm md:text-base transition-colors cursor-pointer",
                       isSelected
-                        ? "border-primary text-primary shadow-sm"
-                        : "border-input text-muted-foreground hover:border-primary/50 hover:text-primary"
-                    }`}
+                        ? "bg-primary/10 border-primary text-primary shadow-sm"
+                        : "bg-background border-input text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                    )}
                   >
                     <span className="w-2 h-2 rounded-full bg-primary/60" aria-hidden />
                     {entity}

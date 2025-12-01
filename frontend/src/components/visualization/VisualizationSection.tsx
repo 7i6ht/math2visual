@@ -105,7 +105,7 @@ export const VisualizationSection = ({
         ) : svgContent ? (
           <div className="w-full relative">
             <div className="rounded-lg border border-border/50 hover:border-border transition-colors w-full">
-              <div className="p-4 bg-background w-full">
+              <div className="p-4 bg-card w-full">
                 <div ref={svgRef} className="w-full" />
               </div>
             </div>
