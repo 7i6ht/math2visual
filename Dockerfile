@@ -41,6 +41,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     nginx \
     cron \
     procps \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
 # Create app user for security
@@ -69,9 +70,8 @@ USER root
 # Copy backend application code
 COPY --chown=appuser:appuser backend/ .
 
-# Copy SVG dataset (needed for image generation)
-# This ensures the dataset is included even if .dockerignore excludes other storage
-COPY --chown=appuser:appuser backend/storage/datasets/svg_dataset ./storage/datasets/svg_dataset
+# Note: SVG dataset is NOT copied into the image
+# It will be downloaded from GitHub on first run if not present in the volume mount
 
 # Ensure storage directories have correct permissions for appuser
 RUN chown -R appuser:appuser /app/storage && \
@@ -83,9 +83,10 @@ COPY --from=frontend-builder /app/frontend/dist /usr/share/nginx/html
 # Copy Nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Copy entrypoint script
+# Copy entrypoint script and dataset download script
 COPY docker-entrypoint.sh /docker-entrypoint.sh
-RUN chmod +x /docker-entrypoint.sh
+COPY ensure-dataset.sh /ensure-dataset.sh
+RUN chmod +x /docker-entrypoint.sh /ensure-dataset.sh
 
 # Expose ports 80 (HTTP) and 443 (HTTPS)
 EXPOSE 80 443

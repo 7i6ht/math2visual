@@ -11,6 +11,10 @@ safe_run() {
 echo "Setting up storage directories..."
 mkdir -p /app/storage/output /app/storage/temp_svgs /app/storage/analytics /app/storage/datasets/svg_dataset
 
+# Ensure dataset exists (download from GitHub if needed)
+echo "Ensuring SVG dataset is available..."
+/ensure-dataset.sh
+
 # Set permissions (chown may fail with volume mounts, so we continue anyway)
 # Note: dataset directory needs write access for user uploads
 safe_run chown -R appuser:appuser /app/storage || echo "Note: Could not change ownership (may be due to volume mount)"
@@ -18,32 +22,16 @@ safe_run chmod -R 755 /app/storage
 # Ensure dataset directory is writable for user uploads
 safe_run chmod -R 775 /app/storage/datasets/svg_dataset || true
 
-# Verify dataset directory exists and is accessible
-if [ ! -d "/app/storage/datasets/svg_dataset" ]; then
-    echo "WARNING: SVG dataset directory does not exist at /app/storage/datasets/svg_dataset"
-    echo "Creating directory structure..."
-    mkdir -p /app/storage/datasets/svg_dataset
-    safe_run chown -R appuser:appuser /app/storage/datasets
-    safe_run chmod -R 755 /app/storage/datasets
+# Verify dataset is accessible to appuser
+if su appuser -c "test -r /app/storage/datasets/svg_dataset" 2>/dev/null; then
+    echo "✓ appuser has read access to dataset directory"
+    svg_count_user=$(su appuser -c "find /app/storage/datasets/svg_dataset -name '*.svg' 2>/dev/null | wc -l" 2>/dev/null || echo "0")
+    echo "  appuser can see $svg_count_user SVG files"
 else
-    echo "✓ SVG dataset directory found at /app/storage/datasets/svg_dataset"
-    # Count SVG files to verify dataset is populated (as root first)
-    svg_count=$(find /app/storage/datasets/svg_dataset -name "*.svg" 2>/dev/null | wc -l || echo "0")
-    echo "  Found $svg_count SVG files in dataset (as root)"
-    
-    # Test if appuser can access the directory
-    if su appuser -c "test -r /app/storage/datasets/svg_dataset" 2>/dev/null; then
-        echo "✓ appuser has read access to dataset directory"
-        # Count as appuser to verify
-        svg_count_user=$(su appuser -c "find /app/storage/datasets/svg_dataset -name '*.svg' 2>/dev/null | wc -l" 2>/dev/null || echo "0")
-        echo "  appuser can see $svg_count_user SVG files"
-    else
-        echo "⚠️  WARNING: appuser does NOT have read access to dataset directory"
-        echo "  Attempting to fix permissions..."
-        safe_run chmod -R o+rX /app/storage/datasets
-        # Try chown again (might work if we're not in a strict volume mount)
-        safe_run chown -R appuser:appuser /app/storage/datasets || echo "  Note: Could not change ownership (volume mount restrictions)"
-    fi
+    echo "⚠️  WARNING: appuser does NOT have read access to dataset directory"
+    echo "  Attempting to fix permissions..."
+    safe_run chmod -R o+rX /app/storage/datasets
+    safe_run chown -R appuser:appuser /app/storage/datasets || echo "  Note: Could not change ownership (volume mount restrictions)"
 fi
 
 # Start Gunicorn in the background as appuser
