@@ -159,6 +159,12 @@ export const MathProblemForm = ({
                   spellCheck={false}
                   highlightRanges={formulaHighlightRanges}
                   disabled={isDisabled}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSubmit(e);
+                    }
+                  }}
                   {...field}
                   onBlur={() => {
                     field.onBlur();
@@ -186,6 +192,12 @@ export const MathProblemForm = ({
                     rows={6.5}
                     spellCheck={false}
                     disabled={isDisabled}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSubmit(e);
+                    }
+                  }}
                     {...field}
                     onBlur={() => {
                       field.onBlur();
