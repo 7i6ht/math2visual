@@ -34,6 +34,22 @@ else
     safe_run chown -R appuser:appuser /app/storage/datasets || echo "  Note: Could not change ownership (volume mount restrictions)"
 fi
 
+# Ensure Nginx uses the Math2Visual config and not the distro default
+echo "Ensuring Nginx is using Math2Visual configuration..."
+# Some base images ship with a default site in sites-enabled that serves the 'Welcome to nginx!' page.
+# We disable that here and rely solely on /etc/nginx/conf.d/default.conf.
+if [ -f /etc/nginx/sites-enabled/default ] || [ -f /etc/nginx/sites-available/default ]; then
+    echo "  Disabling default Nginx site..."
+    safe_run rm -f /etc/nginx/sites-enabled/default
+    safe_run rm -f /etc/nginx/sites-available/default
+fi
+
+# Also comment out any sites-enabled included in the main nginx.conf so only conf.d is used.
+if grep -q "sites-enabled" /etc/nginx/nginx.conf 2>/dev/null; then
+    echo "  Removing 'sites-enabled' include from nginx.conf..."
+    safe_run sed -i 's@include /etc/nginx/sites-enabled/\\*;@# include /etc/nginx/sites-enabled/*;@' /etc/nginx/nginx.conf
+fi
+
 # Start Gunicorn in the background as appuser
 echo "Starting Flask backend..."
 cd /app

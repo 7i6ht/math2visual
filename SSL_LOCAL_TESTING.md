@@ -322,6 +322,32 @@ docker-compose exec app nginx -t
 docker-compose up -d --build app
 ```
 
+### Seeing "Welcome to nginx!" Instead of the App
+
+If you access `http://<EC2_IP>` or `http://localhost` and only see the generic **"Welcome to nginx!"** page:
+
+```bash
+# Open a shell in the running container
+docker exec -it math2visual /bin/bash
+
+# Comment out the sites-enabled include
+sed -i 's@include /etc/nginx/sites-enabled/\*;@# include /etc/nginx/sites-enabled/*;@' /etc/nginx/nginx.conf
+
+# Verify the change (you should see the line commented out)
+grep 'sites-enabled' -n /etc/nginx/nginx.conf
+
+# Test and reload nginx
+nginx -t && nginx -s reload
+```
+
+Then, from the host:
+
+```bash
+curl -k https://localhost | head
+```
+
+You should now see the Math2Visual/Vite HTML instead of the Nginx welcome page.
+
 ---
 
 ## Recommended Approach

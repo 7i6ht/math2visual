@@ -164,6 +164,19 @@ flowchart TD
    
    Open your browser to `http://localhost:5173` and start generating visualizations!
 
+### Docker / Deployment Notes
+
+- **Nginx welcome page issue**:
+  - Symptom: When accessing the app on EC2 (e.g., `http://<EC2_IP>`), you only see the generic **"Welcome to nginx!"** page instead of the Math2Visual UI.
+  - Root cause: Some base images ship with a default Nginx site in `sites-enabled` that serves the welcome page and can override the custom `conf.d/default.conf`.
+  - Prevention: The `docker-entrypoint.sh` script now disables the default site and removes any `sites-enabled` include from `nginx.conf` at container startup so only the Math2Visual configuration is used.
+  - Quick sanity check after deployment:
+    ```bash
+    # On the EC2 instance, from the math2visual directory
+    curl -k https://localhost | head
+    ```
+    This should return the Math2Visual/Vite HTML (an `<html>` document with `<div id="root"></div>`), **not** the "Welcome to nginx!" text.
+
 ## 📖 Documentation
 
 - **[Frontend Documentation](frontend/README.md)**: React application structure, component usage, and development workflows
