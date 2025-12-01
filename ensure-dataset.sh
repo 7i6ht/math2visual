@@ -3,7 +3,7 @@
 
 DATASET_DIR="/app/storage/datasets/svg_dataset"
 GITHUB_REPO="https://github.com/7i6ht/math2visual.git"
-GITHUB_BRANCH="${GITHUB_BRANCH:-design1}"
+GITHUB_BRANCH="${GITHUB_BRANCH:-main}"
 MIN_SVG_FILES=100  # Minimum number of SVG files to consider dataset valid
 
 echo "Checking SVG dataset..."
