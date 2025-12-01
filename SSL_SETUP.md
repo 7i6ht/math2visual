@@ -31,7 +31,7 @@ mkdir -p certbot/conf certbot/www
 Start the container to allow certificate validation:
 
 ```bash
-docker-compose up -d app
+docker compose up -d app
 ```
 
 ### Step 4: Obtain SSL Certificate
@@ -39,8 +39,8 @@ docker-compose up -d app
 Run certbot to obtain your certificate:
 
 ```bash
-docker-compose run --rm certbot-init \
-  certbot certonly --webroot \
+sudo docker compose run --rm certbot-init \
+  certonly --webroot \
   -w /var/www/certbot \
   -d your-domain.com \
   -d www.your-domain.com \
@@ -58,7 +58,7 @@ docker-compose run --rm certbot-init \
 After the certificate is obtained, restart the container:
 
 ```bash
-docker-compose restart app
+docker compose restart app
 ```
 
 ### Step 6: Start Certificate Renewal Service
@@ -66,7 +66,7 @@ docker-compose restart app
 The renewal service automatically renews certificates before they expire:
 
 ```bash
-docker-compose up -d certbot-renew
+docker compose up -d certbot-renew
 ```
 
 ## Verification
@@ -82,7 +82,7 @@ Visit: https://www.ssllabs.com/ssltest/
 ### Check Certificate Expiry
 
 ```bash
-docker-compose exec certbot-renew certbot certificates
+docker compose exec certbot-renew certbot certificates
 ```
 
 ## Automatic Renewal
@@ -102,14 +102,14 @@ The `certbot-renew` service automatically:
 
 ### Renewal Fails
 
-- Check certbot logs: `docker-compose logs certbot-renew`
+- Check certbot logs: `docker compose logs certbot-renew`
 - Ensure port 80 is accessible for validation
 - Verify webroot path is correct
 
 ### Nginx Won't Start
 
-- Test nginx config: `docker-compose exec app nginx -t`
-- Check logs: `docker-compose logs app`
+- Test nginx config: `docker compose exec app nginx -t`
+- Check logs: `docker compose logs app`
 - Verify certificate paths in `nginx.conf`
 
 ### Domain Validation Fails
@@ -133,18 +133,18 @@ The `certbot-renew` service automatically:
 If you need to manually renew:
 
 ```bash
-docker-compose run --rm certbot-renew certbot renew
-docker-compose exec app nginx -s reload
+docker compose run --rm certbot-renew certbot renew
+docker compose exec app nginx -s reload
 ```
 
 ### View Certificates
 
 ```bash
-docker-compose exec certbot-renew certbot certificates
+docker compose exec certbot-renew certbot certificates
 ```
 
 ### Check Renewal Logs
 
 ```bash
-docker-compose logs certbot-renew
+docker compose logs certbot-renew
 ```
