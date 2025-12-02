@@ -34,6 +34,32 @@ else
     safe_run chown -R appuser:appuser /app/storage/datasets || echo "  Note: Could not change ownership (volume mount restrictions)"
 fi
 
+# Log ClamAV connection settings and perform a lightweight connectivity check (non-fatal)
+echo "Checking ClamAV configuration..."
+CLAMAV_HOST="${CLAMAV_HOST:-localhost}"
+CLAMAV_PORT="${CLAMAV_PORT:-3310}"
+echo "  CLAMAV_HOST=${CLAMAV_HOST}"
+echo "  CLAMAV_PORT=${CLAMAV_PORT}"
+
+python - << 'EOF' || echo "  Note: ClamAV connection check failed (antivirus scanning will gracefully fall back if unavailable)."
+import os
+import socket
+
+host = os.getenv("CLAMAV_HOST", "localhost")
+port = int(os.getenv("CLAMAV_PORT", "3310"))
+
+s = socket.socket()
+s.settimeout(2)
+try:
+    result = s.connect_ex((host, port))
+    if result == 0:
+        print(f"  ✓ ClamAV daemon reachable at {host}:{port}")
+    else:
+        print(f"  ⚠️  ClamAV daemon not reachable at {host}:{port} (code={result})")
+finally:
+    s.close()
+EOF
+
 # Ensure Nginx uses the Math2Visual config and not the distro default
 echo "Ensuring Nginx is using Math2Visual configuration..."
 # Some base images ship with a default site in sites-enabled that serves the 'Welcome to nginx!' page.
