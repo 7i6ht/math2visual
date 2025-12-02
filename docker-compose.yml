@@ -24,13 +24,13 @@ services:
       - SVG_STORAGE_MODE=local
       - SVG_DATASET_PATH=/app/storage/datasets/svg_dataset
       # Analytics database configuration
-      # Default: points to postgres service (only available when --profile analytics is used)
-      # To disable analytics: set DATABASE_URL to empty string in .env or override it
-      # The app gracefully handles missing database and disables analytics automatically
+      # Default: empty (analytics disabled by default)
+      # To enable analytics with --profile analytics:
+      #   Option 1: Set in .env file: DATABASE_URL=postgresql://math2visual_user:${POSTGRES_PASSWORD}@postgres:5432/math2visual_analytics
+      #   Option 2: Override inline: DATABASE_URL=postgresql://math2visual_user:your_password@postgres:5432/math2visual_analytics docker-compose --profile analytics up
       # Password is set via POSTGRES_PASSWORD environment variable (defaults to math2visual_password)
-      # If DATABASE_URL is not set, it will be constructed using POSTGRES_PASSWORD
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-math2visual_password}
-      - DATABASE_URL=${DATABASE_URL:-postgresql://math2visual_user:${POSTGRES_PASSWORD}@postgres:5432/math2visual_analytics}
+      - DATABASE_URL=${DATABASE_URL:-}
       - DATABASE_ECHO=false
     restart: unless-stopped
     # Note: depends_on removed - app handles missing database gracefully

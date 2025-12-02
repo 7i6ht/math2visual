@@ -74,6 +74,12 @@ def init_database():
 
 def test_database_connection():
     """Test the database connection."""
+    database_url = get_database_url()
+    
+    # If DATABASE_URL is empty or not set, analytics is disabled
+    if not database_url or database_url.strip() == '':
+        return False
+    
     try:
         engine = create_database_engine()
         with engine.connect() as connection:
