@@ -23,8 +23,18 @@ services:
       - CLAMAV_PORT=3310
       - SVG_STORAGE_MODE=local
       - SVG_DATASET_PATH=/app/storage/datasets/svg_dataset
-      # - DATABASE_URL=postgresql://...
+      # Analytics database configuration
+      # Default: points to postgres service (only available when --profile analytics is used)
+      # To disable analytics: set DATABASE_URL to empty string in .env or override it
+      # The app gracefully handles missing database and disables analytics automatically
+      # Password is set via POSTGRES_PASSWORD environment variable (defaults to math2visual_password)
+      # If DATABASE_URL is not set, it will be constructed using POSTGRES_PASSWORD
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-math2visual_password}
+      - DATABASE_URL=${DATABASE_URL:-postgresql://math2visual_user:${POSTGRES_PASSWORD}@postgres:5432/math2visual_analytics}
+      - DATABASE_ECHO=false
     restart: unless-stopped
+    # Note: depends_on removed - app handles missing database gracefully
+    # When using analytics, start with: docker-compose --profile analytics up
     healthcheck:
       test: ["CMD", "python", "-c", "import socket; s = socket.socket(); s.settimeout(2); result = s.connect_ex(('127.0.0.1', 80)); s.close(); exit(0 if result == 0 else 1)"]
       interval: 30s
@@ -53,6 +63,30 @@ services:
       - FRESHCLAM_CONF_Checks=12
       # Update database on container start
       - UPDATE=true
+
+  # PostgreSQL database for analytics (only starts with --profile analytics)
+  postgres:
+    profiles:
+      - analytics
+    image: postgres:16-alpine
+    container_name: math2visual-postgres
+    restart: unless-stopped
+    # ports:
+    #   # Expose for debugging; app talks to it over the Docker network using DATABASE_URL
+    #   # - "5432:5432"
+    volumes:
+      # Persist database data across container restarts
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=math2visual_analytics
+      - POSTGRES_USER=math2visual_user
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-math2visual_password}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U math2visual_user -d math2visual_analytics"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   # Certbot for initial certificate setup (run manually)
   # Usage: docker-compose run --rm certbot-init certbot certonly --webroot -w /var/www/certbot -d your-domain.com --email your-email@example.com
@@ -113,4 +147,6 @@ services:
 volumes:
   # ClamAV virus database - persists virus definitions across container restarts
   clamav-db:
+  # PostgreSQL data - persists analytics database across container restarts
+  postgres-data:
 
