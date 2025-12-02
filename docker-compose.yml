@@ -37,9 +37,9 @@ services:
     image: clamav/clamav:latest
     container_name: math2visual-clamav
     restart: unless-stopped
-    ports:
-      # Expose for debugging; app talks to it over the Docker network using CLAMAV_HOST/CLAMAV_PORT
-      # - "3310:3310"
+    # ports:
+    #  # Expose for debugging; app talks to it over the Docker network using CLAMAV_HOST/CLAMAV_PORT
+    #  # - "3310:3310"
     environment:
       # Allow reasonably large files/streams for scanning
       - CLAMD_CONF_MaxFileSize=50M
