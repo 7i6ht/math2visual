@@ -40,11 +40,19 @@ services:
     # ports:
     #  # Expose for debugging; app talks to it over the Docker network using CLAMAV_HOST/CLAMAV_PORT
     #  # - "3310:3310"
+    volumes:
+      # Persist virus database to avoid re-downloading on every restart
+      - clamav-db:/var/lib/clamav
     environment:
       # Allow reasonably large files/streams for scanning
       - CLAMD_CONF_MaxFileSize=50M
       - CLAMD_CONF_MaxScanSize=50M
       - CLAMD_CONF_StreamMaxLength=50M
+      # Configure freshclam to check for updates every 2 hours (12 times per day)
+      # The official ClamAV image runs freshclam automatically in the background
+      - FRESHCLAM_CONF_Checks=12
+      # Update database on container start
+      - UPDATE=true
 
   # Certbot for initial certificate setup (run manually)
   # Usage: docker-compose run --rm certbot-init certbot certonly --webroot -w /var/www/certbot -d your-domain.com --email your-email@example.com
@@ -88,4 +96,9 @@ services:
     restart: unless-stopped
     depends_on:
       - app
+
+# Named volumes for persistent data
+volumes:
+  # ClamAV virus database - persists virus definitions across container restarts
+  clamav-db:
 
