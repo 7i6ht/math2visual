@@ -249,7 +249,18 @@ def get_clamav_scanner() -> ClamAVScanner:
                 socket_path = path
                 break
         
-        _scanner_instance = ClamAVScanner(socket_path=socket_path)
+        # Allow overriding host/port via environment variables (useful in Docker)
+        clamav_host = os.getenv("CLAMAV_HOST", "localhost")
+        try:
+            clamav_port = int(os.getenv("CLAMAV_PORT", "3310"))
+        except ValueError:
+            clamav_port = 3310
+
+        _scanner_instance = ClamAVScanner(
+            socket_path=socket_path,
+            host=clamav_host,
+            port=clamav_port,
+        )
     
     return _scanner_instance
 

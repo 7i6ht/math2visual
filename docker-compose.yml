@@ -18,6 +18,9 @@ services:
       # Add your environment variables here
       - OPENAI_API_KEY=
       - GEMINI_API_KEY=
+      # ClamAV configuration (service name defined below)
+      - CLAMAV_HOST=clamav
+      - CLAMAV_PORT=3310
       - SVG_STORAGE_MODE=local
       - SVG_DATASET_PATH=/app/storage/datasets/svg_dataset
       # - DATABASE_URL=postgresql://...
@@ -28,6 +31,20 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+
+  # ClamAV antivirus service (used by backend via pyClamd)
+  clamav:
+    image: clamav/clamav:latest
+    container_name: math2visual-clamav
+    restart: unless-stopped
+    ports:
+      # Expose for debugging; app talks to it over the Docker network using CLAMAV_HOST/CLAMAV_PORT
+      # - "3310:3310"
+    environment:
+      # Allow reasonably large files/streams for scanning
+      - CLAMD_CONF_MaxFileSize=50M
+      - CLAMD_CONF_MaxScanSize=50M
+      - CLAMD_CONF_StreamMaxLength=50M
 
   # Certbot for initial certificate setup (run manually)
   # Usage: docker-compose run --rm certbot-init certbot certonly --webroot -w /var/www/certbot -d your-domain.com --email your-email@example.com
