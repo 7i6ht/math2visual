@@ -9,6 +9,7 @@ from flask import Blueprint, request, jsonify, send_file, current_app
 from app.config.storage_config import get_svg_dataset_path
 from app.services.validation.svg_validator import validate_file
 from app.services.svg_generation.svg_generator import generate_svg_icon
+from app.utils.translations import expand_search_terms
 from werkzeug.utils import secure_filename
 
 svg_dataset_bp = Blueprint('svg_dataset', __name__)
@@ -76,13 +77,22 @@ def search_svg_files():
                 "files": svg_files[:limit]
             })
         
+        # Expand query to include translations (e.g., "apple" -> ["apple", "apfel"])
+        search_terms = expand_search_terms(query)
+        current_app.logger.debug(f"Search terms (including translations): {search_terms}")
+        
         # Score and sort files by relevance
         scored_files = []
         for file_info in svg_files:
             name = file_info['name'].lower()
-            score = _calculate_relevance_score(query, name)
-            if score > 0:
-                scored_files.append((score, file_info))
+            # Calculate score for each search term and take the highest
+            max_score = 0
+            for search_term in search_terms:
+                score = _calculate_relevance_score(search_term, name)
+                max_score = max(max_score, score)
+            
+            if max_score > 0:
+                scored_files.append((max_score, file_info))
         
         # Sort by score (highest first) and take top results
         scored_files.sort(key=lambda x: x[0], reverse=True)
