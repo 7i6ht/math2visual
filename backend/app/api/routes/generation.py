@@ -13,7 +13,7 @@ from app.services.visual_generation.formal_generator import FormalVisualGenerato
 from app.services.visual_generation.intuitive_generator import IntuitiveVisualGenerator
 from app.services.visual_generation.dsl_parser import DSLParser
 from app.config.storage_config import get_svg_dataset_path
-from flask_babel import _
+from flask_babel import _, get_locale
 
 # Check if running in debug mode
 DEBUG_MODE = os.getenv('FLASK_DEBUG', 'false').lower() in ('true', '1', 'yes', 'on')
@@ -72,7 +72,8 @@ def generate():
         mwp = body.get("mwp", "").strip()
         formula = body.get("formula") or None
         hint = body.get("hint") or None
-        language = body.get("language", "en").strip().lower()  # Default to English
+        # Get language from Accept-Language header (via Flask-Babel)
+        language = get_locale()
         if not mwp:
             return jsonify({"error": _("Please provide a math word problem (MWP).")}), 400
 
