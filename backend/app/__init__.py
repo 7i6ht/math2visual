@@ -2,8 +2,9 @@
 Flask application factory for Math2Visual backend.
 """
 import os
-from flask import Flask, send_from_directory
+from flask import Flask, send_from_directory, request
 from flask_cors import CORS
+from flask_babel import Babel
 
 from app.config.storage_config import validate_storage_config, storage_config
 from app.config.database import init_database, test_database_connection
@@ -23,6 +24,23 @@ def create_app():
     
     app = Flask(__name__, static_folder=static_folder, static_url_path='')
     CORS(app)
+    
+    # Configure Flask-Babel for internationalization
+    app.config['LANGUAGES'] = {
+        'en': 'English',
+        'de': 'German'
+    }
+    app.config['BABEL_DEFAULT_LOCALE'] = 'en'
+    app.config['BABEL_DEFAULT_TIMEZONE'] = 'UTC'
+    app.config['BABEL_TRANSLATION_DIRECTORIES'] = 'translations'
+    
+    def get_locale():
+        """Select locale based on Accept-Language header."""
+        # Flask-Babel's request.accept_languages.best_match automatically
+        # validates against LANGUAGES config, so we can use it directly
+        return request.accept_languages.best_match(app.config['LANGUAGES'].keys()) or app.config['BABEL_DEFAULT_LOCALE']
+    
+    babel = Babel(app, locale_selector=get_locale)
     
     # Validate storage configuration on startup
     is_valid, error = validate_storage_config()

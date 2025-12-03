@@ -14,11 +14,19 @@ logger = logging.getLogger(__name__)
 
 class FormalVisualGenerator:
 
-    def __init__(self):
+    def __init__(self, translate=None):
+        """
+        Initialize the formal visual generator.
+        
+        Args:
+            translate: Optional translation function (e.g., Flask-Babel's _() function).
+                      If None, messages will not be translated.
+        """
         self.error_message = ""
         self._missing_svg_entities = []
         self._svg_directory_cache = {}
         self.p = inflect.engine()
+        self._translate = translate if translate else lambda msg, **kwargs: msg
 
     def get_missing_entities(self):
         """Return a de-duplicated list of missing SVG entity base names (preserve order)."""
@@ -837,7 +845,7 @@ class FormalVisualGenerator:
                         logger.info(f"Found alternative SVG file: {file_path}")
                     else:
                         logger.warning(f"SVG file not found using alternative search: {file_path}")
-                        self.error_message = f"Cannot generate visual: SVG file not found for {base_name}."
+                        self.error_message = self._translate("Cannot generate visual: SVG file not found for %(base_name)s.", base_name=base_name)
                         raise FileNotFoundError(f"SVG file not found: {file_path}")
 
                 # If file_path exists now, parse and update attributes.

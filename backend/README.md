@@ -87,6 +87,7 @@ backend/
 │   ├── install_systemd_service.sh          # Systemd service installation
 │   ├── juicefs-math2visual.service.template # Systemd service template
 │   ├── mount_juicefs.sh                    # JuiceFS mounting
+│   ├── setup_translations.sh               # Flask-Babel translation setup
 │   ├── start_production.sh                 # Production deployment script
 │   ├── uninstall_systemd_service.sh        # Systemd service uninstallation
 │   └── verify_juicefs.sh                   # JuiceFS verification
@@ -94,6 +95,7 @@ backend/
 │   ├── PRODUCTION_DEPLOYMENT.md            # Production deployment guide
 │   ├── JUICEFS_SETUP.md                    # JuiceFS setup instructions
 │   ├── CLAMAV_SETUP.md                     # ClamAV antivirus setup
+│   ├── TRANSLATIONS.md                     # Backend translations with Flask-Babel
 │   └── cleanup_setup.md                    # File cleanup documentation
 ├── config_templates/                       # Configuration templates
 │   └── env_juicefs_template                # JuiceFS environment template
@@ -616,6 +618,7 @@ pip install pyclamd
 See [`docs/CLAMAV_SETUP.md`](docs/CLAMAV_SETUP.md) for configuration details.
 
 Additional documentation:
+- [`docs/TRANSLATIONS.md`](docs/TRANSLATIONS.md) - Backend translations with Flask-Babel
 - [`docs/cleanup_setup.md`](docs/cleanup_setup.md) - Cleanup and maintenance setup
 
 ## 📊 Analytics

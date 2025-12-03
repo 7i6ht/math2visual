@@ -13,6 +13,7 @@ from app.services.visual_generation.formal_generator import FormalVisualGenerato
 from app.services.visual_generation.intuitive_generator import IntuitiveVisualGenerator
 from app.services.visual_generation.dsl_parser import DSLParser
 from app.config.storage_config import get_svg_dataset_path
+from flask_babel import _
 
 # Check if running in debug mode
 DEBUG_MODE = os.getenv('FLASK_DEBUG', 'false').lower() in ('true', '1', 'yes', 'on')
@@ -60,7 +61,7 @@ def generate():
     if "dsl" in body:
         raw_dsl = body["dsl"].strip()
         if not raw_dsl:
-            return jsonify({"error": "Empty Visual Language provided."}), 400
+            return jsonify({"error": _("Empty Visual Language provided.")}), 400
         # Strip the prefix if present
         if raw_dsl.lower().startswith("visual_language:"):
             dsl = raw_dsl.split(":", 1)[1].strip()
@@ -73,14 +74,14 @@ def generate():
         hint = body.get("hint") or None
         language = body.get("language", "en").strip().lower()  # Default to English
         if not mwp:
-            return jsonify({"error": "Please provide a math word problem (MWP)."}), 400
+            return jsonify({"error": _("Please provide a math word problem (MWP).")}), 400
 
         # Generate via GPT and extract
         vl_response = generate_visual_language(mwp, formula, hint, language=language)
         # Use parser for extraction
         raw = extract_visual_language(vl_response)
         if not raw:
-            return jsonify({"error": "Did not get Visual Language from AI. Please try again."}), 500
+            return jsonify({"error": _("Did not get Visual Language from AI. Please try again.")}), 500
         dsl = raw.split(":", 1)[1].strip() if raw.lower().startswith("visual_language:") else raw.strip()
     
     # Generate visualizations using shared method
@@ -90,9 +91,9 @@ def generate():
     output_file = os.path.join(output_dir, f"formal_{request_id}.svg")
     intuitive_file = os.path.join(output_dir, f"intuitive_{request_id}.svg")
     
-    # Initialize generators and DSL parser
-    formal_generator = FormalVisualGenerator()
-    intuitive_generator = IntuitiveVisualGenerator()
+    # Initialize generators and DSL parser with translation function
+    formal_generator = FormalVisualGenerator(translate=_)
+    intuitive_generator = IntuitiveVisualGenerator(translate=_)
     dsl_parser = DSLParser()
 
     # Parse DSL once using the shared parser
@@ -103,7 +104,7 @@ def generate():
     except ValueError as e:
         current_app.logger.error(f"Visual Language parse error: {e}")
         return jsonify({
-            "error": f"Visual Language parse error.",
+            "error": _("Visual Language parse error."),
             "is_parse_error": True
         }), 500
     
@@ -120,11 +121,14 @@ def generate():
         else:
             # Use the generator's specific error message if available
             generator_error = formal_generator.get_error_message()
-            formal_error = generator_error if generator_error else "Could not generate formal visualization. Retrying might help."
+            if generator_error:
+                formal_error = _("Could not generate formal visualization: %(error)s", error=generator_error)
+            else:
+                formal_error = _("Could not generate formal visualization. Retrying might help.")
     except (VisualGenerationError, FileNotFoundError) as e:
-        formal_error = f"Formal generation error: {str(e)}"
+        formal_error = _("Formal generation error: %(error)s", error=str(e))
     except Exception as e:
-        formal_error = f"Unexpected formal generation error: {str(e)}"
+        formal_error = _("Unexpected formal generation error: %(error)s", error=str(e))
     
 
     intuitive_error = None
@@ -139,11 +143,14 @@ def generate():
         else:
             # Use the generator's specific error message if available
             generator_error = intuitive_generator.get_error_message()
-            intuitive_error = generator_error if generator_error else "Could not generate intuitive visualization. Retrying might help."
+            if generator_error:
+                intuitive_error = _("Could not generate intuitive visualization: %(error)s", error=generator_error)
+            else:
+                intuitive_error = _("Could not generate intuitive visualization. Retrying might help.")
     except (VisualGenerationError, FileNotFoundError) as e:
-        intuitive_error = f"Intuitive generation error: {str(e)}"
+        intuitive_error = _("Intuitive generation error: %(error)s", error=str(e))
     except Exception as e:
-        intuitive_error = f"Unexpected intuitive generation error: {str(e)}"
+        intuitive_error = _("Unexpected intuitive generation error: %(error)s", error=str(e))
 
     # Archive timestamped copies (only in debug mode)
     if DEBUG_MODE:

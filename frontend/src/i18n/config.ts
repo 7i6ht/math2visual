@@ -6,7 +6,9 @@ import deTranslations from './locales/de.json';
 // Get saved language or default to browser language
 const getInitialLanguage = (): string => {
   const saved = localStorage.getItem('math2visual-language');
-  if (saved) return saved;
+  if (saved) {
+    return saved;
+  }
   
   const browserLang = navigator.language.split('-')[0];
   return ['en', 'de'].includes(browserLang) ? browserLang : 'en';

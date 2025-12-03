@@ -10,6 +10,7 @@ from app.config.storage_config import get_svg_dataset_path
 from app.services.validation.svg_validator import validate_file
 from app.services.svg_generation.svg_generator import generate_svg_icon
 from app.utils.translations import expand_search_terms
+from flask_babel import _
 from werkzeug.utils import secure_filename
 
 svg_dataset_bp = Blueprint('svg_dataset', __name__)
@@ -46,7 +47,7 @@ def search_svg_files():
         
         if not os.path.exists(svg_dataset_dir):
             current_app.logger.error("SVG dataset directory not found")
-            return jsonify({"error": "SVG dataset directory not found"}), 404
+            return jsonify({"error": _("SVG dataset directory not found")}), 404
         
         # Get all SVG files
         try:
@@ -69,7 +70,7 @@ def search_svg_files():
                         
         except PermissionError:
             current_app.logger.warning("Permission denied accessing SVG dataset")
-            return jsonify({"error": "Permission denied accessing SVG dataset"}), 403
+            return jsonify({"error": _("Permission denied accessing SVG dataset")}), 403
         
         # If no query, return all files up to limit
         if not query:
@@ -105,7 +106,7 @@ def search_svg_files():
         
     except Exception as e:
         current_app.logger.error(f"Search failed: {str(e)}")
-        return jsonify({"error": f"Search failed: {str(e)}"}), 500
+        return jsonify({"error": _("Search failed: %(error)s", error=str(e))}), 500
         
 
 def _calculate_relevance_score(query: str, filename: str) -> int:
@@ -161,20 +162,20 @@ def upload_svg():
     try:
         # Check request size limit (10MB)
         if request.content_length and request.content_length > 10 * 1024 * 1024:
-            return jsonify({"success": False, "error": "Request too large (max 10MB)"}), 413
+            return jsonify({"success": False, "error": _("Request too large (max 10MB)")}), 413
         
         # Check if file was uploaded
         if 'file' not in request.files:
-            return jsonify({"success": False, "error": "No file uploaded"}), 400
+            return jsonify({"success": False, "error": _("No file uploaded")}), 400
         
         file = request.files['file']
         expected_filename = request.form.get('expected_filename')
         
         if not expected_filename:
-            return jsonify({"success": False, "error": "Expected filename not provided"}), 400
+            return jsonify({"success": False, "error": _("Expected filename not provided")}), 400
         
         if file.filename == '':
-            return jsonify({"success": False, "error": "No file selected"}), 400
+            return jsonify({"success": False, "error": _("No file selected")}), 400
         
         # Read file content for validation
         file_content = file.read()
@@ -202,7 +203,7 @@ def upload_svg():
         if os.path.exists(file_path):
             return jsonify({
                 "success": False, 
-                "error": f"File '{secure_name}' already exists or has been added by another user in the meantime"
+                "error": _("File already exists or has been added by another user in the meantime: %(filename)s", filename=secure_name)
             }), 409
         
         # Save the file with atomic write (write to temp file then rename)
@@ -224,12 +225,12 @@ def upload_svg():
         
         return jsonify({
             "success": True, 
-            "message": f"SVG file '{secure_name}' uploaded successfully",
+            "message": _("SVG file uploaded successfully: %(filename)s", filename=secure_name),
             "validation_details": validation_details
         })
         
     except Exception as e:
-        return jsonify({"success": False, "error": f"Upload failed: {str(e)}"}), 500
+        return jsonify({"success": False, "error": _("Upload failed: %(error)s", error=str(e))}), 500
 
 
 @svg_dataset_bp.route("/api/svg-dataset/check-exists", methods=["GET"])
@@ -247,12 +248,12 @@ def check_svg_exists():
         name = request.args.get('name', '').strip()
         
         if not name:
-            return jsonify({"error": "Name parameter is required"}), 400
+            return jsonify({"error": _("Name parameter is required")}), 400
             
         svg_dataset_dir = get_svg_dataset_path()
         
         if not os.path.exists(svg_dataset_dir):
-            return jsonify({"error": "SVG dataset directory not found"}), 404
+            return jsonify({"error": _("SVG dataset directory not found")}), 404
         
         # Check if file exists
         svg_filename = f"{name}.svg"
@@ -265,7 +266,7 @@ def check_svg_exists():
         })
         
     except Exception as e:
-        return jsonify({"error": f"Check failed: {str(e)}"}), 500
+        return jsonify({"error": _("Check failed: %(error)s", error=str(e))}), 500
 
 
 @svg_dataset_bp.route("/api/svg-dataset/files/<filename>", methods=["GET"])
@@ -283,7 +284,7 @@ def serve_svg_file(filename):
         # Security check - only allow .svg files
         if not filename.lower().endswith('.svg'):
             current_app.logger.warning(f"❌ Invalid file extension: {filename}")
-            return jsonify({"error": "Only SVG files are allowed"}), 400
+            return jsonify({"error": _("Only SVG files are allowed")}), 400
         
         svg_dataset_dir = get_svg_dataset_path()
         
@@ -294,18 +295,18 @@ def serve_svg_file(filename):
         # Check if file exists
         if not os.path.exists(file_path):
             current_app.logger.warning(f"❌ File not found: {filename} (tried both original and secure)")
-            return jsonify({"error": "File not found"}), 404
+            return jsonify({"error": _("File not found")}), 404
         
         # Check file permissions
         if not os.access(file_path, os.R_OK):
             current_app.logger.warning(f"❌ File not readable: {file_path}")
-            return jsonify({"error": "File not accessible"}), 403
+            return jsonify({"error": _("File not accessible")}), 403
         
         # Check file size (prevent serving empty or corrupted files)
         file_size = os.path.getsize(file_path)
         if file_size == 0:
             current_app.logger.warning(f"❌ Empty file: {file_path}")
-            return jsonify({"error": "Empty file"}), 400
+            return jsonify({"error": _("Empty file")}), 400
         
         current_app.logger.info(f"✅ Serving file: {filename} ({file_size} bytes)")
         
@@ -319,7 +320,7 @@ def serve_svg_file(filename):
         
     except Exception as e:
         current_app.logger.error(f"❌ Error serving {filename}: {str(e)}")
-        return jsonify({"error": f"Failed to serve file: {str(e)}"}), 500
+        return jsonify({"error": _("Failed to serve file: %(error)s", error=str(e))}), 500
 
 
 @svg_dataset_bp.route("/api/svg-dataset/generate", methods=["POST"])
@@ -340,7 +341,7 @@ def generate_svg():
         if not entity_type:
             return jsonify({
                 "success": False,
-                "error": "Entity type is required"
+                "error": _("Entity type is required")
             }), 400
         
         current_app.logger.info(f"🎨 Generating SVG icon for: {entity_type}")
@@ -349,9 +350,10 @@ def generate_svg():
         success, svg_content, error = generate_svg_icon(entity_type)
         
         if not success or not svg_content:
+            error_text = error or _("Failed to generate SVG")
             return jsonify({
                 "success": False,
-                "error": error or "Failed to generate SVG"
+                "error": error_text
             }), 500
         
         # Count existing files with the same name in the dataset
@@ -379,7 +381,7 @@ def generate_svg():
         if not is_valid:
             return jsonify({
                 "success": False,
-                "error": f"Generated SVG validation failed: {validation_error}"
+                "error": _("Generated SVG validation failed: %(error)s", error=validation_error)
             }), 400
         
         # Save to temporary location
@@ -392,14 +394,14 @@ def generate_svg():
             "success": True,
             "svg_content": svg_content,
             "temp_filename": temp_filename,
-            "message": f"SVG icon for '{entity_type}' generated successfully"
+            "message": _("SVG icon generated successfully: %(entity_type)s", entity_type=entity_type)
         })
         
     except Exception as e:
         current_app.logger.error(f"❌ Generation failed: {str(e)}")
         return jsonify({
             "success": False,
-            "error": f"Generation failed: {str(e)}"
+            "error": _("Generation failed: %(error)s", error=str(e))
         }), 500
 
 
@@ -421,7 +423,7 @@ def confirm_generated_svg():
         if not temp_filename:
             return jsonify({
                 "success": False,
-                "error": "Temporary filename is required"
+                "error": _("Temporary filename is required")
             }), 400
         
         # Sanitize filename to prevent path traversal
@@ -429,7 +431,7 @@ def confirm_generated_svg():
         if not temp_filename or not temp_filename.endswith('.svg'):
             return jsonify({
                 "success": False,
-                "error": "Invalid filename"
+                "error": _("Invalid filename")
             }), 400
         
         temp_path = os.path.join(TEMP_SVG_DIR, temp_filename)
@@ -437,7 +439,7 @@ def confirm_generated_svg():
         if not os.path.exists(temp_path):
             return jsonify({
                 "success": False,
-                "error": "Temporary file not found"
+                "error": _("Temporary file not found")
             }), 404
         
         # Move to dataset
@@ -448,7 +450,7 @@ def confirm_generated_svg():
         if os.path.exists(final_path):
             return jsonify({
                 "success": False,
-                "error": f"File '{temp_filename}' already exists in dataset"
+                "error": _("File already exists in dataset: %(filename)s", filename=temp_filename)
             }), 409
         
         # Move the file
@@ -459,13 +461,13 @@ def confirm_generated_svg():
         return jsonify({
             "success": True,
             "filename": temp_filename,
-            "message": f"SVG '{temp_filename}' added to dataset"
+            "message": _("SVG added to dataset: %(filename)s", filename=temp_filename)
         })
         
     except Exception as e:
         current_app.logger.error(f"❌ Confirmation of temporary SVG failed: {str(e)}")
         return jsonify({
             "success": False,
-            "error": f"Confirmation of temporary SVG failed: {str(e)}"
+            "error": _("Confirmation of temporary SVG failed: %(error)s", error=str(e))
         }), 500
 

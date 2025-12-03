@@ -3,6 +3,7 @@ import type { ParsedOperation } from "@/utils/dsl-parser";
 import { BACKEND_API_URL as API_BASE_URL } from "@/config/api";
 import { DSLFormatter } from "@/utils/dsl-formatter";
 import { parseWithErrorHandling } from "@/utils/dsl-parser";
+import { getHeadersWithLanguage, getCurrentLanguage } from "@/utils/apiHelpers";
 
 export class ApiError extends Error {
   public status?: number;
@@ -22,11 +23,12 @@ const generationService = {
         ? { ...request, dsl: DSLFormatter.minify(request.dsl) }
         : request;
 
+      // Set language in request body for GPT generation (also sent via Accept-Language header for error translation)
+      requestBody.language = getCurrentLanguage();
+
       const response = await fetch(`${API_BASE_URL}/generate`, {
         method: "POST",
-        headers: { 
-          "Content-Type": "application/json" 
-        },
+        headers: getHeadersWithLanguage(),
         body: JSON.stringify(requestBody),
         signal: abortSignal
       });

@@ -7,6 +7,7 @@ import os
 
 from app.services.validation.svg_validator import get_antivirus_status
 from app.config.storage_config import storage_config
+from flask_babel import _
 
 system_bp = Blueprint('system', __name__)
 
@@ -59,7 +60,7 @@ def storage_status():
     except Exception as e:
         return jsonify({
             "success": False, 
-            "error": f"Failed to get storage status: {str(e)}"
+            "error": _("Failed to get storage status: %(error)s", error=str(e))
         }), 500
 
 
@@ -84,5 +85,5 @@ def antivirus_status():
     except Exception as e:
         return jsonify({
             "success": False, 
-            "error": f"Failed to get antivirus status: {str(e)}"
+            "error": _("Failed to get antivirus status: %(error)s", error=str(e))
         }), 500

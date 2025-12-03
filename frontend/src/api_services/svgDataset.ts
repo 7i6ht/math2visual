@@ -1,5 +1,6 @@
 import { BACKEND_BASE_URL as API_BASE_URL } from '@/config/api';
 import type { SVGUploadResponse } from '@/types';
+import { getHeadersWithLanguage, getCurrentLanguage } from '@/utils/apiHelpers';
 
 export interface SVGFile {
   filename: string;
@@ -24,10 +25,10 @@ export class SVGDatasetService {
     try {
       const response = await fetch(`${API_BASE_URL}/api/svg-dataset/generate`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ entity_type: entityType }),
+        headers: getHeadersWithLanguage(),
+        body: JSON.stringify({ 
+          entity_type: entityType
+        }),
         signal,
       });
 
@@ -65,9 +66,7 @@ export class SVGDatasetService {
 
       const response = await fetch(`${API_BASE_URL}/api/svg-dataset/confirm-generated`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: getHeadersWithLanguage(),
         body: JSON.stringify(body),
       });
 
@@ -92,7 +91,10 @@ export class SVGDatasetService {
   static async searchSVGFiles(query: string, limit: number = 20): Promise<SVGSearchResponse> {
     try {
       const response = await fetch(
-        `${API_BASE_URL}/api/svg-dataset/search?query=${encodeURIComponent(query)}&limit=${limit}`
+        `${API_BASE_URL}/api/svg-dataset/search?query=${encodeURIComponent(query)}&limit=${limit}`,
+        {
+          headers: getHeadersWithLanguage(),
+        }
       );
 
       if (!response.ok) {
@@ -112,7 +114,10 @@ export class SVGDatasetService {
   static async checkSVGNameExists(name: string): Promise<boolean> {
     try {
       const response = await fetch(
-        `${API_BASE_URL}/api/svg-dataset/check-exists?name=${encodeURIComponent(name)}`
+        `${API_BASE_URL}/api/svg-dataset/check-exists?name=${encodeURIComponent(name)}`,
+        {
+          headers: getHeadersWithLanguage(),
+        }
       );
 
       if (!response.ok) {
@@ -135,9 +140,12 @@ export class SVGDatasetService {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('expected_filename', expectedFilename);
-
+      
       const response = await fetch(`${API_BASE_URL}/api/svg-dataset/upload`, {
         method: 'POST',
+        headers: {
+          'Accept-Language': getCurrentLanguage(),
+        },
         body: formData,
       });
 

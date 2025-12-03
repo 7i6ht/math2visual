@@ -1,6 +1,7 @@
 """
 Translation utilities for cross-language SVG search support.
 Uses argos-translate for offline, fast translations between English and German.
+Note: API message translation is handled by Flask-Babel (see app/__init__.py).
 """
 
 import logging
@@ -199,3 +200,5 @@ def ensure_translation_models_installed(auto_install: bool = False) -> bool:
     except Exception as e:
         logger.debug(f"Error checking translation models: {e}")
         return False
+
+
