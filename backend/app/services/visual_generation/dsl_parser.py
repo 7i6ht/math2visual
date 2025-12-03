@@ -10,7 +10,7 @@ class DSLParser:
     """
     
     def __init__(self):
-        self.operations_list = ["addition", "subtraction", "multiplication", "division", "surplus", "unittrans", "area"]
+        self.operations_list = ["addition", "subtraction", "multiplication", "division", "surplus", "unittrans", "area", "comparison"]
     
     def parse_dsl(self, dsl_str):
         """
