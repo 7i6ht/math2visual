@@ -8,6 +8,8 @@ import { useHighlightingContext } from '@/contexts/HighlightingContext';
 import { useDSLContext } from '@/contexts/DSLContext';
 import { replaceEntityTypeInDSL, sanitizeEntityName } from '@/lib/dsl-utils';
 import { replaceEntityNames } from '@/utils/mwpUtils';
+import { useTranslation } from 'react-i18next';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface SVGSelectorState {
   isOpen: boolean;
@@ -38,6 +40,8 @@ export const useSVGSelector = ({
   formula,
   onVisualsUpdate,
 }: UseSVGSelectorProps) => {
+  const { t } = useTranslation();
+  const { language } = useLanguage();
   // Use highlighting context
   const { setSelectedElement, clearHighlightingState } = useHighlightingContext();
   const { formattedDSL, componentMappings } = useDSLContext();
@@ -95,12 +99,12 @@ export const useSVGSelector = ({
   // Handle embedded SVG change
   const updateEmbeddedSVG = useCallback(async (newType: string) => {
     if (!formattedDSL || !selectorState.currentValue) {
-      toast.error('No DSL or path context available');
+      toast.error(t('svg.noDSLOrPathContext'));
       return;
     }
 
     try {
-      const loadingToastId = toast.loading('Updating SVG and regenerating visuals...');
+      const loadingToastId = toast.loading(t('svg.updatingAndRegenerating'));
       
       // Use regex to replace all occurrences of the old type with the new type
       const updatedDSL = replaceEntityTypeInDSL(formattedDSL, selectorState.currentValue, newType);
@@ -110,7 +114,7 @@ export const useSVGSelector = ({
       // but in the MWP they appear as sanitized entity names (letters and spaces only)
       const sanitizedOldType = sanitizeEntityName(selectorState.currentValue);
       const sanitizedNewType = sanitizeEntityName(newType);
-      const updatedMWP = replaceEntityNames(mwp, sanitizedOldType, sanitizedNewType);
+      const updatedMWP = replaceEntityNames(mwp, sanitizedOldType, sanitizedNewType, language);
 
       // Generate new visuals with updated DSL
       const abortController = new AbortController();
@@ -132,7 +136,7 @@ export const useSVGSelector = ({
 
       // Dismiss the loading toast and show success
       toast.dismiss(loadingToastId);
-      toast.success("Successfully updated SVG");
+      toast.success(t("svg.successfullyUpdatedSVG"));
       
       // Close the selector (this will also clear the highlight)
       closeSelector();
@@ -141,11 +145,11 @@ export const useSVGSelector = ({
       // Dismiss any loading toast that might still be showing
       toast.dismiss();
       toast.error(
-        error instanceof Error ? error.message : 'Failed to update SVG'
+        error instanceof Error ? error.message : t('svg.failedToUpdateSVG')
       );
       throw error; // Re-throw so the popup can handle it
     }
-  }, [formattedDSL, selectorState.currentValue, mwp, formula, onVisualsUpdate, closeSelector]);
+  }, [formattedDSL, selectorState.currentValue, mwp, formula, onVisualsUpdate, closeSelector, language]);
 
   return {
     selectorState,

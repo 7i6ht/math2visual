@@ -5,6 +5,7 @@ import { MissingSVGSection } from "./MissingSVGSection";
 import { ParseErrorSection } from "./ParseErrorSection";
 import { AlertCircle } from "lucide-react";
 import { trackElementClick, isAnalyticsEnabled } from "@/services/analyticsTracker";
+import { useTranslation } from "react-i18next";
 
 interface VisualizationResultsProps {
   svgFormal: string | null;
@@ -41,6 +42,7 @@ export const VisualizationResults = memo(({
   isPopupOpen = false,
   isDisabled = false,
 }: VisualizationResultsProps) => {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<string>("");
   const analyticsEnabled = isAnalyticsEnabled();
 
@@ -103,7 +105,7 @@ export const VisualizationResults = memo(({
               disabled={isDisabled}
             >
               <AlertCircle className="responsive-smaller-icon-font-size mr-2 text-destructive" />
-              Parse Error
+              {t("visualization.parseError")}
             </TabsTrigger>
           )}
 
@@ -116,7 +118,7 @@ export const VisualizationResults = memo(({
                 disabled={isDisabled}
                 {...(analyticsEnabled ? {onClick: () => trackElementClick('tab_formal_click')} : {})}
               >
-                Formal Visual
+                {t("visualization.tabs.formalVisual")}
               </TabsTrigger>
 
               <TabsTrigger 
@@ -125,7 +127,7 @@ export const VisualizationResults = memo(({
                 disabled={isDisabled}
                 {...(analyticsEnabled ? {onClick: () => trackElementClick('tab_intuitive_click')} : {})}
               >
-                Intuitive Visual
+                {t("visualization.tabs.intuitiveVisual")}
               </TabsTrigger>
             </>
           )}
@@ -138,7 +140,7 @@ export const VisualizationResults = memo(({
               {...(analyticsEnabled ? {onClick: () => trackElementClick('tab_missing_svg_click')} : {})}
             >
               <AlertCircle className="responsive-smaller-icon-font-size mr-2 text-destructive" />
-              Missing SVG
+              {t("visualization.tabs.missingSVG")}
             </TabsTrigger>
           )}
         </TabsList>
@@ -156,7 +158,7 @@ export const VisualizationResults = memo(({
             <TabsContent value="formal" className="mt-4">
               <VisualizationSection
                 type="formal"
-                title="Formal"
+                title={t("visualization.formal")}
                 svgContent={svgFormal}
                 error={filteredFormalError}
                 isOpen={activeTab === "formal"}
@@ -173,7 +175,7 @@ export const VisualizationResults = memo(({
             <TabsContent value="intuitive" className="mt-4">
               <VisualizationSection
                 type="intuitive"
-                title="Intuitive"
+                title={t("visualization.intuitive")}
                 svgContent={svgIntuitive}
                 error={filteredIntuitiveError}
                 isOpen={activeTab === "intuitive"}

@@ -71,11 +71,12 @@ def generate():
         mwp = body.get("mwp", "").strip()
         formula = body.get("formula") or None
         hint = body.get("hint") or None
+        language = body.get("language", "en").strip().lower()  # Default to English
         if not mwp:
             return jsonify({"error": "Please provide a math word problem (MWP)."}), 400
 
         # Generate via GPT and extract
-        vl_response = generate_visual_language(mwp, formula, hint)
+        vl_response = generate_visual_language(mwp, formula, hint, language=language)
         # Use parser for extraction
         raw = extract_visual_language(vl_response)
         if not raw:

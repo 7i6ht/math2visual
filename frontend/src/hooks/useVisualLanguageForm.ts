@@ -7,6 +7,8 @@ import { trackFormSubmit, trackError, isAnalyticsEnabled } from "@/services/anal
 import { toast } from "sonner";
 import { useDSLContext } from "@/contexts/DSLContext";
 import { useHighlightingContext } from "@/contexts/HighlightingContext";
+import { useTranslation } from "react-i18next";
+import { useLanguage } from "@/contexts/LanguageContext";
 import type { VLFormData } from "@/schemas/validation";
 import type { ComponentMapping } from "@/types/visualInteraction";
 import type { ParsedOperation } from "@/utils/dsl-parser";
@@ -26,6 +28,8 @@ export const useVisualLanguageForm = ({
   mwp,
   formula,
 }: UseVisualLanguageFormProps) => {
+  const { t } = useTranslation();
+  const { language } = useLanguage();
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { formattedDSL, parsedDSL } = useDSLContext();
   const { setMwpHighlightRanges, setFormulaHighlightRanges } = useHighlightingContext();
@@ -59,7 +63,7 @@ export const useVisualLanguageForm = ({
     const validatedParsedDSL = parseWithErrorHandling(dslValue);
     if (!validatedParsedDSL) {
       // Parse error - show error state without making API call
-      toast.error('Visual Language syntax error. Please check your input.');
+      toast.error(t('visualization.syntaxError'));
       
       // Show parse error in UI
       onResult(
@@ -92,7 +96,7 @@ export const useVisualLanguageForm = ({
     if (parsedDSL) {
       const changes = detectDSLChanges(parsedDSL, validatedParsedDSL);
       if (changes.length > 0) {
-        const updated = updateMWPInput(mwp, formula, changes);
+        const updated = updateMWPInput(mwp, formula, changes, language);
         updatedMWP = updated.mwp;
         updatedFormula = updated.formula ?? null;
         
@@ -121,7 +125,7 @@ export const useVisualLanguageForm = ({
     const controller = new AbortController();
     const abort = () => {
       controller.abort();
-      toast.info('Generation cancelled');
+      toast.info(t("svg.generationCancelled"));
     };
 
     onLoadingChange(true, abort);
@@ -150,7 +154,7 @@ export const useVisualLanguageForm = ({
           trackError('dsl_generation_failed', error instanceof Error ? error.message : "An error occurred");
         }
         
-        toast.error(error instanceof Error ? error.message : "An error occurred");
+        toast.error(error instanceof Error ? error.message : t("errors.unexpectedError"));
       }
     } finally {
       onLoadingChange(false);

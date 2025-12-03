@@ -8,11 +8,32 @@ import logging
 logger = logging.getLogger(__name__)
 
 # --- Prompt construction ---
-def create_prompt(mwp: str, formula: str = None, hint: str = None) -> str:
+def create_prompt(mwp: str, formula: str = None, hint: str = None, language: str = 'en') -> str:
+    """
+    Create prompt for visual language conversion.
+    
+    Args:
+        mwp: Math word problem text
+        formula: Optional formula
+        hint: Optional hint
+        language: Language code (e.g., 'en', 'de', 'es', 'fr'). Defaults to 'en'.
+    
+    Returns:
+        Formatted prompt string
+    """
+    # Language-specific instructions
+    language_instructions = {
+        'en': "You are an expert at converting math story problem into a structured 'visual language'. Your task is to write a visual language expression based on the given math story problem.",
+        'de': "Sie sind ein Experte für die Umwandlung von mathematischen Textaufgaben in eine strukturierte 'visuelle Sprache'. Ihre Aufgabe ist es, einen visuellen Sprachausdruck basierend auf der gegebenen mathematischen Textaufgabe zu schreiben.",
+    }
+    
+    # Default to English if language not supported
+    intro_text = language_instructions.get(language, language_instructions['en'])
+    
     prompt_text = (
-    '''You are an expert at converting math story problem into a structured 'visual language'. Your task is to write a visual language expression based on the given math story problem. 
+    f'''{intro_text} 
     **Background information**
-    You shoud use the following fixed format for each problem:
+    You should use the following fixed format for each problem:
     <operation>(
     container1[entity_name: <entity name>, entity_type: <entity type>, entity_quantity: <number of this entity in this container>, container_name: <container name>, container_type: <container type>, attr_name: <attribute name>, attr_type: <attribute type>],
     container2[entity_name: <entity name>, entity_type: <entity type>, entity_quantity: <number of this entity in this container>, container_name: <container name>, container_type: <container type>, attr_name: <attribute name>, attr_type: <attribute type>],
@@ -77,9 +98,26 @@ class VisualLanguageGenerator:
                  max_length: int = 2048,
                  max_new_tokens: int = 2048,
                  temperature: float = 0.7,
-                 repetition_penalty: float = 1.15
+                 repetition_penalty: float = 1.15,
+                 language: str = 'en'
     ) -> str:
-        prompt = create_prompt(mwp, formula, hint)
+        """
+        Generate visual language from math word problem.
+        
+        Args:
+            mwp: Math word problem text
+            formula: Optional formula
+            hint: Optional hint
+            max_length: Maximum prompt length
+            max_new_tokens: Maximum new tokens to generate
+            temperature: Sampling temperature
+            repetition_penalty: Repetition penalty
+            language: Language code (e.g., 'en', 'de', 'es', 'fr'). Defaults to 'en'.
+        
+        Returns:
+            Generated visual language string
+        """
+        prompt = create_prompt(mwp, formula, hint, language)
         inputs = self.tokenizer(
             prompt,
             return_tensors="pt",

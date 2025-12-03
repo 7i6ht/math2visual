@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { BasePopup } from "./BasePopup";
 import { trackNamePopupType, trackPopupSubmit, trackPopupCancel, isAnalyticsEnabled } from "@/services/analyticsTracker";
+import { useTranslation } from "react-i18next";
 
 interface NamePopupProps {
   onClose: () => void;
@@ -17,6 +18,7 @@ export const NamePopup: React.FC<NamePopupProps> = ({
   onUpdate,
   initialValue,
 }) => {
+  const { t } = useTranslation();
   const [value, setValue] = useState(initialValue);
   const [isLoading, setIsLoading] = useState(false);
   const analyticsEnabled = isAnalyticsEnabled();
@@ -44,13 +46,13 @@ export const NamePopup: React.FC<NamePopupProps> = ({
       await onUpdate(trimmedValue);
       onClose();
       if (trimmedValue) {
-        toast.success(`Name updated to "${trimmedValue}"`);
+        toast.success(t("popups.name.updated", { value: trimmedValue }));
       } else {
-        toast.success(`Name deleted`);
+        toast.success(t("popups.name.deleted"));
       }
     } catch (err) {
       console.error(`Failed to update name:`, err);
-      toast.error(`Failed to update name. Please try again.`);
+      toast.error(t("popups.name.updateError"));
     } finally {
       setIsLoading(false);
     }
@@ -88,7 +90,7 @@ export const NamePopup: React.FC<NamePopupProps> = ({
                 trackNamePopupType(e.target.value);
               }
             }}
-            placeholder={"Name"}
+            placeholder={t("popups.name.placeholder")}
             spellCheck={false}
             className="rounded-r-none border-r-0 popup-button-responsive-height responsive-text-font-size focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation text-center px-1"
             disabled={isLoading}

@@ -1,42 +1,17 @@
-import { ToWords } from 'to-words';
+import n2words from 'n2words';
 
 /**
- * Utility for converting numbers to their word representation
+ * Convert a number to its word representation in the given language.
+ * Currently supports at least English ('en') and German ('de').
+ *
+ * Falls back to the numeric string form on error.
  */
-class NumberConverter {
-  private toWords: ToWords;
-
-  constructor() {
-    this.toWords = new ToWords();
+export const numberToWord = (num: number, language: string = 'en'): string => {
+  try {
+    const result = n2words(num, { lang: language.toLowerCase() });
+    return typeof result === 'string' ? result : num.toString();
+  } catch (error) {
+    console.warn('Failed to convert number to word:', num, error);
+    return num.toString();
   }
-
-  /**
-   * Convert a number to its word representation
-   * @param num - The number to convert
-   * @returns The word representation of the number, or the string representation as fallback
-   * 
-   * @example
-   * numberToWord(5) // returns "five"
-   * numberToWord(88) // returns "eighty-eight"
-   */
-  convert(num: number): string {
-    try {
-      return this.toWords.convert(num);
-    } catch (error) {
-      console.warn('Failed to convert number to word:', num, error);
-      return num.toString(); // fallback to numeric form
-    }
-  }
-}
-
-// Export singleton instance
-const numberConverter = new NumberConverter();
-
-/**
- * Convert a number to its word representation
- * @param num - The number to convert
- * @returns The word representation of the number
- */
-export const numberToWord = (num: number): string => {
-  return numberConverter.convert(num);
 };

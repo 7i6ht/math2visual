@@ -4,6 +4,7 @@ import { SVGDatasetService } from "@/api_services/svgDataset";
 import { ValidationError } from "@/types";
 import { Upload as UploadIcon } from "lucide-react";
 import { trackDragOver, trackDrop, trackElementClick, isAnalyticsEnabled } from "@/services/analyticsTracker";
+import { useTranslation } from "react-i18next";
 
 interface UseSVGMissingErrorArgs {
   missingSVGEntities: string[];
@@ -16,6 +17,7 @@ export const useSVGMissingError = ({
   onGenerate,
   onAllFilesUploaded,
 }: UseSVGMissingErrorArgs) => {
+  const { t } = useTranslation();
   const [isDragOver, setIsDragOver] = useState(false);
   const [currentEntityIndex, setCurrentEntityIndex] = useState(0);
   const [uploadLoading, setUploadLoading] = useState(false);
@@ -77,7 +79,7 @@ export const useSVGMissingError = ({
     try {
       setUploadLoading(true);
 
-      toast.loading("Uploading SVG file...", { id: uploadToastId });
+      toast.loading(t("svg.uploading"), { id: uploadToastId });
 
       const uploadResult = await SVGDatasetService.uploadSVG(file, filename);
 
@@ -90,12 +92,12 @@ export const useSVGMissingError = ({
       const hasOtherMissingEntities = missingSVGEntities.length > 1;
 
       if (!hasOtherMissingEntities && onAllFilesUploaded) {
-        toast.success("All missing files have been uploaded!", {
+        toast.success(t("svg.allFilesUploaded"), {
           id: uploadToastId,
         });
         onAllFilesUploaded();
       } else {
-        toast.success("SVG file uploaded successfully", { id: uploadToastId });
+        toast.success(t("svg.fileUploadedSuccessfully"), { id: uploadToastId });
       }
 
       // Regenerate visuals after every upload
@@ -104,22 +106,22 @@ export const useSVGMissingError = ({
           await onGenerate(uploadToastId);
         } catch (error) {
           console.error("Regeneration after upload failed:", error);
-          toast.error("Upload succeeded but regeneration failed", {
+          toast.error(t("svg.uploadSucceededRegenerationFailed"), {
             description:
               error instanceof Error
                 ? error.message
-                : "Failed to regenerate visualizations",
+                : t("svg.failedToRegenerateVisualizations"),
           });
         }
       }
     } catch (uploadError) {
       console.error("Upload failed:", uploadError);
 
-      let errorTitle = "Upload failed";
+      let errorTitle = t("svg.uploadFailed");
       let errorDescription =
         uploadError instanceof Error
           ? uploadError.message
-          : "An unexpected error occurred";
+          : t("errors.unexpectedError");
 
       // Check if this is a ValidationError with validation details
       if (ValidationError.isValidationError(uploadError)) {
@@ -128,13 +130,13 @@ export const useSVGMissingError = ({
       } else if (uploadError instanceof Error) {
         // Fallback to basic string matching for legacy errors
         if (uploadError.message.includes("Network error")) {
-          errorTitle = "Connection error";
+          errorTitle = t("svg.connectionError");
         } else if (uploadError.message.includes("timed out")) {
-          errorTitle = "Upload timeout";
+          errorTitle = t("svg.uploadTimeout");
         } else if (uploadError.message.includes("too large")) {
-          errorTitle = "File too large";
+          errorTitle = t("svg.fileTooLarge");
         } else if (uploadError.message.includes("malicious")) {
-          errorTitle = "Security check failed";
+          errorTitle = t("svg.securityCheckFailed");
         }
       }
 
@@ -153,12 +155,12 @@ export const useSVGMissingError = ({
 
   const handleFileSelect = (file: File) => {
     if (!file.name.toLowerCase().endsWith(".svg")) {
-      toast.error("Please select an SVG file");
+      toast.error(t("svg.pleaseSelectSVGFile"));
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("File too large. Maximum size is 5MB.");
+      toast.error(t("svg.fileTooLargeMaxSize"));
       return;
     }
 
@@ -214,8 +216,8 @@ export const useSVGMissingError = ({
   };
 
   const getButtonText = () => {
-    if (uploadLoading) return "Processing...";
-    return "Upload";
+    if (uploadLoading) return t("svg.processing");
+    return t("common.upload");
   };
 
   const getButtonIcon = () => {
@@ -258,14 +260,14 @@ export const useSVGMissingError = ({
       console.error("Generate failed:", error);
       if (error instanceof Error && error.name === "AbortError") {
         if (!abortedByUserRef.current) {
-          toast.info("Generation cancelled");
+          toast.info(t("svg.generationCancelled"));
         }
       } else {
-        let errorTitle = "Generation failed";
+        let errorTitle = t("svg.generationFailed");
         let errorDescription =
           error instanceof Error
             ? error.message
-            : "An unexpected error occurred";
+            : t("errors.unexpectedError");
 
         toast.error(errorTitle, {
           description: errorDescription,
@@ -290,7 +292,7 @@ export const useSVGMissingError = ({
     try {
       setGenerateLoading(true);
       
-      toast.loading("Adding SVG to dataset...", { id: confirmToastId });
+      toast.loading(t("svg.addingToDataset"), { id: confirmToastId });
 
       // Ensure the filename is the entity name (with .svg extension)
       const finalFilename = entityName.endsWith('.svg') ? entityName : `${entityName}.svg`;
@@ -312,7 +314,7 @@ export const useSVGMissingError = ({
       // Move to next entity
       setCurrentEntityIndex((prev) => prev + 1);
 
-      toast.success("SVG generated and added to dataset!", {
+      toast.success(t("svg.generatedAndAddedToDataset"), {
         id: confirmToastId,
       });
 
@@ -322,11 +324,11 @@ export const useSVGMissingError = ({
           await onGenerate(confirmToastId);
         } catch (error) {
           console.error("Regeneration after generation failed:", error);
-          toast.error("Generation succeeded but regeneration failed", {
+          toast.error(t("svg.generationSucceededRegenerationFailed"), {
             description:
               error instanceof Error
                 ? error.message
-                : "Failed to regenerate visualizations",
+                : t("svg.failedToRegenerateVisualizations"),
           });
         }
       }
@@ -339,11 +341,11 @@ export const useSVGMissingError = ({
     } catch (error) {
       console.error("Confirm generated SVG failed:", error);
       
-      let errorTitle = "Failed to add SVG";
+      let errorTitle = t("svg.failedToAddSVG");
       let errorDescription =
         error instanceof Error
           ? error.message
-          : "An unexpected error occurred";
+          : t("errors.unexpectedError");
 
       toast.error(errorTitle, {
         id: confirmToastId,

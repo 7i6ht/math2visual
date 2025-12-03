@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { BasePopup } from "./BasePopup";
 import { trackEntityQuantityPopupType, trackPopupSubmit, trackPopupCancel, isAnalyticsEnabled } from "@/services/analyticsTracker";
+import { useTranslation } from "react-i18next";
 
 interface EntityQuantityPopupProps {
   onClose: () => void;
@@ -17,6 +18,7 @@ export const EntityQuantityPopup: React.FC<EntityQuantityPopupProps> = ({
   onUpdate,
   initialQuantity,
 }) => {
+  const { t } = useTranslation();
   const [quantity, setQuantity] = useState(initialQuantity.toString());
   const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -54,14 +56,14 @@ export const EntityQuantityPopup: React.FC<EntityQuantityPopupProps> = ({
   // Handle quantity update
   const handleUpdate = async () => {
     if (!quantity || quantity === "0") {
-      toast.error("Please enter a valid positive integer");
+      toast.error(t("popups.quantity.invalidInteger"));
       return;
     }
 
     const numericQuantity = parseInt(quantity, 10);
 
     if (isNaN(numericQuantity) || numericQuantity <= 0) {
-      toast.error("Please enter a valid positive integer");
+      toast.error(t("popups.quantity.invalidInteger"));
       return;
     }
 
@@ -75,10 +77,10 @@ export const EntityQuantityPopup: React.FC<EntityQuantityPopupProps> = ({
     try {
       await onUpdate(numericQuantity);
       onClose();
-      toast.success(`Entity quantity updated to ${numericQuantity}`);
+      toast.success(t("popups.quantity.updated", { quantity: numericQuantity }));
     } catch (err) {
       console.error("Failed to update entity quantity:", err);
-      toast.error("Failed to update entity quantity. Please try again.");
+      toast.error(t("popups.quantity.updateError"));
     } finally {
       setIsLoading(false);
     }
@@ -109,7 +111,7 @@ export const EntityQuantityPopup: React.FC<EntityQuantityPopupProps> = ({
             ref={inputRef}
             value={quantity}
             onChange={handleInputChange}
-            placeholder="Enter quantity"
+            placeholder={t("popups.quantity.placeholder")}
             spellCheck={false}
             className="rounded-r-none border-r-0 popup-button-responsive-height responsive-text-font-size focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation text-center px-2"
             disabled={isLoading}
@@ -136,7 +138,7 @@ export const EntityQuantityPopup: React.FC<EntityQuantityPopupProps> = ({
         {/* Validation hint */}
         {quantity && !isValidQuantity && (
           <div className="text-xs text-red-600 px-1 responsive-text-font-size">
-            Please enter a positive integer
+            {t("popups.quantity.positiveInteger")}
           </div>
         )}
       </div>

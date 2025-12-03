@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { SVGDatasetService } from '@/api_services/svgDataset';
 import { BasePopup } from './BasePopup.tsx';
 import { trackSVGSearchPopupType, trackPopupSubmit, trackPopupCancel, isAnalyticsEnabled } from '@/services/analyticsTracker';
+import { useTranslation } from 'react-i18next';
 
 interface SVGFile {
   filename: string;
@@ -21,6 +22,7 @@ export const SVGSearchPopup: React.FC<SVGSearchPopupProps> = ({
   onClose,
   onSelect,
 }) => {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<SVGFile[]>([]);
   const [selectedFile, setSelectedFile] = useState<SVGFile | null>(null);
@@ -130,7 +132,7 @@ export const SVGSearchPopup: React.FC<SVGSearchPopupProps> = ({
       setCurrentPage(0);
     } catch (err) {
       console.error('Search error:', err);
-      setError('Failed to search SVG files');
+      setError(t("svg.searchPopup.searchError"));
       setSearchResults([]);
     } finally {
       setIsLoading(false);
@@ -157,7 +159,7 @@ export const SVGSearchPopup: React.FC<SVGSearchPopupProps> = ({
       onClose();
     } catch (err) {
       console.error('File selection failed:', err);
-      toast.error('Failed to select file');
+      toast.error(t("svg.searchPopup.selectError"));
     }
   };
 
@@ -202,7 +204,7 @@ export const SVGSearchPopup: React.FC<SVGSearchPopupProps> = ({
                 trackSVGSearchPopupType(e.target.value);
               }
             }}
-            placeholder="Search"
+            placeholder={t("common.search")}
             spellCheck={false}
             className="pl-8 sm:pl-10 md:pl-12 lg:pl-13 xl:pl-14 2xl:pl-15 3xl:pl-17 4xl:pl-18 5xl:pl-20 6xl:pl-22 7xl:pl-24 rounded-r-none border-r-0 popup-button-responsive-height responsive-text-font-size focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation"
             disabled={!!selectedFile}
@@ -303,7 +305,7 @@ export const SVGSearchPopup: React.FC<SVGSearchPopupProps> = ({
 
       {/* Loading Indicator */}
       {isLoading && (
-        <div className="responsive-text-font-size text-gray-500 mt-1">Searching...</div>
+        <div className="responsive-text-font-size text-gray-500 mt-1">{t("svg.searchPopup.searching")}</div>
       )}
     </BasePopup>
   );

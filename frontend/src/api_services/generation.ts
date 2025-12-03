@@ -90,8 +90,8 @@ const generationService = {
     }
   },
 
-  async generateFromMathProblem(mwp: string, formula?: string, hint?: string, abortSignal?: AbortSignal): Promise<ApiResponse> {
-    return this.generateVisualization({ mwp, formula, hint }, abortSignal);
+  async generateFromMathProblem(mwp: string, formula?: string, hint?: string, language?: string, abortSignal?: AbortSignal): Promise<ApiResponse> {
+    return this.generateVisualization({ mwp, formula, hint, language }, abortSignal);
   },
 
   async generateFromDSL(dsl: string, abortSignal?: AbortSignal): Promise<ApiResponse> {

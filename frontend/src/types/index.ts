@@ -18,6 +18,7 @@ export interface ApiRequest {
   formula?: string;
   hint?: string;
   dsl?: string;
+  language?: string; // Language code (e.g., 'en', 'de')
 }
 
 export interface ApiResponse {

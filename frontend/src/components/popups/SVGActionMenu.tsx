@@ -12,6 +12,7 @@ import { SVGUploadPopup } from "./SVGUploadPopup";
 import { SVGGeneratePopup } from "./SVGGeneratePopup";
 import { BasePopup } from "./BasePopup";
 import { trackElementClick, isAnalyticsEnabled } from "@/services/analyticsTracker";
+import { useTranslation } from "react-i18next";
 
 interface SVGActionMenuProps {
   onClosePopup: () => void;
@@ -24,6 +25,7 @@ export const SVGActionMenu: React.FC<SVGActionMenuProps> = ({
   onEmbeddedSVGChange,
   sanitizedEntityType,
 }) => {
+  const { t } = useTranslation();
   const [activePopup, setActivePopup] = useState<"search" | "upload" | "generate" | null>(
     null
   );
@@ -59,7 +61,7 @@ export const SVGActionMenu: React.FC<SVGActionMenuProps> = ({
                   setActivePopup("search");
                 }}
               >
-                <Search className="responsive-smaller-icon-font-size flex-shrink-0" /> Search
+                <Search className="responsive-smaller-icon-font-size flex-shrink-0" /> {t("common.search")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="cursor-pointer responsive-text-font-size touch-manipulation flex items-center gap-1"
@@ -71,7 +73,7 @@ export const SVGActionMenu: React.FC<SVGActionMenuProps> = ({
                   setActivePopup("upload");
                 }}
               >
-                <Upload className="responsive-smaller-icon-font-size flex-shrink-0" /> Upload
+                <Upload className="responsive-smaller-icon-font-size flex-shrink-0" /> {t("common.upload")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="cursor-pointer responsive-text-font-size touch-manipulation flex items-center gap-1"
@@ -83,7 +85,7 @@ export const SVGActionMenu: React.FC<SVGActionMenuProps> = ({
                   setActivePopup("generate");
                 }}
               >
-                <Sparkles className="responsive-smaller-icon-font-size flex-shrink-0" /> Generate
+                <Sparkles className="responsive-smaller-icon-font-size flex-shrink-0" /> {t("common.generate")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

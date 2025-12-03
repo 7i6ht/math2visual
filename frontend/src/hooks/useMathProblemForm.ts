@@ -9,6 +9,8 @@ import type { FormData } from "@/schemas/validation";
 import type { ComponentMapping } from "@/types/visualInteraction";
 import type { ParsedOperation } from "@/utils/dsl-parser";
 import { useHighlightingContext } from "@/contexts/HighlightingContext";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useTranslation } from "react-i18next";
 
 interface UseMathProblemFormProps {
   onSuccess: (vl: string, svgFormal: string | null, svgIntuitive: string | null, parsedDSL: ParsedOperation, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], mwp?: string, formula?: string, hint?: string, componentMappings?: ComponentMapping, hasParseError?: boolean) => void;
@@ -27,8 +29,10 @@ export const useMathProblemForm = ({
   hint = "",
   saveInitialValues,
 }: UseMathProblemFormProps) => {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const { clearHighlightingState } = useHighlightingContext();
+  const { language } = useLanguage();
   
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -78,6 +82,7 @@ export const useMathProblemForm = ({
         data.mwp, 
         data.formula,
         data.hint,
+        language,
         controller.signal
       );
       onSuccess(
@@ -103,7 +108,7 @@ export const useMathProblemForm = ({
           trackError('generation_failed', error instanceof Error ? error.message : "An error occurred");
         }
         
-        toast.error(error instanceof Error ? error.message : "An error occurred");
+        toast.error(error instanceof Error ? error.message : t("errors.unexpectedError"));
       }
     } finally {
       setLoading(false);

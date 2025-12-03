@@ -12,6 +12,7 @@ import { downloadSvg, downloadPng, downloadPdf, generateVisualizationFilename } 
 import { trackDownload, trackError, isAnalyticsEnabled } from "@/services/analyticsTracker";
 import { toast } from "sonner";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { DownloadFormat } from "@/types";
 
 const downloadOptions = [
@@ -57,6 +58,7 @@ export const DownloadButton = ({
   title,
   disabled = false,
 }: DownloadButtonProps) => {
+  const { t } = useTranslation();
   const [isDownloading, setIsDownloading] = useState(false);
   const analyticsEnabled = isAnalyticsEnabled();
 
@@ -71,7 +73,7 @@ export const DownloadButton = ({
 
     setIsDownloading(true);
     const toastId = toast.loading(
-      `Preparing ${format.toUpperCase()} download...`
+      t("download.preparing", { format: format.toUpperCase() })
     );
 
     // Track download start
@@ -87,9 +89,9 @@ export const DownloadButton = ({
         trackDownload(format, `${type}_${format}`);
       }
       
-      toast.success(`${format.toUpperCase()} file downloaded successfully!`, {
+      toast.success(t("download.success", { format: format.toUpperCase() }), {
         id: toastId,
-        description: `${title} has been saved to your downloads folder.`,
+        description: t("download.savedToFolder", { title }),
       });
     } catch (error) {
       console.error("Download failed:", error);
@@ -99,12 +101,12 @@ export const DownloadButton = ({
         trackError(`${type}_download_${format}_failed`, error instanceof Error ? error.message : "Download failed");
       }
       
-      toast.error(`Failed to download ${format.toUpperCase()} file`, {
+      toast.error(t("download.error", { format: format.toUpperCase() }), {
         id: toastId,
         description:
           error instanceof Error
             ? error.message
-            : "An unexpected error occurred.",
+            : t("download.unexpectedError"),
       });
     } finally {
       setIsDownloading(false);
@@ -124,14 +126,14 @@ export const DownloadButton = ({
           size="content"
           disabled={isDisabled}
           onClick={(e) => e.stopPropagation()}
-          aria-label="Download"
+          aria-label={t("common.download")}
         >
           <Download className="responsive-smaller-icon-font-size" aria-hidden="true" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" collisionPadding={10} className="w-fit min-w-0 px-1 py-1 md:px-2 md:py-2 lg:px-3 lg:py-3">
         <DropdownMenuLabel className="px-2 py-1.5 cursor-default select-none">
-          <span className="responsive-text-font-size text-muted-foreground">Download</span>
+          <span className="responsive-text-font-size text-muted-foreground">{t("common.download")}</span>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         {downloadOptions.map((option) => (

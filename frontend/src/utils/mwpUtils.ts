@@ -1,5 +1,5 @@
 import { numberToWord } from './numberUtils';
-import pluralize from 'pluralize';
+import { pluralizeWord } from './pluralization';
 
 /**
  * Utility functions for Math Word Problem (MWP) text processing and highlighting
@@ -16,9 +16,10 @@ export const splitIntoSentences = (text: string): string[] => {
 
 /**
  * Create regex patterns for finding sentences containing specific values
- * @param containerName - The container name to search for
+ * @param entityName - The entity name to search for
  * @param quantity - The quantity to search for (optional)
- * @param entityName - The entity name to search for (optional)
+ * @param containerName - The container name to search for (optional)
+ * @param language - Language code for pluralization (default: 'en')
  * @returns Array of regex patterns ordered by specificity (most specific first):
  *   1. Container + Quantity + Entity (if entity provided)
  *   2. Container + Quantity
@@ -29,14 +30,15 @@ export const createSentencePatterns = (
   entityName: string,
   quantity?: string,
   containerName?: string,
+  language: string = 'en',
 ): RegExp[] => {
   const patterns: RegExp[] = [];
-  const entityNamePattern = createNamePattern(entityName);
+  const entityNamePattern = createNamePattern(entityName, language);
   
   if (quantity) {
     // Convert quantity to both numeric and word forms for pattern matching
     const numericQuantity = quantity.toString();
-    const wordQuantity = numberToWord(parseInt(quantity.toString()));
+    const wordQuantity = numberToWord(parseInt(quantity.toString()), language);
     const quantityPattern = `(${numericQuantity}|${wordQuantity})`;
     
     if (containerName) {
@@ -116,10 +118,11 @@ export const findSentencePosition = (
  */
 export const findQuantityInText = (
   text: string,
-  quantity: string | number
+  quantity: string | number,
+  language: string = 'en'
 ): [number, number][] | null => {
   const numericQuantity = quantity.toString();
-  const wordQuantity = numberToWord(parseInt(quantity.toString()));
+  const wordQuantity = numberToWord(parseInt(quantity.toString()), language);
   
   // Collect matches for numeric form
   const ranges: [number, number][] = [];
@@ -143,12 +146,13 @@ export const findQuantityInText = (
 
 /**
  * Create a flexible regex pattern for names that handles singular/plural variations
- * Uses pluralize library for accurate pluralization with support for irregular plurals
+ * Uses language-aware pluralization for accurate pluralization with support for irregular plurals
  * @param name - The name to create a pattern for (e.g., "colorful flower")
+ * @param language - Language code for pluralization (default: 'en')
  * @returns A regex pattern string that matches both singular and plural forms
  * @example "colorful flower" → matches "colorful flower" and "colorful flowers"
  */
-export const createNamePattern = (name: string): string => {
+export const createNamePattern = (name: string, language: string = 'en'): string => {
   // Escape special regex characters
   const escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   
@@ -159,8 +163,8 @@ export const createNamePattern = (name: string): string => {
   if (words.length > 0) {
     const lastWord = words[words.length - 1];
     
-    // Get the plural form using pluralize library
-    const pluralForm = pluralize(lastWord);
+    // Get the plural form using language-aware pluralization
+    const pluralForm = pluralizeWord(lastWord, language);
     
     // Create pattern that matches both singular and plural forms
     if (pluralForm !== lastWord) {
@@ -183,13 +187,15 @@ export const createNamePattern = (name: string): string => {
  * Find all occurrences of name in the text (fallback function)
  * @param name - The name to search for
  * @param mwpText - The full MWP text to search within
+ * @param language - Language code for pluralization (default: 'en')
  * @returns Array of [start, end] ranges for all occurrences
  */
 export const findAllNameOccurrencesInText = (
   name: string,
-  mwpText: string
+  mwpText: string,
+  language: string = 'en'
 ): [number, number][] => {
-  const namePattern = createNamePattern(name);
+  const namePattern = createNamePattern(name, language);
   const nameRegex = new RegExp(namePattern, 'gi');
   const allMatches = Array.from(mwpText.matchAll(nameRegex));
   
@@ -198,12 +204,16 @@ export const findAllNameOccurrencesInText = (
 
 /**
  * Replace entity names in MWP text
- * Handles proper pluralization using the pluralize library (e.g., "peach" → "peaches")
+ * Handles proper pluralization using language-aware pluralization (e.g., "peach" → "peaches")
+ * @param text - The text to replace names in
+ * @param oldName - The old entity name
+ * @param newName - The new entity name
+ * @param language - Language code for pluralization (default: 'en')
  */
-export function replaceEntityNames(text: string, oldName: string, newName: string): string {
-  // Get plural forms using the pluralize library
-  const oldPlural = pluralize(oldName);
-  const newPlural = pluralize(newName);
+export function replaceEntityNames(text: string, oldName: string, newName: string, language: string = 'en'): string {
+  // Get plural forms using language-aware pluralization
+  const oldPlural = pluralizeWord(oldName, language);
+  const newPlural = pluralizeWord(newName, language);
   
   // Create a regex that matches both singular and plural forms
   // Use alternation with the longer form first to prevent partial matches
@@ -232,7 +242,7 @@ export function replaceEntityNames(text: string, oldName: string, newName: strin
 /**
  * Replace quantities in MWP text (handles both numeric and text forms)
  */
-export function replaceQuantities(text: string, oldQuantity: string, newQuantity: string): string {
+export function replaceQuantities(text: string, oldQuantity: string, newQuantity: string, language: string = 'en'): string {
   const oldNum = parseFloat(oldQuantity);
   const newNum = parseFloat(newQuantity);
   
@@ -242,10 +252,9 @@ export function replaceQuantities(text: string, oldQuantity: string, newQuantity
     return text.replace(regex, newQuantity);
   }
   
-  // Convert numbers to text form for better MWP readability
-  const oldText = numberToWord(oldNum);
-  // Ensure replacement word is lower case for inline prose
-  const newText = numberToWord(newNum).toLowerCase();
+  // Convert numbers to text form for better MWP readability (language-aware)
+  const oldText = numberToWord(oldNum, language);
+  const newText = numberToWord(newNum, language);
   
   // Replace both numeric and text forms
   let updatedText = text;

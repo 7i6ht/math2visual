@@ -14,6 +14,7 @@ import type { ComponentMapping } from "@/types/visualInteraction";
 import type { ParsedOperation } from "@/utils/dsl-parser";
 import { useHighlightingContext } from "@/contexts/HighlightingContext";
 import { useDSLContext } from "@/contexts/DSLContext";
+import { useTranslation } from "react-i18next";
 
 interface VisualLanguageFormProps {
   onResult: (vl: string, svgFormal: string | null, svgIntuitive: string | null, parsedDSL: ParsedOperation, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], mwp?: string, formula?: string, componentMappings?: ComponentMapping) => void;
@@ -30,6 +31,7 @@ export const VisualLanguageForm = ({
   formula,
   isDisabled = false,
 }: VisualLanguageFormProps) => {
+  const { t } = useTranslation();
   const { dslHighlightRanges, currentDSLPath, setCurrentDSLPath, clearHighlightingState } = useHighlightingContext();
   const { componentMappings: contextMappings, formattedDSL } = useDSLContext();
   const effectiveMappings = useMemo(() => (contextMappings ?? {}) as ComponentMapping, [contextMappings, formattedDSL]);
@@ -64,7 +66,9 @@ export const VisualLanguageForm = ({
 
   return (
     <div className="flex flex-col visual-language-form">
-      <h2 className="responsive-text-font-size font-semibold mb-3 flex-shrink-0">Visual Language</h2>
+      <h2 className="responsive-text-font-size font-semibold mb-3 flex-shrink-0">
+        {t("forms.visualLanguageTitle")}
+      </h2>
       
       <Form {...form}>
         <div className={`flex flex-col ${isDisabled ? 'pointer-events-none overflow-hidden' : ''}`}>

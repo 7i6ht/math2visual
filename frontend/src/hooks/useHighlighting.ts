@@ -5,6 +5,7 @@ import { createSentencePatterns, findSentencePosition, findQuantityInText, split
 import { MAX_ITEM_DISPLAY } from '../config/api';
 import { useDSLContext } from '@/contexts/DSLContext';
 import { useHighlightingContext } from '@/contexts/HighlightingContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface UseHighlightingProps {
   svgRef: React.RefObject<HTMLDivElement | null>;
@@ -28,6 +29,7 @@ export const useHighlighting = ({
 }: UseHighlightingProps) => {
   const { componentMappings } = useDSLContext();
   const { setDslHighlightRanges: onDSLRangeHighlight, setMwpHighlightRanges: onMWPRangeHighlight, setFormulaHighlightRanges, currentDSLPath, currentTargetElement } = useHighlightingContext();
+  const { language } = useLanguage();
   const mappings: ComponentMapping = useMemo(() => (componentMappings || {}) as ComponentMapping, [componentMappings]);
 
 
@@ -90,7 +92,7 @@ export const useHighlighting = ({
     // Find sentence containing the second operand value using utility functions
     const sentences = splitIntoSentences(mwpValue);
     const numericQuantity = secondOperandQuantity.toString();
-    const wordQuantity = numberToWord(parseInt(secondOperandQuantity.toString()));
+    const wordQuantity = numberToWord(parseInt(secondOperandQuantity.toString()), language);
     
     for (let i = 0; i < sentences.length; i++) {
       const sentence = sentences[i].trim();
@@ -109,7 +111,7 @@ export const useHighlighting = ({
         }
       }
     }
-  }, [mwpValue, mappings, onMWPRangeHighlight]);
+  }, [mwpValue, mappings, onMWPRangeHighlight, language]);
 
   /**
    * Trigger highlighting for box/container components
@@ -136,7 +138,7 @@ export const useHighlighting = ({
         }
         
         // Use utility function to create sentence patterns
-        const sentencePatterns = createSentencePatterns(entityName, quantity, containerName);
+        const sentencePatterns = createSentencePatterns(entityName, quantity, containerName, language);
 
         for (let i = 0; i < sentencePatterns.length; i++) {
           const pattern = sentencePatterns[i] as RegExp;
@@ -153,7 +155,7 @@ export const useHighlighting = ({
         onMWPRangeHighlight([]);
       }
     });
-  }, [triggerHighlight, mappings, mwpValue, onMWPRangeHighlight]);
+  }, [triggerHighlight, mappings, mwpValue, onMWPRangeHighlight, language]);
 
   /**
    * Trigger highlighting for text/quantity components
@@ -195,16 +197,16 @@ export const useHighlighting = ({
     onDSLRangeHighlight(mapping?.dsl_range ? [mapping.dsl_range] : []);
     
     if (quantity && mwpValue) {
-      const positions = findQuantityInText(mwpValue, quantity);
+      const positions = findQuantityInText(mwpValue, quantity, language);
       onMWPRangeHighlight(positions ?? []);
     }
 
     // Highlight in formula (optional) — analogous to MWP highlighting
     if (quantity && formulaValue) {
-      const positions = findQuantityInText(formulaValue, quantity);
+      const positions = findQuantityInText(formulaValue, quantity, language);
       setFormulaHighlightRanges(positions ?? []);
     }
-  }, [svgRef, mwpValue, onMWPRangeHighlight, onDSLRangeHighlight, formulaValue, setFormulaHighlightRanges, mappings]);
+  }, [svgRef, mwpValue, onMWPRangeHighlight, onDSLRangeHighlight, formulaValue, setFormulaHighlightRanges, mappings, language]);
 
   /**
    * Trigger highlighting for text/quantity component
@@ -220,16 +222,16 @@ export const useHighlighting = ({
     onDSLRangeHighlight(mapping?.dsl_range ? [mapping.dsl_range] : []);
     
     if (quantity && mwpValue) {
-      const positions = findQuantityInText(mwpValue, quantity);
+      const positions = findQuantityInText(mwpValue, quantity, language);
       onMWPRangeHighlight(positions ?? []);
     }
 
     // Highlight in formula (optional) — analogous to MWP highlighting
     if (quantity && formulaValue) {
-      const positions = findQuantityInText(formulaValue, quantity);
+      const positions = findQuantityInText(formulaValue, quantity, language);
       setFormulaHighlightRanges(positions ?? []);
     }
-  }, [mwpValue, onMWPRangeHighlight, onDSLRangeHighlight, formulaValue, setFormulaHighlightRanges]);
+  }, [mwpValue, onMWPRangeHighlight, onDSLRangeHighlight, formulaValue, setFormulaHighlightRanges, language]);
 
   /**
    * Trigger highlighting for operation components
@@ -257,10 +259,10 @@ export const useHighlighting = ({
     }
     
     const textValue = mapping.property_value;
-    const ranges = findAllNameOccurrencesInText(textValue, mwpValue);
+    const ranges = findAllNameOccurrencesInText(textValue, mwpValue, language);
     
     onMWPRangeHighlight(ranges);
-  }, [mwpValue, onMWPRangeHighlight]);
+  }, [mwpValue, onMWPRangeHighlight, language]);
 
   /**
    * Trigger highlighting for entity_type components

@@ -148,19 +148,24 @@ export function detectDSLChanges(oldParsedDSL: ParsedOperation, newParsedDSL: Pa
 /**
  * Update MWP text and optional formula based on DSL changes
  * Formula is only updated based on entity_quantity changes
+ * @param mwpText - The MWP text to update
+ * @param formula - The formula to update (optional)
+ * @param changes - Array of DSL changes to apply
+ * @param language - Language code for pluralization (default: 'en')
  */
 export function updateMWPInput(
   mwpText: string, 
   formula: string | null | undefined, 
-  changes: DSLChange[]
+  changes: DSLChange[],
+  language: string = 'en'
 ): { mwp: string; formula: string | null | undefined } {
   let updatedMWP = mwpText;
   let updatedFormula = formula;
   
   const handlers: Record<DSLChange["type"], (t: string, o: string, n: string) => string> = {
-    entity_name: (t, o, n) => replaceEntityNames(t, o, n),
+    entity_name: (t, o, n) => replaceEntityNames(t, o, n, language),
     entity_type: (t) => t, // entity_type changes should not update MWP text
-    entity_quantity: (t, o, n) => replaceQuantities(t, o, n),
+    entity_quantity: (t, o, n) => replaceQuantities(t, o, n, language),
     container_name: (t, o, n) => replaceContainerNames(t, o, n),
   };
 
@@ -176,7 +181,7 @@ export function updateMWPInput(
   if (updatedFormula) {
     const quantityChanges = changesToApply.filter(({ type }) => type === 'entity_quantity');
     quantityChanges.forEach(({ oldValue, newValue }) => {
-      updatedFormula = replaceQuantities(updatedFormula!, oldValue, newValue);
+      updatedFormula = replaceQuantities(updatedFormula!, oldValue, newValue, language);
     });
   }
   

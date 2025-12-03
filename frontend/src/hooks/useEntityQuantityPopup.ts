@@ -5,6 +5,7 @@ import { useHighlightingContext } from '@/contexts/HighlightingContext';
 import { DSLFormatter } from '@/utils/dsl-formatter';
 import { trackOpenPopup, isAnalyticsEnabled } from '@/services/analyticsTracker';
 import { replaceQuantities } from '@/utils/mwpUtils';
+import { useLanguage } from '@/contexts/LanguageContext';
 import type { ParsedOperation, ParsedEntity } from '@/utils/dsl-parser';
 import type { ComponentMapping } from '@/types/visualInteraction';
 
@@ -39,6 +40,7 @@ export const useEntityQuantityPopup = ({
   const { parsedDSL } = useDSLContext();
   const { componentMappings } = useDSLContext();
   const { setSelectedElement, clearHighlightingState } = useHighlightingContext();
+  const { language } = useLanguage();
   const [popupState, setPopupState] = useState<EntityQuantityPopupState>({
     isOpen: false,
     dslPath: '',
@@ -107,8 +109,8 @@ export const useEntityQuantityPopup = ({
       // Update MWP and formula with the quantity change
       const oldQuantity = popupState.initialQuantity.toString();
       const newQuantityStr = newQuantity.toString();
-      const updatedMWP = replaceQuantities(mwp, oldQuantity, newQuantityStr);
-      const updatedFormula = formula ? replaceQuantities(formula, oldQuantity, newQuantityStr) : formula;
+      const updatedMWP = replaceQuantities(mwp, oldQuantity, newQuantityStr, language);
+      const updatedFormula = formula ? replaceQuantities(formula, oldQuantity, newQuantityStr, language) : formula;
 
       // Generate new visuals with updated DSL
       const abortController = new AbortController();
@@ -132,7 +134,7 @@ export const useEntityQuantityPopup = ({
       console.error('Entity quantity update failed:', error);
       throw error;
     }
-  }, [parsedDSL, popupState.dslPath, popupState.initialQuantity, mwp, formula, onVisualsUpdate]);
+  }, [parsedDSL, popupState.dslPath, popupState.initialQuantity, mwp, formula, onVisualsUpdate, language]);
 
   return {
     popupState,

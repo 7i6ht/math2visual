@@ -1,4 +1,5 @@
 import React, { useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { HighlightableTextarea } from "@/components/ui/highlightable-textarea";
 import { HighlightableInput } from "@/components/ui/highlightable-input";
@@ -44,6 +45,7 @@ export const MathProblemForm = ({
   isDisabled = false,
   showHintInput = false,
 }: MathProblemFormProps) => {
+  const { t } = useTranslation();
   const { mwpHighlightRanges, formulaHighlightRanges, clearHighlightingState } = useHighlightingContext();
   const analyticsEnabled = isAnalyticsEnabled();
 
@@ -123,7 +125,7 @@ export const MathProblemForm = ({
               <FormControl>
                 <HighlightableTextarea
                   className={"w-full responsive-text-font-size"}
-                  placeholder="Enter your math word problem…"
+                  placeholder={t("forms.mwpPlaceholder")}
                   rows={rows}
                   spellCheck={false}
                   highlightRanges={mwpHighlightRanges}
@@ -155,7 +157,7 @@ export const MathProblemForm = ({
               <FormControl>
                 <HighlightableInput
                   className={"w-full responsive-text-font-size"}
-                  placeholder="9 + 7 = 16"
+                  placeholder={t("forms.formulaPlaceholder")}
                   spellCheck={false}
                   highlightRanges={formulaHighlightRanges}
                   disabled={isDisabled}
@@ -188,7 +190,7 @@ export const MathProblemForm = ({
                 <FormControl>
                   <Textarea
                     className="w-full ring-offset-background responsive-text-font-size"
-                    placeholder="Does not look as expected? Then add more hints about the relationships between the visual elements inside here ..."
+                    placeholder={t("forms.hintPlaceholder")}
                     rows={6.5}
                     spellCheck={false}
                     disabled={isDisabled}
@@ -218,7 +220,7 @@ export const MathProblemForm = ({
               type="submit"
               className="min-w-[200px] bg-primary !text-primary-foreground !responsive-text-font-size button-responsive-size px-6 py-3 md:px-8 md:py-4 lg:px-10 lg:py-5 xl:px-12 xl:py-6"
             >
-              Generate
+              {t("forms.generateButton")}
             </Button>
           )}
         </div>

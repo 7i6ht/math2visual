@@ -6,6 +6,7 @@ import { validateFormatAsync } from '@/utils/validation';
 import { SVGDatasetService } from '@/api_services/svgDataset';
 import { BasePopup } from './BasePopup.tsx';
 import { trackSVGUploadPopupType, trackPopupSubmit, trackPopupCancel, trackElementClick, isAnalyticsEnabled } from '@/services/analyticsTracker';
+import { useTranslation } from 'react-i18next';
 
 interface SVGUploadPopupProps {
   onClose: () => void;
@@ -16,6 +17,7 @@ export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
   onClose,
   onUpload,
 }) => {
+  const { t } = useTranslation();
   const [filename, setFilename] = useState('');
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -65,7 +67,7 @@ export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
   // Handle upload
   const handleUpload = async () => {
     if (!uploadFile || !filename.trim()) {
-      setError('Please select a file and enter a name');
+      setError(t("svg.uploadPopup.selectFileAndName"));
       return;
     }
 
@@ -142,7 +144,7 @@ export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
               fileInputRef.current?.click();
             }}
             className="absolute left-1.5 sm:left-2 md:left-2 lg:left-2.5 xl:left-3 2xl:left-3.5 3xl:left-4 4xl:left-4.5 5xl:left-3.5 6xl:left-4 7xl:left-4.5 top-1/2 transform -translate-y-1/2 responsive-smaller-icon-font-size text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 rounded transition-colors duration-200 flex items-center justify-center p-1.5 sm:p-2"
-            title="Choose SVG file"
+            title={t("svg.uploadPopup.chooseFile")}
             disabled={isUploading}
           >
             <Upload className="responsive-smaller-icon-font-size" />
@@ -156,7 +158,7 @@ export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
                 trackSVGUploadPopupType(e.target.value);
               }
             }}
-            placeholder="Enter name"
+            placeholder={t("svg.uploadPopup.enterName")}
             spellCheck={false}
             className="!pl-10 sm:!pl-12 md:!pl-13 lg:!pl-14 xl:!pl-15 2xl:!pl-17 3xl:!pl-18 4xl:!pl-19 5xl:!pl-24 6xl:!pl-28 7xl:!pl-30 !pr-1 rounded-r-none border-r-0 popup-button-responsive-height responsive-text-font-size focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation"
             disabled={isUploading}
@@ -166,7 +168,7 @@ export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
           {uploadFile && (
             <button
               className="popup-button-responsive-height w-9 text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 transition-colors duration-200 flex items-center justify-center touch-manipulation"
-              title={`View ${uploadFile.name} in new tab`}
+              title={t("svg.uploadPopup.viewInNewTab", { filename: uploadFile.name })}
               onClick={() => {
                 if (analyticsEnabled) {
                   trackElementClick(`svg_upload_preview_click`, uploadFile.name);
@@ -227,7 +229,7 @@ export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
 
       {/* Upload status */}
       {isUploading && (
-        <div className="responsive-text-font-size text-blue-600 mt-1">Uploading...</div>
+        <div className="responsive-text-font-size text-blue-600 mt-1">{t("svg.uploading")}</div>
       )}
     </BasePopup>
   );

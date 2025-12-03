@@ -24,11 +24,32 @@ def generate_response(prompt, model):
             logger.warning(f"Error {e} occurred while generating response. Retrying in 2 seconds...")
             time.sleep(2)
 
-def generate_prompt(mwp, formula=None, hint=None):
+def generate_prompt(mwp, formula=None, hint=None, language='en'):
+    """
+    Generate prompt for visual language conversion.
+    
+    Args:
+        mwp: Math word problem text
+        formula: Optional formula
+        hint: Optional hint
+        language: Language code (e.g., 'en', 'de', 'es', 'fr'). Defaults to 'en'.
+    
+    Returns:
+        Formatted prompt string
+    """
+    # Language-specific instructions
+    language_instructions = {
+        'en': "You are an expert at converting math story problem into a structured 'visual language'. Your task is to write a visual language expression based on the given math word problem.",
+        'de': "Sie sind ein Experte für die Umwandlung von mathematischen Textaufgaben in eine strukturierte 'visuelle Sprache'. Ihre Aufgabe ist es, einen visuellen Sprachausdruck basierend auf der gegebenen mathematischen Textaufgabe zu schreiben.",
+    }
+    
+    # Default to English if language not supported
+    intro_text = language_instructions.get(language, language_instructions['en'])
+    
     prompt_base = (f'''
-    You are an expert at converting math story problem into a structured 'visual language'. Your task is to write a visual language expression based on the given math word problem. 
+    {intro_text} 
     **Background information**
-        You shoud use the following fixed format for each problem:
+        You should use the following fixed format for each problem:
         <operation>(
         container1[entity_name: <entity name>, entity_type: <entity type>, entity_quantity: <number of this entity in this container>, container_name: <container name>, container_type: <container type>, attr_name: <attribute name>, attr_type: <attribute type>],
         container2[entity_name: <entity name>, entity_type: <entity type>, entity_quantity: <number of this entity in this container>, container_name: <container name>, container_type: <container type>, attr_name: <attribute name>, attr_type: <attribute type>],
@@ -197,8 +218,21 @@ def generate_prompt(mwp, formula=None, hint=None):
     return prompt
 
 
-def generate_visual_language(mwp, formula=None, hint=None, model='o3-mini'):
-    visual_language = generate_response(generate_prompt(mwp, formula, hint), model=model)
+def generate_visual_language(mwp, formula=None, hint=None, model='o3-mini', language='en'):
+    """
+    Generate visual language from math word problem.
+    
+    Args:
+        mwp: Math word problem text
+        formula: Optional formula
+        hint: Optional hint
+        model: GPT model to use (default: 'o3-mini')
+        language: Language code (e.g., 'en', 'de', 'es', 'fr'). Defaults to 'en'.
+    
+    Returns:
+        Generated visual language string
+    """
+    visual_language = generate_response(generate_prompt(mwp, formula, hint, language), model=model)
     return visual_language
 
 # main function

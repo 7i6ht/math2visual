@@ -6,8 +6,10 @@ import type { ParsedOperation } from "@/utils/dsl-parser";
 import { useDSLContext } from "@/contexts/DSLContext";
 import { generationService as service } from "@/api_services/generation";
 import { trackGenerationStart, trackGenerationComplete, trackElementClick, isAnalyticsEnabled } from "@/services/analyticsTracker";
+import { useTranslation } from "react-i18next";
 
 export const useAppState = () => {
+  const { t } = useTranslation();
   const { setGenerationResult, formattedDSL } = useDSLContext();
   const currentAbortFunctionRef = useRef<(() => void) | undefined>(undefined);
   const [state, setState] = useState<AppState>({
@@ -119,13 +121,13 @@ export const useAppState = () => {
     const generateToastId = toastId || `generate-${Date.now()}`;
 
     if (!formattedDSL) {
-      toast.warning('No visual language available for regeneration');
+      toast.warning(t("app.noVisualLanguageForRegeneration"));
       return;
     }
     
     try {
       setUploadGenerating(true);
-      toast.loading('Regenerating visualizations...', { id: generateToastId });
+      toast.loading(t("app.regeneratingVisualizations"), { id: generateToastId });
       
       const result = await service.generateFromDSL(formattedDSL);
       
@@ -146,24 +148,24 @@ export const useAppState = () => {
       
       // Check if regeneration was successful
       if (result.svg_formal || result.svg_intuitive) {
-        toast.success('Visualizations generated successfully', { id: generateToastId });
+        toast.success(t("app.visualizationsGeneratedSuccessfully"), { id: generateToastId });
       } else if (result.missing_svg_entities && result.missing_svg_entities.length > 0) {
-        toast.warning('Another SVG file is still missing', { 
+        toast.warning(t("app.anotherSVGFileStillMissing"), { 
           id: generateToastId,
-          description: `Missing: ${result.missing_svg_entities[0]}` 
+          description: t("app.missing", { entity: result.missing_svg_entities[0] })
         });
       } else {
-        toast.error('Generation failed', { 
+        toast.error(t("app.generationFailed"), { 
           id: generateToastId,
-          description: 'Unable to generate visualizations' 
+          description: t("app.unableToGenerateVisualizations")
         });
       }
     } catch (error) {
       console.error('Generation failed:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Generation failed';
+      const errorMessage = error instanceof Error ? error.message : t("app.generationFailed");
       toast.error(errorMessage, { 
         id: generateToastId,
-        description: 'Failed to regenerate visualizations'
+        description: t("app.failedToRegenerateVisualizations")
       });
     } finally {
       setUploadGenerating(false);
@@ -205,7 +207,7 @@ export const useAppState = () => {
       // Keep mwp and formula values intact
     }));
 
-    toast.info('Generation cancelled');
+    toast.info(t("svg.generationCancelled"));
   }, []);
 
   // Memoize the return object to prevent unnecessary re-renders
