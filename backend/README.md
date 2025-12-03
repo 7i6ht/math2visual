@@ -291,12 +291,12 @@ Serve SVG files from the dataset.
 **Response:** SVG file content with appropriate headers
 
 #### `POST /api/svg-dataset/generate`
-Generate an SVG icon using AI (Gemini) based on an entity name.
+Generate an SVG icon using AI (Gemini) based on an entity type.
 
 **Request Body:**
 ```json
 {
-  "entity_name": "apple"
+  "entity_type": "apple"
 }
 ```
 
@@ -304,7 +304,7 @@ Generate an SVG icon using AI (Gemini) based on an entity name.
 ```bash
 curl -X POST http://localhost:5000/api/svg-dataset/generate \
   -H "Content-Type: application/json" \
-  -d '{"entity_name": "apple"}'
+  -d '{"entity_type": "apple"}'
 ```
 
 **Response (Success):**
@@ -320,7 +320,7 @@ curl -X POST http://localhost:5000/api/svg-dataset/generate \
 ```json
 {
   "success": false,
-  "error": "Entity name is required"
+  "error": "Entity type is required"
 }
 ```
 
