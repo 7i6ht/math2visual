@@ -52,7 +52,7 @@ msgstr ""
 
 #: app/api/routes/generation.py:108
 msgid "Visual Language parse error."
-msgstr ""
+msgstr "Error while parsing Visual Language. Retrying might help."
 
 #: app/api/routes/generation.py:126
 #, fuzzy, python-format

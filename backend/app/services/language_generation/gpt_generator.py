@@ -349,20 +349,22 @@ def generate_prompt(mwp, formula=None, hint=None, language='en'):
         mwp: Math word problem text
         formula: Optional formula
         hint: Optional hint
-        language: Language code ('en', 'de'). Defaults to 'en'.
+        language: Language code ('en', 'de') or Locale. Defaults to 'en'.
     
     Returns:
         Formatted prompt string
     """
-    
-    prompt_base = PROMPT_TRANSLATIONS[language]['prompt_base']
-    task = PROMPT_TRANSLATIONS[language]['task']
-    understand_requirement = PROMPT_TRANSLATIONS[language]['understand_requirement']
-    formula_note = PROMPT_TRANSLATIONS[language]['formula_note']
-    result_format = PROMPT_TRANSLATIONS[language]['result_format']
-    question = PROMPT_TRANSLATIONS[language]['question']
-    formula_label = PROMPT_TRANSLATIONS[language]['formula']
-    hint_prefix = PROMPT_TRANSLATIONS[language]['hint_prefix']
+
+    language_key = "en" # instead of 'language.language' for now, because it does not seem to work as well with German, original idea was that '_name' property values should be in German for German
+
+    prompt_base = PROMPT_TRANSLATIONS[language_key]['prompt_base']
+    task = PROMPT_TRANSLATIONS[language_key]['task']
+    understand_requirement = PROMPT_TRANSLATIONS[language_key]['understand_requirement']
+    formula_note = PROMPT_TRANSLATIONS[language_key]['formula_note']
+    result_format = PROMPT_TRANSLATIONS[language_key]['result_format']
+    question = PROMPT_TRANSLATIONS[language_key]['question']
+    formula_label = PROMPT_TRANSLATIONS[language_key]['formula']
+    hint_prefix = PROMPT_TRANSLATIONS[language_key]['hint_prefix']
     if formula:
         prompt_instruct = (f'''**{task}**
         {understand_requirement} {formula_note}

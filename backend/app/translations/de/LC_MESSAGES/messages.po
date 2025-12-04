@@ -50,7 +50,7 @@ msgstr ""
 
 #: app/api/routes/generation.py:108
 msgid "Visual Language parse error."
-msgstr "Fehler beim Parsen der visuellen Sprache."
+msgstr "Fehler beim Parsen der visuellen Sprache. Ein weiterer Versuch könnte hilfreich sein."
 
 #: app/api/routes/generation.py:126
 #, python-format
