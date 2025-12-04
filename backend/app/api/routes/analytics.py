@@ -9,7 +9,7 @@ import os
 import base64
 import logging
 
-from app.config.database import get_db
+from app.config.database import db_session
 from app.models.user_actions import UserSession, Action, Screenshot, CursorPosition
 
 analytics_bp = Blueprint('analytics', __name__)
@@ -62,17 +62,16 @@ def create_error_response(message: str, status_code: int = 400) -> tuple:
 
 def get_or_create_session(session_id: str, user_agent: Optional[str] = None) -> int:
     """Get existing session or create a new one. Returns the session database ID."""
-    db = next(get_db())
-    try:
+    with db_session() as db:
         # Try to get existing session
         session = db.query(UserSession).filter(UserSession.session_id == session_id).first()
-        
+
         if session:
             # Update last activity
             session.last_activity = datetime.utcnow()
             db.commit()
             return session.id
-        
+
         # Create new session
         new_session = UserSession(
             session_id=session_id,
@@ -82,9 +81,6 @@ def get_or_create_session(session_id: str, user_agent: Optional[str] = None) -> 
         db.commit()
         db.refresh(new_session)
         return new_session.id
-        
-    finally:
-        db.close()
 
 
 @analytics_bp.route('/api/analytics/session', methods=['POST'])
@@ -100,8 +96,7 @@ def create_session():
         )
         
         # Get the session details for response
-        db = next(get_db())
-        try:
+        with db_session() as db:
             session = db.query(UserSession).filter(UserSession.id == session_id).first()
             if not session:
                 return create_error_response('Session not found', 404)
@@ -112,8 +107,6 @@ def create_session():
                 'created_at': session.created_at.isoformat(),
                 'last_activity': session.last_activity.isoformat()
             })
-        finally:
-            db.close()
         
     except ValueError as e:
         return create_error_response(str(e), 400)
@@ -170,8 +163,7 @@ def record_actions_batch():
         )
         
         # Bulk insert actions
-        db = next(get_db())
-        try:
+        with db_session() as db:
             action_objects = [Action(**action_data) for action_data in actions_to_create]
             db.bulk_save_objects(action_objects)
             db.commit()
@@ -181,9 +173,6 @@ def record_actions_batch():
                 'actions_recorded': len(action_objects),
                 'message': f'Successfully recorded {len(action_objects)} actions'
             })
-            
-        finally:
-            db.close()
             
     except ValueError as e:
         return create_error_response(str(e), 400)
@@ -225,8 +214,7 @@ def upload_screenshot():
             f.write(image_bytes)
         
         # Create database record
-        db = next(get_db())
-        try:
+        with db_session() as db:
             screenshot = Screenshot(
                 session_id=session_id,
                 file_path=file_path,
@@ -244,9 +232,6 @@ def upload_screenshot():
                 'filename': filename,
                 'created_at': screenshot.created_at.isoformat()
             })
-            
-        finally:
-            db.close()
             
     except ValueError as e:
         return create_error_response(str(e), 400)
@@ -289,8 +274,7 @@ def record_cursor_positions_batch():
         )
         
         # Bulk insert positions
-        db = next(get_db())
-        try:
+        with db_session() as db:
             position_objects = [CursorPosition(**pos_data) for pos_data in positions_to_create]
             db.bulk_save_objects(position_objects)
             db.commit()
@@ -300,9 +284,6 @@ def record_cursor_positions_batch():
                 'positions_recorded': len(position_objects),
                 'message': f'Successfully recorded {len(position_objects)} cursor positions'
             })
-            
-        finally:
-            db.close()
             
     except ValueError as e:
         return create_error_response(str(e), 400)

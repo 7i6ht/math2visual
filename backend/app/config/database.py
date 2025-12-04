@@ -2,10 +2,12 @@
 Database configuration and connection management for Math2Visual.
 """
 import os
+from contextlib import contextmanager
+from typing import Generator, Iterator
+
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.pool import StaticPool
-from typing import Generator
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -59,6 +61,20 @@ def get_db() -> Generator[Session, None, None]:
         yield db
     finally:
         db.close()
+
+
+@contextmanager
+def db_session() -> Iterator[Session]:
+    """Context manager that wraps get_db() for safe session handling.
+
+    This ensures the generator's cleanup logic is always executed exactly once.
+    """
+    db_generator = get_db()
+    db = next(db_generator)
+    try:
+        yield db
+    finally:
+        db_generator.close()
 
 
 def init_database():
