@@ -367,7 +367,7 @@ def generate_prompt(mwp, formula=None, hint=None, language='en'):
         prompt_instruct = (f'''**{task}**
         {understand_requirement} {formula_note}
 
-        {}
+        {result_format}
         {question}: {mwp}
         {formula}: {formula}
 
