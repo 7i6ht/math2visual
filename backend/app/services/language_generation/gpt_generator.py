@@ -355,25 +355,25 @@ def generate_prompt(mwp, formula=None, hint=None, language='en'):
         Formatted prompt string
     """
     
-    prompt_base = PROMT_TRANSLATIONS[language]['prompt_base']
-    task = PROMT_TRANSLATIONS[language]['task']
-    understand_requirement = PROMT_TRANSLATIONS[language]['understand_requirement']
-    formula_note = PROMT_TRANSLATIONS[language]['formula_note']
-    result_format = PROMT_TRANSLATIONS[language]['result_format']
-    question = PROMT_TRANSLATIONS[language]['question']
-    formula = PROMT_TRANSLATIONS[language]['formula']
-    hint_prefix = PROMT_TRANSLATIONS[language]['hint_prefix']
+    prompt_base = PROMPT_TRANSLATIONS[language]['prompt_base']
+    task = PROMPT_TRANSLATIONS[language]['task']
+    understand_requirement = PROMPT_TRANSLATIONS[language]['understand_requirement']
+    formula_note = PROMPT_TRANSLATIONS[language]['formula_note']
+    result_format = PROMPT_TRANSLATIONS[language]['result_format']
+    question = PROMPT_TRANSLATIONS[language]['question']
+    formula_label = PROMPT_TRANSLATIONS[language]['formula']
+    hint_prefix = PROMPT_TRANSLATIONS[language]['hint_prefix']
     if formula:
         prompt_instruct = (f'''**{task}**
         {understand_requirement} {formula_note}
 
         {result_format}
         {question}: {mwp}
-        {formula}: {formula}
+        {formula_label}: {formula}
 
         {(hint_prefix + hint) if (hint and len(str(hint).strip())>0) else ''}''')
     else:
-        prompt_instruct = (f'''**Task**
+        prompt_instruct = (f'''**{task}**
         {understand_requirement} 
 
         {result_format}
