@@ -140,7 +140,7 @@ export class SVGDatasetService {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('expected_filename', expectedFilename);
-      
+
       const response = await fetch(`${API_BASE_URL}/api/svg-dataset/upload`, {
         method: 'POST',
         headers: {

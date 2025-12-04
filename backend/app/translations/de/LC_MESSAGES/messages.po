@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-12-03 21:56+0100\n"
+"POT-Creation-Date: 2025-12-04 00:29+0100\n"
 "PO-Revision-Date: 2025-12-03 21:57+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: de\n"
@@ -38,52 +38,58 @@ msgstr "Anfrage zu groß"
 msgid "Empty Visual Language provided."
 msgstr "Leere visuelle Sprache bereitgestellt."
 
-#: app/api/routes/generation.py:77
+#: app/api/routes/generation.py:78
 msgid "Please provide a math word problem (MWP)."
 msgstr "Bitte geben Sie eine Mathe-Textaufgabe ein."
 
-#: app/api/routes/generation.py:84
+#: app/api/routes/generation.py:85
 msgid "Did not get Visual Language from AI. Please try again."
-msgstr "Visuelle Sprache konnte nicht von der KI erhalten werden. Bitte versuchen Sie es erneut."
+msgstr ""
+"Visuelle Sprache konnte nicht von der KI erhalten werden. Bitte versuchen"
+" Sie es erneut."
 
-#: app/api/routes/generation.py:107
+#: app/api/routes/generation.py:108
 msgid "Visual Language parse error."
 msgstr "Fehler beim Parsen der visuellen Sprache."
 
-#: app/api/routes/generation.py:125
+#: app/api/routes/generation.py:126
 #, python-format
 msgid "Could not generate formal visualization: %(error)s"
 msgstr "Formale Visualisierung konnte nicht generiert werden: %(error)s"
 
-#: app/api/routes/generation.py:127
+#: app/api/routes/generation.py:128
 msgid "Could not generate formal visualization. Retrying might help."
-msgstr "Formale Visualisierung konnte nicht generiert werden. Ein erneuter Versuch könnte helfen."
+msgstr ""
+"Formale Visualisierung konnte nicht generiert werden. Ein erneuter "
+"Versuch könnte helfen."
 
-#: app/api/routes/generation.py:129
+#: app/api/routes/generation.py:130
 #, python-format
 msgid "Formal generation error: %(error)s"
 msgstr "Fehler bei der formalen Generierung: %(error)s"
 
-#: app/api/routes/generation.py:131
+#: app/api/routes/generation.py:132
 #, python-format
 msgid "Unexpected formal generation error: %(error)s"
 msgstr "Unerwarteter Fehler bei der formalen Generierung: %(error)s"
 
-#: app/api/routes/generation.py:147
+#: app/api/routes/generation.py:148
 #, python-format
 msgid "Could not generate intuitive visualization: %(error)s"
 msgstr "Intuitive Visualisierung konnte nicht generiert werden: %(error)s"
 
-#: app/api/routes/generation.py:149
+#: app/api/routes/generation.py:150
 msgid "Could not generate intuitive visualization. Retrying might help."
-msgstr "Intuitive Visualisierung konnte nicht generiert werden. Ein erneuter Versuch könnte helfen."
+msgstr ""
+"Intuitive Visualisierung konnte nicht generiert werden. Ein erneuter "
+"Versuch könnte helfen."
 
-#: app/api/routes/generation.py:151
+#: app/api/routes/generation.py:152
 #, python-format
 msgid "Intuitive generation error: %(error)s"
 msgstr "Fehler bei der intuitiven Generierung: %(error)s"
 
-#: app/api/routes/generation.py:153
+#: app/api/routes/generation.py:154
 #, python-format
 msgid "Unexpected intuitive generation error: %(error)s"
 msgstr "Unerwarteter Fehler bei der intuitiven Generierung: %(error)s"
@@ -227,92 +233,429 @@ msgid "Failed to get antivirus status: %(error)s"
 msgstr "Antivirus-Status konnte nicht abgerufen werden: %(error)s"
 
 # Generator error messages (from visual_generation modules)
-#: app/services/visual_generation/formal_generator.py
-#, python-format
-msgid "Cannot generate visual: SVG file not found for %(base_name)s."
-msgstr "Visualisierung konnte nicht generiert werden: SVG-Datei für %(base_name)s nicht gefunden."
+#~ msgid "Cannot generate visual: SVG file not found for %(base_name)s."
+#~ msgstr ""
+#~ "Visualisierung konnte nicht generiert werden:"
+#~ " SVG-Datei für %(base_name)s nicht "
+#~ "gefunden."
 
-#: app/services/visual_generation/intuitive_generator.py
-msgid "No visual can be generated because of multiplier has entity quantity higher than 12."
-msgstr "Keine Visualisierung kann generiert werden, da der Multiplikator eine Entitätsmenge höher als 12 hat."
+#~ msgid ""
+#~ "No visual can be generated because "
+#~ "of multiplier has entity quantity higher"
+#~ " than 12."
+#~ msgstr ""
+#~ "Keine Visualisierung kann generiert werden,"
+#~ " da der Multiplikator eine Entitätsmenge"
+#~ " höher als 12 hat."
 
-#: app/services/visual_generation/intuitive_generator.py
-#, python-format
-msgid "SVG file not found for %(base_name)s."
-msgstr "SVG-Datei für %(base_name)s nicht gefunden."
+#~ msgid "SVG file not found for %(base_name)s."
+#~ msgstr "SVG-Datei für %(base_name)s nicht gefunden."
 
-#: app/services/visual_generation/intuitive_generator.py
-#, python-format
-msgid "Cannot find figure path for attribute type: %(attr_type)s."
-msgstr "Figuren-Pfad für Attributtyp nicht gefunden: %(attr_type)s."
+#~ msgid "Cannot find figure path for attribute type: %(attr_type)s."
+#~ msgstr "Figuren-Pfad für Attributtyp nicht gefunden: %(attr_type)s."
 
-#: app/services/visual_generation/intuitive_generator.py
-msgid "Division requires exactly two containers."
-msgstr "Division erfordert genau zwei Container."
+#~ msgid "Division requires exactly two containers."
+#~ msgstr "Division erfordert genau zwei Container."
 
-#: app/services/visual_generation/intuitive_generator.py
-msgid "One or both of the entity quantities are not integers."
-msgstr "Eine oder beide Entitätsmengen sind keine ganzen Zahlen."
+#~ msgid "One or both of the entity quantities are not integers."
+#~ msgstr "Eine oder beide Entitätsmengen sind keine ganzen Zahlen."
 
-#: app/services/visual_generation/intuitive_generator.py
-msgid "Cannot divide by zero or a negative entity quantity."
-msgstr "Kann nicht durch null oder eine negative Entitätsmenge teilen."
+#~ msgid "Cannot divide by zero or a negative entity quantity."
+#~ msgstr "Kann nicht durch null oder eine negative Entitätsmenge teilen."
 
-#: app/services/visual_generation/intuitive_generator.py
-#, python-format
-msgid "Cannot generate visual: %(dividend)s cannot be evenly divided by %(divisor)s."
-msgstr "Visualisierung konnte nicht generiert werden: %(dividend)s kann nicht gleichmäßig durch %(divisor)s geteilt werden."
+#~ msgid ""
+#~ "Cannot generate visual: %(dividend)s cannot"
+#~ " be evenly divided by %(divisor)s."
+#~ msgstr ""
+#~ "Visualisierung konnte nicht generiert werden:"
+#~ " %(dividend)s kann nicht gleichmäßig durch"
+#~ " %(divisor)s geteilt werden."
 
-#: app/services/visual_generation/intuitive_generator.py
-msgid "Cannot generate visual: Division result rectangle number is higher than 12."
-msgstr "Visualisierung konnte nicht generiert werden: Anzahl der Divisionsergebnis-Rechtecke ist höher als 12."
+#~ msgid ""
+#~ "Cannot generate visual: Division result "
+#~ "rectangle number is higher than 12."
+#~ msgstr ""
+#~ "Visualisierung konnte nicht generiert werden:"
+#~ " Anzahl der Divisionsergebnis-Rechtecke ist"
+#~ " höher als 12."
 
-#: app/services/visual_generation/intuitive_generator.py
-msgid "Division requires entity type to be the same for both containers."
-msgstr "Division erfordert, dass der Entitätstyp für beide Container gleich ist."
+#~ msgid "Division requires entity type to be the same for both containers."
+#~ msgstr ""
+#~ "Division erfordert, dass der Entitätstyp "
+#~ "für beide Container gleich ist."
 
-#: app/services/visual_generation/intuitive_generator.py
-#, python-format
-msgid "Cannot generate visual: SVG file not found for %(base_name)s."
-msgstr "Visualisierung konnte nicht generiert werden: SVG-Datei für %(base_name)s nicht gefunden."
+#~ msgid ""
+#~ "Cannot generate visual: Division requires "
+#~ "exactly two containers, but it contains"
+#~ " more than two."
+#~ msgstr ""
+#~ "Visualisierung konnte nicht generiert werden:"
+#~ " Division erfordert genau zwei Container,"
+#~ " aber es enthält mehr als zwei."
 
-#: app/services/visual_generation/intuitive_generator.py
-msgid "Cannot generate visual: Division requires exactly two containers, but it contains more than two."
-msgstr "Visualisierung konnte nicht generiert werden: Division erfordert genau zwei Container, aber es enthält mehr als zwei."
+#~ msgid ""
+#~ "Cannot generate visual: Cannot divide by"
+#~ " zero or a negative entity quantity."
+#~ msgstr ""
+#~ "Visualisierung konnte nicht generiert werden:"
+#~ " Kann nicht durch null oder eine "
+#~ "negative Entitätsmenge teilen."
 
-#: app/services/visual_generation/intuitive_generator.py
-msgid "Cannot generate visual: Cannot divide by zero or a negative entity quantity."
-msgstr "Visualisierung konnte nicht generiert werden: Kann nicht durch null oder eine negative Entitätsmenge teilen."
+#~ msgid ""
+#~ "Cannot generate visual: Surplus requires "
+#~ "entity type to be the same for "
+#~ "both containers."
+#~ msgstr ""
+#~ "Visualisierung konnte nicht generiert werden:"
+#~ " Überschuss erfordert, dass der Entitätstyp"
+#~ " für beide Container gleich ist."
 
-#: app/services/visual_generation/intuitive_generator.py
-msgid "Cannot generate visual: Surplus requires entity type to be the same for both containers."
-msgstr "Visualisierung konnte nicht generiert werden: Überschuss erfordert, dass der Entitätstyp für beide Container gleich ist."
+#~ msgid ""
+#~ "Cannot generate visual: Area calculation "
+#~ "requires exactly two containers (length, "
+#~ "width), requirements do not met."
+#~ msgstr ""
+#~ "Visualisierung konnte nicht generiert werden:"
+#~ " Flächenberechnung erfordert genau zwei "
+#~ "Container (Länge, Breite), Anforderungen nicht"
+#~ " erfüllt."
 
-#: app/services/visual_generation/intuitive_generator.py
-msgid "Cannot generate visual: Area calculation requires exactly two containers (length, width), requirements do not met."
-msgstr "Visualisierung konnte nicht generiert werden: Flächenberechnung erfordert genau zwei Container (Länge, Breite), Anforderungen nicht erfüllt."
+#~ msgid ""
+#~ "Cannot generate visual: No result "
+#~ "container provided in visual language."
+#~ msgstr ""
+#~ "Visualisierung konnte nicht generiert werden:"
+#~ " Kein Ergebnis-Container in der "
+#~ "visuellen Sprache bereitgestellt."
 
-#: app/services/visual_generation/intuitive_generator.py
-msgid "Cannot generate visual: No result container provided in visual language."
-msgstr "Visualisierung konnte nicht generiert werden: Kein Ergebnis-Container in der visuellen Sprache bereitgestellt."
+#~ msgid "Cannot generate visual: Unsupported operation: %(operation)s."
+#~ msgstr ""
+#~ "Visualisierung konnte nicht generiert werden:"
+#~ " Nicht unterstützte Operation: %(operation)s."
 
-#: app/services/visual_generation/intuitive_generator.py
-#, python-format
-msgid "Cannot generate visual: Unsupported operation: %(operation)s."
-msgstr "Visualisierung konnte nicht generiert werden: Nicht unterstützte Operation: %(operation)s."
+#~ msgid ""
+#~ "Cannot generate visual: The subtrahend "
+#~ "entity quantity is not an integer."
+#~ msgstr ""
+#~ "Visualisierung konnte nicht generiert werden:"
+#~ " Die Subtrahend-Entitätsmenge ist keine "
+#~ "ganze Zahl."
 
-#: app/services/visual_generation/intuitive_generator.py
-msgid "Cannot generate visual: The subtrahend entity quantity is not an integer."
-msgstr "Visualisierung konnte nicht generiert werden: Die Subtrahend-Entitätsmenge ist keine ganze Zahl."
+#~ msgid "Cannot generate visual: The minuend entity quantity is higher than 10."
+#~ msgstr ""
+#~ "Visualisierung konnte nicht generiert werden:"
+#~ " Die Minuend-Entitätsmenge ist höher "
+#~ "als 10."
 
-#: app/services/visual_generation/intuitive_generator.py
-msgid "Cannot generate visual: The minuend entity quantity is higher than 10."
-msgstr "Visualisierung konnte nicht generiert werden: Die Minuend-Entitätsmenge ist höher als 10."
+#~ msgid ""
+#~ "Cannot generate visual: The subtrahend "
+#~ "entity quantity is higher than 10."
+#~ msgstr ""
+#~ "Visualisierung konnte nicht generiert werden:"
+#~ " Die Subtrahend-Entitätsmenge ist höher "
+#~ "als 10."
 
-#: app/services/visual_generation/intuitive_generator.py
-msgid "Cannot generate visual: The subtrahend entity quantity is higher than 10."
-msgstr "Visualisierung konnte nicht generiert werden: Die Subtrahend-Entitätsmenge ist höher als 10."
+#~ msgid "Cannot generate visual: Error in handling the comparison."
+#~ msgstr ""
+#~ "Visualisierung konnte nicht generiert werden:"
+#~ " Fehler bei der Behandlung des "
+#~ "Vergleichs."
 
-#: app/services/visual_generation/intuitive_generator.py
-msgid "Cannot generate visual: Error in handling the comparison."
-msgstr "Visualisierung konnte nicht generiert werden: Fehler bei der Behandlung des Vergleichs."
+
+# GPT Generator translations
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Note: Here addition describe the computation relationship between container1 and container2. We choose the entity as the thing corresponding to quantity, so the quantity is describing that entity. \"entity_type\" represent entity's visual representation name while \"entity_name\" is its apparent name. Like a boy has name Bob, so \"entity_name\" is Bob, \"entity_type\" is boy because we visualize he as a boy. container_name and container_type represent an attribute that you think is necessary in this question and we will make this attribute as the container of this entity to show a ownership relation, only add it if you think it do not cause confusion. If all entity share same container, please only give \"container_name\" and \"container_type\" value to result_container and leave other container blank. Only give value to attr_type, attr_name if you found \"container_name\" and \"container_type\" is not enough so we provide one more attribute to identify this entity. The result_container describe the result of this computation, their entity_name usually is the same as container1 and container2, their entity_quantity is the computation result, their container_name and container_type describe the container of the final result."
+msgstr "Hinweis: Hier beschreibt addition die Berechnungsbeziehung zwischen container1 und container2. Wir wählen die Entität als das der Menge entsprechende Ding, daher beschreibt die Menge diese Entität. \"entity_type\" stellt den visuellen Darstellungsnamen der Entität dar, während \"entity_name\" ihr offensichtlicher Name ist. Wie ein Junge den Namen Bob hat, so ist \"entity_name\" Bob, \"entity_type\" ist boy, weil wir ihn als Jungen visualisieren. container_name und container_type stellen ein Attribut dar, das Sie für notwendig halten, und wir machen dieses Attribut zum Container dieser Entität, um eine Besitzbeziehung zu zeigen, fügen Sie es nur hinzu, wenn Sie denken, dass es keine Verwirrung verursacht. Wenn alle Entitäten denselben Container teilen, geben Sie bitte nur \"container_name\" und \"container_type\" Wert an result_container und lassen Sie andere Container leer. Geben Sie nur Wert für attr_type, attr_name an, wenn Sie feststellen, dass \"container_name\" und \"container_type\" nicht ausreichen, damit wir ein weiteres Attribut bereitstellen, um diese Entität zu identifizieren. Der result_container beschreibt das Ergebnis dieser Berechnung, ihr entity_name ist normalerweise derselbe wie container1 und container2, ihre entity_quantity ist das Berechnungsergebnis, ihr container_name und container_type beschreiben den Container des Endergebnisses."
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Each entity has the attributes: entity_name, entity_type, entity_quantity, container_name, container_type, attr_name, attr_type. Name and type are different, for example, a girl named Lucy may be represented by entity_name: Lucy, entity_type: girl. The attributes container_name, container_type, attr_name and attr_type are optional and may vary according to different interpretations, only use them if you think they are necessary to clarify the entity."
+msgstr "Jede Entität hat die Attribute: entity_name, entity_type, entity_quantity, container_name, container_type, attr_name, attr_type. Name und Typ sind unterschiedlich, zum Beispiel kann ein Mädchen namens Lucy durch entity_name: Lucy, entity_type: girl dargestellt werden. Die Attribute container_name, container_type, attr_name und attr_type sind optional und können je nach Interpretation variieren, verwenden Sie sie nur, wenn Sie denken, dass sie notwendig sind, um die Entität zu klären."
+
+#: app/services/language_generation/gpt_generator.py
+msgid "It is Buddy's first day at a new school and he is feeling very nervous. His day begins with some bacon and egg prepared by his mother. After eating and preparing, Buddy headed out to catch the school bus from the nearest bus stop. Including Buddy, there were 39 students that got on the bus during the first stop. If 29 more students got on the bus at the second stop, how many students are riding the bus?"
+msgstr "Es ist Buddys erster Tag an einer neuen Schule und er ist sehr nervös. Sein Tag beginnt mit Speck und Eiern, die seine Mutter zubereitet hat. Nach dem Essen und Vorbereiten machte sich Buddy auf den Weg, um den Schulbus von der nächsten Bushaltestelle zu nehmen. Einschließlich Buddy stiegen 39 Schüler am ersten Halt in den Bus. Wenn am zweiten Halt 29 weitere Schüler in den Bus steigen, wie viele Schüler fahren im Bus?"
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Note: Here the entity_name is point instead of touchdown because the quantity 7 is corresponding to point not touchdown, and we put touchdown in container as it owns these points. You can imagine multiplication as we repeat one box multiple times, here the box is touchdown and points are item inside each box. And finally Hawks is the container of the result_container as it owns all the box."
+msgstr "Hinweis: Hier ist entity_name point anstatt touchdown, weil die Menge 7 point entspricht, nicht touchdown, und wir setzen touchdown in container, da es diese Punkte besitzt. Sie können sich Multiplikation vorstellen, als würden wir eine Box mehrmals wiederholen, hier ist die Box touchdown und Punkte sind Elemente in jeder Box. Und schließlich ist Hawks der Container des result_container, da es alle Boxen besitzt."
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Note: In this case, if the attr is a name of a day of the week(Monday,Sunday, yesterday, tomorrow...) or a year or a month, we can use calendar as type to visualize it. Similar if its a time, we can use clock as type. And for inch or other length, we can use measure as type. The last result_container should use the overall container of this item, like pencil here."
+msgstr "Hinweis: In diesem Fall, wenn das attr ein Name eines Wochentags (Montag, Sonntag, gestern, morgen...) oder ein Jahr oder ein Monat ist, können wir calendar als Typ verwenden, um es zu visualisieren. Ähnlich, wenn es eine Zeit ist, können wir clock als Typ verwenden. Und für Zoll oder andere Längen können wir measure als Typ verwenden. Der letzte result_container sollte den Gesamtcontainer dieses Elements verwenden, wie hier pencil."
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Good, now try to understand the above requirement step by step. I also provide you with the formula of this question, your visual_language should adapt to this formula, for example, if the formula is multiple addition instead of multiplication, you should use multiple addition."
+msgstr "Gut, versuchen Sie nun, die obige Anforderung Schritt für Schritt zu verstehen. Ich gebe Ihnen auch die Formel dieser Frage, Ihre visual_language sollte sich an diese Formel anpassen, zum Beispiel, wenn die Formel mehrere Additionen anstatt Multiplikation ist, sollten Sie mehrere Additionen verwenden."
+
+#: app/services/language_generation/gpt_generator.py
+msgid "\"area\" is computing the area value by its two input entities, the container1 represent length while container2 represents width as indicated by container, name is unit. The container_name and container_type of result_container indicate the item this area belong to."
+msgstr "\"area\" berechnet den Flächenwert durch seine beiden Eingabeentitäten, container1 stellt die Länge dar, während container2 die Breite darstellt, wie durch container angegeben, name ist die Einheit. Der container_name und container_type von result_container zeigen das Element an, zu dem diese Fläche gehört."
+
+#: app/services/language_generation/gpt_generator.py
+msgid "At the top of the Empire State Building, he saw the Madison Square Garden so he decided to go there as well. It took him 676 steps to get down the building and 315 steps from the building to Madison Square Garden. How many steps did he take to get to Madison Square?"
+msgstr "Oben im Empire State Building sah er den Madison Square Garden und beschloss, auch dorthin zu gehen. Es dauerte 676 Schritte, um das Gebäude hinunterzugehen, und 315 Schritte vom Gebäude zum Madison Square Garden. Wie viele Schritte machte er, um zum Madison Square zu gelangen?"
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Note: Here unittrans means unit transformation, it is another relationship between entity and its unittrans_value. Like in this example, a ten-dollar-bill have value of 10 dollars, so the name of container2 is dollar, the type is unittrans_value, and quantity is 10."
+msgstr "Hinweis: Hier bedeutet unittrans Einheitentransformation, es ist eine weitere Beziehung zwischen Entität und ihrem unittrans_value. Wie in diesem Beispiel hat ein 10-Dollar-Schein einen Wert von 10 Dollar, daher ist der Name von container2 dollar, der Typ ist unittrans_value und die Menge ist 10."
+
+#: app/services/language_generation/gpt_generator.py
+msgid "In the math word problem description ``Jake picked up three apples in the morning...'' the container1 could be specified as entity_name: apple, entity_type: apple, entity_quantity: 3, container_name: Jake, container_type: boy, attr_name: morning, attr_type: morning."
+msgstr "In der Beschreibung der mathematischen Textaufgabe ``Jake sammelte morgens drei Äpfel auf...'' könnte container1 als entity_name: apple, entity_type: apple, entity_quantity: 3, container_name: Jake, container_type: boy, attr_name: morning, attr_type: morning angegeben werden."
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Note: When there are continuous subtractions, please always use subtraction relationship. In general try to use fewer kinds of relationship to represent the question. And here, the entity_name and entity_type should distinguish history book and geography book."
+msgstr "Hinweis: Wenn es kontinuierliche Subtraktionen gibt, verwenden Sie bitte immer die Subtraktionsbeziehung. Versuchen Sie im Allgemeinen, weniger Arten von Beziehungen zu verwenden, um die Frage darzustellen. Und hier sollten entity_name und entity_type Geschichtsbuch und Geographiebuch unterscheiden."
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Note: Here comparison and area are two new relationships. \"comparison\" comparing the quantity of two entity, the two entity can be the result of other computation like in this example, the name of result_container indicate the comparison result."
+msgstr "Hinweis: Hier sind comparison und area zwei neue Beziehungen. \"comparison\" vergleicht die Menge von zwei Entitäten, die beiden Entitäten können das Ergebnis anderer Berechnungen sein, wie in diesem Beispiel, der Name von result_container zeigt das Vergleichsergebnis an."
+
+#: app/services/language_generation/gpt_generator.py
+msgid "To add support on the house's connections, he decided to tie the wood joints with rope. He needs 185 feet of rope. If he has 46 feet of rope with him and at the moment he only needed 57 feet, how many feet of rope did his friends give to him?"
+msgstr "Um die Verbindungen des Hauses zu verstärken, beschloss er, die Holzverbindungen mit Seil zu binden. Er braucht 185 Fuß Seil. Wenn er 46 Fuß Seil bei sich hat und im Moment nur 57 Fuß brauchte, wie viele Fuß Seil gaben ihm seine Freunde?"
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Note: here the divider is the box, so the result_container has container paper clips per box. If the question is about fixing the number of paper clip per box and asking how many boxes, then the result_container should have container as box."
+msgstr "Hinweis: Hier ist der Divisor die Schachtel, daher hat der result_container container paper clips per box. Wenn die Frage darum geht, die Anzahl der Büroklammern pro Schachtel festzulegen und zu fragen, wie viele Schachteln, dann sollte der result_container container als box haben."
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Note: This example show we can nesting relationship to express multiple relationships. We write computation in time series order, and as pet center represent the total results, we only put it as the container of the last result_container."
+msgstr "Hinweis: Dieses Beispiel zeigt, dass wir Beziehungen verschachteln können, um mehrere Beziehungen auszudrücken. Wir schreiben die Berechnung in zeitlicher Reihenfolge, und da das Tierheim die Gesamtergebnisse darstellt, setzen wir es nur als Container des letzten result_container."
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Note: here is an example of continuous subtraction, we should try to use less relationship like here we only use multiple subtractions instead of using subtraction and addition, notice each single computation has one result_container."
+msgstr "Hinweis: Hier ist ein Beispiel für kontinuierliche Subtraktion, wir sollten versuchen, weniger Beziehungen zu verwenden, wie hier verwenden wir nur mehrere Subtraktionen anstatt Subtraktion und Addition, beachten Sie, dass jede einzelne Berechnung einen result_container hat."
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Note: please make sure the container name is representative of the current state like in this example, make it distinguishable. Also if the formula is given, make sure the visual langauge is align with the formula, do not skip steps."
+msgstr "Hinweis: Bitte stellen Sie sicher, dass der Containername repräsentativ für den aktuellen Zustand ist, wie in diesem Beispiel, machen Sie ihn unterscheidbar. Auch wenn die Formel gegeben ist, stellen Sie sicher, dass die visuelle Sprache mit der Formel übereinstimmt, überspringen Sie keine Schritte."
+
+#: app/services/language_generation/gpt_generator.py
+msgid "During recess, Buddy went to the cafeteria where he met other students from different grades. If he met 14 second grade students, 10 fourth grade students and 16 fifth grade students, how many students did Buddy meet during recess?"
+msgstr "Während der Pause ging Buddy in die Cafeteria, wo er andere Schüler aus verschiedenen Klassenstufen traf. Wenn er 14 Zweitklässler, 10 Viertklässler und 16 Fünftklässler traf, wie viele Schüler traf Buddy während der Pause?"
+
+#: app/services/language_generation/gpt_generator.py
+msgid "After the mountain country, she went to the famous beach on the continent. There, she collected 291 seashells of different colors. If she has 76 red shells and 49 green shells, how many shells are not red or green?"
+msgstr "Nach dem Bergland ging sie zum berühmten Strand auf dem Kontinent. Dort sammelte sie 291 Muscheln in verschiedenen Farben. Wenn sie 76 rote Muscheln und 49 grüne Muscheln hat, wie viele Muscheln sind weder rot noch grün?"
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Lexie's younger brother helped pick up all the paper clips in Lexie's room. He was able to collect 21 paper clips. If he wants to distribute the paper clips in 3 boxes, how many paper clips will each box contain?"
+msgstr "Lexies jüngerer Bruder half dabei, alle Büroklammern in Lexies Zimmer aufzusammeln. Er konnte 21 Büroklammern sammeln. Wenn er die Büroklammern auf 3 Schachteln verteilen möchte, wie viele Büroklammern wird jede Schachtel enthalten?"
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Once you are ready, you can do the task of converting, you can write down your thinking procedure but please make sure to give me the final visual language of the following question in this format in the end: visual_language:<the visual language result>"
+msgstr "Sobald Sie bereit sind, können Sie die Aufgabe der Umwandlung durchführen, Sie können Ihren Denkprozess aufschreiben, aber bitte stellen Sie sicher, dass Sie mir am Ende die endgültige visuelle Sprache der folgenden Frage in diesem Format geben: visual_language:<das Resultat für die visuelle Sprache>"
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Another material that he needs is rope. If he already has 6 feet of rope and he needs additional ropes having 5 times the length of what he already have, how long should be the additional rope?"
+msgstr "Ein weiteres Material, das er braucht, ist Seil. Wenn er bereits 6 Fuß Seil hat und zusätzliche Seile mit der 5-fachen Länge dessen braucht, was er bereits hat, wie lang sollte das zusätzliche Seil sein?"
+
+#: app/services/language_generation/gpt_generator.py
+msgid "There were 36 dogs and 29 cats in a pet center. After 20 of the dogs were adopted by people, the pet center collected another 12 cats. How many pets were there in the pet center in the end?"
+msgstr "Es gab 36 Hunde und 29 Katzen in einem Tierheim. Nachdem 20 der Hunde von Menschen adoptiert wurden, nahm das Tierheim weitere 12 Katzen auf. Wie viele Haustiere waren am Ende im Tierheim?"
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Note: the name and type always corresponding to the questioned item, like here we should use people not group or member, and container is the thing distinguish the belonging of items."
+msgstr "Hinweis: Der Name und Typ entsprechen immer dem fraglichen Element, wie hier sollten wir people verwenden, nicht group oder member, und container ist das, was die Zugehörigkeit der Elemente unterscheidet."
+
+#: app/services/language_generation/gpt_generator.py
+msgid "You are an expert at converting math story problem into a structured 'visual language'. Your task is to write a visual language expression based on the given math word problem."
+msgstr "Sie sind ein Experte für die Umwandlung von mathematischen Textaufgaben in eine strukturierte 'visuelle Sprache'. Ihre Aufgabe ist es, einen visuellen Sprachausdruck basierend auf der gegebenen mathematischen Textaufgabe zu schreiben."
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Note: In this case, the added results are the balls Ellen has, so we do not add Ellen in the container of container2 because it will cause the confusion that Ellen own 6 balls."
+msgstr "Hinweis: In diesem Fall sind die addierten Ergebnisse die Bälle, die Ellen hat, daher fügen wir Ellen nicht in den Container von container2 ein, da dies die Verwirrung verursachen würde, dass Ellen 6 Bälle besitzt."
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Katie spent a total $350.00 on her whole stay in the island. If she spent $125.00 on food and $135.00 on hotel rooms, how much did she spend on buying other stuff?"
+msgstr "Katie gab insgesamt 350,00 Dollar für ihren gesamten Aufenthalt auf der Insel aus. Wenn sie 125,00 Dollar für Essen und 135,00 Dollar für Hotelzimmer ausgab, wie viel gab sie für den Kauf anderer Dinge aus?"
+
+#: app/services/language_generation/gpt_generator.py
+msgid "There are 10 books on a shelf. 3 of them are history books, 5 of them are geography books and the rest are math books. How many math books are there on the shelf?"
+msgstr "Es gibt 10 Bücher im Regal. 3 davon sind Geschichtsbücher, 5 sind Geographiebücher und der Rest sind Mathebücher. Wie viele Mathebücher sind im Regal?"
+
+#: app/services/language_generation/gpt_generator.py
+msgid "An airline has 41 pieces of luggage to put away. If each luggage compartment will hold 5 pieces of luggage, how many will be in the compartment that isn't full?"
+msgstr "Eine Fluggesellschaft hat 41 Gepäckstücke zu verstauen. Wenn jedes Gepäckfach 5 Gepäckstücke fasst, wie viele werden in dem Fach sein, das nicht voll ist?"
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Note: Here multiplication is another relationship. And row/column is necessary in visual representation so we put it in container_name and container_type"
+msgstr "Hinweis: Hier ist Multiplikation eine weitere Beziehung. Und Zeile/Spalte ist in der visuellen Darstellung notwendig, daher setzen wir es in container_name und container_type."
+
+#: app/services/language_generation/gpt_generator.py
+msgid "If Lizzie's group is composed of 54 people and they have 17 more members than the other group, how many people are working together to clean the city?"
+msgstr "Wenn Lizzies Gruppe aus 54 Personen besteht und sie 17 Mitglieder mehr als die andere Gruppe haben, wie viele Personen arbeiten zusammen, um die Stadt zu säubern?"
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Note: for this type of 'x times of' question, you should use multiplication operation, and the container2 should be have name and type == multiplier."
+msgstr "Hinweis: Für diese Art von 'x mal' Frage sollten Sie die Multiplikationsoperation verwenden, und container2 sollte name und type == multiplier haben."
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Mrs. Santiago has 58 red roses. Mrs. Garrett has 24. What's the difference of the number of Mrs. Santiago's red roses and Mrs. Garrett's red roses?"
+msgstr "Frau Santiago hat 58 rote Rosen. Frau Garrett hat 24. Wie groß ist der Unterschied zwischen der Anzahl der roten Rosen von Frau Santiago und den roten Rosen von Frau Garrett?"
+
+#: app/services/language_generation/gpt_generator.py
+msgid "For the fifth grade play, the chairs have been put into 27 rows with 16 chairs in each row. How many chairs have been put out for the play?"
+msgstr "Für das Theaterstück der fünften Klasse wurden die Stühle in 27 Reihen mit jeweils 16 Stühlen aufgestellt. Wie viele Stühle wurden für das Theaterstück aufgestellt?"
+
+#: app/services/language_generation/gpt_generator.py
+msgid "operation can be ``addition'', ``subtraction'', ``multiplication'', ``division'', ``surplus'', ``area'', ``comparison'', or ``unittrans''."
+msgstr "operation kann ``addition'', ``subtraction'', ``multiplication'', ``division'', ``surplus'', ``area'', ``comparison'' oder ``unittrans'' sein."
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Isha's pencil is 22 inches long. If she sharpens two inches off on Monday and two inches on Tuesday, how long will her pencil be then?"
+msgstr "Ishas Bleistift ist 22 Zoll lang. Wenn sie am Montag zwei Zoll und am Dienstag zwei Zoll abschärft, wie lang wird ihr Bleistift dann sein?"
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Rug A is 8 feet by 4 feet, and Rug B is 5 feet by 7 feet. Which rug should Mrs. Hilt buy if she wants the rug with the biggest area?"
+msgstr "Teppich A ist 8 Fuß mal 4 Fuß und Teppich B ist 5 Fuß mal 7 Fuß. Welchen Teppich sollte Frau Hilt kaufen, wenn sie den Teppich mit der größten Fläche möchte?"
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Note: Here subtraction is another relationship. The result_container has container_name: Carl have more, and container_type is more."
+msgstr "Hinweis: Hier ist Subtraktion eine weitere Beziehung. Der result_container hat container_name: Carl have more, und container_type ist more."
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Mrs. Hilt has two pennies, two dimes, and two nickels. Jacob has four pennies, one nickel, and one dime. Who has more money?"
+msgstr "Frau Hilt hat zwei Pennies, zwei Dimes und zwei Nickels. Jacob hat vier Pennies, einen Nickel und einen Dime. Wer hat mehr Geld?"
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Sarah had some trucks. She gave 13 to Jeff, and now she has 38 trucks left. How many trucks did Sarah have to start with?"
+msgstr "Sarah hatte einige Lastwagen. Sie gab 13 an Jeff, und jetzt hat sie noch 38 Lastwagen. Wie viele Lastwagen hatte Sarah am Anfang?"
+
+#: app/services/language_generation/gpt_generator.py
+msgid "A game spinner has 5 equal parts. Two parts are blue and three parts are purple. Which color would you most likely spin?"
+msgstr "Ein Spielkreisel hat 5 gleich große Teile. Zwei Teile sind blau und drei Teile sind lila. Welche Farbe würden Sie am wahrscheinlichsten drehen?"
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Mrs. Snyder made 86 heart cookies. She made 36 red cookies and the rest are pink. How many pink cookies did she make?"
+msgstr "Frau Snyder backte 86 Herz-Kekse. Sie backte 36 rote Kekse und der Rest ist rosa. Wie viele rosa Kekse hat sie gebacken?"
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Mrs. Hilt spent 25 cents on one caramel apple and 15 cents on one ice cream cone. How much more did the apple cost?"
+msgstr "Frau Hilt gab 25 Cent für einen Karamellapfel und 15 Cent für eine Eistüte aus. Wie viel mehr hat der Apfel gekostet?"
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Tessa has 4 apples. Anita gave her 5 more. She needs 10 apples to make a pie. Does she have enough to make a pie?"
+msgstr "Tessa hat 4 Äpfel. Anita gab ihr 5 weitere. Sie braucht 10 Äpfel, um einen Kuchen zu backen. Hat sie genug, um einen Kuchen zu backen?"
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Mrs. Hilt bought a yoyo for 24 cents and a whistle for 14 cents. How much did she spend in all for the two toys?"
+msgstr "Frau Hilt kaufte ein Jojo für 24 Cent und eine Pfeife für 14 Cent. Wie viel hat sie insgesamt für die beiden Spielzeuge ausgegeben?"
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Mrs. Hilt bought 6 hot dogs. Each hot dog cost 50 cents. How much money did she pay for all of the hot dogs?"
+msgstr "Frau Hilt kaufte 6 Hot Dogs. Jeder Hot Dog kostete 50 Cent. Wie viel Geld hat sie für alle Hot Dogs bezahlt?"
+
+#: app/services/language_generation/gpt_generator.py
+msgid "John's birthday is January 20th. His sister's birthday comes 14 days later. When is his sister's birthday?"
+msgstr "Johns Geburtstag ist der 20. Januar. Der Geburtstag seiner Schwester ist 14 Tage später. Wann ist der Geburtstag seiner Schwester?"
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Karen wants to buy a pen that costs 75 cents. She has 2 quarters and 3 dimes. Does she have enough money?"
+msgstr "Karen möchte einen Stift kaufen, der 75 Cent kostet. Sie hat 2 Vierteldollars und 3 Dimes. Hat sie genug Geld?"
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Note: Here surplus is another relationship, we compute the surplus of container1 divided by container2."
+msgstr "Hinweis: Hier ist surplus eine weitere Beziehung, wir berechnen den Rest von container1 geteilt durch container2."
+
+#: app/services/language_generation/gpt_generator.py
+msgid "If Carl has a total of 89 stamps and Kevin has 57, how many more stamps does Carl have more than Kevin?"
+msgstr "Wenn Carl insgesamt 89 Briefmarken hat und Kevin 57, wie viele Briefmarken hat Carl mehr als Kevin?"
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Marin has nine apples and Donald has two apples. How many apples do Marin and Donald have together?"
+msgstr "Marin hat neun Äpfel und Donald hat zwei Äpfel. Wie viele Äpfel haben Marin und Donald zusammen?"
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Note: its ok if we use the container name the same as name if the name itself is distinguishable."
+msgstr "Hinweis: Es ist in Ordnung, wenn wir den Containernamen gleich wie den Namen verwenden, wenn der Name selbst unterscheidbar ist."
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Mrs. Hilt bought 3 pizzas for $8 each. What was the total amount she paid for the three pizzas?"
+msgstr "Frau Hilt kaufte 3 Pizzen für jeweils 8 Dollar. Wie viel hat sie insgesamt für die drei Pizzen bezahlt?"
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Roden went to a pet shop. He bought 15 gold fish and 7 blue fish. How many fish did he buy?"
+msgstr "Roden ging in eine Zoohandlung. Er kaufte 15 Goldfische und 7 blaue Fische. Wie viele Fische hat er gekauft?"
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Ellen has six more balls than Marin. Marin has nine balls. How many balls does Ellen have?"
+msgstr "Ellen hat sechs Bälle mehr als Marin. Marin hat neun Bälle. Wie viele Bälle hat Ellen?"
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Note: here we need to use heart-cookie because its visual is different with normal cookie"
+msgstr "Hinweis: Hier müssen wir heart-cookie verwenden, da seine visuelle Darstellung sich von normalen Keksen unterscheidet"
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Note: For those difference problem, we still use subtraction relationship to express it."
+msgstr "Hinweis: Für solche Differenzprobleme verwenden wir weiterhin die Subtraktionsbeziehung, um sie auszudrücken."
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Mrs. Hilt bought an ice cream cone for 99 cents. How much would 2 ice cream cones cost?"
+msgstr "Frau Hilt kaufte eine Eistüte für 99 Cent. Wie viel würden 2 Eistüten kosten?"
+
+#: app/services/language_generation/gpt_generator.py
+msgid "The Hawks scored three touchdowns worth 7 points each. How many points do they have?"
+msgstr "Die Hawks erzielten drei Touchdowns im Wert von jeweils 7 Punkten. Wie viele Punkte haben sie?"
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Note: If the item is some color part, you can refer it as color-part, like red-part."
+msgstr "Hinweis: Wenn das Element ein farbiger Teil ist, können Sie es als color-part bezeichnen, wie red-part."
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Note: we need to distinguish different fish here because their visual are different"
+msgstr "Hinweis: Wir müssen hier verschiedene Fische unterscheiden, da ihre visuelle Darstellung unterschiedlich ist"
+
+#: app/services/language_generation/gpt_generator.py
+msgid "If you have 1 ten dollar bill, 1 quarter and 1 nickel, how much money do you have?"
+msgstr "Wenn Sie einen 10-Dollar-Schein, eine 25-Cent-Münze und eine 5-Cent-Münze haben, wie viel Geld haben Sie?"
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Note: here is another example, the name and type always point to same thing."
+msgstr "Hinweis: Hier ist ein weiteres Beispiel, der Name und Typ zeigen immer auf dasselbe."
+
+#: app/services/language_generation/gpt_generator.py
+msgid "We first provide you several example, please understand the logic clearly:"
+msgstr "Wir geben Ihnen zunächst mehrere Beispiele, bitte verstehen Sie die Logik klar:"
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Good, now try to understand the above requirement step by step."
+msgstr "Gut, versuchen Sie nun, die obige Anforderung Schritt für Schritt zu verstehen."
+
+#: app/services/language_generation/gpt_generator.py
+msgid "You should use the following fixed format for each problem:"
+msgstr "Sie sollten das folgende feste Format für jedes Problem verwenden:"
+
+#: app/services/language_generation/gpt_generator.py
+msgid "A quarter equals $0.25. How many quarters equal $2.25?"
+msgstr "Eine 25-Cent-Münze entspricht 0,25 Dollar. Wie viele 25-Cent-Münzen entsprechen 2,25 Dollar?"
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Note: can emphasize 'left' for this type of question."
+msgstr "Hinweis: kann 'left' für diese Art von Frage betonen."
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Background information"
+msgstr "Hintergrundinformationen"
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Additional hints: "
+msgstr "Zusätzliche Hinweise: "
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Question:"
+msgstr "Frage:"
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Formula:"
+msgstr "Formel:"
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Examples"
+msgstr "Beispiele"
+
+#: app/services/language_generation/gpt_generator.py
+msgid "Task"
+msgstr "Aufgabe"

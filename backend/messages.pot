@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-12-03 22:51+0100\n"
+"POT-Creation-Date: 2025-12-04 00:33+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -37,52 +37,52 @@ msgstr ""
 msgid "Empty Visual Language provided."
 msgstr ""
 
-#: app/api/routes/generation.py:77
+#: app/api/routes/generation.py:78
 msgid "Please provide a math word problem (MWP)."
 msgstr ""
 
-#: app/api/routes/generation.py:84
+#: app/api/routes/generation.py:85
 msgid "Did not get Visual Language from AI. Please try again."
 msgstr ""
 
-#: app/api/routes/generation.py:107
+#: app/api/routes/generation.py:108
 msgid "Visual Language parse error."
 msgstr ""
 
-#: app/api/routes/generation.py:125
+#: app/api/routes/generation.py:126
 #, python-format
 msgid "Could not generate formal visualization: %(error)s"
 msgstr ""
 
-#: app/api/routes/generation.py:127
+#: app/api/routes/generation.py:128
 msgid "Could not generate formal visualization. Retrying might help."
 msgstr ""
 
-#: app/api/routes/generation.py:129
+#: app/api/routes/generation.py:130
 #, python-format
 msgid "Formal generation error: %(error)s"
 msgstr ""
 
-#: app/api/routes/generation.py:131
+#: app/api/routes/generation.py:132
 #, python-format
 msgid "Unexpected formal generation error: %(error)s"
 msgstr ""
 
-#: app/api/routes/generation.py:147
+#: app/api/routes/generation.py:148
 #, python-format
 msgid "Could not generate intuitive visualization: %(error)s"
 msgstr ""
 
-#: app/api/routes/generation.py:149
+#: app/api/routes/generation.py:150
 msgid "Could not generate intuitive visualization. Retrying might help."
 msgstr ""
 
-#: app/api/routes/generation.py:151
+#: app/api/routes/generation.py:152
 #, python-format
 msgid "Intuitive generation error: %(error)s"
 msgstr ""
 
-#: app/api/routes/generation.py:153
+#: app/api/routes/generation.py:154
 #, python-format
 msgid "Unexpected intuitive generation error: %(error)s"
 msgstr ""

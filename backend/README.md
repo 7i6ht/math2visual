@@ -54,20 +54,30 @@ backend/
 │   │   │   ├── formal_generator.py
 │   │   │   └── intuitive_generator.py
 │   │   └── __init__.py
-│   ├── storage/                            # Application storage
+│   ├── storage/                            # Application storage (within app, usually not used in production)
 │   │   ├── datasets/                       # Dataset files
 │   │   ├── models/                         # ML model files
 │   │   ├── output/                         # Generated outputs (temp visualization files)
 │   │   ├── temp_svgs/                      # Temporary AI-generated SVG icons
 │   │   └── analytics/                      # Analytics data storage (screenshots, etc.)
+│   ├── translations/                       # Flask-Babel translation catalogs
+│   │   ├── messages.pot                    # Extracted message template
+│   │   ├── en/                             # English translations (source language)
+│   │   │   └── LC_MESSAGES/
+│   │   │       └── messages.(po|mo)
+│   │   └── de/                             # German translations
+│   │       └── LC_MESSAGES/
+│   │           └── messages.(po|mo)
 │   └── utils/                              # Utility functions
 │       ├── __init__.py
-│       ├── cleanup.py
-│       └── validation_constants.py
+│       ├── cleanup.py                      # Temp/output cleanup helpers
+│       ├── translations.py                 # Argos-based term translation for SVG search
+│       └── validation_constants.py         # Shared validation constants
 ├── app.py                                  # Application entry point (development)
 ├── wsgi.py                                 # WSGI entry point (production, for Gunicorn)
 ├── gunicorn.conf.py                        # Gunicorn WSGI server configuration
 ├── math2visual.yml                         # Conda environment file
+├── babel.cfg                               # Babel extraction configuration
 ├── requirements.txt                        # Python dependencies
 ├── storage/                                # Local storage directory
 │   ├── datasets/svg_dataset/               # SVG entity library (1,549 files)
