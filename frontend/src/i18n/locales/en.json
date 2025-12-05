@@ -105,7 +105,7 @@
     "german": "German"
   },
   "app": {
-    "subtitle": "Generating Pedagogically Meaningful Visuals for Math Word Problems based on AI",
+    "subtitle": "Visualizing Math Word Problems in a Pedagogically Meaningful way through AI",
     "noVisualLanguageForRegeneration": "No visual language available for regeneration",
     "regeneratingVisualizations": "Regenerating visualizations...",
     "visualizationsGeneratedSuccessfully": "Visualizations generated successfully",

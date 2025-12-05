@@ -105,7 +105,7 @@
     "german": "Deutsch"
   },
   "app": {
-    "subtitle": "Pädagogisch bedeutsame Visualisierungen für Mathe-Textaufgaben KI basiert erzeugen",
+    "subtitle": "Mathe-Textaufgaben auf pädagogisch bedeutsame Weise durch KI visualisieren",
     "noVisualLanguageForRegeneration": "Keine visuelle Sprache für Wiedererzeugung verfügbar",
     "regeneratingVisualizations": "Visualisierungen werden wiedererzeugt...",
     "visualizationsGeneratedSuccessfully": "Visualisierungen wurden erfolgreich erzeugt",
