@@ -55,7 +55,7 @@ export function InitialView({ appState }: Props) {
             </p>
           </div>
 
-          <div className="mt-3 sm:mt-4 md:mt-5 lg:mt-6 xl:mt-8 2xl:mt-10 3xl:mt-12">
+          <div className="mt-6 3xl:mt-12">
             <MathProblemForm
               onSuccess={setResults}
               onLoadingChange={(loading, abortFn) => {
