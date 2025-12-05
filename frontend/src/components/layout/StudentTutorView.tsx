@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import tutorService from "@/api_services/tutor";
 import type { TutorVisual } from "@/api_services/tutor";
-import { Mic, Square } from "lucide-react";
+import { Bot, Mic, Square, User } from "lucide-react";
 
 type Message = {
   role: "student" | "tutor";
@@ -176,13 +176,13 @@ export function StudentTutorView({ onBack }: Props) {
         : t("tutor.visualTitleIntuitive");
     return (
       <div className="mt-3 rounded-lg border bg-card p-3 shadow-sm">
-        <div className="text-sm font-semibold mb-2">{title}</div>
+        <div className="responsive-text-font-size font-semibold mb-2">{title}</div>
         <div
           className="w-full overflow-hidden rounded-md border bg-white"
           dangerouslySetInnerHTML={{ __html: visual.svg }}
         />
         {visual.reason && (
-          <p className="mt-2 text-sm text-muted-foreground">{visual.reason}</p>
+          <p className="mt-2 responsive-text-font-size text-muted-foreground">{visual.reason}</p>
         )}
       </div>
     );
@@ -240,9 +240,13 @@ export function StudentTutorView({ onBack }: Props) {
   return (
     <div className="w-full px-3 py-3 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 3xl:px-20 4xl:px-24 5xl:px-32">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl sm:text-2xl font-semibold">{t("landing.student")}</h2>
+        <h2 className="responsive-text-font-size font-semibold">{t("landing.student")}</h2>
         {onBack && (
-          <Button variant="outline" size="sm" onClick={onBack}>
+          <Button 
+            variant="outline" 
+            onClick={onBack}
+            className="button-responsive-size !responsive-text-font-size px-3 py-2 md:px-4 md:py-2.5 lg:px-5 lg:py-3 xl:px-6 xl:py-3.5"
+          >
             {t("common.close")}
           </Button>
         )}
@@ -250,7 +254,7 @@ export function StudentTutorView({ onBack }: Props) {
 
       {!isSessionActive && (
         <div className="space-y-3 max-w-3xl">
-          <label className="block text-sm font-medium text-foreground">
+          <label className="block responsive-text-font-size font-medium text-foreground">
             {t("tutor.enterMwpLabel")}
           </label>
           <Textarea
@@ -261,7 +265,11 @@ export function StudentTutorView({ onBack }: Props) {
             className="min-h-[160px] responsive-text-font-size"
           />
           <div className="flex gap-3">
-            <Button onClick={handleStart} disabled={starting}>
+            <Button 
+              onClick={handleStart} 
+              disabled={starting}
+              className="min-w-[200px] !responsive-text-font-size button-responsive-size px-6 py-3 md:px-8 md:py-4 lg:px-10 lg:py-5 xl:px-12 xl:py-6"
+            >
               {starting ? t("common.loading") : t("tutor.startSession")}
             </Button>
           </div>
@@ -272,29 +280,44 @@ export function StudentTutorView({ onBack }: Props) {
         <div className="mt-4 grid gap-4">
           <div className="rounded-lg border bg-card p-4 shadow-sm min-h-[320px] flex flex-col">
             <div className="flex-1 space-y-4 overflow-y-auto pr-2">
-              {messages.map((msg, idx) => (
-                <div key={idx} className="space-y-2">
-                  <div
-                    className={`inline-block rounded-lg px-3 py-2 ${
-                      msg.role === "student"
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-muted text-foreground"
-                    }`}
-                  >
-                    <div className="responsive-text-font-size whitespace-pre-wrap flex items-center gap-2">
-                      <span>{msg.content}</span>
-                      {msg.streaming && (
-                        <span className="inline-flex items-center gap-1 align-middle">
-                          <span className="h-2 w-2 rounded-full bg-current animate-bounce" style={{ animationDelay: "0ms" }} />
-                          <span className="h-2 w-2 rounded-full bg-current animate-bounce" style={{ animationDelay: "120ms" }} />
-                          <span className="h-2 w-2 rounded-full bg-current animate-bounce" style={{ animationDelay: "240ms" }} />
-                        </span>
-                      )}
+              {messages.map((msg, idx) => {
+                const isStudent = msg.role === "student";
+                const alignment = isStudent ? "justify-end" : "justify-start";
+                const slide = isStudent ? "slide-in-from-right-4" : "slide-in-from-left-4";
+                return (
+                  <div key={idx} className={`space-y-2 flex ${alignment} w-full`}>
+                    {!isStudent && (
+                      <div className="mr-2 flex items-start select-none">
+                        <Bot className="responsive-icon-font-size text-muted-foreground" />
+                      </div>
+                    )}
+                    <div
+                      className={`inline-block rounded-lg px-3 py-2 max-w-[80%] ${
+                        isStudent
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted text-foreground"
+                      } animate-in fade-in-0 ${slide} duration-200`}
+                    >
+                      <div className="responsive-text-font-size whitespace-pre-wrap flex items-center gap-2">
+                        <span>{msg.content}</span>
+                        {msg.streaming && (
+                          <span className="inline-flex items-center gap-1 align-middle">
+                            <span className="h-2 w-2 rounded-full bg-current animate-bounce" style={{ animationDelay: "0ms" }} />
+                            <span className="h-2 w-2 rounded-full bg-current animate-bounce" style={{ animationDelay: "120ms" }} />
+                            <span className="h-2 w-2 rounded-full bg-current animate-bounce" style={{ animationDelay: "240ms" }} />
+                          </span>
+                        )}
+                      </div>
                     </div>
+                    {isStudent && (
+                      <div className="ml-2 flex items-start select-none">
+                        <User className="responsive-icon-font-size text-primary" />
+                      </div>
+                    )}
+                    {renderVisual(msg.visual)}
                   </div>
-                  {renderVisual(msg.visual)}
-                </div>
-              ))}
+                );
+              })}
               <div ref={chatEndRef} />
             </div>
 
@@ -317,21 +340,24 @@ export function StudentTutorView({ onBack }: Props) {
                   <Button
                     type="button"
                     variant="outline"
-                    size="sm"
                     onClick={handleVoiceToggle}
                     disabled={!voiceSupported}
-                    className="gap-2"
+                    className="gap-2 button-responsive-size !responsive-text-font-size px-4 py-2 md:px-5 md:py-2.5 lg:px-6 lg:py-3 xl:px-7 xl:py-3.5"
                   >
-                    {listening ? <Square className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                    {listening ? <Square className="responsive-icon-font-size" /> : <Mic className="responsive-icon-font-size" />}
                     {listening ? t("tutor.voiceStop") : t("tutor.voiceStart")}
                   </Button>
                   {!voiceSupported && (
-                    <span className="text-xs text-muted-foreground">
+                    <span className="responsive-text-font-size text-muted-foreground">
                       {t("tutor.voiceNotSupported")}
                     </span>
                   )}
                 </div>
-                <Button onClick={handleSend} disabled={sending || streaming}>
+                <Button 
+                  onClick={handleSend} 
+                  disabled={sending || streaming}
+                  className="min-w-[120px] md:min-w-[140px] lg:min-w-[160px] !responsive-text-font-size button-responsive-size px-6 py-3 md:px-8 md:py-4 lg:px-10 lg:py-5 xl:px-12 xl:py-6"
+                >
                   {sending || streaming ? t("common.loading") : t("tutor.send")}
                 </Button>
               </div>
