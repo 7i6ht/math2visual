@@ -27,7 +27,6 @@ interface MathProblemFormProps {
   rows?: number;
   hideSubmit?: boolean;
   onReset?: () => void;
-  onRegenerateOnBlur?: (fieldName: 'mwp' | 'formula' | 'hint', currentMwp: string, currentFormula: string, currentHint: string) => void;
   isDisabled?: boolean;
   isSimplifiedView?: boolean;
   showHintInput?: boolean;
@@ -42,7 +41,6 @@ export const MathProblemForm = ({
   saveInitialValues,
   rows = 8,
   hideSubmit = false,
-  onRegenerateOnBlur,
   isDisabled = false,
   isSimplifiedView = false,
   showHintInput = false,
@@ -84,37 +82,7 @@ export const MathProblemForm = ({
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       onChange(e);
       trackHintType();
-    }, [analyticsEnabled]);
-
-  const handleMwpBlur = useCallback(() => {
-    // Trigger regeneration if mwp has content and differs from initial value
-    const currentMwp = form.getValues('mwp');
-    const currentFormula = form.getValues('formula') || '';
-    const currentHint = form.getValues('hint') || '';
-    if (currentMwp.trim() && currentMwp !== mwp && onRegenerateOnBlur) {
-      onRegenerateOnBlur('mwp', currentMwp, currentFormula, currentHint);
-    }
-  }, [form, mwp, onRegenerateOnBlur]);
-
-  const handleFormulaBlur = useCallback(() => {
-    // Trigger regeneration if formula has content and differs from initial value
-    const currentMwp = form.getValues('mwp');
-    const currentFormula = form.getValues('formula') || '';
-    const currentHint = form.getValues('hint') || '';
-    if (currentFormula?.trim() && currentFormula !== formula && onRegenerateOnBlur) {
-      onRegenerateOnBlur('formula', currentMwp, currentFormula, currentHint);
-    }
-  }, [form, formula, onRegenerateOnBlur]);
-
-  const handleHintBlur = useCallback(() => {
-    // Trigger regeneration if hint has content and differs from initial value
-    const currentMwp = form.getValues('mwp');
-    const currentFormula = form.getValues('formula') || '';
-    const currentHint = form.getValues('hint') || '';
-    if (currentHint?.trim() && currentHint !== hint && onRegenerateOnBlur) {
-      onRegenerateOnBlur('hint', currentMwp, currentFormula, currentHint);
-    }
-  }, [form, hint, onRegenerateOnBlur]);
+    }, []);
 
   return (
     <Form {...form}>
@@ -145,10 +113,6 @@ export const MathProblemForm = ({
                     }}
                     disabled={isDisabled}
                     {...field}
-                    onBlur={() => {
-                      field.onBlur();
-                      handleMwpBlur();
-                    }}
                     {...(analyticsEnabled ? {onChange: mwpChangeHandler(field.onChange)} : {})}
                   />
                 </FormControl>
@@ -182,10 +146,6 @@ export const MathProblemForm = ({
                         }
                       }}
                       {...field}
-                      onBlur={() => {
-                        field.onBlur();
-                        handleFormulaBlur();
-                      }}
                       {...(analyticsEnabled ? {onChange: formulaChangeHandler(field.onChange)} : {})}
                     />
                   </FormControl>
@@ -221,10 +181,6 @@ export const MathProblemForm = ({
                       }
                     }}
                       {...field}
-                      onBlur={() => {
-                        field.onBlur();
-                        handleHintBlur();
-                      }}
                       {...(analyticsEnabled ? {onChange: handleHintChange(field.onChange)} : {})}
                     />
                   </FormControl>
@@ -241,7 +197,7 @@ export const MathProblemForm = ({
               type="submit"
               className="min-w-[200px] bg-primary !text-primary-foreground !responsive-text-font-size button-responsive-size px-6 py-3 md:px-8 md:py-4 lg:px-10 lg:py-5 xl:px-12 xl:py-6"
             >
-              {t("forms.generateButton")}
+              {!isSimplifiedView ? t("forms.regenerateButton") : t("forms.generateButton")}
             </Button>
           )}
         </div>

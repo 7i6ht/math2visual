@@ -22,6 +22,7 @@
     "mwpRequired": "Bitte geben Sie eine Mathe-Textaufgabe ein.",
     "dslRequired": "Leere visuelle Sprache bereitgestellt.",
     "generateButton": "Erzeugen",
+    "regenerateButton": "Erneut erzeugen",
     "visualLanguageTitle": "Visuelle Sprache",
     "mwpLabel": "Mathe-Textaufgabe:",
     "formulaLabel": "Optionale Formel:",

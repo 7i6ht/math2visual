@@ -127,71 +127,6 @@ export function TwoColumnView({ appState }: Props) {
     }
   }, [analyticsEnabled]);
 
-  const handleRegenerate = useCallback(async (
-    analyticsEventName: string,
-    currentMwp: string,
-    currentFormula: string,
-    currentHint: string
-  ) => {
-    if (!currentMwp) return;
-    
-    // Track regeneration
-    if (analyticsEnabled) {
-      trackElementClick(analyticsEventName);
-    }
-    
-    try {
-      const { generationService } = await import('@/api_services/generation');
-      const controller = new AbortController();
-      const abort = () => {
-        controller.abort();
-        setMpFormLoading(false);
-      };
-      
-      setMpFormLoading(true, abort);
-      
-      const result = await generationService.generateFromMathProblem(
-        currentMwp,
-        currentFormula,
-        currentHint,
-        controller.signal
-      );
-      
-      setResults(
-        result.visual_language,
-        result.svg_formal,
-        result.svg_intuitive,
-        result.parsedDSL!,
-        result.formal_error || undefined,
-        result.intuitive_error || undefined,
-        result.missing_svg_entities,
-        currentMwp,
-        currentFormula,
-        currentHint,
-        result.componentMappings,
-        result.is_parse_error
-      );
-    } catch (error) {
-      console.error('Regeneration failed:', error);
-      if (error instanceof Error && error.name !== 'AbortError') {
-        const { toast } = await import('sonner');
-        toast.error(error instanceof Error ? error.message : "An error occurred");
-      }
-    } finally {
-      setMpFormLoading(false);
-    }
-  }, [setMpFormLoading, setResults, analyticsEnabled]);
-
-  const handleRegenerateOnBlur = useCallback(async (
-    fieldName: 'mwp' | 'formula' | 'hint',
-    currentMwp: string,
-    currentFormula: string,
-    currentHint: string
-  ) => {
-    await handleRegenerate(`${fieldName}_regenerate_auto`, currentMwp, currentFormula, currentHint);
-  }, [handleRegenerate]);
-
-
   const isFormLoading = mpFormLoading || vlFormLoading || uploadGenerating;
 
   // Reusable content blocks to avoid duplication
@@ -216,9 +151,8 @@ export function TwoColumnView({ appState }: Props) {
         formula={formula}
         hint={hint}
         saveInitialValues={appState.saveInitialValues}
-        rows={9.5}
-        hideSubmit={true}
-        onRegenerateOnBlur={handleRegenerateOnBlur}
+        rows={6.5}
+        hideSubmit={false}
         isDisabled={isFormLoading}
         isSimplifiedView={false}
         showHintInput={!!(svgFormal || svgIntuitive) && !hasParseError}
@@ -296,7 +230,7 @@ export function TwoColumnView({ appState }: Props) {
                   style={{ overflow: 'visible' }}
                 >
                   <div 
-                    className="flex flex-col xl:sticky xl:top-6 xl:z-10 xl:h-[calc(100vh-3rem)]"
+                    className="flex flex-col"
                     {...(analyticsEnabled ? {onScroll: handleLeftColumnScroll} : {})}
                   >
                     {mathProblemContent}
@@ -395,7 +329,7 @@ export function TwoColumnView({ appState }: Props) {
       {!formattedDSL && (
         <div className="relative grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] 3xl:grid-cols-[minmax(0,1fr)_minmax(0,1.8fr)] gap-4 xl:gap-6 2xl:gap-8 3xl:gap-10 min-h-[calc(100vh-2rem)] items-start">
           <div 
-            className="flex flex-col space-y-6 xl:space-y-8 xl:sticky xl:top-6 xl:z-10 xl:h-[calc(100vh-3rem)]"
+            className="flex flex-col"
             {...(analyticsEnabled ? {onScroll: handleLeftColumnScroll} : {})}
           >
             {mathProblemContent}

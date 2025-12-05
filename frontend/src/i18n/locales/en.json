@@ -22,6 +22,7 @@
     "mwpRequired": "Please provide a math word problem.",
     "dslRequired": "Empty Visual Language provided.",
     "generateButton": "Generate",
+    "regenerateButton": "Regenerate",
     "visualLanguageTitle": "Visual Language",
     "mwpLabel": "Math word problem:",
     "formulaLabel": "Optional formula:",
