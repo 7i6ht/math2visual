@@ -154,7 +154,8 @@
     "voiceStart": "Voice input",
     "voiceStop": "Stop",
     "voiceNotSupported": "Voice input not supported",
-    "voiceError": "Voice input failed. Please try again."
+    "voiceError": "Voice input failed. Please try again.",
+    "streamingError": "Streaming failed. Please try again."
   }
 }
 

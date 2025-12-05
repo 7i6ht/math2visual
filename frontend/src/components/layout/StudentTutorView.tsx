@@ -11,6 +11,8 @@ type Message = {
   role: "student" | "tutor";
   content: string;
   visual?: TutorVisual | null;
+  streaming?: boolean;
+  accumulated?: string;
 };
 
 type Props = {
@@ -27,6 +29,9 @@ export function StudentTutorView({ onBack }: Props) {
   const [sending, setSending] = useState(false);
   const [listening, setListening] = useState(false);
   const [voiceSupported, setVoiceSupported] = useState(false);
+  const [streaming, setStreaming] = useState(false);
+  const streamCloserRef = useRef<null | (() => void)>(null);
+  const streamingBufferRef = useRef<{ raw: string; clean: string }>({ raw: "", clean: "" });
 
   const chatEndRef = useRef<HTMLDivElement | null>(null);
 
@@ -48,13 +53,6 @@ export function StudentTutorView({ onBack }: Props) {
 
   const appendMessage = (message: Message) => {
     setMessages((prev) => [...prev, message]);
-  };
-
-  const appendTutorResponse = (content: string, visual?: TutorVisual | null) => {
-    appendMessage({ role: "tutor", content, visual });
-    if (visual?.error) {
-      toast.error(visual.error);
-    }
   };
 
   const handleStart = async () => {
@@ -84,22 +82,90 @@ export function StudentTutorView({ onBack }: Props) {
       toast.error(t("tutor.sessionNotFound"));
       return;
     }
-    if (!input.trim()) {
+    if (!input.trim() || streaming) {
       return;
     }
-    try {
-      setSending(true);
-      const userMessage = input.trim();
-      appendMessage({ role: "student", content: userMessage });
-      setInput("");
-      const response = await tutorService.sendMessage(sessionId, userMessage);
-      appendTutorResponse(response.tutor_message, response.visual);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : t("errors.unexpectedError");
-      toast.error(message);
-    } finally {
-      setSending(false);
-    }
+
+    const userMessage = input.trim();
+    appendMessage({ role: "student", content: userMessage });
+    setInput("");
+
+    // Provisional tutor message entry for streaming updates
+    const tutorIndex = messages.length + 1; // after student append
+    setMessages((prev) => [...prev, { role: "tutor", content: "", streaming: true }]);
+
+    setStreaming(true);
+    setSending(true);
+
+    const stripVisualLanguage = (text: string): string => {
+      if (!text) return "";
+      return text
+        // Remove anything starting from visual_language
+        .replace(/visual_language[\s\S]*/i, "")
+        // Remove anything starting from VISUAL_REQUEST
+        .replace(/VISUAL_REQUEST[\s\S]*/i, "")
+        .trimEnd();
+    };
+
+    streamingBufferRef.current = { raw: "", clean: "" };
+
+    streamCloserRef.current = tutorService.sendMessageStream(
+      sessionId,
+      userMessage,
+      {
+        onChunk: (delta) => {
+          streamingBufferRef.current.raw += delta || "";
+          const cleaned = stripVisualLanguage(streamingBufferRef.current.raw);
+          streamingBufferRef.current.clean = cleaned;
+          setMessages((prev) => {
+            const next = [...prev];
+            const idx = Math.min(tutorIndex, next.length - 1);
+            if (idx >= 0 && next[idx]) {
+              next[idx] = {
+                ...next[idx],
+                content: cleaned,
+                streaming: true,
+              };
+            }
+            return next;
+          });
+        },
+        onDone: (data) => {
+          const bufferedClean = streamingBufferRef.current.clean;
+          const safeText = bufferedClean || stripVisualLanguage(data.tutor_message || "");
+          const safeVisual =
+            data.visual && data.visual.dsl_scope
+              ? { ...data.visual, dsl_scope: undefined }
+              : data.visual;
+
+          setMessages((prev) => {
+            const next = [...prev];
+            const idx = Math.min(tutorIndex, next.length - 1);
+            if (idx >= 0 && next[idx]) {
+              next[idx] = {
+                role: "tutor",
+                content: safeText,
+                visual: safeVisual,
+                streaming: false,
+              };
+            }
+            return next;
+          });
+          setStreaming(false);
+          setSending(false);
+          streamingBufferRef.current = { raw: "", clean: "" };
+        },
+        onError: (err) => {
+          console.error(err);
+          toast.error(t("tutor.streamingError"));
+          setStreaming(false);
+          setSending(false);
+          streamingBufferRef.current = { raw: "", clean: "" };
+          // Remove provisional tutor message on error
+          setMessages((prev) => prev.slice(0, -1));
+        },
+      }
+    );
   };
 
   const renderVisual = (visual?: TutorVisual | null) => {
@@ -156,6 +222,7 @@ export function StudentTutorView({ onBack }: Props) {
 
       recognition.onerror = () => {
         toast.error(t("tutor.voiceError"));
+      setListening(false);
       };
 
       recognition.onend = () => {
@@ -190,6 +257,7 @@ export function StudentTutorView({ onBack }: Props) {
             value={mwp}
             onChange={(e) => setMwp(e.target.value)}
             placeholder={t("tutor.enterMwpPlaceholder")}
+            spellCheck={false}
             className="min-h-[160px] responsive-text-font-size"
           />
           <div className="flex gap-3">
@@ -213,8 +281,15 @@ export function StudentTutorView({ onBack }: Props) {
                         : "bg-muted text-foreground"
                     }`}
                   >
-                    <div className="responsive-text-font-size whitespace-pre-wrap">
-                      {msg.content}
+                    <div className="responsive-text-font-size whitespace-pre-wrap flex items-center gap-2">
+                      <span>{msg.content}</span>
+                      {msg.streaming && (
+                        <span className="inline-flex items-center gap-1 align-middle">
+                          <span className="h-2 w-2 rounded-full bg-current animate-bounce" style={{ animationDelay: "0ms" }} />
+                          <span className="h-2 w-2 rounded-full bg-current animate-bounce" style={{ animationDelay: "120ms" }} />
+                          <span className="h-2 w-2 rounded-full bg-current animate-bounce" style={{ animationDelay: "240ms" }} />
+                        </span>
+                      )}
                     </div>
                   </div>
                   {renderVisual(msg.visual)}
@@ -228,6 +303,7 @@ export function StudentTutorView({ onBack }: Props) {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder={t("tutor.sendPlaceholder")}
+                spellCheck={false}
                 className="responsive-text-font-size"
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
@@ -255,8 +331,8 @@ export function StudentTutorView({ onBack }: Props) {
                     </span>
                   )}
                 </div>
-                <Button onClick={handleSend} disabled={sending}>
-                  {sending ? t("common.loading") : t("tutor.send")}
+                <Button onClick={handleSend} disabled={sending || streaming}>
+                  {sending || streaming ? t("common.loading") : t("tutor.send")}
                 </Button>
               </div>
             </div>

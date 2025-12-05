@@ -25,6 +25,12 @@ export type TutorMessageResponse = {
   visual?: TutorVisual | null;
 };
 
+type StreamCallbacks = {
+  onChunk: (delta: string) => void;
+  onDone: (data: TutorMessageResponse) => void;
+  onError?: (error: any) => void;
+};
+
 const tutorService = {
   async startSession(mwp: string, formula?: string, hint?: string): Promise<TutorStartResponse> {
     const response = await fetch(`${API_BASE_URL}/tutor/start`, {
@@ -52,6 +58,41 @@ const tutorService = {
       throw new ApiError(result.error || "Failed to send tutor message", response.status);
     }
     return result as TutorMessageResponse;
+  },
+
+  sendMessageStream(sessionId: string, message: string, callbacks: StreamCallbacks) {
+    const url = `${API_BASE_URL}/tutor/message/stream?session_id=${encodeURIComponent(
+      sessionId
+    )}&message=${encodeURIComponent(message)}`;
+    const es = new EventSource(url);
+
+    es.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === "chunk") {
+          callbacks.onChunk(data.delta || "");
+        } else if (data.type === "done") {
+          es.close();
+          callbacks.onDone({
+            session_id: data.session_id,
+            tutor_message: data.tutor_message,
+            visual: data.visual,
+          });
+        } else if (data.type === "error") {
+          throw new Error(data.error || "Streaming error");
+        }
+      } catch (err) {
+        es.close();
+        callbacks.onError?.(err);
+      }
+    };
+
+    es.onerror = (err) => {
+      es.close();
+      callbacks.onError?.(err);
+    };
+
+    return () => es.close();
   },
 };
 

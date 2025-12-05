@@ -73,6 +73,33 @@ def _generate_tutor_reply(visual_language: str, history: List[Dict[str, str]], u
     return _extract_visual_request(content)
 
 
+def _generate_tutor_reply_stream(visual_language: str, history: List[Dict[str, str]], user_message: str, language: str):
+    """
+    Stream tutor reply as chunks. Yields text deltas, returns (full_text, visual_request) at the end.
+    """
+    model = genai.GenerativeModel(MODEL_NAME)
+    prompt = _build_prompt(visual_language, history, user_message, language)
+    stream = model.generate_content(prompt, stream=True)
+
+    parts_accum: List[str] = []
+    for chunk in stream:
+        # Gemini streaming emits candidates with parts; accumulate only text parts
+        if not chunk or not getattr(chunk, "candidates", None):
+            continue
+        for candidate in chunk.candidates:
+            content = getattr(candidate, "content", None)
+            part_list = getattr(content, "parts", []) or []
+            for part in part_list:
+                text = getattr(part, "text", "") or ""
+                if text:
+                    yield text
+                    parts_accum.append(text)
+
+    full_text = "".join(parts_accum)
+    final_text, visual_request = _extract_visual_request(full_text)
+    yield {"__done__": True, "full_text": final_text, "visual_request": visual_request}
+
+
 def start_tutor_session(mwp: str, visual_language: str, language: str = "en") -> Tuple[str, str, Optional[Dict]]:
     session_id = str(uuid.uuid4())
     history: List[Dict[str, str]] = [{"role": "student", "content": mwp}]

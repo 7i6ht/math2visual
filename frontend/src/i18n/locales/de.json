@@ -154,7 +154,8 @@
     "voiceStart": "Spracheingabe",
     "voiceStop": "Stopp",
     "voiceNotSupported": "Spracheingabe nicht unterstützt",
-    "voiceError": "Spracheingabe fehlgeschlagen. Bitte erneut versuchen."
+    "voiceError": "Spracheingabe fehlgeschlagen. Bitte erneut versuchen.",
+    "streamingError": "Streaming fehlgeschlagen. Bitte erneut versuchen."
   }
 }
 
