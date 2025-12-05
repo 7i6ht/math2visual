@@ -44,9 +44,7 @@ msgstr "Bitte geben Sie eine Mathe-Textaufgabe ein."
 
 #: app/api/routes/generation.py:85
 msgid "Did not get Visual Language from AI. Please try again."
-msgstr ""
-"Visuelle Sprache wurde nicht von der KI erhalten. Bitte versuchen"
-" Sie es erneut."
+msgstr "Visuelle Sprache wurde nicht von der KI erhalten. Bitte versuchen Sie es erneut."
 
 #: app/api/routes/generation.py:108
 msgid "Visual Language parse error."
@@ -59,9 +57,7 @@ msgstr "Formale Visualisierung konnte nicht erzeugt werden: %(error)s"
 
 #: app/api/routes/generation.py:128
 msgid "Could not generate formal visualization. Retrying might help."
-msgstr ""
-"Formale Visualisierung konnte nicht erzeugt werden. Ein erneuter "
-"Versuch könnte helfen."
+msgstr "Formale Visualisierung konnte nicht erzeugt werden. Ein erneuter Versuch könnte helfen."
 
 #: app/api/routes/generation.py:130
 #, python-format
@@ -80,9 +76,7 @@ msgstr "Intuitive Visualisierung konnte nicht erzeugt werden: %(error)s"
 
 #: app/api/routes/generation.py:150
 msgid "Could not generate intuitive visualization. Retrying might help."
-msgstr ""
-"Intuitive Visualisierung konnte nicht erzeugt werden. Ein erneuter "
-"Versuch könnte helfen."
+msgstr "Intuitive Visualisierung konnte nicht erzeugt werden. Ein erneuter Versuch könnte helfen."
 
 #: app/api/routes/generation.py:152
 #, python-format
@@ -128,9 +122,7 @@ msgstr "Keine Datei ausgewählt"
 msgid ""
 "File already exists or has been added by another user in the meantime: "
 "%(filename)s"
-msgstr ""
-"Datei existiert bereits oder wurde in der Zwischenzeit von einem anderen "
-"Benutzer hinzugefügt: %(filename)s"
+msgstr "Datei existiert bereits oder wurde in der Zwischenzeit von einem anderen Benutzer hinzugefügt: %(filename)s"
 
 #: app/api/routes/svg_dataset.py:228
 #, python-format
