@@ -45,7 +45,7 @@ msgstr "Bitte geben Sie eine Mathe-Textaufgabe ein."
 #: app/api/routes/generation.py:85
 msgid "Did not get Visual Language from AI. Please try again."
 msgstr ""
-"Visuelle Sprache konnte nicht von der KI erhalten werden. Bitte versuchen"
+"Visuelle Sprache wurde nicht von der KI erhalten. Bitte versuchen"
 " Sie es erneut."
 
 #: app/api/routes/generation.py:108
