@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useState, useSyncExternalStore, useRef } from "react";
 import { ResponsiveLogo } from "@/components/ui/ResponsiveLogo";
 import { MathProblemForm } from "@/components/forms/MathProblemForm";
 import { VisualLanguageForm } from "@/components/forms/VisualLanguageForm";
@@ -6,6 +6,9 @@ import { VisualizationResults } from "@/components/visualization/VisualizationRe
 import { SparklesLoading } from "@/components/ui/sparkles-loading";
 import { SessionAnalyticsDisplay } from "@/components/ui/SessionAnalyticsDisplay";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
+import { ChevronLeft } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import type { ImperativePanelHandle } from "react-resizable-panels";
 import { trackColumnScroll, trackTwoColumnLayoutRender, trackElementClick, trackPanelResize, isAnalyticsEnabled, getSessionId, subscribeToScreenshotState, getIsCapturingScreenshot } from "@/services/analyticsTracker";
 import { useDSLContext } from "@/contexts/DSLContext";
 import { useVisualizationHandlers } from "@/hooks/useVisualizationHandlers";
@@ -45,7 +48,9 @@ export function TwoColumnView({ appState }: Props) {
   const { formattedDSL } = useDSLContext();
   const analyticsEnabled = isAnalyticsEnabled();
   const sessionId = getSessionId();
-  const [isVisualPanelCollapsed, setIsVisualPanelCollapsed] = useState(false);
+  const { t } = useTranslation();
+  const [isVisualPanelCollapsed, setIsVisualPanelCollapsed] = useState(true);
+  const visualLanguagePanelRef = useRef<ImperativePanelHandle>(null);
   const isCapturingScreenshot = useSyncExternalStore(
     subscribeToScreenshotState,
     getIsCapturingScreenshot,
@@ -104,6 +109,16 @@ export function TwoColumnView({ appState }: Props) {
   const handleRightColumnScroll = useCallback((event: React.UIEvent<HTMLDivElement>) => {
     trackColumnScroll(event, 'right');
   }, []);
+
+  const handleExpandVisualPanel = useCallback(() => {
+    if (visualLanguagePanelRef.current) {
+      visualLanguagePanelRef.current.expand();
+      setIsVisualPanelCollapsed(false);
+      if (analyticsEnabled) {
+        trackElementClick('visual_language_panel_expand_button');
+      }
+    }
+  }, [analyticsEnabled]);
 
   // Track two column layout render and capture screenshot
   useEffect(() => {
@@ -205,6 +220,7 @@ export function TwoColumnView({ appState }: Props) {
         hideSubmit={true}
         onRegenerateOnBlur={handleRegenerateOnBlur}
         isDisabled={isFormLoading}
+        isSimplifiedView={false}
         showHintInput={!!(svgFormal || svgIntuitive) && !hasParseError}
       />
     </div>
@@ -242,9 +258,9 @@ export function TwoColumnView({ appState }: Props) {
     />
   );
 
-  // Math problem column content
-  const mathProblemColumn = (
-    <div className="space-y-4 flex flex-col w-full h-full">
+  // Math problem content (shared across all layouts)
+  const mathProblemContent = (
+    <div className="space-y-4 flex flex-col w-full">
       {logoAndTitle}
       {mathProblemForm}
     </div>
@@ -257,107 +273,132 @@ export function TwoColumnView({ appState }: Props) {
     </div>
   );
 
-  // For mobile/tablet (non-resizable grid)
-  const leftColumnContentGrid = (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 xl:gap-6 2xl:gap-8 3xl:gap-10 flex-1 min-h-0 height-responsive-grid items-stretch lg:[@media(max-aspect-ratio:3/4)]:grid-cols-1 lg:[@media(max-aspect-ratio:3/4)]:items-start lg:[@media(max-aspect-ratio:3/4)]:flex lg:[@media(max-aspect-ratio:3/4)]:flex-col">
-      <div className="space-y-4 flex flex-col w-full">
-        {logoAndTitle}
-        {mathProblemForm}
-      </div>
-
-      <div className="relative flex flex-col h-full w-full [@media(max-aspect-ratio:3/4)]:mt-4">
-        {visualLanguageForm}
-      </div>
-    </div>
-  );
-
   return (
     <div className="w-full px-1 py-4 sm:px-2 lg:px-4 xl:px-6 2xl:px-8 3xl:px-8 4xl:px-8">
       {analyticsEnabled && <SessionAnalyticsDisplay sessionId={sessionId} isCapturingScreenshot={isCapturingScreenshot} />}
       
       {formattedDSL && (
-        // Resizable layout when Visual Language editor is visible (desktop only)
-        <div className="hidden xl:block relative min-h-[calc(100vh-2rem)]">
-          <div className="xl:sticky xl:top-6 xl:h-[calc(100vh-3rem)]">
-            <ResizablePanelGroup 
-              direction="horizontal" 
-              className="flex gap-4 2xl:gap-6 3xl:gap-8 h-full"
-              style={{ overflow: 'visible' }}
-              {...(analyticsEnabled ? {onLayout: trackPanelResize} : {})}
-            >
-              {/* Math Problem Column */}
-              <ResizablePanel 
-                defaultSize={20} 
-                minSize={15}
-                maxSize={45}
-                className="flex flex-col min-w-0"
+        <>
+          {/* Desktop: Resizable layout with Visual Language editor */}
+          <div className="hidden xl:block relative h-[calc(100vh-2rem)]">
+            <div className="relative h-full">
+              <ResizablePanelGroup 
+                direction="horizontal" 
+                className="flex gap-4 2xl:gap-6 3xl:gap-8 h-full"
                 style={{ overflow: 'visible' }}
+                {...(analyticsEnabled ? {onLayout: trackPanelResize} : {})}
               >
-                <div 
-                  className="flex flex-col xl:sticky xl:top-6 xl:z-10 xl:h-[calc(100vh-3rem)]"
-                  {...(analyticsEnabled ? {onScroll: handleLeftColumnScroll} : {})}
+                <ResizablePanel 
+                  defaultSize={30} 
+                  minSize={15}
+                  maxSize={45}
+                  className="flex flex-col min-w-0"
+                  style={{ overflow: 'visible' }}
                 >
-                  {mathProblemColumn}
-                </div>
-              </ResizablePanel>
-
-              <ResizableHandle 
-                withHandle 
-                className="w-1 bg-border hover:bg-blue-500 transition-colors"
-              />
-
-              {/* Visual Language Column */}
-              <ResizablePanel 
-                defaultSize={20}
-                minSize={15}
-                maxSize={45}
-                collapsible={true}
-                collapsedSize={0}
-                className="flex flex-col min-w-0"
-                style={{ overflow: 'visible' }}
-                onCollapse={() => setIsVisualPanelCollapsed(true)}
-                onExpand={() => setIsVisualPanelCollapsed(false)}
-              >
-                <div 
-                  className={`flex flex-col xl:sticky xl:top-6 xl:z-10 xl:h-[calc(100vh-3rem)] ${isVisualPanelCollapsed ? "hidden" : ""}`}
-                  {...(analyticsEnabled ? {onScroll: handleLeftColumnScroll} : {})}
-                >
-                  {visualLanguageColumn}
-                </div>
-              </ResizablePanel>
-
-              <ResizableHandle 
-                withHandle 
-                className="w-1 bg-border hover:bg-blue-500 transition-colors"
-              />
-
-              {/* Visualization Results Column */}
-              <ResizablePanel 
-                defaultSize={60}
-                minSize={30}
-                className="flex flex-col min-w-0"
-              >
-                <div className="flex flex-col w-full h-full overflow-hidden">
                   <div 
-                    className="relative flex flex-col w-full flex-1 overflow-auto pr-1"
-                    {...(analyticsEnabled ? {onScroll: handleRightColumnScroll} : {})}
+                    className="flex flex-col xl:sticky xl:top-6 xl:z-10 xl:h-[calc(100vh-3rem)]"
+                    {...(analyticsEnabled ? {onScroll: handleLeftColumnScroll} : {})}
                   >
-                    {visualizationResults}
+                    {mathProblemContent}
                   </div>
-                </div>
-              </ResizablePanel>
-            </ResizablePanelGroup>
+                </ResizablePanel>
+
+                <ResizableHandle 
+                  withHandle 
+                  className="w-1 bg-border hover:bg-blue-500 transition-colors"
+                />
+
+                <ResizablePanel 
+                  defaultSize={70}
+                  minSize={30}
+                  className="flex flex-col min-w-0"
+                >
+                  <div className="flex flex-col w-full h-full overflow-hidden">
+                    <div 
+                      className="relative flex flex-col w-full flex-1 overflow-auto pr-1"
+                      {...(analyticsEnabled ? {onScroll: handleRightColumnScroll} : {})}
+                    >
+                      {visualizationResults}
+                    </div>
+                  </div>
+                </ResizablePanel>
+
+                <ResizableHandle 
+                  withHandle 
+                  className={`w-1 bg-border hover:bg-blue-500 transition-colors ${isVisualPanelCollapsed ? 'hidden' : ''}`}
+                />
+
+                <ResizablePanel 
+                  ref={visualLanguagePanelRef}
+                  id="visual-language"
+                  defaultSize={0}
+                  minSize={25}
+                  maxSize={45}
+                  collapsible={true}
+                  collapsedSize={3}
+                  className="flex flex-col min-w-0"
+                  style={{ overflow: 'visible' }}
+                  onCollapse={() => setIsVisualPanelCollapsed(true)}
+                  onExpand={() => setIsVisualPanelCollapsed(false)}
+                >
+                  {isVisualPanelCollapsed ? (
+                    // Collapsed state: Matching tabs styling with centered chevron
+                    <div 
+                      className="w-full h-full bg-muted hover:opacity-80 cursor-pointer flex items-center justify-center transition-opacity"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleExpandVisualPanel();
+                      }}
+                      aria-label={t("forms.visualLanguageTitle", "Visual Language")}
+                      title={t("forms.visualLanguageTitle", "Visual Language - Click to expand")}
+                    >
+                      <ChevronLeft className="responsive-icon-font-size text-foreground" />
+                    </div>
+                  ) : (
+                    // Expanded state: Show the Visual Language form
+                    <div 
+                      className="flex flex-col w-full h-full"
+                      {...(analyticsEnabled ? {onScroll: handleLeftColumnScroll} : {})}
+                    >
+                      {visualLanguageColumn}
+                    </div>
+                  )}
+                </ResizablePanel>
+              </ResizablePanelGroup>
+            </div>
           </div>
-        </div>
+
+          {/* Mobile: Stacked layout with Visual Language last */}
+          <div className="xl:hidden relative flex flex-col gap-4 xl:gap-6 2xl:gap-8 3xl:gap-10 min-h-[calc(100vh-2rem)]">
+            <div 
+              className="flex flex-col space-y-4"
+              {...(analyticsEnabled ? {onScroll: handleLeftColumnScroll} : {})}
+            >
+              {mathProblemContent}
+            </div>
+
+            <div 
+              className="relative flex flex-col w-full"
+              {...(analyticsEnabled ? {onScroll: handleRightColumnScroll} : {})}
+            >
+              {visualizationResults}
+            </div>
+
+            <div className="relative flex flex-col w-full">
+              {visualLanguageForm}
+            </div>
+          </div>
+        </>
       )}
 
-      {/* Grid layout: shown on mobile when DSL exists, or always when DSL doesn't exist */}
-      <div className={`relative grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] 3xl:grid-cols-[minmax(0,1fr)_minmax(0,1.8fr)] gap-4 xl:gap-6 2xl:gap-8 3xl:gap-10 min-h-[calc(100vh-2rem)] items-start ${formattedDSL ? 'xl:hidden' : ''}`}>
+      {/* Grid layout: shown when DSL doesn't exist (all screen sizes) */}
+      {!formattedDSL && (
+        <div className="relative grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] 3xl:grid-cols-[minmax(0,1fr)_minmax(0,1.8fr)] gap-4 xl:gap-6 2xl:gap-8 3xl:gap-10 min-h-[calc(100vh-2rem)] items-start">
           <div 
             className="flex flex-col space-y-6 xl:space-y-8 xl:sticky xl:top-6 xl:z-10 xl:h-[calc(100vh-3rem)]"
             {...(analyticsEnabled ? {onScroll: handleLeftColumnScroll} : {})}
           >
-            {leftColumnContentGrid}
+            {mathProblemContent}
           </div>
 
           <div 
@@ -367,6 +408,7 @@ export function TwoColumnView({ appState }: Props) {
             {visualizationResults}
           </div>
         </div>
+      )}
         
       {/* Loading overlay for Visual Language Form and Visualization Results */}
       {isFormLoading && (

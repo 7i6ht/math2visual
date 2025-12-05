@@ -17,12 +17,15 @@
   },
   "forms": {
     "mwpPlaceholder": "Geben Sie Ihre Mathe-Textaufgabe ein…",
-    "formulaPlaceholder": "9 + 7 = 16",
+    "formulaPlaceholder": "2+2 (z.B. anstatt 2x2 als Struktur)",
     "hintPlaceholder": "Sieht nicht wie erwartet aus? Dann fügen Sie hier weitere Hinweise zu den Beziehungen zwischen den visuellen Elementen hinzu ...",
     "mwpRequired": "Bitte geben Sie eine Mathe-Textaufgabe ein.",
     "dslRequired": "Leere visuelle Sprache bereitgestellt.",
     "generateButton": "Erzeugen",
-    "visualLanguageTitle": "Visuelle Sprache"
+    "visualLanguageTitle": "Visuelle Sprache",
+    "mwpLabel": "Mathe-Textaufgabe:",
+    "formulaLabel": "Optionale Formel:",
+    "hintLabel": "Optionale Hinweise:"
   },
   "visualization": {
     "formal": "Formal",

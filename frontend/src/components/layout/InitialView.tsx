@@ -68,6 +68,7 @@ export function InitialView({ appState }: Props) {
               saveInitialValues={saveInitialValues}
               rows={5}
               hideSubmit={mpFormLoading}
+              isSimplifiedView={true}
             />
 
             {mpFormLoading && (

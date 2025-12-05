@@ -29,6 +29,7 @@ interface MathProblemFormProps {
   onReset?: () => void;
   onRegenerateOnBlur?: (fieldName: 'mwp' | 'formula' | 'hint', currentMwp: string, currentFormula: string, currentHint: string) => void;
   isDisabled?: boolean;
+  isSimplifiedView?: boolean;
   showHintInput?: boolean;
 }
 
@@ -43,6 +44,7 @@ export const MathProblemForm = ({
   hideSubmit = false,
   onRegenerateOnBlur,
   isDisabled = false,
+  isSimplifiedView = false,
   showHintInput = false,
 }: MathProblemFormProps) => {
   const { t } = useTranslation();
@@ -122,63 +124,77 @@ export const MathProblemForm = ({
           name="mwp"
           render={({ field }) => (
             <FormItem>
-              <FormControl>
-                <HighlightableTextarea
-                  className={"w-full responsive-text-font-size"}
-                  placeholder={t("forms.mwpPlaceholder")}
-                  rows={rows}
-                  spellCheck={false}
-                  highlightRanges={mwpHighlightRanges}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault();
-                      handleSubmit(e);
-                    }
-                  }}
-                  disabled={isDisabled}
-                  {...field}
-                  onBlur={() => {
-                    field.onBlur();
-                    handleMwpBlur();
-                  }}
-                  {...(analyticsEnabled ? {onChange: mwpChangeHandler(field.onChange)} : {})}
-                />
-              </FormControl>
-              <FormMessage />
+              <div className="relative">
+                {!isSimplifiedView && (
+                  <label className="absolute -top-2 left-3 bg-background px-1 text-sm text-muted-foreground z-10">
+                    {t("forms.mwpLabel")}
+                  </label>
+                )}
+                <FormControl>
+                  <HighlightableTextarea
+                    className={"w-full responsive-text-font-size"}
+                    placeholder={t("forms.mwpPlaceholder")}
+                    rows={rows}
+                    spellCheck={false}
+                    highlightRanges={mwpHighlightRanges}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSubmit(e);
+                      }
+                    }}
+                    disabled={isDisabled}
+                    {...field}
+                    onBlur={() => {
+                      field.onBlur();
+                      handleMwpBlur();
+                    }}
+                    {...(analyticsEnabled ? {onChange: mwpChangeHandler(field.onChange)} : {})}
+                  />
+                </FormControl>
+                <FormMessage />
+              </div>
             </FormItem>
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="formula"
-          render={({ field }) => (
-            <FormItem>
-              <FormControl>
-                <HighlightableInput
-                  className={"w-full responsive-text-font-size"}
-                  placeholder={t("forms.formulaPlaceholder")}
-                  spellCheck={false}
-                  highlightRanges={formulaHighlightRanges}
-                  disabled={isDisabled}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault();
-                      handleSubmit(e);
-                    }
-                  }}
-                  {...field}
-                  onBlur={() => {
-                    field.onBlur();
-                    handleFormulaBlur();
-                  }}
-                  {...(analyticsEnabled ? {onChange: formulaChangeHandler(field.onChange)} : {})}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {!isSimplifiedView && (
+          <FormField
+            control={form.control}
+            name="formula"
+            render={({ field }) => (
+              <FormItem>
+                <div className="relative">
+                  <label className="absolute -top-2 left-3 bg-background px-1 text-sm text-muted-foreground z-10">
+                    {t("forms.formulaLabel")}
+                  </label>
+                  <FormControl>
+                    <HighlightableInput
+                      className={"w-full responsive-text-font-size"}
+                      placeholder={t("forms.formulaPlaceholder")}
+                      spellCheck={false}
+                      highlightRanges={formulaHighlightRanges}
+                      disabled={isDisabled}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault();
+                          handleSubmit(e);
+                        }
+                      }}
+                      {...field}
+                      onBlur={() => {
+                        field.onBlur();
+                        handleFormulaBlur();
+                      }}
+                      {...(analyticsEnabled ? {onChange: formulaChangeHandler(field.onChange)} : {})}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </div>
+              </FormItem>
+            )}
+          />
+        )}
 
         {/* Hint input - show when visualizations are present */}
         {showHintInput && (
@@ -187,28 +203,33 @@ export const MathProblemForm = ({
             name="hint"
             render={({ field }) => (
               <FormItem>
-                <FormControl>
-                  <Textarea
-                    className="w-full ring-offset-background responsive-text-font-size"
-                    placeholder={t("forms.hintPlaceholder")}
-                    rows={6.5}
-                    spellCheck={false}
-                    disabled={isDisabled}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault();
-                      handleSubmit(e);
-                    }
-                  }}
-                    {...field}
-                    onBlur={() => {
-                      field.onBlur();
-                      handleHintBlur();
+                <div className="relative">
+                  <label className="absolute -top-2 left-3 bg-background px-1 text-sm text-muted-foreground z-10">
+                    {t("forms.hintLabel")}
+                  </label>
+                  <FormControl>
+                    <Textarea
+                      className="w-full ring-offset-background responsive-text-font-size"
+                      placeholder={t("forms.hintPlaceholder")}
+                      rows={6.5}
+                      spellCheck={false}
+                      disabled={isDisabled}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSubmit(e);
+                      }
                     }}
-                    {...(analyticsEnabled ? {onChange: handleHintChange(field.onChange)} : {})}
-                  />
-                </FormControl>
-                <FormMessage />
+                      {...field}
+                      onBlur={() => {
+                        field.onBlur();
+                        handleHintBlur();
+                      }}
+                      {...(analyticsEnabled ? {onChange: handleHintChange(field.onChange)} : {})}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </div>
               </FormItem>
             )}
           />
