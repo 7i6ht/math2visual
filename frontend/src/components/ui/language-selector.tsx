@@ -31,6 +31,8 @@ export const LanguageSelector: React.FC = () => {
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
+        sideOffset={0}
+        alignOffset={0}
         className="w-[var(--radix-dropdown-menu-trigger-width)] min-w-0 overflow-x-visible p-1 md:p-1.5 lg:p-2 [&>*:not(:last-child)]:mb-1"
       >
         {availableLanguages.map((lang) => (
