@@ -288,7 +288,7 @@ export function TwoColumnView({ appState }: Props) {
                 style={{ overflow: 'visible' }}
                 {...(analyticsEnabled ? {onLayout: trackPanelResize} : {})}
               >
-                <ResizablePanel 
+                <ResizablePanel
                   defaultSize={31} 
                   minSize={15}
                   maxSize={45}
@@ -344,7 +344,7 @@ export function TwoColumnView({ appState }: Props) {
                   {isVisualPanelCollapsed ? (
                     // Collapsed state: Matching tabs styling with centered chevron
                     <div 
-                      className="w-full h-full bg-muted hover:opacity-80 cursor-pointer flex items-center justify-center transition-opacity"
+                      className="w-full h-full bg-muted hover:opacity-80 cursor-pointer flex items-center justify-center transition-opacity rounded-l-md"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleExpandVisualPanel();
