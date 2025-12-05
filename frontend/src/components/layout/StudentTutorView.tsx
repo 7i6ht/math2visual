@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import tutorService from "@/api_services/tutor";
 import type { TutorVisual } from "@/api_services/tutor";
+import { Mic, Square } from "lucide-react";
 
 type Message = {
   role: "student" | "tutor";
@@ -24,6 +25,8 @@ export function StudentTutorView({ onBack }: Props) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [starting, setStarting] = useState(false);
   const [sending, setSending] = useState(false);
+  const [listening, setListening] = useState(false);
+  const [voiceSupported, setVoiceSupported] = useState(false);
 
   const chatEndRef = useRef<HTMLDivElement | null>(null);
 
@@ -32,6 +35,16 @@ export function StudentTutorView({ onBack }: Props) {
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // Detect voice support once on mount
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const SpeechRecognition =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      setVoiceSupported(true);
+    }
+  }, []);
 
   const appendMessage = (message: Message) => {
     setMessages((prev) => [...prev, message]);
@@ -109,6 +122,54 @@ export function StudentTutorView({ onBack }: Props) {
     );
   };
 
+  const handleVoiceToggle = () => {
+    if (typeof window === "undefined") return;
+    const SpeechRecognition =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      toast.error(t("tutor.voiceNotSupported"));
+      return;
+    }
+
+    if (listening) {
+      // Stop any active recognition
+      if ((window as any).__m2vRecognitionInstance) {
+        (window as any).__m2vRecognitionInstance.stop();
+      }
+      return;
+    }
+
+    try {
+      const recognition = new SpeechRecognition();
+      (window as any).__m2vRecognitionInstance = recognition;
+      recognition.continuous = false;
+      recognition.lang = navigator.language || "en-US";
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+
+      recognition.onresult = (event: any) => {
+        const transcript = event.results?.[0]?.[0]?.transcript;
+        if (transcript) {
+          setInput((prev) => (prev ? `${prev}\n${transcript}` : transcript));
+        }
+      };
+
+      recognition.onerror = () => {
+        toast.error(t("tutor.voiceError"));
+      };
+
+      recognition.onend = () => {
+        setListening(false);
+      };
+
+      setListening(true);
+      recognition.start();
+    } catch (error) {
+      setListening(false);
+      toast.error(t("tutor.voiceError"));
+    }
+  };
+
   return (
     <div className="w-full px-3 py-3 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 3xl:px-20 4xl:px-24 5xl:px-32">
       <div className="flex items-center justify-between mb-6">
@@ -175,7 +236,25 @@ export function StudentTutorView({ onBack }: Props) {
                   }
                 }}
               />
-              <div className="flex gap-3 justify-end">
+              <div className="flex gap-3 justify-between items-center">
+                <div className="flex items-center gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleVoiceToggle}
+                    disabled={!voiceSupported}
+                    className="gap-2"
+                  >
+                    {listening ? <Square className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                    {listening ? t("tutor.voiceStop") : t("tutor.voiceStart")}
+                  </Button>
+                  {!voiceSupported && (
+                    <span className="text-xs text-muted-foreground">
+                      {t("tutor.voiceNotSupported")}
+                    </span>
+                  )}
+                </div>
                 <Button onClick={handleSend} disabled={sending}>
                   {sending ? t("common.loading") : t("tutor.send")}
                 </Button>

@@ -151,7 +151,10 @@
     "sessionNotFound": "Session nicht gefunden. Bitte neu starten.",
     "visualTitleFormal": "Tutor-Visual (formal)",
     "visualTitleIntuitive": "Tutor-Visual (intuitiv)",
-    "visualLanguageAvailable": "Der Tutor hat eine visuelle Sprache erzeugt und wird sie bei Bedarf nutzen."
+    "voiceStart": "Spracheingabe",
+    "voiceStop": "Stopp",
+    "voiceNotSupported": "Spracheingabe nicht unterstützt",
+    "voiceError": "Spracheingabe fehlgeschlagen. Bitte erneut versuchen."
   }
 }
 
