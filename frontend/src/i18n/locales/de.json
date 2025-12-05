@@ -136,6 +136,11 @@
     "savedToFolder": "{{title}} wurde in Ihren Downloads-Ordner gespeichert.",
     "error": "{{format}}-Datei konnte nicht heruntergeladen werden",
     "unexpectedError": "Ein unerwarteter Fehler ist aufgetreten."
+  },
+  "landing": {
+    "roleQuestion": "Sind Sie ein Schüler oder ein Lehrer?",
+    "student": "Schüler",
+    "teacher": "Lehrer"
   }
 }
 

@@ -1,13 +1,15 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { useAppState } from "@/hooks/useAppState";
 import { startCursorTracking, stopCursorTracking, isAnalyticsEnabled, trackOutermostScroll } from "@/services/analyticsTracker";
+import { LandingPage } from "./LandingPage";
 import { InitialView } from "./InitialView";
 import { TwoColumnView } from "./TwoColumnView";
 
 export function AppLayout() {
   const appState = useAppState();
   const analyticsEnabled = isAnalyticsEnabled();
+  const [selectedRole, setSelectedRole] = useState<"teacher" | "student" | null>(null);
 
   // Initialize analytics cursor tracking and body scroll tracking
   useEffect(() => {
@@ -28,9 +30,18 @@ export function AppLayout() {
     }
   }, [analyticsEnabled]);
 
+  const handleRoleSelect = (role: "teacher" | "student") => {
+    if (role === "teacher") {
+      setSelectedRole(role);
+    }
+    // Student role selection can be handled here in the future if needed
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-muted/30">
-      { appState.hasCompletedGeneration ? (
+      {!selectedRole ? (
+        <LandingPage onRoleSelect={handleRoleSelect} />
+      ) : appState.hasCompletedGeneration ? (
         <TwoColumnView appState={appState} />
       ) : (
         <InitialView appState={appState} />

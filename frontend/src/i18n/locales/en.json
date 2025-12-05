@@ -136,6 +136,11 @@
     "savedToFolder": "{{title}} has been saved to your downloads folder.",
     "error": "Failed to download {{format}} file",
     "unexpectedError": "An unexpected error occurred."
+  },
+  "landing": {
+    "roleQuestion": "Are you a Student or a Teacher?",
+    "student": "Student",
+    "teacher": "Teacher"
   }
 }
 
