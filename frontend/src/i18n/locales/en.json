@@ -138,7 +138,7 @@
     "unexpectedError": "An unexpected error occurred."
   },
   "landing": {
-    "roleQuestion": "Are you a Student or a Teacher?",
+    "roleQuestion": "What are you?",
     "student": "Student",
     "teacher": "Teacher"
   }
