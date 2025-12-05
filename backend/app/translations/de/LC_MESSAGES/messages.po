@@ -55,44 +55,44 @@ msgstr "Fehler beim Parsen der visuellen Sprache. Ein weiterer Versuch könnte h
 #: app/api/routes/generation.py:126
 #, python-format
 msgid "Could not generate formal visualization: %(error)s"
-msgstr "Formale Visualisierung konnte nicht generiert werden: %(error)s"
+msgstr "Formale Visualisierung konnte nicht erzeugt werden: %(error)s"
 
 #: app/api/routes/generation.py:128
 msgid "Could not generate formal visualization. Retrying might help."
 msgstr ""
-"Formale Visualisierung konnte nicht generiert werden. Ein erneuter "
+"Formale Visualisierung konnte nicht erzeugt werden. Ein erneuter "
 "Versuch könnte helfen."
 
 #: app/api/routes/generation.py:130
 #, python-format
 msgid "Formal generation error: %(error)s"
-msgstr "Fehler bei der formalen Generierung: %(error)s"
+msgstr "Fehler bei der formalen Erz: %(error)s"
 
 #: app/api/routes/generation.py:132
 #, python-format
 msgid "Unexpected formal generation error: %(error)s"
-msgstr "Unerwarteter Fehler bei der formalen Generierung: %(error)s"
+msgstr "Unerwarteter Fehler bei der formalen Erz: %(error)s"
 
 #: app/api/routes/generation.py:148
 #, python-format
 msgid "Could not generate intuitive visualization: %(error)s"
-msgstr "Intuitive Visualisierung konnte nicht generiert werden: %(error)s"
+msgstr "Intuitive Visualisierung konnte nicht erzeugt werden: %(error)s"
 
 #: app/api/routes/generation.py:150
 msgid "Could not generate intuitive visualization. Retrying might help."
 msgstr ""
-"Intuitive Visualisierung konnte nicht generiert werden. Ein erneuter "
+"Intuitive Visualisierung konnte nicht erzeugt werden. Ein erneuter "
 "Versuch könnte helfen."
 
 #: app/api/routes/generation.py:152
 #, python-format
 msgid "Intuitive generation error: %(error)s"
-msgstr "Fehler bei der intuitiven Generierung: %(error)s"
+msgstr "Fehler bei der intuitiven Erzeugung: %(error)s"
 
 #: app/api/routes/generation.py:154
 #, python-format
 msgid "Unexpected intuitive generation error: %(error)s"
-msgstr "Unerwarteter Fehler bei der intuitiven Generierung: %(error)s"
+msgstr "Unerwarteter Fehler bei der intuitiven Erzeugung: %(error)s"
 
 #: app/api/routes/svg_dataset.py:50 app/api/routes/svg_dataset.py:256
 msgid "SVG dataset directory not found"
@@ -178,22 +178,22 @@ msgstr "Entitätstyp ist erforderlich"
 
 #: app/api/routes/svg_dataset.py:353
 msgid "Failed to generate SVG"
-msgstr "SVG konnte nicht generiert werden"
+msgstr "SVG konnte nicht erzeugt werden"
 
 #: app/api/routes/svg_dataset.py:384
 #, python-format
 msgid "Generated SVG validation failed: %(error)s"
-msgstr "Validierung des generierten SVG fehlgeschlagen: %(error)s"
+msgstr "Validierung des erzeugten SVG fehlgeschlagen: %(error)s"
 
 #: app/api/routes/svg_dataset.py:397
 #, python-format
 msgid "SVG icon generated successfully: %(entity_type)s"
-msgstr "SVG-Icon erfolgreich generiert: %(entity_type)s"
+msgstr "SVG-Icon erfolgreich erzeugt: %(entity_type)s"
 
 #: app/api/routes/svg_dataset.py:404
 #, python-format
 msgid "Generation failed: %(error)s"
-msgstr "Generierung fehlgeschlagen: %(error)s"
+msgstr "Erzeugung fehlgeschlagen: %(error)s"
 
 #: app/api/routes/svg_dataset.py:426
 msgid "Temporary filename is required"
@@ -235,7 +235,7 @@ msgstr "Antivirus-Status konnte nicht abgerufen werden: %(error)s"
 # Generator error messages (from visual_generation modules)
 #~ msgid "Cannot generate visual: SVG file not found for %(base_name)s."
 #~ msgstr ""
-#~ "Visualisierung konnte nicht generiert werden:"
+#~ "Visualisierung konnte nicht erzeugt werden:"
 #~ " SVG-Datei für %(base_name)s nicht "
 #~ "gefunden."
 
@@ -244,7 +244,7 @@ msgstr "Antivirus-Status konnte nicht abgerufen werden: %(error)s"
 #~ "of multiplier has entity quantity higher"
 #~ " than 12."
 #~ msgstr ""
-#~ "Keine Visualisierung kann generiert werden,"
+#~ "Keine Visualisierung kann erzeugt werden,"
 #~ " da der Multiplikator eine Entitätsmenge"
 #~ " höher als 12 hat."
 
@@ -267,7 +267,7 @@ msgstr "Antivirus-Status konnte nicht abgerufen werden: %(error)s"
 #~ "Cannot generate visual: %(dividend)s cannot"
 #~ " be evenly divided by %(divisor)s."
 #~ msgstr ""
-#~ "Visualisierung konnte nicht generiert werden:"
+#~ "Visualisierung konnte nicht erzeugt werden:"
 #~ " %(dividend)s kann nicht gleichmäßig durch"
 #~ " %(divisor)s geteilt werden."
 
@@ -275,7 +275,7 @@ msgstr "Antivirus-Status konnte nicht abgerufen werden: %(error)s"
 #~ "Cannot generate visual: Division result "
 #~ "rectangle number is higher than 12."
 #~ msgstr ""
-#~ "Visualisierung konnte nicht generiert werden:"
+#~ "Visualisierung konnte nicht erzeugt werden:"
 #~ " Anzahl der Divisionsergebnis-Rechtecke ist"
 #~ " höher als 12."
 
@@ -289,7 +289,7 @@ msgstr "Antivirus-Status konnte nicht abgerufen werden: %(error)s"
 #~ "exactly two containers, but it contains"
 #~ " more than two."
 #~ msgstr ""
-#~ "Visualisierung konnte nicht generiert werden:"
+#~ "Visualisierung konnte nicht erzeugt werden:"
 #~ " Division erfordert genau zwei Container,"
 #~ " aber es enthält mehr als zwei."
 
@@ -297,7 +297,7 @@ msgstr "Antivirus-Status konnte nicht abgerufen werden: %(error)s"
 #~ "Cannot generate visual: Cannot divide by"
 #~ " zero or a negative entity quantity."
 #~ msgstr ""
-#~ "Visualisierung konnte nicht generiert werden:"
+#~ "Visualisierung konnte nicht erzeugt werden:"
 #~ " Kann nicht durch null oder eine "
 #~ "negative Entitätsmenge teilen."
 
@@ -306,7 +306,7 @@ msgstr "Antivirus-Status konnte nicht abgerufen werden: %(error)s"
 #~ "entity type to be the same for "
 #~ "both containers."
 #~ msgstr ""
-#~ "Visualisierung konnte nicht generiert werden:"
+#~ "Visualisierung konnte nicht erzeugt werden:"
 #~ " Überschuss erfordert, dass der Entitätstyp"
 #~ " für beide Container gleich ist."
 
@@ -315,7 +315,7 @@ msgstr "Antivirus-Status konnte nicht abgerufen werden: %(error)s"
 #~ "requires exactly two containers (length, "
 #~ "width), requirements do not met."
 #~ msgstr ""
-#~ "Visualisierung konnte nicht generiert werden:"
+#~ "Visualisierung konnte nicht erzeugt werden:"
 #~ " Flächenberechnung erfordert genau zwei "
 #~ "Container (Länge, Breite), Anforderungen nicht"
 #~ " erfüllt."
@@ -324,26 +324,26 @@ msgstr "Antivirus-Status konnte nicht abgerufen werden: %(error)s"
 #~ "Cannot generate visual: No result "
 #~ "container provided in visual language."
 #~ msgstr ""
-#~ "Visualisierung konnte nicht generiert werden:"
+#~ "Visualisierung konnte nicht erzeugt werden:"
 #~ " Kein Ergebnis-Container in der "
 #~ "visuellen Sprache bereitgestellt."
 
 #~ msgid "Cannot generate visual: Unsupported operation: %(operation)s."
 #~ msgstr ""
-#~ "Visualisierung konnte nicht generiert werden:"
+#~ "Visualisierung konnte nicht erzeugt werden:"
 #~ " Nicht unterstützte Operation: %(operation)s."
 
 #~ msgid ""
 #~ "Cannot generate visual: The subtrahend "
 #~ "entity quantity is not an integer."
 #~ msgstr ""
-#~ "Visualisierung konnte nicht generiert werden:"
+#~ "Visualisierung konnte nicht erzeugt werden:"
 #~ " Die Subtrahend-Entitätsmenge ist keine "
 #~ "ganze Zahl."
 
 #~ msgid "Cannot generate visual: The minuend entity quantity is higher than 10."
 #~ msgstr ""
-#~ "Visualisierung konnte nicht generiert werden:"
+#~ "Visualisierung konnte nicht erzeugt werden:"
 #~ " Die Minuend-Entitätsmenge ist höher "
 #~ "als 10."
 
@@ -351,13 +351,13 @@ msgstr "Antivirus-Status konnte nicht abgerufen werden: %(error)s"
 #~ "Cannot generate visual: The subtrahend "
 #~ "entity quantity is higher than 10."
 #~ msgstr ""
-#~ "Visualisierung konnte nicht generiert werden:"
+#~ "Visualisierung konnte nicht erzeugt werden:"
 #~ " Die Subtrahend-Entitätsmenge ist höher "
 #~ "als 10."
 
 #~ msgid "Cannot generate visual: Error in handling the comparison."
 #~ msgstr ""
-#~ "Visualisierung konnte nicht generiert werden:"
+#~ "Visualisierung konnte nicht erzeugt werden:"
 #~ " Fehler bei der Behandlung des "
 #~ "Vergleichs."
 
