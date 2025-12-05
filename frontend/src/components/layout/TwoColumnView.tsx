@@ -289,7 +289,7 @@ export function TwoColumnView({ appState }: Props) {
                 {...(analyticsEnabled ? {onLayout: trackPanelResize} : {})}
               >
                 <ResizablePanel 
-                  defaultSize={30} 
+                  defaultSize={31} 
                   minSize={15}
                   maxSize={45}
                   className="flex flex-col min-w-0"
@@ -309,7 +309,7 @@ export function TwoColumnView({ appState }: Props) {
                 />
 
                 <ResizablePanel 
-                  defaultSize={70}
+                  defaultSize={69}
                   minSize={30}
                   className="flex flex-col min-w-0"
                 >
