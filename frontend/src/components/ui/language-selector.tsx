@@ -31,13 +31,13 @@ export const LanguageSelector: React.FC = () => {
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className="w-[var(--radix-dropdown-menu-trigger-width)] min-w-0 px-1 py-1 md:px-2 md:py-2 lg:px-3 lg:py-3"
+        className="w-[var(--radix-dropdown-menu-trigger-width)] min-w-0 overflow-x-visible p-1 md:p-1.5 lg:p-2 [&>*:not(:last-child)]:mb-1"
       >
         {availableLanguages.map((lang) => (
           <DropdownMenuItem
             key={lang.code}
             onClick={() => setLanguage(lang.code)}
-            className={`cursor-pointer responsive-text-font-size flex items-center gap-1 ${
+            className={`cursor-pointer responsive-text-font-size flex items-center gap-1 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] ${
               language === lang.code ? 'bg-accent' : ''
             }`}
           >
