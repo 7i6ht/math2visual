@@ -141,6 +141,17 @@
     "roleQuestion": "Was sind Sie?",
     "student": "Schüler",
     "teacher": "Lehrer"
+  },
+  "tutor": {
+    "enterMwpLabel": "Starte mit deiner Mathe-Textaufgabe",
+    "enterMwpPlaceholder": "Gib deine Mathe-Textaufgabe ein...",
+    "startSession": "Tutor-Session starten",
+    "send": "Senden",
+    "sendPlaceholder": "Antworte dem Tutor...",
+    "sessionNotFound": "Session nicht gefunden. Bitte neu starten.",
+    "visualTitleFormal": "Tutor-Visual (formal)",
+    "visualTitleIntuitive": "Tutor-Visual (intuitiv)",
+    "visualLanguageAvailable": "Der Tutor hat eine visuelle Sprache erzeugt und wird sie bei Bedarf nutzen."
   }
 }
 

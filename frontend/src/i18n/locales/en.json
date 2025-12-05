@@ -141,6 +141,17 @@
     "roleQuestion": "What are you?",
     "student": "Student",
     "teacher": "Teacher"
+  },
+  "tutor": {
+    "enterMwpLabel": "Start by entering your math word problem",
+    "enterMwpPlaceholder": "Type your math word problem...",
+    "startSession": "Start tutor session",
+    "send": "Send",
+    "sendPlaceholder": "Reply to the tutor...",
+    "sessionNotFound": "Session not found. Please restart.",
+    "visualTitleFormal": "Tutor visual (formal)",
+    "visualTitleIntuitive": "Tutor visual (intuitive)",
+    "visualLanguageAvailable": "The tutor generated a visual language for this problem and will reference it when helpful."
   }
 }
 

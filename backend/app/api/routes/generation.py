@@ -179,3 +179,97 @@ def generate():
     })
 
 
+def _generate_single_svg(dsl: str, variant: str):
+    """
+    Generate a single SVG (formal or intuitive) from DSL.
+    """
+    os.makedirs(output_dir, exist_ok=True)
+    request_id = str(uuid.uuid4())
+    output_file = os.path.join(output_dir, f"{variant}_{request_id}.svg")
+
+    generator = FormalVisualGenerator(translate=_)
+    if variant == "intuitive":
+        generator = IntuitiveVisualGenerator(translate=_)
+
+    dsl_parser = DSLParser()
+
+    try:
+        data = dsl_parser.parse_dsl(dsl)
+    except ValueError as e:
+        current_app.logger.error(f"Visual Language parse error: {e}")
+        return None, _("Visual Language parse error."), [], True
+
+    error = None
+    svg_content = None
+
+    try:
+        ok = generator.render_svgs_from_data(output_file, resources, data)
+        if ok and os.path.exists(output_file):
+            with open(output_file, "r") as f:
+                svg_content = f.read()
+        else:
+            generator_error = generator.get_error_message()
+            if generator_error:
+                error = _("Could not generate %(variant)s visualization: %(error)s", variant=variant, error=generator_error)
+            else:
+                error = _("Could not generate %(variant)s visualization. Retrying might help.", variant=variant)
+    except (VisualGenerationError, FileNotFoundError) as e:
+        error = _("%(variant)s generation error: %(error)s", variant=variant.capitalize(), error=str(e))
+    except Exception as e:
+        error = _("Unexpected %(variant)s generation error: %(error)s", variant=variant, error=str(e))
+
+    missing_entities = generator.get_missing_entities()
+
+    return svg_content, error, missing_entities, False
+
+
+@generation_bp.route("/api/generate/formal", methods=["POST"])
+def generate_formal():
+    """
+    Generate only the formal visualization for a given DSL.
+    """
+    body = request.json or {}
+    dsl = (body.get("dsl") or "").strip()
+
+    if not dsl:
+        return jsonify({"error": _("Empty Visual Language provided.")}), 400
+
+    svg_content, error, missing_entities, is_parse_error = _generate_single_svg(dsl, "formal")
+
+    status = 400 if error and is_parse_error else 200 if not error else 500
+
+    return jsonify({
+        "variant": "formal",
+        "visual_language": dsl,
+        "svg": svg_content,
+        "error": error,
+        "missing_svg_entities": missing_entities,
+        "is_parse_error": is_parse_error
+    }), status
+
+
+@generation_bp.route("/api/generate/intuitive", methods=["POST"])
+def generate_intuitive():
+    """
+    Generate only the intuitive visualization for a given DSL.
+    """
+    body = request.json or {}
+    dsl = (body.get("dsl") or "").strip()
+
+    if not dsl:
+        return jsonify({"error": _("Empty Visual Language provided.")}), 400
+
+    svg_content, error, missing_entities, is_parse_error = _generate_single_svg(dsl, "intuitive")
+
+    status = 400 if error and is_parse_error else 200 if not error else 500
+
+    return jsonify({
+        "variant": "intuitive",
+        "visual_language": dsl,
+        "svg": svg_content,
+        "error": error,
+        "missing_svg_entities": missing_entities,
+        "is_parse_error": is_parse_error
+    }), status
+
+
