@@ -6,7 +6,7 @@ import { VisualizationResults } from "@/components/visualization/VisualizationRe
 import { SparklesLoading } from "@/components/ui/sparkles-loading";
 import { SessionAnalyticsDisplay } from "@/components/ui/SessionAnalyticsDisplay";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { ImperativePanelHandle } from "react-resizable-panels";
 import { trackColumnScroll, trackTwoColumnLayoutRender, trackElementClick, trackPanelResize, isAnalyticsEnabled, getSessionId, subscribeToScreenshotState, getIsCapturingScreenshot } from "@/services/analyticsTracker";
@@ -50,7 +50,9 @@ export function TwoColumnView({ appState }: Props) {
   const sessionId = getSessionId();
   const { t } = useTranslation();
   const [isVisualPanelCollapsed, setIsVisualPanelCollapsed] = useState(true);
+  const [isMathProblemPanelCollapsed, setIsMathProblemPanelCollapsed] = useState(false);
   const visualLanguagePanelRef = useRef<ImperativePanelHandle>(null);
+  const mathProblemPanelRef = useRef<ImperativePanelHandle>(null);
   const isCapturingScreenshot = useSyncExternalStore(
     subscribeToScreenshotState,
     getIsCapturingScreenshot,
@@ -116,6 +118,16 @@ export function TwoColumnView({ appState }: Props) {
       setIsVisualPanelCollapsed(false);
       if (analyticsEnabled) {
         trackElementClick('visual_language_panel_expand_button');
+      }
+    }
+  }, [analyticsEnabled]);
+
+  const handleExpandMathProblemPanel = useCallback(() => {
+    if (mathProblemPanelRef.current) {
+      mathProblemPanelRef.current.expand();
+      setIsMathProblemPanelCollapsed(false);
+      if (analyticsEnabled) {
+        trackElementClick('math_problem_panel_expand_button');
       }
     }
   }, [analyticsEnabled]);
@@ -223,23 +235,45 @@ export function TwoColumnView({ appState }: Props) {
                 {...(analyticsEnabled ? {onLayout: trackPanelResize} : {})}
               >
                 <ResizablePanel
+                  ref={mathProblemPanelRef}
+                  id="math-problem"
                   defaultSize={31} 
-                  minSize={15}
+                  minSize={25}
                   maxSize={45}
+                  collapsible={true}
+                  collapsedSize={3}
                   className="flex flex-col min-w-0"
                   style={{ overflow: 'visible' }}
+                  onCollapse={() => setIsMathProblemPanelCollapsed(true)}
+                  onExpand={() => setIsMathProblemPanelCollapsed(false)}
                 >
-                  <div 
-                    className="flex flex-col"
-                    {...(analyticsEnabled ? {onScroll: handleLeftColumnScroll} : {})}
-                  >
-                    {mathProblemContent}
-                  </div>
+                  {isMathProblemPanelCollapsed ? (
+                    // Collapsed state: Matching tabs styling with centered chevron
+                    <div 
+                      className="w-full h-full bg-muted hover:opacity-80 cursor-pointer flex items-center justify-center transition-opacity rounded-r-md"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleExpandMathProblemPanel();
+                      }}
+                      aria-label={t("forms.mathProblemTitle", "Math Problem")}
+                      title={t("forms.mathProblemTitle", "Math Problem - Click to expand")}
+                    >
+                      <ChevronRight className="responsive-icon-font-size text-foreground" />
+                    </div>
+                  ) : (
+                    // Expanded state: Show the Math Problem form
+                    <div 
+                      className="flex flex-col"
+                      {...(analyticsEnabled ? {onScroll: handleLeftColumnScroll} : {})}
+                    >
+                      {mathProblemContent}
+                    </div>
+                  )}
                 </ResizablePanel>
 
                 <ResizableHandle 
                   withHandle 
-                  className="w-1 bg-border hover:bg-blue-500 transition-colors"
+                  className={`w-1 bg-border hover:bg-blue-500 transition-colors ${isMathProblemPanelCollapsed ? 'hidden' : ''}`}
                 />
 
                 <ResizablePanel 
