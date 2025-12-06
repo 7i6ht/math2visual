@@ -358,7 +358,8 @@ export function ChatView({ onBack }: Props) {
                     onChange={(e) => setInput(e.target.value)}
                     placeholder={t("tutor.sendPlaceholder")}
                     spellCheck={false}
-                    className="w-full responsive-text-font-size border-0 bg-transparent p-3 pr-32 sm:pr-40 lg:pr-48 xl:pr-56 shadow-none resize-none min-h-[44px] max-h-[120px]"
+                    rows={1}
+                    className="w-full responsive-text-font-size border-0 bg-transparent p-3 pr-32 sm:pr-40 lg:pr-48 xl:pr-56 shadow-none resize-none !min-h-0"
                     onKeyDown={(e) => {
                       if (e.key === "Enter" && !e.shiftKey) {
                         e.preventDefault();
