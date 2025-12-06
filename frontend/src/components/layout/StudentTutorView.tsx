@@ -9,6 +9,7 @@ import { Mic, Square, User, ArrowUp } from "lucide-react";
 import { TextCancelButton } from "@/components/ui/text-cancel-button";
 import { FlyingChatbotIcon } from "@/components/ui/flying-chatbot-icon";
 import { ResponsiveLogo } from "@/components/ui/ResponsiveLogo";
+import { useSVGResponsive } from "@/hooks/useSVGResponsive";
 
 type Message = {
   role: "student" | "tutor";
@@ -20,6 +21,36 @@ type Message = {
 
 type Props = {
   onBack?: () => void;
+};
+
+const ChatVisual = ({ visual, title }: { visual: TutorVisual; title: string }) => {
+  const svgRef = useRef<HTMLDivElement | null>(null);
+  const { makeResponsive, setupResizeListener } = useSVGResponsive();
+
+  useEffect(() => {
+    if (!svgRef.current || !visual.svg) return;
+    svgRef.current.innerHTML = visual.svg;
+    makeResponsive(svgRef.current, { align: "left" });
+  }, [visual, makeResponsive]);
+
+  useEffect(() => {
+    const cleanup = setupResizeListener([svgRef], { align: "left" });
+    return () => {
+      cleanup();
+    };
+  }, [setupResizeListener]);
+
+  return (
+    <div className="mt-3 rounded-lg border bg-card p-3 shadow-sm text-left">
+      <div className="responsive-text-font-size font-semibold mb-2">{title}</div>
+      <div className="w-full overflow-hidden rounded-md border bg-white">
+        <div ref={svgRef} className="w-full" />
+      </div>
+      {visual.reason && (
+        <p className="mt-2 responsive-text-font-size text-muted-foreground">{visual.reason}</p>
+      )}
+    </div>
+  );
 };
 
 export function StudentTutorView({ onBack }: Props) {
@@ -171,26 +202,6 @@ export function StudentTutorView({ onBack }: Props) {
     );
   };
 
-  const renderVisual = (visual?: TutorVisual | null) => {
-    if (!visual || !visual.svg) return null;
-    const title =
-      visual.variant === "formal"
-        ? t("tutor.visualTitleFormal")
-        : t("tutor.visualTitleIntuitive");
-    return (
-      <div className="mt-3 rounded-lg border bg-card p-3 shadow-sm">
-        <div className="responsive-text-font-size font-semibold mb-2">{title}</div>
-        <div
-          className="w-full overflow-hidden rounded-md border bg-white"
-          dangerouslySetInnerHTML={{ __html: visual.svg }}
-        />
-        {visual.reason && (
-          <p className="mt-2 responsive-text-font-size text-muted-foreground">{visual.reason}</p>
-        )}
-      </div>
-    );
-  };
-
   const handleVoiceToggle = () => {
     if (typeof window === "undefined") return;
     const SpeechRecognition =
@@ -330,7 +341,14 @@ export function StudentTutorView({ onBack }: Props) {
                         </div>
                         {msg.visual && (
                           <div className="w-full">
-                            {renderVisual(msg.visual)}
+                            <ChatVisual
+                              visual={msg.visual}
+                              title={
+                                msg.visual.variant === "formal"
+                                  ? t("tutor.visualTitleFormal")
+                                  : t("tutor.visualTitleIntuitive")
+                              }
+                            />
                           </div>
                         )}
                       </div>

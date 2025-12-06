@@ -1,6 +1,10 @@
 // Custom hook for handling SVG responsiveness
 import { useCallback, useMemo } from "react";
 
+type ResponsiveOptions = {
+  align?: "left" | "center";
+};
+
 export const useSVGResponsive = () => {
   const toNumber = (value: string | null) => {
     if (!value) return null;
@@ -8,7 +12,8 @@ export const useSVGResponsive = () => {
     return match ? Number(match[1]) : null;
   };
 
-  const makeResponsive = useCallback((root: HTMLDivElement | null) => {
+  const makeResponsive = useCallback((root: HTMLDivElement | null, options: ResponsiveOptions = {}) => {
+    const { align = "center" } = options;
     if (!root) return;
     const svg = root.querySelector('svg');
     if (!svg) return;
@@ -31,7 +36,7 @@ export const useSVGResponsive = () => {
     svg.style.height = 'auto';
     svg.style.maxWidth = '100%';
     svg.style.display = 'block';
-    svg.style.margin = '0 auto';
+    svg.style.margin = align === "left" ? '0' : '0 auto';
     if (!svg.getAttribute('preserveAspectRatio')) {
       svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
     }
@@ -74,11 +79,11 @@ export const useSVGResponsive = () => {
   }, []);
 
   // Setup window resize listener that triggers makeResponsive on provided refs
-  const setupResizeListener = useCallback((refs: Array<React.RefObject<HTMLDivElement | null>>) => {
+  const setupResizeListener = useCallback((refs: Array<React.RefObject<HTMLDivElement | null>>, options: ResponsiveOptions = {}) => {
     const onResize = () => {
       refs.forEach(ref => {
         if (ref.current) {
-          makeResponsive(ref.current);
+          makeResponsive(ref.current, options);
         }
       });
     };
