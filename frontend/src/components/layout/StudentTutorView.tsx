@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import tutorService from "@/api_services/tutor";
 import type { TutorVisual } from "@/api_services/tutor";
 import { Mic, Square, User, ArrowUp } from "lucide-react";
@@ -10,6 +8,9 @@ import { TextCancelButton } from "@/components/ui/text-cancel-button";
 import { FlyingChatbotIcon } from "@/components/ui/flying-chatbot-icon";
 import { ResponsiveLogo } from "@/components/ui/ResponsiveLogo";
 import { useSVGResponsive } from "@/hooks/useSVGResponsive";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { TutorSessionStarter } from "./TutorSessionStarter";
 
 type Message = {
   role: "student" | "tutor";
@@ -269,33 +270,12 @@ export function StudentTutorView({ onBack }: Props) {
 
       <div className="flex-1 overflow-hidden">
         {!isSessionActive && (
-          <div className="space-y-3 max-w-3xl">
-            <label className="block responsive-text-font-size font-medium text-foreground">
-              {t("tutor.enterMwpLabel")}
-            </label>
-            <Textarea
-              value={mwp}
-              onChange={(e) => setMwp(e.target.value)}
-              placeholder={t("tutor.enterMwpPlaceholder")}
-              spellCheck={false}
-              className="min-h-[160px] responsive-text-font-size"
-            />
-            <div className="flex gap-3 items-center">
-              <Button 
-                onClick={handleStart} 
-                disabled={starting}
-                className="min-w-[200px] !responsive-text-font-size button-responsive-size px-6 py-3 md:px-8 md:py-4 lg:px-10 lg:py-5 xl:px-12 xl:py-6"
-              >
-                {starting ? t("common.loading") : t("tutor.startSession")}
-              </Button>
-              <FlyingChatbotIcon
-                animated={starting}
-                responsive
-                minSize={34}
-                maxSize={140}
-              />
-            </div>
-          </div>
+          <TutorSessionStarter
+            mwp={mwp}
+            onMwpChange={setMwp}
+            onStart={handleStart}
+            starting={starting}
+          />
         )}
 
         {isSessionActive && (
