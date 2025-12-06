@@ -22,13 +22,11 @@ def _render_visual_request(visual_request: dict, fallback_dsl: str):
 
     variant = visual_request.get("variant") or "intuitive"
     dsl_scope = (visual_request.get("dsl_scope") or fallback_dsl or "").strip()
-    reason = visual_request.get("reason")
 
     if not dsl_scope:
         return {
             "variant": variant,
             "error": _("Missing DSL scope for visual request."),
-            "reason": reason
         }
 
     svg_content, error, missing_entities, is_parse_error = _generate_single_svg(dsl_scope, variant)
@@ -39,7 +37,6 @@ def _render_visual_request(visual_request: dict, fallback_dsl: str):
         "error": error,
         "missing_svg_entities": missing_entities,
         "is_parse_error": is_parse_error,
-        "reason": reason,
         "dsl_scope": dsl_scope,
     }
 

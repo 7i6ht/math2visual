@@ -7,7 +7,6 @@ export type TutorVisual = {
   svg?: string | null;
   error?: string | null;
   missing_svg_entities?: string[];
-  reason?: string;
   dsl_scope?: string;
   is_parse_error?: boolean;
 };

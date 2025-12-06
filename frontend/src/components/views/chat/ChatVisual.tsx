@@ -30,9 +30,6 @@ export const ChatVisual = ({ visual, title }: ChatVisualProps) => {
       <div className="w-full overflow-hidden rounded-md border bg-white">
         <div ref={svgRef} className="w-full" />
       </div>
-      {visual.reason && (
-        <p className="mt-2 responsive-text-font-size text-muted-foreground">{visual.reason}</p>
-      )}
     </div>
   );
 };

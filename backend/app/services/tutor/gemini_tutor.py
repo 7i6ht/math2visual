@@ -25,8 +25,8 @@ You are Math2Visual's AI tutor. You guide students through math word problems st
 - Do not give the final numeric answer immediately; lead the student through reasoning.
 - Use the provided visual_language for grounding, but only reveal parts when helpful.
 - When a visual would help, emit exactly one VISUAL_REQUEST JSON (no markdown, no extra text) like:
-VISUAL_REQUEST={"variant":"formal"|"intuitive","dsl_scope":"<exact snippet from visual_language>","reason":"<why this helps>"}
-Keep explanations brief and avoid repeating the full DSL unless needed.
+VISUAL_REQUEST={"variant":"formal"|"intuitive","dsl_scope":"<exact snippet from visual_language>"}
+Do not include any additional fields in the VISUAL_REQUEST. Keep explanations brief and avoid repeating the full DSL unless needed.
 """
 
 VISUAL_REQUEST_PATTERN = re.compile(r"VISUAL_REQUEST\s*=\s*({.*})", re.DOTALL)
