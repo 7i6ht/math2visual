@@ -6,9 +6,11 @@ A Flask-based backend service that transforms math word problems (MWPs) into vis
 
 The backend consists of the following key components:
 
-- **API Routes**: RESTful endpoints for generation, uploads, and system management
+- **API Routes**: RESTful endpoints for generation, uploads, tutoring, analytics, and system management
 - **Visual Generation**: Services for creating formal and intuitive SVG representations
 - **Language Generation**: OpenAI-powered conversion of MWPs to visual language (DSL)
+- **Tutor Service**: Gemini-powered interactive tutor with DSL-grounded guidance and streaming responses
+- **Analytics**: Session, action, screenshot, and cursor tracking for UX insights
 - **Storage Management**: Configurable storage backend (local/JuiceFS) for SVG datasets
 - **Security**: Input validation, SVG sanitization, and optional ClamAV integration
 
@@ -27,6 +29,7 @@ backend/
 │   │   │   ├── analytics.py                # Analytics and usage tracking
 │   │   │   ├── generation.py               # Core generation API
 │   │   │   ├── svg_dataset.py              # SVG dataset management (upload, search, serve)
+│   │   │   ├── tutor.py                    # AI tutor session endpoints (text + streaming)
 │   │   │   └── system.py                   # System status endpoints
 │   │   └── __init__.py
 │   ├── config/                             # Configuration management
@@ -44,6 +47,8 @@ backend/
 │   │   ├── svg_generation/                 # AI-powered SVG icon generation
 │   │   │   ├── __init__.py
 │   │   │   └── svg_generator.py            # Gemini-based SVG generation
+│   │   ├── tutor/                          # Gemini-powered tutor orchestration
+│   │   │   └── gemini_tutor.py             # Tutor session + streaming helpers
 │   │   ├── validation/                     # Input/output validation
 │   │   │   ├── __init__.py
 │   │   │   ├── security_scanner.py         # ClamAV integration
@@ -102,12 +107,14 @@ backend/
 │   ├── uninstall_systemd_service.sh        # Systemd service uninstallation
 │   └── verify_juicefs.sh                   # JuiceFS verification
 ├── docs/                                   # Documentation
+│   ├── ANALYTICS_SETUP.md                  # Analytics stack & API setup
 │   ├── PRODUCTION_DEPLOYMENT.md            # Production deployment guide
 │   ├── JUICEFS_SETUP.md                    # JuiceFS setup instructions
 │   ├── CLAMAV_SETUP.md                     # ClamAV antivirus setup
 │   ├── TRANSLATIONS.md                     # Backend translations with Flask-Babel
 │   └── cleanup_setup.md                    # File cleanup documentation
 ├── config_templates/                       # Configuration templates
+│   ├── env_analytics_template              # Example env for analytics DB
 │   └── env_juicefs_template                # JuiceFS environment template
 └── tests/                                  # Test suite
     └── test_svg_validator.py
@@ -140,6 +147,10 @@ Update `.env` file with required environment variables.
 ```bash
 # OpenAI Configuration
 OPENAI_API_KEY=your_openai_api_key
+
+# Gemini Configuration (SVG generation + tutor)
+GEMINI_API_KEY=your_gemini_api_key
+GEMINI_TUTOR_MODEL=gemini-pro-latest  # optional override
 
 # Storage Configuration
 SVG_STORAGE_MODE=local  # or 'juicefs'
@@ -204,6 +215,87 @@ Generate visual representations from math word problems.
   "missing_svg_entities": ["entity1", "entity2"]
 }
 ```
+
+#### `POST /api/generate/formal`
+Generate only the formal visualization for a given Visual Language (DSL).
+
+**Request Body:**
+```json
+{
+  "dsl": "operation(...)"
+}
+```
+
+**Response:**
+```json
+{
+  "variant": "formal",
+  "visual_language": "operation(...)",
+  "svg": "<svg>...</svg>",
+  "error": null,
+  "missing_svg_entities": [],
+  "is_parse_error": false
+}
+```
+
+#### `POST /api/generate/intuitive`
+Generate only the intuitive visualization for a given Visual Language (DSL).
+
+**Request Body:** Same as `/api/generate/formal`
+
+**Response:** Same shape as `/api/generate/formal` with `variant: "intuitive"`
+
+### Tutor Session API
+
+Gemini-powered tutor that guides students through a math word problem using the generated Visual Language (DSL).
+
+#### `POST /api/tutor/start`
+Start a tutoring session (generates DSL first).
+
+**Request Body:**
+```json
+{
+  "mwp": "Janet has 9 oranges and Sharon has 7 oranges. How many oranges do they have together?"
+}
+```
+
+**Response:**
+```json
+{
+  "session_id": "9ad3c7a9-...",
+  "tutor_message": "Hi! Let's work through this together...",
+  "visual_language": "addition(...)",
+  "visual": {
+    "variant": "intuitive",
+    "svg": "<svg>...</svg>",
+    "error": null,
+    "is_parse_error": false,
+    "dsl_scope": "addition(...)"
+  }
+}
+```
+
+#### `POST /api/tutor/message`
+Continue an existing tutoring session.
+
+**Request Body:**
+```json
+{
+  "session_id": "9ad3c7a9-...",
+  "message": "I think we should add them."
+}
+```
+
+**Response:** Same shape as `/api/tutor/start` without `visual_language`.
+
+#### `GET /api/tutor/message/stream`
+Stream a tutoring reply (Server-Sent Events).
+
+**Query Params:** `session_id`, `message`
+
+**Stream Payloads:**
+- Chunk: `data: {"type":"chunk","delta":"..."}`
+- Final: `data: {"type":"done","session_id":"...","tutor_message":"...","visual":{...}}`
 
 ### SVG Dataset Management API
 
@@ -340,7 +432,7 @@ curl -X POST http://localhost:5000/api/svg-dataset/generate \
 - The generated SVG is stored temporarily in `storage/temp_svgs/`
 - The `temp_filename` must be used with the confirm endpoint to save permanently
 - Temporary SVGs are subject to automatic cleanup if not confirmed
-- This endpoint uses the Gemini AI model configured via `GOOGLE_API_KEY`
+- This endpoint uses the Gemini AI model configured via `GEMINI_API_KEY`
 
 #### `POST /api/svg-dataset/confirm-generated`
 Confirm and permanently save a previously generated SVG from the temporary storage to the dataset.
@@ -536,6 +628,57 @@ Get antivirus scanner status and configuration information.
 {
   "success": false,
   "error": "Failed to get antivirus status: ClamAV daemon not running"
+}
+```
+
+### Analytics API
+
+#### `POST /api/analytics/session`
+Create or update a user session.
+
+**Request Body:**
+```json
+{ "session_id": "client-session-id" }
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "session_id": "client-session-id",
+  "created_at": "2025-08-20T12:34:56.000Z",
+  "last_activity": "2025-08-20T12:34:56.000Z"
+}
+```
+
+#### `POST /api/analytics/actions/batch`
+Record multiple user actions.
+
+**Request Body (example):**
+```json
+{
+  "session_id": "client-session-id",
+  "actions": [
+    { "type": "click", "data": { "target": "generate" }, "timestamp": "2025-08-20T12:35:00Z" }
+  ]
+}
+```
+
+#### `POST /api/analytics/screenshot`
+Upload a base64 PNG screenshot for a session.
+
+**Request Body (fields):** `session_id`, `image_data`, `width`, `height`, optional `timestamp`
+
+#### `POST /api/analytics/cursor-positions/batch`
+Record multiple cursor positions.
+
+**Request Body (example):**
+```json
+{
+  "session_id": "client-session-id",
+  "positions": [
+    { "x": 120.5, "y": 340.2, "element_type": "button", "element_id": "generate-btn", "timestamp": "2025-08-20T12:35:05Z" }
+  ]
 }
 ```
 

@@ -29,13 +29,12 @@ def _render_visual_request(visual_request: dict, fallback_dsl: str):
             "error": _("Missing DSL scope for visual request."),
         }
 
-    svg_content, error, missing_entities, is_parse_error = _generate_single_svg(dsl_scope, variant)
+    svg_content, error, _, is_parse_error = _generate_single_svg(dsl_scope, variant)
 
     return {
         "variant": variant,
         "svg": svg_content,
         "error": error,
-        "missing_svg_entities": missing_entities,
         "is_parse_error": is_parse_error,
         "dsl_scope": dsl_scope,
     }
@@ -49,8 +48,6 @@ def tutor_start():
     """
     body = request.json or {}
     mwp = (body.get("mwp") or "").strip()
-    formula = body.get("formula") or None
-    hint = body.get("hint") or None
 
     if not mwp:
         return jsonify({"error": _("Provide a math word problem (MWP).")}), 400
@@ -58,7 +55,7 @@ def tutor_start():
     language = get_locale()
 
     # Generate visual language via GPT backend
-    vl_response = generate_visual_language(mwp, formula, hint, language=language)
+    vl_response = generate_visual_language(mwp, None, None, language=language)
     raw = extract_visual_language(vl_response)
     if not raw:
         return jsonify({"error": _("Did not get Visual Language from AI. Please try again.")}), 500

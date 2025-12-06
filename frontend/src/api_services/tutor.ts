@@ -6,7 +6,6 @@ export type TutorVisual = {
   variant: "formal" | "intuitive";
   svg?: string | null;
   error?: string | null;
-  missing_svg_entities?: string[];
   dsl_scope?: string;
   is_parse_error?: boolean;
 };
@@ -31,11 +30,11 @@ type StreamCallbacks = {
 };
 
 const tutorService = {
-  async startSession(mwp: string, formula?: string, hint?: string): Promise<TutorStartResponse> {
+  async startSession(mwp: string): Promise<TutorStartResponse> {
     const response = await fetch(`${API_BASE_URL}/tutor/start`, {
       method: "POST",
       headers: getHeadersWithLanguage(),
-      body: JSON.stringify({ mwp, formula, hint }),
+      body: JSON.stringify({ mwp }),
     });
 
     const result = await response.json();
