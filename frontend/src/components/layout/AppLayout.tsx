@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { useAppState } from "@/hooks/useAppState";
 import { startCursorTracking, stopCursorTracking, isAnalyticsEnabled, trackOutermostScroll } from "@/services/analyticsTracker";
 import { LandingPage } from "./LandingPage";
-import { StudentTutorView } from "./StudentTutorView";
+import { ChatView } from "./ChatView";
 import { InitialView } from "./InitialView";
 import { TwoColumnView } from "./TwoColumnView";
 
@@ -38,7 +38,7 @@ export function AppLayout() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-muted/30">
       {!selectedRole && <LandingPage onRoleSelect={handleRoleSelect} />}
-      {selectedRole === "student" && <StudentTutorView onBack={() => setSelectedRole(null)} />}
+      {selectedRole === "student" && <ChatView onBack={() => setSelectedRole(null)} />}
       {selectedRole === "teacher" && (
         appState.hasCompletedGeneration ? (
           <TwoColumnView appState={appState} />

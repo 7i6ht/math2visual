@@ -54,7 +54,7 @@ const ChatVisual = ({ visual, title }: { visual: TutorVisual; title: string }) =
   );
 };
 
-export function StudentTutorView({ onBack }: Props) {
+export function ChatView({ onBack }: Props) {
   const { t } = useTranslation();
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [mwp, setMwp] = useState("");
