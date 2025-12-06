@@ -23,10 +23,17 @@ This interactive system builds upon the Math2Visual research framework:
 ### Key Innovations
 
 - **Framework for automated visual generation from MWPs**:
-   1. Scalable for
-diverse narrative structures found in MWPs.
+   1. Scalable for diverse narrative structures found in MWPs.
    2. Automation of time-consuming manual process.
 - **Pedagogically Meaningful Design**: Design of visuals validated with teachers.
+
+## ✨ Key Capabilities
+
+- **Teacher mode**: Generate formal and intuitive SVGs from MWPs and Visual Language (DSL), then edit interactively and regenerate.
+- **Student mode (AI tutor)**: Gemini-powered tutor with streaming replies that can surface scoped visuals grounded in DSL fragments.
+- **1,549+ SVG entity library**: Search existing icons, upload your own, or AI-generate new SVGs.
+- **Exports & sharing**: Download visuals as SVG, PNG, or PDF.
+- **Localization & UX**: English and German UI.
 
 ## 🧮 User Interface
 
@@ -34,23 +41,18 @@ diverse narrative structures found in MWPs.
 
 ## 📚 Usage Workflow
 
-1. **Enter Problem**: Type your math word problem in the main text area
-   ```
-   "Janet has 9 oranges and Sharon has 7 oranges. How many oranges do they have together?"
-   ```
+### Teacher mode (visual generation)
+1. **Enter Problem**: Provide a math word problem in the main text area.
+2. **Optional context**: Add a formula or hints to describe the relationships between elements in the visuals.
+3. **Generate**: Click **Generate** and wait for AI processing.
+4. **Review**: Inspect both formal and intuitive visual representations.
+5. **Refine**: Adjust entities/quantities/names via popups (including search/upload/AI-generate for missing SVGs), then regenerate. Tweak the DSL in the Monaco editor.
+6. **Export**: Download visuals as SVG, PNG, or PDF.
 
-2. **Add Formula** (Optional): Include the mathematical formula
-   ```
-   "9 + 7 = 16"
-   ```
-
-3. **Generate**: Click "Generate Visualization" and watch the AI processing
-
-4. **Review Results**: Examine both formal and intuitive visual representations
-
-5. **Refine if Needed**: Edit the generated Visual Language (DSL) and regenerate
-
-6. **Export**: Download visualizations in your preferred format
+### Student mode (AI tutor)
+1. **Start tutoring** with an MWP to create a session.
+2. **Chat with the tutor**; replies stream and surface scoped visuals grounded in the DSL when relevant.
+3. **Iterate** until the learner reaches the answer; regenerate visuals parts if needed.
 
 ## 🏛️ System Overview
 
@@ -110,59 +112,81 @@ flowchart TD
 
 ### Prerequisites
 
-- **Python 3.12+** with conda/pip
+- **Python 3.12+**
 - **Node.js 18+** with npm
-- **PostgreSQL 13+** (for distributed storage)
-- **OpenAI API Key** (for GPT-powered language generation)
+- **OpenAI API Key** (GPT for DSL generation)
+- **Gemini API Key** (AI SVG generation + tutor)
+- **PostgreSQL 13+** (only when using JuiceFS or analytics)
+- Optional: **ClamAV** for antivirus scanning
 
-### System Setup
+### 1) Clone the repository
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/7i6ht/math2visual.git
-   cd math2visual
-   ```
+```bash
+git clone https://github.com/7i6ht/math2visual.git
+cd math2visual
+```
 
-2. **Backend Setup**
-   ```bash
-   cd backend/
-   # Install Python dependencies
-   pip install -r requirements.txt
-   ```
+### 2) Backend setup
 
-   Update `.env` file with required environment variables:
-   ```bash
-   # OpenAI Configuration
-   OPENAI_API_KEY=your_openai_api_key
+```bash
+cd backend/
 
-   # Storage Configuration
-   SVG_STORAGE_MODE=local  # or 'juicefs'
-   SVG_DATASET_PATH=/path/to/svg/dataset
-   SVG_CACHE_SIZE=100
+# Recommended: create the environment via conda
+conda create --name math2visual --file requirements.txt
+conda activate math2visual
 
-   # JuiceFS Configuration (only if using JuiceFS)
-   See ([`docs/JUICEFS_SETUP.md`](docs/JUICEFS_SETUP.md))
-   
-   Start backend server
-   ```bash
-   python app.py
-   ```
-   Backend will run on `http://localhost:5001`
+# Or with pip using the conda export (may need platform-specific wheels)
+pip install -r requirements.txt
 
-3. **Frontend Setup**
-   ```bash
-   cd frontend/
-   # Install Node.js dependencies
-   npm install
-   
-   # Start development server
-   npm run dev
-   ```
-   Frontend will be available at `http://localhost:5173`
+# Or with pip installing the core deps explicitly
+pip install flask flask-cors python-dotenv openai torch transformers peft accelerate bitsandbytes safetensors gunicorn
+```
 
-4. **Access the Application**
-   
-   Open your browser to `http://localhost:5173` and start generating visualizations!
+Create `backend/.env` (or export env vars):
+
+```bash
+# AI keys
+OPENAI_API_KEY=your_openai_api_key
+GEMINI_API_KEY=your_gemini_api_key
+
+# Storage
+SVG_STORAGE_MODE=local         # or 'juicefs'
+SVG_DATASET_PATH=./storage/datasets/svg_dataset
+SVG_CACHE_SIZE=100
+
+# Optional distributed storage (JuiceFS + Postgres)
+JUICEFS_METADATA_URL=postgres://user:pass@host:port/database
+```
+
+Start the backend:
+
+```bash
+python app.py  # http://localhost:5000
+```
+
+### 3) Frontend setup
+
+```bash
+cd frontend/
+npm install
+
+# Dev server; proxies /api to BACKEND_URL/VITE_BACKEND_URL (default http://localhost:5000)
+export BACKEND_URL=http://localhost:5000
+npm run dev
+```
+
+For production builds, set `VITE_BACKEND_URL` before `npm run build`.
+
+### 4) Access the application
+
+Open `http://localhost:5173` and start generating visualizations.
+
+### Configuration quick reference
+
+- **Backend**: Flask dev server on `http://localhost:5000`.
+- **Frontend**: Vite dev server on `http://localhost:5173`; `/api` proxy targets `VITE_BACKEND_URL` or `BACKEND_URL` (fallback `http://localhost:5000`).
+- **SVG dataset**: 1,549 validated SVGs in `backend/storage/datasets/svg_dataset`. Use JuiceFS + Postgres via `backend/docs/JUICEFS_SETUP.md`.
+- **Security & analytics**: Optional ClamAV scanning and analytics stack (see backend docs).
 
 ### Docker / Deployment Notes
 
@@ -176,6 +200,12 @@ flowchart TD
     curl -k https://localhost | head
     ```
     This should return the Math2Visual/Vite HTML (an `<html>` document with `<div id="root"></div>`), **not** the "Welcome to nginx!" text.
+
+## 🧪 Development & Testing
+
+- **Backend tests**: `python -m pytest tests/`
+- **Frontend lint**: `npm run lint`
+- **Frontend build/preview**: `npm run build` then `npm run preview`
 
 ## 📖 Documentation
 
