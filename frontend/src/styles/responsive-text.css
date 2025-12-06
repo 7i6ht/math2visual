@@ -268,47 +268,95 @@ i.responsive-icon-font-size,
   );
 }
 
+/* More specific targeting for Lucide React icons */
+svg[class*="lucide"].responsive-icon-font-size,
+svg[class*="lucide-"].responsive-icon-font-size {
+  font-size: clamp(
+    var(--responsive-icon-min),
+    var(--responsive-icon-scale),
+    var(--responsive-icon-max)
+  ) !important;
+  width: clamp(
+    var(--responsive-icon-min),
+    var(--responsive-icon-scale),
+    var(--responsive-icon-max)
+  ) !important;
+  height: clamp(
+    var(--responsive-icon-min),
+    var(--responsive-icon-scale),
+    var(--responsive-icon-max)
+  ) !important;
+}
+
+/* Even more specific targeting for Lucide icons with data attributes */
+svg[data-lucide].responsive-icon-font-size,
+svg[data-lucide-icon].responsive-icon-font-size {
+  font-size: clamp(
+    var(--responsive-icon-min),
+    var(--responsive-icon-scale),
+    var(--responsive-icon-max)
+  ) !important;
+  width: clamp(
+    var(--responsive-icon-min),
+    var(--responsive-icon-scale),
+    var(--responsive-icon-max)
+  ) !important;
+  height: clamp(
+    var(--responsive-icon-min),
+    var(--responsive-icon-scale),
+    var(--responsive-icon-max)
+  ) !important;
+}
+
 /* For very wide but short screens (aspect ratio > 2.5), cap the size more aggressively */
 /* But only if the screen is not very large (to preserve TV sizing) */
 @media (min-aspect-ratio: 2.5/1) and (max-width: 2560px) {
-  .responsive-icon-font-size {
+  .responsive-icon-font-size,
+  svg[class*="lucide"].responsive-icon-font-size,
+  svg[class*="lucide-"].responsive-icon-font-size,
+  svg[data-lucide].responsive-icon-font-size,
+  svg[data-lucide-icon].responsive-icon-font-size {
     font-size: clamp(
       var(--responsive-icon-min),
       calc(0.8vw + 1vh), /* Less weight on width scaling */
       2.25rem /* Much lower maximum for short screens */
-    );
+    ) !important;
     width: clamp(
       var(--responsive-icon-min),
       calc(0.8vw + 1vh), /* Less weight on width scaling */
       2.25rem /* Much lower maximum for short screens */
-    );
+    ) !important;
     height: clamp(
       var(--responsive-icon-min),
       calc(0.8vw + 1vh), /* Less weight on width scaling */
       2.25rem /* Much lower maximum for short screens */
-    );
+    ) !important;
   }
 }
 
 /* Additional refinement for extremely wide screens */
 /* But only if the screen is not very large (to preserve TV sizing) */
 @media (min-aspect-ratio: 3/1) and (max-width: 2560px) {
-  .responsive-icon-font-size {
+  .responsive-icon-font-size,
+  svg[class*="lucide"].responsive-icon-font-size,
+  svg[class*="lucide-"].responsive-icon-font-size,
+  svg[data-lucide].responsive-icon-font-size,
+  svg[data-lucide-icon].responsive-icon-font-size {
     font-size: clamp(
       var(--responsive-icon-min),
       calc(0.6vw + 1vh),
       2rem /* Even lower maximum */
-    );
+    ) !important;
     width: clamp(
       var(--responsive-icon-min),
       calc(0.6vw + 1vh),
       2rem /* Even lower maximum */
-    );
+    ) !important;
     height: clamp(
       var(--responsive-icon-min),
       calc(0.6vw + 1vh),
       2rem /* Even lower maximum */
-    );
+    ) !important;
   }
 }
 
@@ -317,22 +365,26 @@ i.responsive-icon-font-size,
   .responsive-icon-font-size,
   svg.responsive-icon-font-size,
   i.responsive-icon-font-size,
-  .icon.responsive-icon-font-size {
+  .icon.responsive-icon-font-size,
+  svg[class*="lucide"].responsive-icon-font-size,
+  svg[class*="lucide-"].responsive-icon-font-size,
+  svg[data-lucide].responsive-icon-font-size,
+  svg[data-lucide-icon].responsive-icon-font-size {
     font-size: clamp(
       2.5rem, /* 40px minimum - increased for better TV visibility */
       calc(2vw + 1.8vh), /* More aggressive scaling for large screens */
       6rem /* 96px maximum - significantly larger for TVs */
-    );
+    ) !important;
     width: clamp(
       2.5rem, /* 40px minimum - increased for better TV visibility */
       calc(2vw + 1.8vh), /* More aggressive scaling for large screens */
       6rem /* 96px maximum - significantly larger for TVs */
-    );
+    ) !important;
     height: clamp(
       2.5rem, /* 40px minimum - increased for better TV visibility */
       calc(2vw + 1.8vh), /* More aggressive scaling for large screens */
       6rem /* 96px maximum - significantly larger for TVs */
-    );
+    ) !important;
   }
 }
 

@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import tutorService from "@/api_services/tutor";
 import type { TutorVisual } from "@/api_services/tutor";
-import { Bot, Mic, Square, User } from "lucide-react";
+import { Mic, Square, User, ArrowUp } from "lucide-react";
+import { FlyingChatbotIcon } from "@/components/ui/flying-chatbot-icon";
 
 type Message = {
   role: "student" | "tutor";
@@ -264,7 +265,14 @@ export function StudentTutorView({ onBack }: Props) {
             spellCheck={false}
             className="min-h-[160px] responsive-text-font-size"
           />
-          <div className="flex gap-3">
+          <div className="flex gap-3 items-center">
+            <FlyingChatbotIcon
+              className="hidden sm:block"
+              animated={starting}
+              responsive
+              minSize={34}
+              maxSize={140}
+            />
             <Button 
               onClick={handleStart} 
               disabled={starting}
@@ -278,89 +286,113 @@ export function StudentTutorView({ onBack }: Props) {
 
       {isSessionActive && (
         <div className="mt-4 grid gap-4">
-          <div className="rounded-lg border bg-card p-4 shadow-sm min-h-[320px] flex flex-col">
-            <div className="flex-1 space-y-4 overflow-y-auto pr-2">
+          <div className="rounded-lg border bg-card p-4 shadow-sm min-h-[320px] flex flex-col overflow-visible">
+            <div className="flex-1 space-y-4 overflow-y-auto overflow-x-visible pr-2">
               {messages.map((msg, idx) => {
                 const isStudent = msg.role === "student";
                 const alignment = isStudent ? "justify-end" : "justify-start";
                 const slide = isStudent ? "slide-in-from-right-4" : "slide-in-from-left-4";
+                const contentAlign = isStudent ? "items-end" : "items-start";
                 return (
-                  <div key={idx} className={`space-y-2 flex ${alignment} w-full`}>
+                  <div key={idx} className={`w-full flex ${alignment} gap-2 overflow-visible`}>
                     {!isStudent && (
-                      <div className="mr-2 flex items-start select-none">
-                        <Bot className="responsive-icon-font-size text-muted-foreground" />
+                      <div className="flex items-start select-none">
+                        <FlyingChatbotIcon
+                          className="text-muted-foreground"
+                          animated={Boolean(msg.streaming)}
+                          responsive
+                          minSize={26}
+                          maxSize={120}
+                        />
                       </div>
                     )}
-                    <div
-                      className={`inline-block rounded-lg px-3 py-2 max-w-[80%] ${
-                        isStudent
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-muted text-foreground"
-                      } animate-in fade-in-0 ${slide} duration-200`}
-                    >
-                      <div className="responsive-text-font-size whitespace-pre-wrap flex items-center gap-2">
-                        <span>{msg.content}</span>
-                        {msg.streaming && (
-                          <span className="inline-flex items-center gap-1 align-middle">
-                            <span className="h-2 w-2 rounded-full bg-current animate-bounce" style={{ animationDelay: "0ms" }} />
-                            <span className="h-2 w-2 rounded-full bg-current animate-bounce" style={{ animationDelay: "120ms" }} />
-                            <span className="h-2 w-2 rounded-full bg-current animate-bounce" style={{ animationDelay: "240ms" }} />
-                          </span>
-                        )}
+                    <div className={`flex flex-col ${contentAlign} space-y-2 max-w-[85%]`}>
+                      <div
+                        className={`inline-block rounded-lg px-3 py-2 ${
+                          isStudent
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-muted text-foreground"
+                        } animate-in fade-in-0 ${slide} duration-200`}
+                      >
+                        <div className="responsive-text-font-size whitespace-pre-wrap flex items-center gap-2">
+                          <span>{msg.content}</span>
+                          {msg.streaming && (
+                            <span className="inline-flex items-center gap-1 align-middle">
+                              <span className="h-2 w-2 rounded-full bg-current animate-bounce" style={{ animationDelay: "0ms" }} />
+                              <span className="h-2 w-2 rounded-full bg-current animate-bounce" style={{ animationDelay: "120ms" }} />
+                              <span className="h-2 w-2 rounded-full bg-current animate-bounce" style={{ animationDelay: "240ms" }} />
+                            </span>
+                          )}
+                        </div>
                       </div>
+                      {msg.visual && (
+                        <div className="w-full">
+                          {renderVisual(msg.visual)}
+                        </div>
+                      )}
                     </div>
                     {isStudent && (
-                      <div className="ml-2 flex items-start select-none">
+                      <div className="flex items-start select-none">
                         <User className="responsive-icon-font-size text-primary" />
                       </div>
                     )}
-                    {renderVisual(msg.visual)}
                   </div>
                 );
               })}
               <div ref={chatEndRef} />
             </div>
 
-            <div className="mt-4 space-y-3">
-              <Textarea
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder={t("tutor.sendPlaceholder")}
-                spellCheck={false}
-                className="responsive-text-font-size"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSend();
-                  }
-                }}
-              />
-              <div className="flex gap-3 justify-between items-center">
-                <div className="flex items-center gap-2">
+            <div className="mt-4">
+              <div className="relative rounded-md border bg-white shadow-sm">
+                <Textarea
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder={t("tutor.sendPlaceholder")}
+                  spellCheck={false}
+                  className="w-full responsive-text-font-size border-0 bg-transparent p-3 pr-32 sm:pr-40 lg:pr-48 xl:pr-56 shadow-none resize-none min-h-[44px] max-h-[120px]"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSend();
+                    }
+                  }}
+                />
+                <div className="absolute inset-y-2 right-2 flex items-center gap-1 sm:gap-1 lg:gap-2 xl:gap-4 2xl:gap-6 3xl:gap-8 4xl:gap-10 5xl:gap-12 6xl:gap-14">
                   <Button
                     type="button"
-                    variant="outline"
+                    variant="ghost"
                     onClick={handleVoiceToggle}
                     disabled={!voiceSupported}
-                    className="gap-2 button-responsive-size !responsive-text-font-size px-4 py-2 md:px-5 md:py-2.5 lg:px-6 lg:py-3 xl:px-7 xl:py-3.5"
+                    className="h-11 w-11 sm:h-12 sm:w-12 lg:h-13 lg:w-13 xl:h-15 xl:w-15 p-0 flex items-center justify-center rounded-full"
+                    aria-label={listening ? t("tutor.voiceStop") : t("tutor.voiceStart")}
                   >
-                    {listening ? <Square className="responsive-icon-font-size" /> : <Mic className="responsive-icon-font-size" />}
-                    {listening ? t("tutor.voiceStop") : t("tutor.voiceStart")}
+                    {listening ? (
+                      <Square className="responsive-icon-font-size" />
+                    ) : (
+                      <Mic className="responsive-icon-font-size" />
+                    )}
                   </Button>
-                  {!voiceSupported && (
-                    <span className="responsive-text-font-size text-muted-foreground">
-                      {t("tutor.voiceNotSupported")}
-                    </span>
-                  )}
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={handleSend}
+                    disabled={sending || streaming}
+                    className="p-0 flex items-center justify-center rounded-full bg-black text-white hover:bg-black/90 hover:text-white shadow-sm"
+                    style={{
+                      width: "clamp(48px, 2.6vw, 88px)",
+                      height: "clamp(48px, 2.6vw, 88px)",
+                    }}
+                    aria-label={t("tutor.send")}
+                  >
+                    <ArrowUp className="responsive-icon-font-size" />
+                  </Button>
                 </div>
-                <Button 
-                  onClick={handleSend} 
-                  disabled={sending || streaming}
-                  className="min-w-[120px] md:min-w-[140px] lg:min-w-[160px] !responsive-text-font-size button-responsive-size px-6 py-3 md:px-8 md:py-4 lg:px-10 lg:py-5 xl:px-12 xl:py-6"
-                >
-                  {sending || streaming ? t("common.loading") : t("tutor.send")}
-                </Button>
               </div>
+              {!voiceSupported && (
+                <div className="mt-2 responsive-text-font-size text-muted-foreground">
+                  {t("tutor.voiceNotSupported")}
+                </div>
+              )}
             </div>
           </div>
         </div>
