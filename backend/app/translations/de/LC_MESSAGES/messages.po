@@ -39,7 +39,7 @@ msgid "Empty Visual Language provided."
 msgstr "Leere visuelle Sprache bereitgestellt."
 
 #: app/api/routes/generation.py:78
-msgid "Please provide a math word problem (MWP)."
+msgid "Provide a math word problem (MWP)."
 msgstr "Bitte geben Sie eine Mathe-Textaufgabe ein."
 
 #: app/api/routes/generation.py:85

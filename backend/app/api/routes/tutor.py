@@ -56,7 +56,7 @@ def tutor_start():
     hint = body.get("hint") or None
 
     if not mwp:
-        return jsonify({"error": _("Please provide a math word problem (MWP).")}), 400
+        return jsonify({"error": _("Provide a math word problem (MWP).")}), 400
 
     language = get_locale()
 

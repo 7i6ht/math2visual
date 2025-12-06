@@ -75,7 +75,7 @@ def generate():
         # Get language from Accept-Language header (via Flask-Babel)
         language = get_locale()
         if not mwp:
-            return jsonify({"error": _("Please provide a math word problem (MWP).")}), 400
+            return jsonify({"error": _("Provide a math word problem (MWP).")}), 400
 
         # Generate via GPT and extract
         vl_response = generate_visual_language(mwp, formula, hint, language=language)

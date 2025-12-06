@@ -43,7 +43,7 @@ msgid "Empty Visual Language provided."
 msgstr ""
 
 #: app/api/routes/generation.py:78
-msgid "Please provide a math word problem (MWP)."
+msgid "Provide a math word problem (MWP)."
 msgstr ""
 
 #: app/api/routes/generation.py:85

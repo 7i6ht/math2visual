@@ -1,16 +1,19 @@
+import type { TFunction } from "i18next";
 import * as z from "zod";
 
 // Form validation schemas
-export const formSchema = z.object({
-  mwp: z.string().min(1, "Please enter a math word problem"),
-  formula: z.string().optional(),
-  hint: z.string().optional(),
-});
+export const formSchema = (t: TFunction) =>
+  z.object({
+    mwp: z.string().min(1, { message: t("forms.mwpRequired") }),
+    formula: z.string().optional(),
+    hint: z.string().optional(),
+  });
 
-export const vlFormSchema = z.object({
-  dsl: z.string().min(1, "Visual language cannot be empty"),
-});
+export const vlFormSchema = (t: TFunction) =>
+  z.object({
+    dsl: z.string().min(1, { message: t("forms.dslRequired") }),
+  });
 
 // Export inferred types for convenience
-export type FormData = z.infer<typeof formSchema>;
-export type VLFormData = z.infer<typeof vlFormSchema>; 
+export type FormData = z.infer<ReturnType<typeof formSchema>>;
+export type VLFormData = z.infer<ReturnType<typeof vlFormSchema>>;

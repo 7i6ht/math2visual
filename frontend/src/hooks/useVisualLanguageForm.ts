@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRef, useEffect } from "react";
-import { vlFormSchema } from "@/schemas/validation";
+import { useRef, useEffect, useMemo } from "react";
+import { vlFormSchema, type VLFormData } from "@/schemas/validation";
 import { generationService as service } from "@/api_services/generation";
 import { trackFormSubmit, trackError, isAnalyticsEnabled } from "@/services/analyticsTracker";
 import { toast } from "sonner";
@@ -9,7 +9,6 @@ import { useDSLContext } from "@/contexts/DSLContext";
 import { useHighlightingContext } from "@/contexts/HighlightingContext";
 import { useTranslation } from "react-i18next";
 import { useLanguage } from "@/contexts/LanguageContext";
-import type { VLFormData } from "@/schemas/validation";
 import type { ComponentMapping } from "@/types/visualInteraction";
 import type { ParsedOperation } from "@/utils/dsl-parser";
 import { parseWithErrorHandling } from "@/utils/dsl-parser";
@@ -33,9 +32,10 @@ export const useVisualLanguageForm = ({
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { formattedDSL, parsedDSL } = useDSLContext();
   const { setMwpHighlightRanges, setFormulaHighlightRanges } = useHighlightingContext();
+  const schema = useMemo(() => vlFormSchema(t), [t]);
 
   const form = useForm<VLFormData>({
-    resolver: zodResolver(vlFormSchema),
+    resolver: zodResolver(schema),
     defaultValues: {
       dsl: "",
     },

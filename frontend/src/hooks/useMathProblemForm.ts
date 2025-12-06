@@ -2,10 +2,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
-import * as z from "zod";
 import { generationService as service } from "@/api_services/generation";
 import { trackFormSubmit, trackError, isAnalyticsEnabled } from "@/services/analyticsTracker";
-import type { FormData } from "@/schemas/validation";
+import { formSchema, type FormData } from "@/schemas/validation";
 import type { ComponentMapping } from "@/types/visualInteraction";
 import type { ParsedOperation } from "@/utils/dsl-parser";
 import { useHighlightingContext } from "@/contexts/HighlightingContext";
@@ -33,15 +32,7 @@ export const useMathProblemForm = ({
   const [loading, setLoading] = useState(false);
   const { clearHighlightingState } = useHighlightingContext();
   const { language } = useLanguage();
-  const schema = useMemo(
-    () =>
-      z.object({
-        mwp: z.string().min(1, { message: t("forms.mwpRequired") }),
-        formula: z.string().optional(),
-        hint: z.string().optional(),
-      }),
-    [t]
-  );
+  const schema = useMemo(() => formSchema(t), [t]);
   
   const form = useForm<FormData>({
     resolver: zodResolver(schema),
