@@ -266,13 +266,6 @@ export function StudentTutorView({ onBack }: Props) {
             className="min-h-[160px] responsive-text-font-size"
           />
           <div className="flex gap-3 items-center">
-            <FlyingChatbotIcon
-              className="hidden sm:block"
-              animated={starting}
-              responsive
-              minSize={34}
-              maxSize={140}
-            />
             <Button 
               onClick={handleStart} 
               disabled={starting}
@@ -280,6 +273,12 @@ export function StudentTutorView({ onBack }: Props) {
             >
               {starting ? t("common.loading") : t("tutor.startSession")}
             </Button>
+            <FlyingChatbotIcon
+              animated={starting}
+              responsive
+              minSize={34}
+              maxSize={140}
+            />
           </div>
         </div>
       )}
@@ -287,7 +286,7 @@ export function StudentTutorView({ onBack }: Props) {
       {isSessionActive && (
         <div className="mt-4 grid gap-4">
           <div className="rounded-lg border bg-card p-4 shadow-sm min-h-[320px] flex flex-col overflow-visible">
-            <div className="flex-1 space-y-4 overflow-y-auto overflow-x-visible pr-2">
+            <div className="flex-1 space-y-4 overflow-x-visible pr-2">
               {messages.map((msg, idx) => {
                 const isStudent = msg.role === "student";
                 const alignment = isStudent ? "justify-end" : "justify-start";
@@ -296,7 +295,7 @@ export function StudentTutorView({ onBack }: Props) {
                 return (
                   <div key={idx} className={`w-full flex ${alignment} gap-2 overflow-visible`}>
                     {!isStudent && (
-                      <div className="flex items-start select-none">
+                      <div className="flex items-start select-none overflow-x-visible">
                         <FlyingChatbotIcon
                           className="text-muted-foreground"
                           animated={Boolean(msg.streaming)}
