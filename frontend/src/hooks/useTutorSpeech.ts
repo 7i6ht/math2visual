@@ -9,7 +9,7 @@ type UseTutorSpeechParams = {
 };
 
 export function useTutorSpeech({ t, messages }: UseTutorSpeechParams) {
-  const [speechEnabled, setSpeechEnabled] = useState(false);
+  const [speechEnabled, setSpeechEnabled] = useState(true);
   const [speechSupported, setSpeechSupported] = useState(false);
 
   const lastSeenTutorRef = useRef<number | null>(null);
