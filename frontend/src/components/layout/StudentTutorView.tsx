@@ -301,7 +301,7 @@ export function StudentTutorView({ onBack }: Props) {
         {isSessionActive && (
           <div className="mt-4 grid gap-4 h-full">
             <div className="rounded-lg border bg-card p-4 shadow-sm min-h-[320px] flex flex-col overflow-hidden h-full">
-              <div className="flex-1 space-y-4 overflow-y-auto pr-2">
+              <div className="flex-1 space-y-4 overflow-y-auto px-1 sm:px-1.5 md:px-2 lg:px-3 xl:px-4 2xl:px-5 3xl:px-6 4xl:px-8 5xl:px-10">
                 {messages.map((msg, idx) => {
                   const isStudent = msg.role === "student";
                   const alignment = isStudent ? "justify-end" : "justify-start";
