@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState, useSyncExternalStore, useRef } from "react";
 import { ResponsiveLogo } from "@/components/ui/ResponsiveLogo";
-import { MathProblemForm } from "@/components/forms/MathProblemForm";
+import { RenenerateForm } from "@/components/forms/RenenerateForm";
 import { VisualLanguageForm } from "@/components/forms/VisualLanguageForm";
 import { VisualizationResults } from "@/components/visualization/VisualizationResults";
 import { SparklesLoading } from "@/components/ui/sparkles-loading";
@@ -39,7 +39,6 @@ export function TwoColumnView({ appState }: Props) {
     setMpFormLoading,
     setVLFormLoading,
     setResults,
-    resetResults,
     clearMissingSVGEntities,
     handleRegenerateAfterUpload,
     handleAbort,
@@ -153,20 +152,17 @@ export function TwoColumnView({ appState }: Props) {
 
   const mathProblemForm = (
     <div className="flex flex-col w-full">
-      <MathProblemForm
+      <RenenerateForm
         onSuccess={setResults}
         onLoadingChange={(loading, abortFn) => {
           setMpFormLoading(loading, abortFn);
         }}
-        onReset={resetResults}
         mwp={mwp}
         formula={formula}
         hint={hint}
         saveInitialValues={appState.saveInitialValues}
         rows={6.5}
-        hideSubmit={false}
         isDisabled={isFormLoading}
-        isSimplifiedView={false}
         showHintInput={!!(svgFormal || svgIntuitive) && !hasParseError}
       />
     </div>

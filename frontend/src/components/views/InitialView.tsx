@@ -1,10 +1,10 @@
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { MathProblemForm } from "@/components/forms/MathProblemForm";
 import { SparklesLoading } from "@/components/ui/sparkles-loading";
 import { SessionAnalyticsDisplay } from "@/components/ui/SessionAnalyticsDisplay";
-import { HeroShell } from "./hero/HeroShell";
-import { trackInitialViewRender, isAnalyticsEnabled, getSessionId } from "@/services/analyticsTracker";
+import { MwpPromptView } from "@/components/common/MwpPromptView";
+import { trackInitialViewRender, isAnalyticsEnabled, getSessionId, trackMWPType } from "@/services/analyticsTracker";
+import { useMathProblemForm } from "@/hooks/useMathProblemForm";
 import type { useAppState } from "@/hooks/useAppState";
 
 type Props = {
@@ -16,7 +16,6 @@ export function InitialView({ appState }: Props) {
   const {
     setResults,
     setMpFormLoading,
-    resetResults,
     mwp,
     formula,
     hint,
@@ -27,6 +26,17 @@ export function InitialView({ appState }: Props) {
   const analyticsEnabled = isAnalyticsEnabled();
   const sessionId = getSessionId();
 
+   const { form, loading, handleSubmit } = useMathProblemForm({
+     onSuccess: setResults,
+     onLoadingChange: (loadingState, abortFn) => {
+       setMpFormLoading(loadingState, abortFn);
+     },
+     mwp,
+     formula,
+     hint,
+     saveInitialValues,
+   });
+
   // Track initial view render
   useEffect(() => {
     if (analyticsEnabled) {
@@ -34,34 +44,40 @@ export function InitialView({ appState }: Props) {
     }
   }, [analyticsEnabled]);
 
-  return (
-    <HeroShell
-      title="Math2Visual"
-      subtitle={t("app.subtitle")}
-      floatingContent={analyticsEnabled ? <SessionAnalyticsDisplay sessionId={sessionId} /> : null}
-    >
-      <MathProblemForm
-        onSuccess={setResults}
-        onLoadingChange={(loading, abortFn) => {
-          setMpFormLoading(loading, abortFn);
-        }}
-        onReset={resetResults}
-        mwp={mwp}
-        formula={formula}
-        hint={hint}
-        saveInitialValues={saveInitialValues}
-        rows={5}
-        hideSubmit={mpFormLoading}
-        isSimplifiedView={true}
-      />
+  const mwpValue = form.watch("mwp");
+  const mwpError = form.formState.errors.mwp?.message;
 
-      {mpFormLoading && (
-        <div className="animate-in fade-in-0 slide-in-from-bottom-4 duration-500">
-          <SparklesLoading onAbort={handleAbort} showAbortButton={true} />
-        </div>
-      )}
-    </HeroShell>
+  const handleMwpChange = (value: string) => {
+    form.setValue("mwp", value, { shouldDirty: true });
+    if (analyticsEnabled) {
+      trackMWPType();
+    }
+  };
+
+  const handleGenerate = () => {
+    handleSubmit();
+  };
+
+  const isLoading = mpFormLoading || loading;
+
+  return (
+    <MwpPromptView
+      mwp={mwpValue}
+      onMwpChange={handleMwpChange}
+      onSubmit={handleGenerate}
+      submitLabel={t("forms.generateButton")}
+      loading={isLoading}
+      hideSubmit={mpFormLoading}
+      errorText={mwpError}
+      placeholder={t("forms.mwpPlaceholder")}
+      floatingContent={analyticsEnabled ? <SessionAnalyticsDisplay sessionId={sessionId} /> : null}
+      footerContent={
+        mpFormLoading ? (
+          <div className="animate-in fade-in-0 slide-in-from-bottom-4 duration-500">
+            <SparklesLoading onAbort={handleAbort} showAbortButton={true} />
+          </div>
+        ) : null
+      }
+    />
   );
 }
-
-

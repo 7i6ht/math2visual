@@ -97,18 +97,6 @@ export const useAppState = () => {
     }
   }, [setGenerationResult]);
 
-  const resetResults = useCallback(() => {
-    setState(prev => ({
-      ...prev,
-      svgFormal: null,
-      svgIntuitive: null,
-      formalError: null,
-      intuitiveError: null,
-      hasParseError: false,
-      missingSVGEntities: [],
-    }));
-  }, []);
-
   const setUploadGenerating = useCallback((uploadGenerating: boolean) => {
     setState(prev => ({ ...prev, uploadGenerating }));
   }, []);
@@ -216,7 +204,6 @@ export const useAppState = () => {
     setMpFormLoading,
     setVLFormLoading,
     setResults,
-    resetResults,
     setUploadGenerating,
     clearMissingSVGEntities,
     handleRegenerateAfterUpload,
@@ -227,7 +214,6 @@ export const useAppState = () => {
     setMpFormLoading,
     setVLFormLoading,
     setResults,
-    resetResults,
     setUploadGenerating,
     clearMissingSVGEntities,
     handleRegenerateAfterUpload,

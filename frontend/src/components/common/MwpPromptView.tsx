@@ -1,0 +1,88 @@
+import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
+import { Button } from "@/components/ui/button";
+import { MWPTextEntry } from "@/components/ui/mwp-text-entry";
+import { HeroShell } from "@/components/common/HeroShell";
+
+type MwpPromptViewProps = {
+  mwp: string;
+  onMwpChange: (value: string) => void;
+  onSubmit: () => void;
+  submitLabel: string;
+  loading?: boolean;
+  errorText?: string | null;
+  placeholder?: string;
+  rows?: number;
+  floatingContent?: ReactNode;
+  footerContent?: ReactNode;
+  showLanguageSelector?: boolean;
+  fullScreen?: boolean;
+  hideSubmit?: boolean;
+  disableSubmit?: boolean;
+  title?: string;
+  subtitle?: string;
+};
+
+export const MwpPromptView = ({
+  mwp,
+  onMwpChange,
+  onSubmit,
+  submitLabel,
+  loading = false,
+  errorText,
+  placeholder,
+  rows = 5,
+  floatingContent,
+  footerContent,
+  showLanguageSelector = true,
+  fullScreen = false,
+  hideSubmit = false,
+  disableSubmit = false,
+  title = "Math2Visual",
+  subtitle,
+}: MwpPromptViewProps) => {
+  const { t } = useTranslation();
+
+  const content = (
+    <HeroShell
+      title={title}
+      subtitle={subtitle ?? t("app.subtitle")}
+      floatingContent={floatingContent}
+      showLanguageSelector={showLanguageSelector}
+    >
+      <div className="space-y-6">
+        <MWPTextEntry
+          value={mwp}
+          onChange={(e) => onMwpChange(e.target.value)}
+          onSubmit={onSubmit}
+          placeholder={placeholder ?? t("forms.mwpPlaceholder")}
+          errorText={errorText}
+          disabled={loading}
+          rows={rows}
+        />
+
+        <div className="flex flex-col items-center gap-5 sm:gap-6 md:gap-8 lg:gap-10 xl:gap-12 2xl:gap-14 3xl:gap-16 4xl:gap-20 5xl:gap-24 6xl:gap-28">
+          {!hideSubmit && (
+            <Button
+              onClick={onSubmit}
+              disabled={loading || disableSubmit}
+              className="min-w-[200px] !responsive-text-font-size button-responsive-size px-6 py-3 md:px-8 md:py-4 lg:px-10 lg:py-5 xl:px-12 xl:py-6"
+            >
+              {submitLabel}
+            </Button>
+          )}
+
+          {footerContent}
+        </div>
+      </div>
+    </HeroShell>
+  );
+
+  if (fullScreen) {
+    return <div className="fixed inset-0 overflow-auto bg-background">{content}</div>;
+  }
+
+  return content;
+};
+
+

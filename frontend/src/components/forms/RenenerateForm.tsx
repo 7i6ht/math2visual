@@ -1,7 +1,6 @@
 import React, { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
-import { HighlightableTextarea } from "@/components/ui/highlightable-textarea";
 import { HighlightableInput } from "@/components/ui/highlightable-input";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -16,8 +15,9 @@ import { trackMWPType, trackFormulaType, trackHintType, isAnalyticsEnabled } fro
 import type { ParsedOperation } from "@/utils/dsl-parser";
 import type { ComponentMapping } from "@/types/visualInteraction";
 import { useHighlightingContext } from "@/contexts/HighlightingContext";
+import { MWPTextEntry } from "@/components/ui/mwp-text-entry";
 
-interface MathProblemFormProps {
+interface RenenerateFormProps {
   onSuccess: (vl: string, svgFormal: string | null, svgIntuitive: string | null, parsedDSL: ParsedOperation, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], mwp?: string, formula?: string, hint?: string, componentMappings?: ComponentMapping, hasParseError?: boolean) => void;
   onLoadingChange: (loading: boolean, abortFn?: () => void) => void;
   mwp?: string;
@@ -25,14 +25,11 @@ interface MathProblemFormProps {
   hint?: string;
   saveInitialValues: (mwp: string, formula: string, hint: string) => void;
   rows?: number;
-  hideSubmit?: boolean;
-  onReset?: () => void;
   isDisabled?: boolean;
-  isSimplifiedView?: boolean;
   showHintInput?: boolean;
 }
 
-export const MathProblemForm = ({ 
+export const RenenerateForm = ({ 
   onSuccess, 
   onLoadingChange, 
   mwp = "",
@@ -40,11 +37,9 @@ export const MathProblemForm = ({
   hint = "",
   saveInitialValues,
   rows = 8,
-  hideSubmit = false,
   isDisabled = false,
-  isSimplifiedView = false,
   showHintInput = false,
-}: MathProblemFormProps) => {
+}: RenenerateFormProps) => {
   const { t } = useTranslation();
   const { mwpHighlightRanges, formulaHighlightRanges, clearHighlightingState } = useHighlightingContext();
   const analyticsEnabled = isAnalyticsEnabled();
@@ -93,27 +88,20 @@ export const MathProblemForm = ({
           render={({ field }) => (
             <FormItem>
               <div className="relative">
-                {!isSimplifiedView && (
-                  <label className="absolute -top-2 left-3 bg-background px-1 text-sm text-muted-foreground z-10">
-                    {t("forms.mwpLabel")}
-                  </label>
-                )}
+                <label className="absolute -top-2 left-3 bg-background px-1 text-sm text-muted-foreground z-10">
+                  {t("forms.mwpLabel")}
+                </label>
                 <FormControl>
-                  <HighlightableTextarea
-                    className={"w-full responsive-text-font-size"}
+                  <MWPTextEntry
+                    {...field}
+                    value={field.value}
+                    onChange={analyticsEnabled ? mwpChangeHandler(field.onChange) : field.onChange}
+                    disabled={isDisabled}
                     placeholder={t("forms.mwpPlaceholder")}
                     rows={rows}
-                    spellCheck={false}
                     highlightRanges={mwpHighlightRanges}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        handleSubmit(e);
-                      }
-                    }}
-                    disabled={isDisabled}
-                    {...field}
-                    {...(analyticsEnabled ? {onChange: mwpChangeHandler(field.onChange)} : {})}
+                    textareaClassName="w-full responsive-text-font-size"
+                    onSubmit={() => handleSubmit()}
                   />
                 </FormControl>
                 <FormMessage className="responsive-text-font-size" />
@@ -122,39 +110,37 @@ export const MathProblemForm = ({
           )}
         />
 
-        {!isSimplifiedView && (
-          <FormField
-            control={form.control}
-            name="formula"
-            render={({ field }) => (
-              <FormItem>
-                <div className="relative">
-                  <label className="absolute -top-2 left-3 bg-background px-1 text-sm text-muted-foreground z-10">
-                    {t("forms.formulaLabel")}
-                  </label>
-                  <FormControl>
-                    <HighlightableInput
-                      className={"w-full responsive-text-font-size"}
-                      placeholder={t("forms.formulaPlaceholder")}
-                      spellCheck={false}
-                      highlightRanges={formulaHighlightRanges}
-                      disabled={isDisabled}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                          e.preventDefault();
-                          handleSubmit(e);
-                        }
-                      }}
-                      {...field}
-                      {...(analyticsEnabled ? {onChange: formulaChangeHandler(field.onChange)} : {})}
-                    />
-                  </FormControl>
-                  <FormMessage className="responsive-text-font-size" />
-                </div>
-              </FormItem>
-            )}
-          />
-        )}
+        <FormField
+          control={form.control}
+          name="formula"
+          render={({ field }) => (
+            <FormItem>
+              <div className="relative">
+                <label className="absolute -top-2 left-3 bg-background px-1 text-sm text-muted-foreground z-10">
+                  {t("forms.formulaLabel")}
+                </label>
+                <FormControl>
+                  <HighlightableInput
+                    className={"w-full responsive-text-font-size"}
+                    placeholder={t("forms.formulaPlaceholder")}
+                    spellCheck={false}
+                    highlightRanges={formulaHighlightRanges}
+                    disabled={isDisabled}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSubmit(e);
+                      }
+                    }}
+                    {...field}
+                    {...(analyticsEnabled ? {onChange: formulaChangeHandler(field.onChange)} : {})}
+                  />
+                </FormControl>
+                <FormMessage className="responsive-text-font-size" />
+              </div>
+            </FormItem>
+          )}
+        />
 
         {/* Hint input - show when visualizations are present */}
         {showHintInput && (
@@ -192,12 +178,12 @@ export const MathProblemForm = ({
         )}
 
         <div className="flex justify-center mt-6">
-          {!loading && !hideSubmit && (
+          {!loading && (
             <Button
               type="submit"
               className="min-w-[200px] bg-primary !text-primary-foreground !responsive-text-font-size button-responsive-size px-6 py-3 md:px-8 md:py-4 lg:px-10 lg:py-5 xl:px-12 xl:py-6"
             >
-              {!isSimplifiedView ? t("forms.regenerateButton") : t("forms.generateButton")}
+              {t("forms.regenerateButton")}
             </Button>
           )}
         </div>
