@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { useTutorSession } from "@/hooks/useTutorSession";
+import { useTutorSpeech } from "@/hooks/useTutorSpeech";
 import { useVoiceInput } from "@/hooks/useVoiceInput";
 import { TutorSessionStarter } from "./TutorSessionStarter";
 import { ChatHeader } from "./chat/ChatHeader";
@@ -29,6 +30,7 @@ export function ChatView({ onBack }: Props) {
     startSession,
     sendMessage,
   } = useTutorSession({ t });
+  const { speechEnabled, speechSupported, toggleSpeech } = useTutorSpeech({ t, messages });
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -68,7 +70,13 @@ export function ChatView({ onBack }: Props) {
 
   return (
     <div className="w-full h-screen overflow-hidden flex flex-col px-3 py-3 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 3xl:px-20 4xl:px-24 5xl:px-32">
-      <ChatHeader onBack={onBack} t={t} />
+      <ChatHeader
+        onBack={onBack}
+        t={t}
+        speechEnabled={speechEnabled}
+        speechSupported={speechSupported}
+        onToggleSpeech={toggleSpeech}
+      />
 
       <div className="flex-1 overflow-hidden">
         {!isSessionActive && (

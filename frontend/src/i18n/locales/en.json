@@ -155,7 +155,11 @@
     "voiceStop": "Stop",
     "voiceNotSupported": "Voice input not supported",
     "voiceError": "Voice input failed. Please try again.",
-    "streamingError": "Streaming failed. Please try again."
+    "streamingError": "Streaming failed. Please try again.",
+    "speechOn": "Read-aloud on",
+    "speechOff": "Read-aloud off",
+    "speechNotSupported": "Voice output not supported",
+    "speechError": "Could not read the answer aloud. Please try again."
   }
 }
 
