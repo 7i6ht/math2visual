@@ -328,16 +328,16 @@ export function StudentTutorView({ onBack }: Props) {
                               : "bg-muted text-foreground"
                           } animate-in fade-in-0 ${slide} duration-200`}
                         >
-                          <div className="responsive-text-font-size whitespace-pre-wrap flex items-center gap-2">
+                          <div className="responsive-text-font-size whitespace-pre-wrap">
                             <span>{msg.content}</span>
-                            {msg.streaming && (
-                              <span className="inline-flex items-center gap-1 align-middle">
-                                <span className="h-2 w-2 rounded-full bg-current animate-bounce" style={{ animationDelay: "0ms" }} />
-                                <span className="h-2 w-2 rounded-full bg-current animate-bounce" style={{ animationDelay: "120ms" }} />
-                                <span className="h-2 w-2 rounded-full bg-current animate-bounce" style={{ animationDelay: "240ms" }} />
-                              </span>
-                            )}
                           </div>
+                          {msg.streaming && (
+                            <div className="flex items-center justify-start gap-1 mt-2">
+                              <span className="h-2 w-2 rounded-full bg-current animate-bounce" style={{ animationDelay: "0ms" }} />
+                              <span className="h-2 w-2 rounded-full bg-current animate-bounce" style={{ animationDelay: "120ms" }} />
+                              <span className="h-2 w-2 rounded-full bg-current animate-bounce" style={{ animationDelay: "240ms" }} />
+                            </div>
+                          )}
                         </div>
                         {msg.visual && (
                           <div className="w-full">
