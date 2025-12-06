@@ -4,10 +4,9 @@ import { useSVGResponsive } from "@/hooks/useSVGResponsive";
 
 type ChatVisualProps = {
   visual: TutorVisual;
-  title: string;
 };
 
-export const ChatVisual = ({ visual, title }: ChatVisualProps) => {
+export const ChatVisual = ({ visual }: ChatVisualProps) => {
   const svgRef = useRef<HTMLDivElement | null>(null);
   const { makeResponsive, setupResizeListener } = useSVGResponsive();
 
@@ -26,7 +25,6 @@ export const ChatVisual = ({ visual, title }: ChatVisualProps) => {
 
   return (
     <div className="mt-3 rounded-lg border bg-card p-3 shadow-sm text-left">
-      <div className="responsive-text-font-size font-semibold mb-2">{title}</div>
       <div className="w-full overflow-hidden rounded-md border bg-white">
         <div ref={svgRef} className="w-full" />
       </div>

@@ -103,13 +103,12 @@ export function ChatView({ onBack }: Props) {
         {isSessionActive && (
           <div className="mt-4 grid gap-4 h-full">
             <div className="rounded-lg border bg-card p-4 shadow-sm min-h-[320px] flex flex-col overflow-hidden h-full">
-                  <ChatMessages
-                    messages={messages}
-                    t={t}
-                    chatEndRef={chatEndRef}
-                    tutorSpeaking={speaking}
-                    tutorSpeakingIndex={speakingIndex}
-                  />
+              <ChatMessages
+                messages={messages}
+                chatEndRef={chatEndRef}
+                tutorSpeaking={speaking}
+                tutorSpeakingIndex={speakingIndex}
+              />
 
               <div className="mt-1 flex-shrink-0">
                 <ChatInputBar

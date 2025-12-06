@@ -1,13 +1,11 @@
 import type { RefObject } from "react";
 import { User } from "lucide-react";
-import type { TFunction } from "i18next";
 import { FlyingChatbotIcon } from "@/components/ui/flying-chatbot-icon";
 import { ChatVisual } from "./ChatVisual";
 import type { Message } from "@/hooks/useTutorSession";
 
 type ChatMessagesProps = {
   messages: Message[];
-  t: TFunction;
   chatEndRef: RefObject<HTMLDivElement | null>;
   tutorSpeaking: boolean;
   tutorSpeakingIndex: number | null;
@@ -15,7 +13,6 @@ type ChatMessagesProps = {
 
 export const ChatMessages = ({
   messages,
-  t,
   chatEndRef,
   tutorSpeaking,
   tutorSpeakingIndex,
@@ -29,6 +26,10 @@ export const ChatMessages = ({
         const contentAlign = isStudent ? "items-end" : "items-start";
         const isTutorSpeaking = tutorSpeaking && tutorSpeakingIndex === idx;
         const botAnimated = Boolean(msg.streaming || isTutorSpeaking);
+        const visual =
+          msg.visual && msg.visual.svg?.trim()
+            ? { ...msg.visual, svg: msg.visual.svg.trim() }
+            : null;
         return (
           <div key={idx} className={`w-full flex ${alignment} gap-2`}>
             {!isStudent && (
@@ -69,16 +70,9 @@ export const ChatMessages = ({
                   </div>
                 )}
               </div>
-              {msg.visual && (
+              {visual && (
                 <div className="w-full">
-                  <ChatVisual
-                    visual={msg.visual}
-                    title={
-                      msg.visual.variant === "formal"
-                        ? t("tutor.visualTitleFormal")
-                        : t("tutor.visualTitleIntuitive")
-                    }
-                  />
+                  <ChatVisual visual={visual} />
                 </div>
               )}
             </div>
