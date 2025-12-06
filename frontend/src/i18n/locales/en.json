@@ -19,7 +19,7 @@
     "mwpPlaceholder": "Enter your math word problem…",
     "formulaPlaceholder": "2+2 (e.g. instead of 2x2 as structure)",
     "hintPlaceholder": "Does not look as expected? Then add more hints about the relationships between the visual elements inside here ...",
-    "mwpRequired": "Please provide a math word problem.",
+    "mwpRequired": "Provide a math word problem.",
     "dslRequired": "Empty Visual Language provided.",
     "generateButton": "Generate",
     "regenerateButton": "Regenerate",

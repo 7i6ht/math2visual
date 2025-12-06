@@ -5,8 +5,8 @@ import tutorService from "@/api_services/tutor";
 import type { TutorVisual } from "@/api_services/tutor";
 import { Mic, Square, User, ArrowUp } from "lucide-react";
 import { TextCancelButton } from "@/components/ui/text-cancel-button";
-import { FlyingChatbotIcon } from "@/components/ui/flying-chatbot-icon";
 import { ResponsiveLogo } from "@/components/ui/ResponsiveLogo";
+import { FlyingChatbotIcon } from "@/components/ui/flying-chatbot-icon";
 import { useSVGResponsive } from "@/hooks/useSVGResponsive";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -65,6 +65,7 @@ export function StudentTutorView({ onBack }: Props) {
   const [listening, setListening] = useState(false);
   const [voiceSupported, setVoiceSupported] = useState(false);
   const [streaming, setStreaming] = useState(false);
+  const [mwpError, setMwpError] = useState<string | null>(null);
   const streamCloserRef = useRef<null | (() => void)>(null);
   const streamingBufferRef = useRef<{ raw: string; clean: string }>({ raw: "", clean: "" });
 
@@ -92,9 +93,10 @@ export function StudentTutorView({ onBack }: Props) {
 
   const handleStart = async () => {
     if (!mwp.trim()) {
-      toast.error(t("tutor.enterMwpPlaceholder"));
+      setMwpError(t("forms.mwpRequired"));
       return;
     }
+    setMwpError(null);
     try {
       setStarting(true);
       const response = await tutorService.startSession(mwp.trim());
@@ -272,9 +274,15 @@ export function StudentTutorView({ onBack }: Props) {
         {!isSessionActive && (
           <TutorSessionStarter
             mwp={mwp}
-            onMwpChange={setMwp}
+            onMwpChange={(value) => {
+              setMwp(value);
+              if (mwpError && value.trim()) {
+                setMwpError(null);
+              }
+            }}
             onStart={handleStart}
             starting={starting}
+            errorText={mwpError}
           />
         )}
 

@@ -116,7 +116,7 @@ export const MathProblemForm = ({
                     {...(analyticsEnabled ? {onChange: mwpChangeHandler(field.onChange)} : {})}
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="responsive-text-font-size" />
               </div>
             </FormItem>
           )}
@@ -149,7 +149,7 @@ export const MathProblemForm = ({
                       {...(analyticsEnabled ? {onChange: formulaChangeHandler(field.onChange)} : {})}
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="responsive-text-font-size" />
                 </div>
               </FormItem>
             )}
@@ -184,7 +184,7 @@ export const MathProblemForm = ({
                       {...(analyticsEnabled ? {onChange: handleHintChange(field.onChange)} : {})}
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="responsive-text-font-size" />
                 </div>
               </FormItem>
             )}
