@@ -245,58 +245,6 @@ Generate only the intuitive visualization for a given Visual Language (DSL).
 
 **Response:** Same shape as `/api/generate/formal` with `variant: "intuitive"`
 
-### Tutor Session API
-
-Gemini-powered tutor that guides students through a math word problem using the generated Visual Language (DSL).
-
-#### `POST /api/tutor/start`
-Start a tutoring session (generates DSL first).
-
-**Request Body:**
-```json
-{
-  "mwp": "Janet has 9 oranges and Sharon has 7 oranges. How many oranges do they have together?"
-}
-```
-
-**Response:**
-```json
-{
-  "session_id": "9ad3c7a9-...",
-  "tutor_message": "Hi! Let's work through this together...",
-  "visual_language": "addition(...)",
-  "visual": {
-    "variant": "intuitive",
-    "svg": "<svg>...</svg>",
-    "error": null,
-    "is_parse_error": false,
-    "dsl_scope": "addition(...)"
-  }
-}
-```
-
-#### `POST /api/tutor/message`
-Continue an existing tutoring session.
-
-**Request Body:**
-```json
-{
-  "session_id": "9ad3c7a9-...",
-  "message": "I think we should add them."
-}
-```
-
-**Response:** Same shape as `/api/tutor/start` without `visual_language`.
-
-#### `GET /api/tutor/message/stream`
-Stream a tutoring reply (Server-Sent Events).
-
-**Query Params:** `session_id`, `message`
-
-**Stream Payloads:**
-- Chunk: `data: {"type":"chunk","delta":"..."}`
-- Final: `data: {"type":"done","session_id":"...","tutor_message":"...","visual":{...}}`
-
 ### SVG Dataset Management API
 
 #### `POST /api/svg-dataset/upload`
@@ -571,6 +519,58 @@ curl -X POST http://localhost:5000/api/svg-dataset/confirm-generated \
   "threat_found": "Trojan.SVG.Malware"
 }
 ```
+
+### Tutor Session API
+
+Gemini-powered tutor that guides students through a math word problem using the generated Visual Language (DSL).
+
+#### `POST /api/tutor/start`
+Start a tutoring session (generates DSL first).
+
+**Request Body:**
+```json
+{
+  "mwp": "Janet has 9 oranges and Sharon has 7 oranges. How many oranges do they have together?"
+}
+```
+
+**Response:**
+```json
+{
+  "session_id": "9ad3c7a9-...",
+  "tutor_message": "Hi! Let's work through this together...",
+  "visual_language": "addition(...)",
+  "visual": {
+    "variant": "intuitive",
+    "svg": "<svg>...</svg>",
+    "error": null,
+    "is_parse_error": false,
+    "dsl_scope": "addition(...)"
+  }
+}
+```
+
+#### `POST /api/tutor/message`
+Continue an existing tutoring session.
+
+**Request Body:**
+```json
+{
+  "session_id": "9ad3c7a9-...",
+  "message": "I think we should add them."
+}
+```
+
+**Response:** Same shape as `/api/tutor/start` without `visual_language`.
+
+#### `GET /api/tutor/message/stream`
+Stream a tutoring reply (Server-Sent Events).
+
+**Query Params:** `session_id`, `message`
+
+**Stream Payloads:**
+- Chunk: `data: {"type":"chunk","delta":"..."}`
+- Final: `data: {"type":"done","session_id":"...","tutor_message":"...","visual":{...}}`
 
 ### System Management (debug mode)
 
