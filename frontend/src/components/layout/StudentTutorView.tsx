@@ -356,7 +356,7 @@ export function StudentTutorView({ onBack }: Props) {
                     }
                   }}
                 />
-                <div className="absolute inset-y-2 right-2 flex items-center gap-1 sm:gap-1 lg:gap-2 xl:gap-4 2xl:gap-6 3xl:gap-8 4xl:gap-10 5xl:gap-12 6xl:gap-14">
+                <div className="absolute bottom-2 right-2 flex items-center gap-0.5 sm:gap-0.5 md:gap-0.5 lg:gap-1 xl:gap-2 2xl:gap-4 3xl:gap-6 4xl:gap-8 5xl:gap-12 6xl:gap-14">
                   <Button
                     type="button"
                     variant="ghost"
