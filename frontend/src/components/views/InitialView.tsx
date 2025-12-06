@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { MathProblemForm } from "@/components/forms/MathProblemForm";
 import { SparklesLoading } from "@/components/ui/sparkles-loading";
 import { SessionAnalyticsDisplay } from "@/components/ui/SessionAnalyticsDisplay";
-import { HeroShell } from "./HeroShell";
+import { HeroShell } from "./hero/HeroShell";
 import { trackInitialViewRender, isAnalyticsEnabled, getSessionId } from "@/services/analyticsTracker";
 import type { useAppState } from "@/hooks/useAppState";
 

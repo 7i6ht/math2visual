@@ -2,7 +2,7 @@ import "./App.css";
 import { HighlightingProvider } from "@/contexts/HighlightingContext";
 import { DSLProvider } from "@/contexts/DSLContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
-import { AppLayout } from "@/components/layout/AppLayout";
+import { AppLayout } from "@/components/views/AppLayout";
 
 function App() {
   return (

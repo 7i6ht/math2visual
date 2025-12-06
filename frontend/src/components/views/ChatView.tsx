@@ -4,9 +4,9 @@ import { toast } from "sonner";
 import { useTutorSession } from "@/hooks/useTutorSession";
 import { useVoiceInput } from "@/hooks/useVoiceInput";
 import { TutorSessionStarter } from "./TutorSessionStarter";
-import { ChatHeader } from "./ChatHeader";
-import { ChatMessages } from "./ChatMessages";
-import { ChatInputBar } from "./ChatInputBar";
+import { ChatHeader } from "./chat/ChatHeader";
+import { ChatMessages } from "./chat/ChatMessages";
+import { ChatInputBar } from "./chat/ChatInputBar";
 
 type Props = {
   onBack?: () => void;
