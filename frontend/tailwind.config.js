@@ -67,6 +67,7 @@ export default {
         "fly": "fly 5s ease-in-out infinite",
         "float": "float 4s ease-in-out infinite",
         "glow-pulse": "glow-pulse 2s ease-in-out infinite",
+        "mouth-talk": "mouth-talk 0.55s ease-in-out infinite",
       },
       keyframes: {
         fly: {
@@ -82,6 +83,10 @@ export default {
         "glow-pulse": {
           "0%, 100%": { opacity: "0.3", transform: "scale(1)" },
           "50%": { opacity: "0.5", transform: "scale(1.2)" },
+        },
+        "mouth-talk": {
+          "0%, 100%": { transform: "scaleY(1)" },
+          "50%": { transform: "scaleY(0.8)" },
         },
       },
     },

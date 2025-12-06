@@ -8,6 +8,7 @@ interface FlyingChatbotIconProps {
   responsive?: boolean;
   minSize?: number;
   maxSize?: number;
+  mouthAnimated?: boolean;
 }
 
 export function FlyingChatbotIcon({
@@ -17,6 +18,7 @@ export function FlyingChatbotIcon({
   responsive = false,
   minSize = 32,
   maxSize = 140,
+  mouthAnimated = false,
 }: FlyingChatbotIconProps) {
   const dimensionStyle = responsive
     ? {
@@ -108,6 +110,11 @@ export function FlyingChatbotIcon({
             strokeWidth="3"
             strokeLinecap="round"
             fill="none"
+            className={cn(mouthAnimated && "animate-mouth-talk")}
+            style={{
+              transformOrigin: "center",
+              transformBox: "fill-box",
+            }}
           />
 
           {/* Cheek highlights */}

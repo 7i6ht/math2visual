@@ -11,6 +11,8 @@ type UseTutorSpeechParams = {
 export function useTutorSpeech({ t, messages }: UseTutorSpeechParams) {
   const [speechEnabled, setSpeechEnabled] = useState(true);
   const [speechSupported, setSpeechSupported] = useState(false);
+  const [speaking, setSpeaking] = useState(false);
+  const [speakingIndex, setSpeakingIndex] = useState<number | null>(null);
 
   const lastSeenTutorRef = useRef<number | null>(null);
   const lastSpokenTutorRef = useRef<number | null>(null);
@@ -67,12 +69,23 @@ export function useTutorSpeech({ t, messages }: UseTutorSpeechParams) {
 
     try {
       synth.cancel();
+      setSpeaking(false);
+      setSpeakingIndex(null);
       const utterance = new UtteranceCtor(text);
       utterance.lang = navigator.language || "en-US";
+
+      utterance.onstart = () => {
+        if (utteranceRef.current === utterance) {
+          setSpeaking(true);
+          setSpeakingIndex(latestTutorIndex);
+        }
+      };
 
       utterance.onerror = () => {
         if (utteranceRef.current === utterance) {
           utteranceRef.current = null;
+          setSpeaking(false);
+          setSpeakingIndex(null);
         }
         lastSpokenTutorRef.current = null;
         toast.error(t("tutor.speechError"));
@@ -81,6 +94,8 @@ export function useTutorSpeech({ t, messages }: UseTutorSpeechParams) {
       utterance.onend = () => {
         if (utteranceRef.current === utterance) {
           utteranceRef.current = null;
+          setSpeaking(false);
+          setSpeakingIndex(null);
         }
       };
 
@@ -106,6 +121,8 @@ export function useTutorSpeech({ t, messages }: UseTutorSpeechParams) {
       if (!next) {
         synth.cancel();
         utteranceRef.current = null;
+        setSpeaking(false);
+        setSpeakingIndex(null);
       }
       return next;
     });
@@ -121,6 +138,8 @@ export function useTutorSpeech({ t, messages }: UseTutorSpeechParams) {
   return {
     speechEnabled,
     speechSupported,
+    speaking,
+    speakingIndex,
     toggleSpeech,
   };
 }

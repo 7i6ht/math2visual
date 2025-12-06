@@ -9,9 +9,17 @@ type ChatMessagesProps = {
   messages: Message[];
   t: TFunction;
   chatEndRef: RefObject<HTMLDivElement | null>;
+  tutorSpeaking: boolean;
+  tutorSpeakingIndex: number | null;
 };
 
-export const ChatMessages = ({ messages, t, chatEndRef }: ChatMessagesProps) => {
+export const ChatMessages = ({
+  messages,
+  t,
+  chatEndRef,
+  tutorSpeaking,
+  tutorSpeakingIndex,
+}: ChatMessagesProps) => {
   return (
     <div className="flex-1 space-y-4 overflow-y-auto px-1 sm:px-1.5 md:px-2 lg:px-3 xl:px-4 2xl:px-5 3xl:px-6 4xl:px-8 5xl:px-10">
       {messages.map((msg, idx) => {
@@ -19,13 +27,16 @@ export const ChatMessages = ({ messages, t, chatEndRef }: ChatMessagesProps) => 
         const alignment = isStudent ? "justify-end" : "justify-start";
         const slide = isStudent ? "slide-in-from-right-4" : "slide-in-from-left-4";
         const contentAlign = isStudent ? "items-end" : "items-start";
+        const isTutorSpeaking = !isStudent && tutorSpeaking && tutorSpeakingIndex === idx;
+        const botAnimated = Boolean(msg.streaming || isTutorSpeaking);
         return (
           <div key={idx} className={`w-full flex ${alignment} gap-2`}>
             {!isStudent && (
               <div className="flex items-start select-none">
                 <FlyingChatbotIcon
                   className="text-muted-foreground"
-                  animated={Boolean(msg.streaming)}
+                  animated={botAnimated}
+                  mouthAnimated={isTutorSpeaking}
                   responsive
                   minSize={26}
                   maxSize={120}
