@@ -351,7 +351,7 @@ export function ChatView({ onBack }: Props) {
                 <div ref={chatEndRef} />
               </div>
 
-              <div className="mt-4 flex-shrink-0">
+              <div className="mt-1 flex-shrink-0">
                 <div className="relative rounded-md border bg-white shadow-sm">
                   <Textarea
                     value={input}
