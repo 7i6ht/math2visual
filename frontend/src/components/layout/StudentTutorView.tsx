@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import tutorService from "@/api_services/tutor";
 import type { TutorVisual } from "@/api_services/tutor";
 import { Mic, Square, User, ArrowUp } from "lucide-react";
+import { TextCancelButton } from "@/components/ui/text-cancel-button";
 import { FlyingChatbotIcon } from "@/components/ui/flying-chatbot-icon";
 
 type Message = {
@@ -243,13 +244,11 @@ export function StudentTutorView({ onBack }: Props) {
       <div className="flex items-center justify-between mb-6">
         <h2 className="responsive-text-font-size font-semibold">{t("landing.student")}</h2>
         {onBack && (
-          <Button 
-            variant="outline" 
+          <TextCancelButton
             onClick={onBack}
-            className="button-responsive-size !responsive-text-font-size px-3 py-2 md:px-4 md:py-2.5 lg:px-5 lg:py-3 xl:px-6 xl:py-3.5"
-          >
-            {t("common.close")}
-          </Button>
+            label={t("common.close")}
+            ariaLabel={t("common.close")}
+          />
         )}
       </div>
 
