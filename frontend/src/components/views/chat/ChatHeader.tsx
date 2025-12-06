@@ -26,7 +26,7 @@ export const ChatHeader = ({
         <span className="responsive-title-simple font-bold">Math2Visual</span>
       </div>
       {onBack && (
-        <div className="flex items-center gap-1 sm:gap-2">
+        <div className="flex items-center gap-1 sm:gap-2 xl:gap-3 2xl:gap-4 3xl:gap-6 4xl:gap-7 5xl:gap-8 6xl:gap-10">
           <Button
             type="button"
             variant="ghost"
@@ -48,12 +48,12 @@ export const ChatHeader = ({
                 : t("tutor.speechNotSupported")
             }
             aria-disabled={!speechSupported}
-            className="text-muted-foreground hover:text-foreground"
+            className="text-muted-foreground hover:text-foreground h-9 w-9 sm:h-10 sm:w-10 lg:h-11 lg:w-11 xl:h-12 xl:w-12 2xl:h-14 2xl:w-14 3xl:h-16 3xl:w-16 4xl:h-18 4xl:w-18 5xl:h-20 5xl:w-20 6xl:h-24 6xl:w-24"
           >
             {speechEnabled ? (
-              <Volume2 className="w-5 h-5 sm:w-6 sm:h-6" />
+              <Volume2 className="responsive-icon-font-size" />
             ) : (
-              <VolumeX className="w-5 h-5 sm:w-6 sm:h-6" />
+              <VolumeX className="responsive-icon-font-size" />
             )}
           </Button>
           <TextCancelButton
