@@ -27,7 +27,7 @@ export const ChatMessages = ({
         const alignment = isStudent ? "justify-end" : "justify-start";
         const slide = isStudent ? "slide-in-from-right-4" : "slide-in-from-left-4";
         const contentAlign = isStudent ? "items-end" : "items-start";
-        const isTutorSpeaking = !isStudent && tutorSpeaking && tutorSpeakingIndex === idx;
+        const isTutorSpeaking = tutorSpeaking && tutorSpeakingIndex === idx;
         const botAnimated = Boolean(msg.streaming || isTutorSpeaking);
         return (
           <div key={idx} className={`w-full flex ${alignment} gap-2`}>

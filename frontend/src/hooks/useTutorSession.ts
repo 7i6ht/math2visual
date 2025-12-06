@@ -47,13 +47,11 @@ export function useTutorSession({ t }: UseTutorSessionParams) {
     return started;
   };
 
-  const stripVisualLanguage = (text: string): string => {
-    if (!text) return "";
-    return text
+  const stripVisualLanguage = (text: string): string =>
+    text
       .replace(/visual_language[\s\S]*/i, "")
       .replace(/VISUAL_REQUEST[\s\S]*/i, "")
       .trimEnd();
-  };
 
   const sendMessage = async (userMessage: string) => {
     if (!sessionId) {

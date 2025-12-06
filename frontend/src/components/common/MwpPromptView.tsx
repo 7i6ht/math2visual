@@ -1,8 +1,10 @@
-import type { ReactNode } from "react";
+import { type ReactNode, useEffect, useRef } from "react";
+import { Mic, Square } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { MWPTextEntry } from "@/components/ui/mwp-text-entry";
 import { HeroShell } from "@/components/common/HeroShell";
+import { useVoiceInput } from "@/hooks/useVoiceInput";
 
 type MwpPromptViewProps = {
   mwp: string;
@@ -42,6 +44,36 @@ export const MwpPromptView = ({
   subtitle,
 }: MwpPromptViewProps) => {
   const { t } = useTranslation();
+  const mwpRef = useRef(mwp);
+
+  useEffect(() => {
+    mwpRef.current = mwp;
+  }, [mwp]);
+
+  const { listening, voiceSupported, toggleVoice } = useVoiceInput({
+    t,
+    onTranscript: (transcript) => {
+      const nextValue = mwpRef.current ? `${mwpRef.current}\n${transcript}` : transcript;
+      onMwpChange(nextValue);
+    },
+  });
+
+  const micButton = (
+    <Button
+      type="button"
+      variant="ghost"
+      onClick={toggleVoice}
+      disabled={!voiceSupported || loading}
+      className="h-11 w-11 sm:h-12 sm:w-12 lg:h-13 lg:w-13 xl:h-15 xl:w-15 p-0 flex items-center justify-center rounded-full"
+      aria-label={listening ? t("tutor.voiceStop") : t("tutor.voiceStart")}
+    >
+      {listening ? (
+        <Square className="responsive-icon-font-size" />
+      ) : (
+        <Mic className="responsive-icon-font-size" />
+      )}
+    </Button>
+  );
 
   const content = (
     <HeroShell
@@ -59,7 +91,14 @@ export const MwpPromptView = ({
           errorText={errorText}
           disabled={loading}
           rows={rows}
+          trailingContent={micButton}
         />
+
+        {!voiceSupported && (
+          <p className="text-muted-foreground responsive-text-font-size">
+            {t("tutor.voiceNotSupported")}
+          </p>
+        )}
 
         <div className="flex flex-col items-center gap-5 sm:gap-6 md:gap-8 lg:gap-10 xl:gap-12 2xl:gap-14 3xl:gap-16 4xl:gap-20 5xl:gap-24 6xl:gap-28">
           {!hideSubmit && (
