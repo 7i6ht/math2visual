@@ -1,147 +1,165 @@
 # Math2Visual Frontend
 
-A modern, interactive React application that enables teachers to generate pedagogically meaningful visualizations for math word problems (MWPs). Built with React, TypeScript, Vite, and Tailwind CSS with ShadCN UI components.
+An interactive React application for teachers and students: **teacher mode** generates formal/intuitive SVG visualizations from MWPs or DSL, and **student mode** provides an AI tutor with guidance and scoped visuals. Built with React, TypeScript, Vite, Tailwind CSS, and ShadCN UI components.
 
 
 ## 🛠 Tech Stack
 
 - **Framework**: React 19.1.0 with TypeScript
 - **Build Tool**: Vite 7.0.4
-- **Styling**: Tailwind CSS with ShadCN UI components
-- **Forms**: React Hook Form with Zod validation
-- **HTTP Client**: Native Fetch API
+- **Styling**: Tailwind CSS + ShadCN UI components
+- **Forms/Validation**: React Hook Form + Zod
+- **HTTP/Streaming**: Native Fetch API and EventSource (SSE) for tutor streaming
+- **i18n**: i18next + react-i18next (en/de)
+- **Notifications**: Sonner (toast-based global errors)
 - **Icons**: Lucide React
-- **Notifications**: Sonner (Toast notifications)
-- **PDF Generation**: jsPDF for export functionality
 - **Code Editor**: Monaco Editor for DSL syntax editing
-- **Text Processing**: pluralize and to-words for natural language utilities
+- **PDF Generation**: jsPDF for exports
+- **Text/number utils**: pluralize and n2words
 
 ## 📁 Project Structure
 
 ```
 frontend/
-├── src/                    # Source code
-│   ├── api_services/      # Backend API integration
-│   │   ├── analytics.ts   # Analytics tracking and session management
-│   │   ├── generation.ts  # Generation API with request cancellation
-│   │   └── svgDataset.ts  # SVG dataset management and search
-│   ├── components/        # React components
-│   │   ├── errors/        # Error handling and display components
+├── src/                       # Source code
+│   ├── api_services/          # Backend API integration
+│   │   ├── analytics.ts       # Session/action/cursor tracking
+│   │   ├── generation.ts      # Visualization generation API
+│   │   ├── svgDataset.ts      # SVG search/upload + AI icon generation
+│   │   └── tutor.ts           # Tutor session/message + streaming SSE
+│   ├── components/            # React components
+│   │   ├── common/            # Landing + prompt hero blocks
+│   │   │   ├── HeroPromptView.tsx
+│   │   │   ├── HeroShell.tsx
+│   │   │   └── MwpPromptView.tsx
+│   │   ├── errors/
 │   │   │   └── SVGMissingError.tsx
-│   │   ├── forms/         # Form components with validation
-│   │   │   ├── MathProblemForm.tsx
+│   │   ├── forms/
+│   │   │   ├── RenenerateForm.tsx          # Regenerate from DSL/formula
 │   │   │   └── VisualLanguageForm.tsx
-│   │   ├── layout/        # Application layout and views
-│   │   │   ├── AppLayout.tsx      # Main layout with state management
-│   │   │   ├── InitialView.tsx    # Single-column initial interface
-│   │   │   └── TwoColumnView.tsx  # Dual-pane editing interface
-│   │   ├── popups/        # Interactive popup components
-│   │   │   ├── BasePopup.tsx           # Base popup with common functionality
-│   │   │   ├── EntityQuantityPopup.tsx # Quantity editing popup
-│   │   │   ├── NamePopup.tsx          # Name editing popup
-│   │   │   ├── PopupManager.tsx       # Centralized popup state management
-│   │   │   ├── SVGActionMenu.tsx      # SVG selection and upload menu
-│   │   │   ├── SVGGeneratePopup.tsx   # AI-powered SVG icon generation
-│   │   │   ├── SVGSearchPopup.tsx     # SVG search and selection
-│   │   │   └── SVGUploadPopup.tsx     # SVG upload interface
-│   │   ├── ui/            # ShadCN UI components and custom UI
+│   │   ├── popups/                         # Entity + SVG management dialogs
+│   │   │   ├── BasePopup.tsx
+│   │   │   ├── EntityQuantityPopup.tsx
+│   │   │   ├── NamePopup.tsx
+│   │   │   ├── PopupManager.tsx
+│   │   │   ├── SVGActionMenu.tsx
+│   │   │   ├── SVGGeneratePopup.tsx
+│   │   │   ├── SVGSearchPopup.tsx
+│   │   │   └── SVGUploadPopup.tsx
+│   │   ├── ui/                            # ShadCN primitives + custom UI
 │   │   │   ├── badge.tsx
 │   │   │   ├── button.tsx
 │   │   │   ├── card.tsx
 │   │   │   ├── dropdown-menu.tsx
 │   │   │   ├── error-display.tsx
+│   │   │   ├── flying-chatbot-icon.tsx
 │   │   │   ├── form.tsx
-│   │   │   ├── highlightable-input.tsx    # Input with syntax highlighting
-│   │   │   ├── highlightable-textarea.tsx # Textarea with highlighting
+│   │   │   ├── highlightable-input.tsx
+│   │   │   ├── highlightable-textarea.tsx
 │   │   │   ├── input.tsx
 │   │   │   ├── label.tsx
-│   │   │   ├── resizable.tsx              # Resizable panel component
-│   │   │   ├── ResponsiveLogo.tsx         # Responsive logo component
-│   │   │   ├── SessionAnalyticsDisplay.tsx # Analytics session display
-│   │   │   ├── sonner.tsx                 # Toast notification setup
-│   │   │   ├── sparkles-loading.tsx       # Loading animation component
-│   │   │   ├── syntax-editor.tsx          # Monaco Editor integration
-│   │   │   ├── syntax-editor.css          # Editor styling
-│   │   │   ├── tabs.tsx                   # Tab navigation component
+│   │   │   ├── language-selector.tsx
+│   │   │   ├── mwp-text-entry.tsx
+│   │   │   ├── resizable.tsx
+│   │   │   ├── ResponsiveLogo.tsx
+│   │   │   ├── SessionAnalyticsDisplay.tsx
+│   │   │   ├── sonner.tsx
+│   │   │   ├── sparkles-loading.tsx
+│   │   │   ├── syntax-editor.css
+│   │   │   ├── syntax-editor.tsx
+│   │   │   ├── tabs.tsx
+│   │   │   ├── text-cancel-button.tsx
 │   │   │   └── textarea.tsx
-│   │   └── visualization/ # Visualization display and interaction
-│   │       ├── DownloadButton.tsx      # Multi-format download (SVG/PNG/PDF)
-│   │       ├── MissingSVGSection.tsx   # Missing SVG entity handling
-│   │       ├── ParseErrorSection.tsx   # DSL parsing error display
-│   │       ├── VisualizationResults.tsx # Results display with tabs
-│   │       └── VisualizationSection.tsx  # Individual visualization component
-│   ├── config/            # Configuration files
-│   │   └── api.ts         # API configuration and endpoints
-│   ├── contexts/          # React Context providers
-│   │   ├── DSLContext.tsx           # DSL state and operations
-│   │   └── HighlightingContext.tsx  # Syntax highlighting state
-│   ├── hooks/             # Custom React hooks
-│   │   ├── __tests__/     # Hooks testing structure (in development)
-│   │   ├── useAnalytics.ts           # Analytics tracking and instrumentation
-│   │   ├── useAppState.ts            # Global application state
-│   │   ├── useElementInteractions.ts # Element interaction handling
-│   │   ├── useEntityQuantityPopup.ts # Quantity popup state
-│   │   ├── useHighlighting.ts        # Syntax highlighting logic
-│   │   ├── useLoadingStates.ts      # Loading state management
-│   │   ├── useMathProblemForm.ts     # Math problem form logic
-│   │   ├── useNamePopup.ts           # Name popup state
-│   │   ├── usePopupManagement.ts     # Popup coordination
-│   │   ├── useSVGMissingError.tsx    # SVG error handling
-│   │   ├── useSVGResponsive.ts      # SVG responsive behavior
-│   │   ├── useSVGSelector.ts         # SVG selection logic
-│   │   ├── useVisualizationHandlers.ts # Visualization event handlers
-│   │   └── useVisualLanguageForm.ts  # Visual language form logic
-│   ├── services/          # Module-level services
-│   │   └── analyticsTracker.ts # Analytics tracking service
-│   ├── lib/               # Library utilities
-│   │   ├── dsl-utils.ts   # DSL utility functions
-│   │   └── utils.ts       # General utility functions
-│   ├── schemas/           # Validation schemas
-│   │   └── validation.ts # Zod validation schemas
-│   ├── styles/            # Global styles
-│   │   ├── responsive-text.css  # Responsive typography system
-│   │   └── responsive-toast.css # Responsive toast notifications
-│   ├── types/             # TypeScript type definitions
+│   │   ├── views/                         # Page-level and layout views
+│   │   │   ├── AppLayout.tsx
+│   │   │   ├── ChatView.tsx
+│   │   │   ├── InitialView.tsx
+│   │   │   ├── LandingPage.tsx
+│   │   │   ├── TutorSessionStarter.tsx
+│   │   │   ├── TwoColumnView.tsx
+│   │   │   └── chat/
+│   │   │       ├── ChatHeader.tsx
+│   │   │       ├── ChatInputBar.tsx
+│   │   │       ├── ChatMessages.tsx
+│   │   │       └── ChatVisual.tsx
+│   │   └── visualization/                 # Visualization display + actions
+│   │       ├── DownloadButton.tsx
+│   │       ├── MissingSVGSection.tsx
+│   │       ├── ParseErrorSection.tsx
+│   │       ├── VisualizationResults.tsx
+│   │       └── VisualizationSection.tsx
+│   ├── config/
+│   │   └── api.ts                         # API configuration and endpoints
+│   ├── contexts/
+│   │   ├── DSLContext.tsx                 # DSL state and operations
+│   │   ├── HighlightingContext.tsx        # Syntax highlighting state
+│   │   └── LanguageContext.tsx            # i18n selection
+│   ├── hooks/                             # Custom React hooks
+│   │   ├── useAppState.ts
+│   │   ├── useElementInteractions.ts
+│   │   ├── useEntityQuantityPopup.ts
+│   │   ├── useHighlighting.ts
+│   │   ├── useLoadingStates.ts
+│   │   ├── useMathProblemForm.ts
+│   │   ├── useNamePopup.ts
+│   │   ├── usePopupManagement.ts
+│   │   ├── useSVGMissingError.tsx
+│   │   ├── useSVGResponsive.ts
+│   │   ├── useSVGSelector.ts
+│   │   ├── useTutorSession.ts
+│   │   ├── useTutorSpeech.ts
+│   │   ├── useVisualizationHandlers.ts
+│   │   ├── useVisualLanguageForm.ts
+│   │   └── useVoiceInput.ts
+│   ├── i18n/
+│   │   ├── config.ts
+│   │   └── locales/ (en.json, de.json)
+│   ├── lib/
+│   │   ├── dsl-utils.ts
+│   │   └── utils.ts
+│   ├── schemas/
+│   │   └── validation.ts
+│   ├── services/
+│   │   └── analyticsTracker.ts
+│   ├── styles/
+│   │   ├── responsive-text.css
+│   │   └── responsive-toast.css
+│   ├── types/
 │   │   ├── index.ts
 │   │   └── visualInteraction.ts
-│   ├── utils/             # Utility functions
-│   │   ├── download.ts            # Download functionality
-│   │   ├── dsl-cursor-mapping.ts  # DSL cursor position mapping
-│   │   ├── dsl-formatter.ts       # DSL formatting utilities
-│   │   ├── dsl-parser.ts          # DSL parsing logic
-│   │   ├── elementUtils.ts        # DOM element utilities
-│   │   ├── mwpUtils.ts             # Math word problem utilities
-│   │   ├── numberUtils.ts          # Number formatting and conversion
-│   │   └── validation.ts           # Validation utilities
-│   ├── App.tsx            # Main application component
-│   ├── App.css            # Application styles
-│   ├── main.tsx           # Application entry point
-│   ├── index.css          # Global CSS styles
-│   └── vite-env.d.ts      # Vite environment type definitions
-├── public/                # Static assets (copied to dist on build)
-│   ├── favicon.ico
-│   ├── index.html
-│   ├── manifest.json      # Web app manifest
-│   ├── robots.txt         # Robots.txt for SEO
-│   └── ...                # Other static files (logos, icons, etc.)
-├── dist/                  # Production build output (generated, gitignored)
-├── docs/                  # Documentation
-│   └── PRODUCTION_DEPLOYMENT.md # Production deployment guide
-├── node_modules/          # Dependencies (generated, gitignored)
-├── .env                   # Environment variables (gitignored, create from .env.example)
-├── .env.example           # Environment variables template
-├── .gitignore             # Git ignore rules
-├── index.html             # HTML template
-├── package.json           # Dependencies and scripts
-├── package-lock.json      # Locked dependency versions
-├── tsconfig.json          # TypeScript configuration
-├── tsconfig.app.json      # TypeScript app configuration
-├── tsconfig.node.json     # TypeScript node configuration
-├── vite.config.ts         # Vite build configuration
-├── tailwind.config.js     # Tailwind CSS configuration
-├── postcss.config.mjs     # PostCSS configuration
-├── eslint.config.js       # ESLint configuration
-└── components.json        # ShadCN components configuration
+│   ├── utils/
+│   │   ├── apiHelpers.ts
+│   │   ├── download.ts
+│   │   ├── dsl-cursor-mapping.ts
+│   │   ├── dsl-formatter.ts
+│   │   ├── dsl-parser.ts
+│   │   ├── elementUtils.ts
+│   │   ├── mwpUtils.ts
+│   │   ├── numberUtils.ts
+│   │   ├── pluralization.ts
+│   │   └── validation.ts
+│   ├── App.tsx
+│   ├── App.css
+│   ├── main.tsx
+│   ├── index.css
+│   └── vite-env.d.ts
+├── public/                 # Static assets (copied to dist on build)
+│   └── ...                # Logos, icons, manifest, etc.
+├── dist/                   # Production build output (generated, gitignored)
+├── docs/                   # Documentation (e.g., PRODUCTION_DEPLOYMENT.md)
+├── node_modules/           # Dependencies (generated, gitignored)
+├── .env                    # Environment variables (gitignored)
+├── .env.example            # Environment variables template
+├── package.json            # Dependencies and scripts
+├── package-lock.json       # Locked dependency versions
+├── tsconfig.json           # TypeScript configuration
+├── tsconfig.app.json       # TypeScript app configuration
+├── tsconfig.node.json      # TypeScript node configuration
+├── vite.config.ts          # Vite build configuration
+├── tailwind.config.js      # Tailwind CSS configuration
+├── postcss.config.mjs      # PostCSS configuration
+├── eslint.config.js        # ESLint configuration
+└── components.json         # ShadCN components configuration
 ```
 
 ## 🚀 Getting Started
@@ -214,32 +232,42 @@ npx serve -s dist -l 3000
 
 ### Basic Workflow
 
-1. **Enter Math Word Problem**: Type or paste a math word problem into the main text area
-2. **Add Formula (Optional)**: Enter the associated mathematical formula in the second input field
-3. **Generate Visualization**: Click the "Generate Visualization" button
-4. **Wait for Processing**: Watch the animated loading indicator while the backend processes your request
-5. **Review Results**: View both formal and intuitive visualizations once generated
-6. **Interactive Editing**: 
-   - Edit the generated Visual Language (VL) using the Monaco Editor with syntax highlighting
-   - Modify entity names and quantities using interactive popups
-   - Search and upload missing SVG entities
-7. **Download**: Export visualizations in your preferred format (SVG, PNG, PDF)
+1. **Choose your mode**
+   - **Teacher mode (visual generation):** Generates formal/intuitive SVGs from MWPs or DSL. Entry via the main math problem form or regenerate/DSL forms; backed by `POST /api/generate` and SVG dataset endpoints.
+   - **Student mode (AI tutor):** Conversational tutor that guides a learner, streams responses, and can render scoped visuals. Entry via `ChatView`/`TutorSessionStarter`; backed by `POST /api/tutor/start`, `POST /api/tutor/message`, and `GET /api/tutor/message/stream`.
+
+2. **Teacher mode: Visual generation**
+   - Enter a Math Word Problem in the main text area.
+   - Optionally add a formula or DSL; click **Generate**.
+   - Wait for processing, then review formal and intuitive SVGs.
+   - Adjust entities/quantities/names via popups, and search/upload missing SVGs (or AI-generate them). Edit the Visual Language in the Monaco Editor.
+   - Download results as SVG, PNG, or PDF.
+
+3. **Student mode: AI tutor**
+   - Start a tutor session from the tutor entry point with your MWP.
+   - Chat with the tutor; replies are streamed stream.
+   - When the tutor shows a scoped visual, it is rendered from the initially generated DSL fragment.
+   - Continue the conversation until you found out the result.
 
 ### Error Handling
 
 The application handles various error scenarios:
-- **Network errors**: Connection issues with the backend
-- **Generation errors**: Problems during visualization creation
-- **Missing SVG entities**: Upload interface for required SVG files
+- **Network/proxy issues**: Backend unreachable or offline (toast surfaced).
+- **Generation/parse errors**: Formal/intuitive generation or DSL parsing problems are shown in the results tabs (teacher mode).
+- **Missing SVG entities**: Upload/AI-generate flow is offered when icons are absent.
+- **Tutor session errors**: Missing session or streaming failures surface toasts in student mode; empty messages are ignored.
+- **SVG validation**: Upload/AI-generated SVG failures return validation details and are surfaced via toast.
 
 ### Advanced Features
 
-- **Request Cancellation**: Abort ongoing generation requests
-- **Visual Language Editing**: Modify and regenerate from custom VL using Monaco Editor
-- **Interactive SVG Management**: Search, upload, and AI-generate SVG icons
-- **AI-Powered SVG Generation**: Generate custom SVG icons using Google Gemini
-- **Popup-based Interactions**: Entity quantity editing and name modification
-- **Multiple Download Formats**: Export in SVG, PNG, or PDF
+- **Request Cancellation**: Abort ongoing generation requests.
+- **Visual Language Editing**: Modify and regenerate from custom VL using Monaco Editor.
+- **Interactive SVG Management**: Search, upload, and AI-generate SVG icons.
+- **AI-Powered SVG Generation**: Generate custom SVG icons using Google Gemini.
+- **Tutor mode streaming**: Chat replies stream and can trigger scoped visual renders from DSL fragments.
+- **Popup-based Interactions**: Entity quantity, name, and SVG adjustments via dialogs.
+- **Language switching**: UI and backend error messages localized (en/de).
+- **Multiple Download Formats**: Export in SVG, PNG, or PDF.
 
 ## 🔧 Configuration
 
@@ -310,9 +338,24 @@ The frontend communicates with the Flask backend via REST API endpoints. For det
 
 ### Key Integration Points
 
-- **Generation Endpoint**: `POST /api/generate` - Creates visualizations from math word problems or visual language 
-- **SVG Dataset Management**: Search and upload SVG entities for missing visualization elements
-- **Error Handling**: Comprehensive error responses for validation, generation, and system failures
+All endpoints are relative to `BACKEND_API_URL` from `src/config/api.ts`.
+
+- **Generation**: `POST /api/generate` — create visualizations from MWPs or DSL.
+- **Tutor (Gemini)**:
+  - `POST /api/tutor/start` — initialize a tutor session with DSL + first turn.
+  - `POST /api/tutor/message` — send a user turn and receive the next reply.
+  - `GET /api/tutor/message/stream` — streaming tutor replies (SSE), returning `chunk` and `done` events.
+- **SVG Dataset**:
+  - `POST /api/svg-dataset/generate` — AI-generate a temporary SVG icon.
+  - `POST /api/svg-dataset/confirm-generated` — move/rename generated SVG into the dataset.
+  - `GET /api/svg-dataset/search?query=&limit=` — search existing SVG files.
+  - `GET /api/svg-dataset/check-exists?name=` — check for filename collisions.
+  - `POST /api/svg-dataset/upload` — upload a validated SVG file.
+- **Analytics (optional)**:
+  - `POST /api/analytics/session` — register a session.
+  - `POST /api/analytics/actions/batch` — send batched user actions.
+  - `POST /api/analytics/cursor-positions/batch` — send cursor positions for heatmaps.
+  - `POST /api/analytics/screenshot` — upload anonymized screenshots.
 
 ## 📄 License
 
