@@ -234,7 +234,7 @@ npx serve -s dist -l 3000
 
 1. **Choose your mode**
    - **Teacher mode (visual generation):** Generates formal/intuitive SVGs from MWPs or DSL. Entry via the main math problem form or regenerate/DSL forms; backed by `POST /api/generate` and SVG dataset endpoints.
-   - **Student mode (AI tutor):** Conversational tutor that guides a learner, streams responses, and can render scoped visuals. Entry via `ChatView`/`TutorSessionStarter`; backed by `POST /api/tutor/start`, `POST /api/tutor/message`, and `GET /api/tutor/message/stream`.
+   - **Student mode (AI tutor):** Conversational tutor that guides a learner, streams responses, and can render scoped visuals. Entry via `ChatView`/`TutorSessionStarter`; backed by `POST /api/tutor/start` and `GET /api/tutor/message/stream`.
 
 2. **Teacher mode: Visual generation**
    - Enter a Math Word Problem in the main text area.
@@ -343,7 +343,6 @@ All endpoints are relative to `BACKEND_API_URL` from `src/config/api.ts`.
 - **Generation**: `POST /api/generate` — create visualizations from MWPs or DSL.
 - **Tutor (Gemini)**:
   - `POST /api/tutor/start` — initialize a tutor session with DSL + first turn.
-  - `POST /api/tutor/message` — send a user turn and receive the next reply.
   - `GET /api/tutor/message/stream` — streaming tutor replies (SSE), returning `chunk` and `done` events.
 - **SVG Dataset**:
   - `POST /api/svg-dataset/generate` — AI-generate a temporary SVG icon.

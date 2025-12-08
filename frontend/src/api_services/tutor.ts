@@ -26,7 +26,7 @@ export type TutorMessageResponse = {
 type StreamCallbacks = {
   onChunk: (delta: string) => void;
   onDone: (data: TutorMessageResponse) => void;
-  onError?: (error: any) => void;
+  onError?: (error: unknown) => void;
 };
 
 const tutorService = {
@@ -42,20 +42,6 @@ const tutorService = {
       throw new ApiError(result.error || "Failed to start tutor session", response.status);
     }
     return result as TutorStartResponse;
-  },
-
-  async sendMessage(sessionId: string, message: string): Promise<TutorMessageResponse> {
-    const response = await fetch(`${API_BASE_URL}/tutor/message`, {
-      method: "POST",
-      headers: getHeadersWithLanguage(),
-      body: JSON.stringify({ session_id: sessionId, message }),
-    });
-
-    const result = await response.json();
-    if (!response.ok) {
-      throw new ApiError(result.error || "Failed to send tutor message", response.status);
-    }
-    return result as TutorMessageResponse;
   },
 
   sendMessageStream(sessionId: string, message: string, callbacks: StreamCallbacks) {

@@ -550,19 +550,6 @@ Start a tutoring session (generates DSL first).
 }
 ```
 
-#### `POST /api/tutor/message`
-Continue an existing tutoring session.
-
-**Request Body:**
-```json
-{
-  "session_id": "9ad3c7a9-...",
-  "message": "I think we should add them."
-}
-```
-
-**Response:** Same shape as `/api/tutor/start` without `visual_language`.
-
 #### `GET /api/tutor/message/stream`
 Stream a tutoring reply (Server-Sent Events).
 

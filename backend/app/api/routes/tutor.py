@@ -6,12 +6,11 @@ from app.api.routes.generation import extract_visual_language, _generate_single_
 from app.services.language_generation.gpt_generator import generate_visual_language
 from app.services.tutor.gemini_tutor import (
     start_tutor_session,
-    continue_tutor_session,
     _generate_tutor_reply_stream,
     TUTOR_SESSIONS,
     MAX_HISTORY,
 )
-from flask import Response, stream_with_context, request
+from flask import Response, stream_with_context
 
 tutor_bp = Blueprint('tutor', __name__)
 
@@ -68,39 +67,6 @@ def tutor_start():
         "session_id": session_id,
         "tutor_message": tutor_reply,
         "visual_language": dsl,
-        "visual": visual
-    })
-
-
-@tutor_bp.route("/api/tutor/message", methods=["POST"])
-def tutor_message():
-    """
-    Continue a tutoring session.
-    """
-    body = request.json or {}
-    session_id = body.get("session_id")
-    user_message = (body.get("message") or "").strip()
-
-    if not session_id:
-        return jsonify({"error": _("Missing session id.")}), 400
-    if not user_message:
-        return jsonify({"error": _("Please provide a message.")}), 400
-
-    response = continue_tutor_session(session_id, user_message)
-    if not response or not response[0]:
-        return jsonify({"error": _("Session not found or expired.")}), 404
-
-    _, tutor_reply, visual_request = response
-
-    # Fetch DSL from session for rendering when needed
-    session = TUTOR_SESSIONS.get(session_id)
-    dsl = session["visual_language"] if session else ""
-
-    visual = _render_visual_request(visual_request, dsl)
-
-    return jsonify({
-        "session_id": session_id,
-        "tutor_message": tutor_reply,
         "visual": visual
     })
 
