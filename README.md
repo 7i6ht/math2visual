@@ -106,7 +106,7 @@ flowchart TD
 - **Dual Generation Engines**: Separate formal and intuitive visualization algorithms
 - **Scalable Storage**: Local filesystem or distributed JuiceFS with PostgreSQL metadata
 - **SVG Uploading Security & Validation**: SVG content validation, and optional ClamAV integration
-- **Extensive SVG Entity Library**: 1,549 pre-validated SVG assets for comprehensive visual coverage
+- **Extensive SVG Entity Library**: 1,549 SVG assets for comprehensive visual coverage
 
 ## 🚀 Quick Start
 
