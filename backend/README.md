@@ -550,10 +550,16 @@ Start a tutoring session (generates DSL first).
 }
 ```
 
-#### `GET /api/tutor/message/stream`
-Stream a tutoring reply (Server-Sent Events).
+#### `POST /api/tutor/message/stream`
+Stream a tutoring reply (Server-Sent Events over a POST request).
 
-**Query Params:** `session_id`, `message`
+**Request Body (JSON):**
+```json
+{
+  "session_id": "9ad3c7a9-...",
+  "message": "I think we should add the oranges."
+}
+```
 
 **Stream Payloads:**
 - Chunk: `data: {"type":"chunk","delta":"..."}`

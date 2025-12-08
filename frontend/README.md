@@ -343,7 +343,7 @@ All endpoints are relative to `BACKEND_API_URL` from `src/config/api.ts`.
 - **Generation**: `POST /api/generate` — create visualizations from MWPs or DSL.
 - **Tutor (Gemini)**:
   - `POST /api/tutor/start` — initialize a tutor session with DSL + first turn.
-  - `GET /api/tutor/message/stream` — streaming tutor replies (SSE), returning `chunk` and `done` events.
+  - `POST /api/tutor/message/stream` — streaming tutor replies (SSE-style over POST) with JSON body `{ "session_id": "...", "message": "..." }`, returning `chunk` and `done` events.
 - **SVG Dataset**:
   - `POST /api/svg-dataset/generate` — AI-generate a temporary SVG icon.
   - `POST /api/svg-dataset/confirm-generated` — move/rename generated SVG into the dataset.

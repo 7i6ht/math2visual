@@ -45,38 +45,88 @@ const tutorService = {
   },
 
   sendMessageStream(sessionId: string, message: string, callbacks: StreamCallbacks) {
-    const url = `${API_BASE_URL}/tutor/message/stream?session_id=${encodeURIComponent(
-      sessionId
-    )}&message=${encodeURIComponent(message)}`;
-    const es = new EventSource(url);
+    const controller = new AbortController();
 
-    es.onmessage = (event) => {
+    const startStream = async () => {
       try {
-        const data = JSON.parse(event.data);
-        if (data.type === "chunk") {
-          callbacks.onChunk(data.delta || "");
-        } else if (data.type === "done") {
-          es.close();
-          callbacks.onDone({
-            session_id: data.session_id,
-            tutor_message: data.tutor_message,
-            visual: data.visual,
-          });
-        } else if (data.type === "error") {
-          throw new Error(data.error || "Streaming error");
+        const response = await fetch(`${API_BASE_URL}/tutor/message/stream`, {
+          method: "POST",
+          headers: getHeadersWithLanguage(),
+          body: JSON.stringify({ session_id: sessionId, message }),
+          signal: controller.signal,
+        });
+
+        const contentType = response.headers.get("content-type") || "";
+        if (!response.ok) {
+          const errorBody = contentType.includes("application/json")
+            ? await response.json().catch(() => null)
+            : null;
+          throw new ApiError(errorBody?.error || "Failed to stream tutor message", response.status);
         }
-      } catch (err) {
-        es.close();
-        callbacks.onError?.(err);
+
+        if (!response.body) {
+          throw new Error("Streaming not supported in this browser.");
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+        let finished = false;
+
+        while (!finished) {
+          const { value, done } = await reader.read();
+          buffer += decoder.decode(value, { stream: !done });
+
+          let boundary;
+          while ((boundary = buffer.indexOf("\n\n")) !== -1) {
+            const rawEvent = buffer.slice(0, boundary).trim();
+            buffer = buffer.slice(boundary + 2);
+            if (!rawEvent) continue;
+
+            const payloadStr = rawEvent.replace(/^data:\s*/, "");
+            if (!payloadStr) continue;
+
+            let data: TutorMessageResponse & { type?: string; delta?: string; error?: string };
+            try {
+              data = JSON.parse(payloadStr);
+            } catch (parseError) {
+              callbacks.onError?.(parseError);
+              finished = true;
+              break;
+            }
+
+            if (data.type === "chunk") {
+              callbacks.onChunk(data.delta || "");
+            } else if (data.type === "done") {
+              callbacks.onDone({
+                session_id: data.session_id,
+                tutor_message: data.tutor_message,
+                visual: data.visual,
+              });
+              finished = true;
+              break;
+            } else if (data.type === "error") {
+              callbacks.onError?.(new Error(data.error || "Streaming error"));
+              finished = true;
+              break;
+            }
+          }
+
+          if (done) {
+            break;
+          }
+        }
+      } catch (error) {
+        if (controller.signal.aborted) {
+          return;
+        }
+        callbacks.onError?.(error);
       }
     };
 
-    es.onerror = (err) => {
-      es.close();
-      callbacks.onError?.(err);
-    };
+    void startStream();
 
-    return () => es.close();
+    return () => controller.abort();
   },
 };
 

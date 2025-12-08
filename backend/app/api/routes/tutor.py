@@ -71,14 +71,15 @@ def tutor_start():
     })
 
 
-@tutor_bp.route("/api/tutor/message/stream", methods=["GET"])
+@tutor_bp.route("/api/tutor/message/stream", methods=["POST"])
 def tutor_message_stream():
     """
     Stream a tutoring response (text chunks) using SSE-like format.
-    Query params: session_id, message
+    JSON body: session_id, message
     """
-    session_id = request.args.get("session_id", "").strip()
-    user_message = request.args.get("message", "").strip()
+    body = request.get_json(silent=True) or {}
+    session_id = (body.get("session_id") or "").strip()
+    user_message = (body.get("message") or "").strip()
 
     if not session_id:
         return jsonify({"error": _("Missing session id.")}), 400
