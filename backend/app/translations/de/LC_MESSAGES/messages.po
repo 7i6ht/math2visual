@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-12-04 00:29+0100\n"
+"POT-Creation-Date: 2025-12-09 15:12+0100\n"
 "PO-Revision-Date: 2025-12-03 21:57+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: de\n"
@@ -34,21 +34,26 @@ msgstr "Interner Serverfehler"
 msgid "Request too large"
 msgstr "Anfrage zu groß"
 
-#: app/api/routes/generation.py:64
+#: app/api/routes/generation.py:64 app/api/routes/generation.py:235
+#: app/api/routes/generation.py:260
 msgid "Empty Visual Language provided."
 msgstr "Leere visuelle Sprache bereitgestellt."
 
-#: app/api/routes/generation.py:78
+#: app/api/routes/generation.py:78 app/api/routes/tutor.py:52
 msgid "Provide a math word problem (MWP)."
 msgstr "Bitte geben Sie eine Mathe-Textaufgabe ein."
 
-#: app/api/routes/generation.py:85
+#: app/api/routes/generation.py:85 app/api/routes/tutor.py:60
 msgid "Did not get Visual Language from AI. Please try again."
-msgstr "Visuelle Sprache wurde nicht von der KI erhalten. Bitte versuchen Sie es erneut."
+msgstr ""
+"Visuelle Sprache wurde nicht von der KI erhalten. Bitte versuchen Sie es "
+"erneut."
 
-#: app/api/routes/generation.py:108
+#: app/api/routes/generation.py:108 app/api/routes/generation.py:200
 msgid "Visual Language parse error."
-msgstr "Fehler beim Parsen der visuellen Sprache. Ein weiterer Versuch könnte hilfreich sein."
+msgstr ""
+"Fehler beim Parsen der visuellen Sprache. Ein weiterer Versuch könnte "
+"hilfreich sein."
 
 #: app/api/routes/generation.py:126
 #, python-format
@@ -57,7 +62,9 @@ msgstr "Formale Visualisierung konnte nicht erzeugt werden: %(error)s"
 
 #: app/api/routes/generation.py:128
 msgid "Could not generate formal visualization. Retrying might help."
-msgstr "Formale Visualisierung konnte nicht erzeugt werden. Ein erneuter Versuch könnte helfen."
+msgstr ""
+"Formale Visualisierung konnte nicht erzeugt werden. Ein erneuter Versuch "
+"könnte helfen."
 
 #: app/api/routes/generation.py:130
 #, python-format
@@ -76,7 +83,9 @@ msgstr "Intuitive Visualisierung konnte nicht erzeugt werden: %(error)s"
 
 #: app/api/routes/generation.py:150
 msgid "Could not generate intuitive visualization. Retrying might help."
-msgstr "Intuitive Visualisierung konnte nicht erzeugt werden. Ein erneuter Versuch könnte helfen."
+msgstr ""
+"Intuitive Visualisierung konnte nicht erzeugt werden. Ein erneuter "
+"Versuch könnte helfen."
 
 #: app/api/routes/generation.py:152
 #, python-format
@@ -87,6 +96,28 @@ msgstr "Fehler bei der intuitiven Erzeugung: %(error)s"
 #, python-format
 msgid "Unexpected intuitive generation error: %(error)s"
 msgstr "Unerwarteter Fehler bei der intuitiven Erzeugung: %(error)s"
+
+#: app/api/routes/generation.py:213
+#, fuzzy, python-format
+msgid "Could not generate %(variant)s visualization: %(error)s"
+msgstr "Formale Visualisierung konnte nicht erzeugt werden: %(error)s"
+
+#: app/api/routes/generation.py:215
+#, fuzzy, python-format
+msgid "Could not generate %(variant)s visualization. Retrying might help."
+msgstr ""
+"Formale Visualisierung konnte nicht erzeugt werden. Ein erneuter Versuch "
+"könnte helfen."
+
+#: app/api/routes/generation.py:217
+#, fuzzy, python-format
+msgid "%(variant)s generation error: %(error)s"
+msgstr "Fehler bei der formalen Erz: %(error)s"
+
+#: app/api/routes/generation.py:219
+#, fuzzy, python-format
+msgid "Unexpected %(variant)s generation error: %(error)s"
+msgstr "Unerwarteter Fehler bei der formalen Erz: %(error)s"
 
 #: app/api/routes/svg_dataset.py:50 app/api/routes/svg_dataset.py:256
 msgid "SVG dataset directory not found"
@@ -122,7 +153,9 @@ msgstr "Keine Datei ausgewählt"
 msgid ""
 "File already exists or has been added by another user in the meantime: "
 "%(filename)s"
-msgstr "Datei existiert bereits oder wurde in der Zwischenzeit von einem anderen Benutzer hinzugefügt: %(filename)s"
+msgstr ""
+"Datei existiert bereits oder wurde in der Zwischenzeit von einem anderen "
+"Benutzer hinzugefügt: %(filename)s"
 
 #: app/api/routes/svg_dataset.py:228
 #, python-format
@@ -224,6 +257,22 @@ msgstr "Speicherstatus konnte nicht abgerufen werden: %(error)s"
 msgid "Failed to get antivirus status: %(error)s"
 msgstr "Antivirus-Status konnte nicht abgerufen werden: %(error)s"
 
+#: app/api/routes/tutor.py:28
+msgid "Missing DSL scope for visual request."
+msgstr "Fehlender DSL-Bereich für die Visualisierungsanfrage."
+
+#: app/api/routes/tutor.py:85
+msgid "Missing session id."
+msgstr "Sitzungs-ID fehlt."
+
+#: app/api/routes/tutor.py:87
+msgid "Please provide a message."
+msgstr "Bitte geben Sie eine Nachricht ein."
+
+#: app/api/routes/tutor.py:91
+msgid "Session not found or expired."
+msgstr "Sitzung nicht gefunden oder abgelaufen."
+
 # Generator error messages (from visual_generation modules)
 #~ msgid "Cannot generate visual: SVG file not found for %(base_name)s."
 #~ msgstr ""
@@ -236,9 +285,9 @@ msgstr "Antivirus-Status konnte nicht abgerufen werden: %(error)s"
 #~ "of multiplier has entity quantity higher"
 #~ " than 12."
 #~ msgstr ""
-#~ "Keine Visualisierung kann erzeugt werden,"
-#~ " da der Multiplikator eine Entitätsmenge"
-#~ " höher als 12 hat."
+#~ "Keine Visualisierung kann erzeugt werden, "
+#~ "da der Multiplikator eine Entitätsmenge "
+#~ "höher als 12 hat."
 
 #~ msgid "SVG file not found for %(base_name)s."
 #~ msgstr "SVG-Datei für %(base_name)s nicht gefunden."
@@ -352,5 +401,4 @@ msgstr "Antivirus-Status konnte nicht abgerufen werden: %(error)s"
 #~ "Visualisierung konnte nicht erzeugt werden:"
 #~ " Fehler bei der Behandlung des "
 #~ "Vergleichs."
-
 

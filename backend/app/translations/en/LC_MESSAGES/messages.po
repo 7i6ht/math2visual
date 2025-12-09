@@ -1,7 +1,3 @@
-#: app/services/language_generation/gpt_generator.py
-msgid "Once you are ready, you can do the task of converting, you can write down your thinking procedure but please make sure to give me the final visual language of the following question in this format in the end: visual_language:<the visual language result>"
-msgstr ""
-
 # English translations for PROJECT.
 # Copyright (C) 2025 ORGANIZATION
 # This file is distributed under the same license as the PROJECT project.
@@ -11,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-12-04 00:29+0100\n"
+"POT-Creation-Date: 2025-12-09 15:12+0100\n"
 "PO-Revision-Date: 2025-12-03 21:57+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -38,19 +34,20 @@ msgstr ""
 msgid "Request too large"
 msgstr ""
 
-#: app/api/routes/generation.py:64
+#: app/api/routes/generation.py:64 app/api/routes/generation.py:235
+#: app/api/routes/generation.py:260
 msgid "Empty Visual Language provided."
 msgstr ""
 
-#: app/api/routes/generation.py:78
+#: app/api/routes/generation.py:78 app/api/routes/tutor.py:52
 msgid "Provide a math word problem (MWP)."
 msgstr ""
 
-#: app/api/routes/generation.py:85
+#: app/api/routes/generation.py:85 app/api/routes/tutor.py:60
 msgid "Did not get Visual Language from AI. Please try again."
 msgstr ""
 
-#: app/api/routes/generation.py:108
+#: app/api/routes/generation.py:108 app/api/routes/generation.py:200
 msgid "Visual Language parse error."
 msgstr "Error while parsing Visual Language. Retrying might help."
 
@@ -90,6 +87,26 @@ msgstr ""
 #: app/api/routes/generation.py:154
 #, python-format
 msgid "Unexpected intuitive generation error: %(error)s"
+msgstr ""
+
+#: app/api/routes/generation.py:213
+#, python-format
+msgid "Could not generate %(variant)s visualization: %(error)s"
+msgstr "Could not generate %(variant)s visualization: %(error)s"
+
+#: app/api/routes/generation.py:215
+#, python-format
+msgid "Could not generate %(variant)s visualization. Retrying might help."
+msgstr "Could not generate %(variant)s visualization. Retrying might help."
+
+#: app/api/routes/generation.py:217
+#, python-format
+msgid "%(variant)s generation error: %(error)s"
+msgstr ""
+
+#: app/api/routes/generation.py:219
+#, python-format
+msgid "Unexpected %(variant)s generation error: %(error)s"
 msgstr ""
 
 #: app/api/routes/svg_dataset.py:50 app/api/routes/svg_dataset.py:256
@@ -228,6 +245,22 @@ msgstr ""
 msgid "Failed to get antivirus status: %(error)s"
 msgstr ""
 
+#: app/api/routes/tutor.py:28
+msgid "Missing DSL scope for visual request."
+msgstr ""
+
+#: app/api/routes/tutor.py:85
+msgid "Missing session id."
+msgstr ""
+
+#: app/api/routes/tutor.py:87
+msgid "Please provide a message."
+msgstr ""
+
+#: app/api/routes/tutor.py:91
+msgid "Session not found or expired."
+msgstr ""
+
 # Generator error messages (from visual_generation modules)
 #~ msgid "Cannot generate visual: SVG file not found for %(base_name)s."
 #~ msgstr "Cannot generate visual: SVG file not found for %(base_name)s."
@@ -333,4 +366,15 @@ msgstr ""
 
 #~ msgid "Cannot generate visual: Error in handling the comparison."
 #~ msgstr "Cannot generate visual: Error in handling the comparison."
+
+#~ msgid ""
+#~ "Once you are ready, you can do "
+#~ "the task of converting, you can "
+#~ "write down your thinking procedure but"
+#~ " please make sure to give me "
+#~ "the final visual language of the "
+#~ "following question in this format in "
+#~ "the end: visual_language:<the visual language"
+#~ " result>"
+#~ msgstr ""
 

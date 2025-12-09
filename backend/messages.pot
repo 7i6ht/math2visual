@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-12-04 00:33+0100\n"
+"POT-Creation-Date: 2025-12-09 15:12+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -33,19 +33,20 @@ msgstr ""
 msgid "Request too large"
 msgstr ""
 
-#: app/api/routes/generation.py:64
+#: app/api/routes/generation.py:64 app/api/routes/generation.py:235
+#: app/api/routes/generation.py:260
 msgid "Empty Visual Language provided."
 msgstr ""
 
-#: app/api/routes/generation.py:78
+#: app/api/routes/generation.py:78 app/api/routes/tutor.py:52
 msgid "Provide a math word problem (MWP)."
 msgstr ""
 
-#: app/api/routes/generation.py:85
+#: app/api/routes/generation.py:85 app/api/routes/tutor.py:60
 msgid "Did not get Visual Language from AI. Please try again."
 msgstr ""
 
-#: app/api/routes/generation.py:108
+#: app/api/routes/generation.py:108 app/api/routes/generation.py:200
 msgid "Visual Language parse error."
 msgstr ""
 
@@ -85,6 +86,26 @@ msgstr ""
 #: app/api/routes/generation.py:154
 #, python-format
 msgid "Unexpected intuitive generation error: %(error)s"
+msgstr ""
+
+#: app/api/routes/generation.py:213
+#, python-format
+msgid "Could not generate %(variant)s visualization: %(error)s"
+msgstr ""
+
+#: app/api/routes/generation.py:215
+#, python-format
+msgid "Could not generate %(variant)s visualization. Retrying might help."
+msgstr ""
+
+#: app/api/routes/generation.py:217
+#, python-format
+msgid "%(variant)s generation error: %(error)s"
+msgstr ""
+
+#: app/api/routes/generation.py:219
+#, python-format
+msgid "Unexpected %(variant)s generation error: %(error)s"
 msgstr ""
 
 #: app/api/routes/svg_dataset.py:50 app/api/routes/svg_dataset.py:256
@@ -221,5 +242,21 @@ msgstr ""
 #: app/api/routes/system.py:88
 #, python-format
 msgid "Failed to get antivirus status: %(error)s"
+msgstr ""
+
+#: app/api/routes/tutor.py:28
+msgid "Missing DSL scope for visual request."
+msgstr ""
+
+#: app/api/routes/tutor.py:85
+msgid "Missing session id."
+msgstr ""
+
+#: app/api/routes/tutor.py:87
+msgid "Please provide a message."
+msgstr ""
+
+#: app/api/routes/tutor.py:91
+msgid "Session not found or expired."
 msgstr ""
 
