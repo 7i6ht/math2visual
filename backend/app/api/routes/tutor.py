@@ -15,11 +15,18 @@ from flask import Response, stream_with_context
 tutor_bp = Blueprint('tutor', __name__)
 
 
-def _render_visual_request(visual_request: dict, fallback_dsl: str):
+def _render_visual_request(visual_request: dict, fallback_dsl: str, session_id: str = None):
     if not visual_request:
         return None
 
-    variant = visual_request.get("variant") or "intuitive"
+    # Check if session has a preferred variant (from previous fallback)
+    session = TUTOR_SESSIONS.get(session_id) if session_id else None
+    preferred_variant = session.get("preferred_variant") if session else None
+    
+    # Use preferred variant if available, otherwise use requested variant
+    requested_variant = visual_request.get("variant") or "intuitive"
+    variant = preferred_variant if preferred_variant else requested_variant
+    
     dsl_scope = (visual_request.get("dsl_scope") or fallback_dsl or "").strip()
 
     if not dsl_scope:
@@ -28,7 +35,7 @@ def _render_visual_request(visual_request: dict, fallback_dsl: str):
             "error": _("Missing DSL scope for visual request."),
         }
 
-    # Try generating with the requested variant first
+    # Try generating with the selected variant (preferred or requested)
     svg_content, error, _, is_parse_error = _generate_single_svg(dsl_scope, variant)
     
     # If generation failed (no SVG and not a parse error), try fallback to the other variant
@@ -36,8 +43,13 @@ def _render_visual_request(visual_request: dict, fallback_dsl: str):
         fallback_variant = "intuitive" if variant == "formal" else "formal"
         fallback_svg, fallback_error, _, fallback_is_parse_error = _generate_single_svg(dsl_scope, fallback_variant)
         
-        # If fallback succeeded, use it and note the variant switch
+        # If fallback succeeded, use it and store as preferred for this session
         if fallback_svg:
+            # Remember this fallback variant for future requests in this session
+            if session:
+                session["preferred_variant"] = fallback_variant
+                TUTOR_SESSIONS[session_id] = session
+            
             return {
                 "variant": fallback_variant,
                 "svg": fallback_svg,
@@ -77,7 +89,7 @@ def tutor_start():
     dsl = raw.split(":", 1)[1].strip() if raw.lower().startswith("visual_language:") else raw.strip()
 
     session_id, tutor_reply, visual_request = start_tutor_session(mwp, dsl, language=str(language))
-    visual = _render_visual_request(visual_request, dsl)
+    visual = _render_visual_request(visual_request, dsl, session_id=session_id)
 
     return jsonify({
         "session_id": session_id,
@@ -126,7 +138,7 @@ def tutor_message_stream():
                     history.append(tutor_entry)
                     session["history"] = history[-MAX_HISTORY:]
                     # Render visual if requested
-                    visual = _render_visual_request(visual_request, visual_language)
+                    visual = _render_visual_request(visual_request, visual_language, session_id=session_id)
                     payload = {
                         "type": "done",
                         "session_id": session_id,
