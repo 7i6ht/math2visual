@@ -52,19 +52,35 @@ VISUAL_REQUEST_PATTERN = re.compile(r"VISUAL_REQUEST\s*=\s*({.*})", re.DOTALL)
 MAX_HISTORY = 12  # Keep prompts bounded
 
 
-def _build_prompt(visual_language: str, history: List[Dict[str, str]], user_message: str, language: str) -> str:
-    history_text = "\n".join([f"{h['role'].capitalize()}: {h['content']}" for h in history[-MAX_HISTORY:]])
+def _build_prompt(visual_language: str, history: List[Dict[str, str]], language: str) -> str:
+    history_lines = []
+    for h in history[-MAX_HISTORY:]:
+        role = h['role'].capitalize()
+        content = h['content']
+        # Include DSL scope from visual request if present
+        if h.get('visual_request') and h['visual_request'].get('dsl_scope'):
+            dsl_scope = h['visual_request']['dsl_scope']
+            history_lines.append(f"{role}: {content}\n[Visual DSL: {dsl_scope}]")
+        else:
+            history_lines.append(f"{role}: {content}")
+    history_text = "\n".join(history_lines)
     prompt = (
         f"{SYSTEM_PROMPT}\n\n"
         f"Language: {language}\n"
         f"visual_language:\n{visual_language}\n\n"
         "Conversation so far:\n"
         f"{history_text}\n"
-        f"Student: {user_message}\n"
         "Tutor:"
     )
-    print("--------------------------------")
-    print(prompt)
+    prompt_part = (
+        f"Language: {language}\n"
+        f"visual_language:\n{visual_language}\n\n"
+        "Conversation so far:\n"
+        f"{history_text}\n"
+        "Tutor:"
+    )
+    print("------------INPUT---------------")
+    print(prompt_part)
     print("--------------------------------")
     return prompt
 
@@ -85,9 +101,9 @@ def _extract_visual_request(text: str) -> Tuple[str, Optional[Dict]]:
     return cleaned_text, parsed
 
 
-def _generate_tutor_reply(visual_language: str, history: List[Dict[str, str]], user_message: str, language: str) -> Tuple[str, Optional[Dict]]:
+def _generate_tutor_reply(visual_language: str, history: List[Dict[str, str]], language: str) -> Tuple[str, Optional[Dict]]:
     model = genai.GenerativeModel(MODEL_NAME)
-    prompt = _build_prompt(visual_language, history, user_message, language)
+    prompt = _build_prompt(visual_language, history, language)
 
     response = model.generate_content(prompt)
     content = (response.text or "").strip()
@@ -95,12 +111,12 @@ def _generate_tutor_reply(visual_language: str, history: List[Dict[str, str]], u
     return _extract_visual_request(content)
 
 
-def _generate_tutor_reply_stream(visual_language: str, history: List[Dict[str, str]], user_message: str, language: str):
+def _generate_tutor_reply_stream(visual_language: str, history: List[Dict[str, str]], language: str):
     """
     Stream tutor reply as chunks. Yields text deltas, returns (full_text, visual_request) at the end.
     """
     model = genai.GenerativeModel(MODEL_NAME)
-    prompt = _build_prompt(visual_language, history, user_message, language)
+    prompt = _build_prompt(visual_language, history, language)
     stream = model.generate_content(prompt, stream=True)
 
     parts_accum: List[str] = []
@@ -118,6 +134,9 @@ def _generate_tutor_reply_stream(visual_language: str, history: List[Dict[str, s
                     parts_accum.append(text)
 
     full_text = "".join(parts_accum)
+    print("----------OUTPUT----------------")
+    print(full_text)
+    print("--------------------------------")
     final_text, visual_request = _extract_visual_request(full_text)
     yield {"__done__": True, "full_text": final_text, "visual_request": visual_request}
 
@@ -126,8 +145,11 @@ def start_tutor_session(mwp: str, visual_language: str, language: str = "en") ->
     session_id = str(uuid.uuid4())
     history: List[Dict[str, str]] = [{"role": "student", "content": mwp}]
 
-    tutor_reply, visual_request = _generate_tutor_reply(visual_language, history, mwp, language)
-    history.append({"role": "tutor", "content": tutor_reply})
+    tutor_reply, visual_request = _generate_tutor_reply(visual_language, history, language)
+    tutor_entry = {"role": "tutor", "content": tutor_reply}
+    if visual_request:
+        tutor_entry["visual_request"] = visual_request
+    history.append(tutor_entry)
 
     TUTOR_SESSIONS[session_id] = {
         "history": history,

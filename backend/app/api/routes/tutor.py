@@ -99,12 +99,15 @@ def tutor_message_stream():
 
     def event_stream():
         try:
-            for chunk in _generate_tutor_reply_stream(visual_language, history, user_message, language):
+            for chunk in _generate_tutor_reply_stream(visual_language, history, language):
                 if isinstance(chunk, dict) and chunk.get("__done__"):
                     final_text = chunk.get("full_text", "")
                     visual_request = chunk.get("visual_request")
-                    # Update history
-                    history.append({"role": "tutor", "content": final_text})
+                    # Update history with visual request DSL if present
+                    tutor_entry = {"role": "tutor", "content": final_text}
+                    if visual_request:
+                        tutor_entry["visual_request"] = visual_request
+                    history.append(tutor_entry)
                     session["history"] = history[-MAX_HISTORY:]
                     # Render visual if requested
                     visual = _render_visual_request(visual_request, visual_language)
