@@ -42,7 +42,7 @@ export const ChatInputBar = ({
           }
         }}
       />
-      <div className="absolute bottom-2 right-3 sm:right-4 md:right-5 flex items-center gap-0.5 sm:gap-0.5 md:gap-0.5 lg:gap-1 xl:gap-2 2xl:gap-4 3xl:gap-6 4xl:gap-8 5xl:gap-12 6xl:gap-14">
+      <div className="absolute top-1/2 -translate-y-1/2 right-3 sm:right-4 md:right-5 flex items-center gap-0.5 sm:gap-0.5 md:gap-0.5 lg:gap-1 xl:gap-2 2xl:gap-4 3xl:gap-6 4xl:gap-8 5xl:gap-12 6xl:gap-14">
         <Button
           type="button"
           variant="ghost"
