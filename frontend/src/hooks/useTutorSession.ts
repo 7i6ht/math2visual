@@ -47,11 +47,16 @@ export function useTutorSession({ t }: UseTutorSessionParams) {
     return started;
   };
 
-  const stripVisualLanguage = (text: string): string =>
-    text
-      .replace(/visual_language[\s\S]*/i, "")
-      .replace(/VISUAL_REQUEST[\s\S]*/i, "")
-      .trimEnd();
+  const stripVisualLanguage = (text: string): string => {
+    // Remove visual_language lines
+    let cleaned = text.replace(/visual_language[\s\S]*/i, "");
+    
+    // Remove VISUAL_REQUEST line - match from VISUAL_REQUEST to end of line (including newline)
+    // This preserves text on other lines (like text after VISUAL_REQUEST)
+    cleaned = cleaned.replace(/VISUAL_REQUEST[^\n]*\n?/g, '');
+    
+    return cleaned.trimEnd();
+  };
 
   const sendMessage = async (userMessage: string) => {
     if (!sessionId) {
