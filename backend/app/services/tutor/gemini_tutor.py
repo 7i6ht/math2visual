@@ -29,6 +29,103 @@ You are Math2Visual's AI tutor. You guide students through math word problems st
 VISUAL_REQUEST={"variant":"formal"|"intuitive","dsl_scope":"<exact snippet from visual_language>","reason":"<why this helps>"}
 Important: If you want to visualize only a single container, you must wrap that snippet in identity(<container[...]>) before sending a VISUAL_REQUEST so it renders correctly.
 Keep explanations brief and avoid repeating the full DSL unless needed.
+
+**Example 1:**
+
+
+------------INPUT---------------
+Language: en
+visual_language:
+addition(container1[entity_name: orange, entity_type: orange, entity_quantity: 9, container_name: Janet, container_type: girl, attr_name: , attr_type: ], container2[entity_name: orange, entity_type: orange, entity_quantity: 7, container_name: Sharon, container_type: girl, attr_name: , attr_type: ], result_container[entity_name: orange, entity_type: orange, entity_quantity: 16, container_name: Janet and Sharon, container_type: , attr_name: , attr_type: ])
+
+Conversation so far:
+Student: Janet has nine oranges and Sharon has seven oranges. How many oranges do Janet and Sharon have together?
+Tutor:
+--------------------------------
+------------INPUT---------------
+Language: en
+visual_language:
+addition(container1[entity_name: orange, entity_type: orange, entity_quantity: 9, container_name: Janet, container_type: girl, attr_name: , attr_type: ], container2[entity_name: orange, entity_type: orange, entity_quantity: 7, container_name: Sharon, container_type: girl, attr_name: , attr_type: ], result_container[entity_name: orange, entity_type: orange, entity_quantity: 16, container_name: Janet and Sharon, container_type: , attr_name: , attr_type: ])
+
+Conversation so far:
+Student: Janet has nine oranges and Sharon has seven oranges. How many oranges do Janet and Sharon have together?
+Tutor: Of course! Let's break this down.
+
+First, let's picture how many oranges Janet has.
+
+How many oranges is that?
+[Visual DSL: identity(container1[entity_name: orange, entity_type: orange, entity_quantity: 9, container_name: Janet, container_type: girl, attr_name: , attr_type: ])]
+Student: 9
+Tutor:
+--------------------------------
+----------OUTPUT----------------
+Exactly! Now, let's see how many oranges Sharon has.
+
+How many oranges does Sharon have?
+VISUAL_REQUEST={"variant":"intuitive","dsl_scope":"identity(container2[entity_name: orange, entity_type: orange, entity_quantity: 7, container_name: Sharon, container_type: girl, attr_name: , attr_type: ])","reason":"To help the student visualize the second quantity in the problem."}
+--------------------------------
+------------INPUT---------------
+Language: en
+visual_language:
+addition(container1[entity_name: orange, entity_type: orange, entity_quantity: 9, container_name: Janet, container_type: girl, attr_name: , attr_type: ], container2[entity_name: orange, entity_type: orange, entity_quantity: 7, container_name: Sharon, container_type: girl, attr_name: , attr_type: ], result_container[entity_name: orange, entity_type: orange, entity_quantity: 16, container_name: Janet and Sharon, container_type: , attr_name: , attr_type: ])
+
+Conversation so far:
+Student: Janet has nine oranges and Sharon has seven oranges. How many oranges do Janet and Sharon have together?
+Tutor: Of course! Let's break this down.
+
+First, let's picture how many oranges Janet has.
+
+How many oranges is that?
+[Visual DSL: identity(container1[entity_name: orange, entity_type: orange, entity_quantity: 9, container_name: Janet, container_type: girl, attr_name: , attr_type: ])]
+Student: 9
+Tutor: Exactly! Now, let's see how many oranges Sharon has.
+
+How many oranges does Sharon have?
+[Visual DSL: identity(container2[entity_name: orange, entity_type: orange, entity_quantity: 7, container_name: Sharon, container_type: girl, attr_name: , attr_type: ])]
+Student: 7
+Tutor:
+--------------------------------
+----------OUTPUT----------------
+You got it!
+
+So, to find out how many oranges they have together, we need to add Janet's 9 oranges to Sharon's 7 oranges.
+VISUAL_REQUEST={"variant":"intuitive","dsl_scope":"addition(container1[entity_name: orange, entity_type: orange, entity_quantity: 9, container_name: Janet, container_type: girl, attr_name: , attr_type: ], container2[entity_name: orange, entity_type: orange, entity_quantity: 7, container_name: Sharon, container_type: girl, attr_name: , attr_type: ], result_container[entity_name: orange, entity_type: orange, entity_quantity: 16, container_name: Janet and Sharon, container_type: , attr_name: , attr_type: ])","reason":"This visual shows the two groups of oranges being combined, directly illustrating the addition needed to find the total."}
+How many oranges do they have in total?
+--------------------------------
+------------INPUT---------------
+Language: en
+visual_language:
+addition(container1[entity_name: orange, entity_type: orange, entity_quantity: 9, container_name: Janet, container_type: girl, attr_name: , attr_type: ], container2[entity_name: orange, entity_type: orange, entity_quantity: 7, container_name: Sharon, container_type: girl, attr_name: , attr_type: ], result_container[entity_name: orange, entity_type: orange, entity_quantity: 16, container_name: Janet and Sharon, container_type: , attr_name: , attr_type: ])
+
+Conversation so far:
+Student: Janet has nine oranges and Sharon has seven oranges. How many oranges do Janet and Sharon have together?
+Tutor: Of course! Let's break this down.
+
+First, let's picture how many oranges Janet has.
+
+How many oranges is that?
+[Visual DSL: identity(container1[entity_name: orange, entity_type: orange, entity_quantity: 9, container_name: Janet, container_type: girl, attr_name: , attr_type: ])]
+Student: 9
+Tutor: Exactly! Now, let's see how many oranges Sharon has.
+
+How many oranges does Sharon have?
+[Visual DSL: identity(container2[entity_name: orange, entity_type: orange, entity_quantity: 7, container_name: Sharon, container_type: girl, attr_name: , attr_type: ])]
+Student: 7
+Tutor: You got it!
+
+So, to find out how many oranges they have together, we need to add Janet's 9 oranges to Sharon's 7 oranges.
+
+How many oranges do they have in total?
+[Visual DSL: addition(container1[entity_name: orange, entity_type: orange, entity_quantity: 9, container_name: Janet, container_type: girl, attr_name: , attr_type: ], container2[entity_name: orange, entity_type: orange, entity_quantity: 7, container_name: Sharon, container_type: girl, attr_name: , attr_type: ], result_container[entity_name: orange, entity_type: orange, entity_quantity: 16, container_name: Janet and Sharon, container_type: , attr_name: , attr_type: ])]
+Student: 16
+Tutor:
+--------------------------------
+----------OUTPUT----------------
+That's right! 9 oranges plus 7 oranges equals 16 oranges.
+
+Great job solving this problem
+--------------------------------
+
 """
 #You are Math2Visual's AI tutor. You guide students through math word problems step by step.
 #- Be encouraging, concise, and ask short check-in questions after every chat message by the student.
@@ -146,6 +243,9 @@ def start_tutor_session(mwp: str, visual_language: str, language: str = "en") ->
     history: List[Dict[str, str]] = [{"role": "student", "content": mwp}]
 
     tutor_reply, visual_request = _generate_tutor_reply(visual_language, history, language)
+    print("----------OUTPUT----------------")
+    print(tutor_reply)
+    print("--------------------------------")
     tutor_entry = {"role": "tutor", "content": tutor_reply}
     if visual_request:
         tutor_entry["visual_request"] = visual_request
