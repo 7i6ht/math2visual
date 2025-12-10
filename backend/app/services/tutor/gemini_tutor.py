@@ -215,16 +215,6 @@ def _extract_visual_request(text: str) -> Tuple[str, Optional[Dict]]:
     return cleaned_text, parsed
 
 
-def _generate_tutor_reply(visual_language: str, history: List[Dict[str, str]], language: str) -> Tuple[str, Optional[Dict]]:
-    model = genai.GenerativeModel(MODEL_NAME)
-    prompt = _build_prompt(visual_language, history, language)
-
-    response = model.generate_content(prompt)
-    content = (response.text or "").strip()
-
-    return _extract_visual_request(content)
-
-
 def _generate_tutor_reply_stream(visual_language: str, history: List[Dict[str, str]], language: str):
     """
     Stream tutor reply as chunks. Yields text deltas, returns (full_text, visual_request) at the end.
@@ -259,10 +249,16 @@ def start_tutor_session(mwp: str, visual_language: str, language: str = "en") ->
     session_id = str(uuid.uuid4())
     history: List[Dict[str, str]] = [{"role": "student", "content": mwp}]
 
-    tutor_reply, visual_request = _generate_tutor_reply(visual_language, history, language)
-    print("----------OUTPUT----------------")
-    print(tutor_reply)
-    print("--------------------------------")
+    # Use streaming version for consistency with message/stream endpoint
+    # Collect all chunks and wait for the final result
+    tutor_reply = ""
+    visual_request = None
+    for chunk in _generate_tutor_reply_stream(visual_language, history, language):
+        if isinstance(chunk, dict) and chunk.get("__done__"):
+            tutor_reply = chunk.get("full_text", "")
+            visual_request = chunk.get("visual_request")
+            break
+    
     tutor_entry = {"role": "tutor", "content": tutor_reply}
     if visual_request:
         tutor_entry["visual_request"] = visual_request
