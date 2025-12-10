@@ -186,6 +186,13 @@ class IntuitiveVisualGenerator():
             child_ents = node.get("entities", [])
             my_result  = node.get("result_container")
 
+            # --- Identity (single-container) handling ---
+            if op == "identity":
+                if child_ents:
+                    child = child_ents[0]
+                    containers.append(child)
+                return operations, containers, result_containers
+
             if len(child_ents) < 2:
                 # Not enough children to form an operation—skip
                 return operations, containers, result_containers
@@ -1193,11 +1200,11 @@ class IntuitiveVisualGenerator():
                 return False
                 
         def handle_division(operations, containers, svg_root, resources_path,result_containers,start_x = 50 ,start_y = 150):
-            print("handle_division")
+            logger.debug("handle_division")
             # Ensure exactly two containers: the dividend and divisor
-            print("Handling division")
+            logger.debug("Handling division")
             if len(containers) != 2:
-                print("Division requires exactly two containers.")
+                logger.warning("Division requires exactly two containers.")
                 self.error_message = self._translate("Division requires exactly two containers.")
                 return
             original_containers = containers
@@ -2086,7 +2093,7 @@ class IntuitiveVisualGenerator():
             logger.debug("Handling surplus")
             if len(containers) != 2:
                 self.error_message = self._translate("Cannot generate visual: Division requires exactly two containers, but it contains more than two.")
-                print("Division requires exactly two containers.")
+                logger.warning("Division requires exactly two containers.")
                 return
             original_containers = containers
             # Extract dividend and divisor
@@ -3200,7 +3207,7 @@ class IntuitiveVisualGenerator():
             return True, str(float(svg_root.attrib["width"]) - start_x), str(float(svg_root.attrib["height"]) - MARGIN + 15)
             
         
-        def handle_tvq_final(operations, containers, svg_root, resources_path, result_containers,start_x = 50,start_y = 150):
+        def handle_tvq_final(operations, containers, svg_root, resources_path, result_containers,start_x = 50,start_y = 150, draw_symbols=True):
             logger.debug("Handling tvq_final")
             # Constants
             UNIT_SIZE = 40
@@ -4025,19 +4032,17 @@ class IntuitiveVisualGenerator():
                 "default": "addition"      # Fallback default operator
             }
         
-
-
-
-
-
-
-
-
             # Update SVG size
-            final_width = max_x + MARGIN
-            final_height = max_y + MARGIN + 50
+            # Use consistent margin calculation for both identity and regular operations
+            # to ensure consistent sizing in the frontend
+            final_width = max_x + 2 * MARGIN
+            final_height = max_y + 2 * MARGIN + 50
             svg_root.attrib["width"] = str(final_width)
             svg_root.attrib["height"] = str(final_height)
+
+            # If we should not draw symbols (identity/single-container), return now
+            if not draw_symbols:
+                return True, str(float(svg_root.attrib["width"]) - start_x), str(float(svg_root.attrib["height"]) - MARGIN + 15)
 
             # Draw big box
             if len(containers) > 1:
@@ -4126,9 +4131,9 @@ class IntuitiveVisualGenerator():
             start_x=50,
             start_y=150,
             comparison_dsl_path='operation'):
-            print("handle_comparison")
+            logger.debug("handle_comparison")
 
-            print("Handling comparison start")
+            logger.debug("Handling comparison start")
 
             # We will store bounding boxes: (x, y, width, height) for each side
             entity_boxes = [None, None]
@@ -4259,7 +4264,7 @@ class IntuitiveVisualGenerator():
             
 
         def draw_balance_scale(svg_root, entity_boxes, comparison_dsl_path='operation'):
-            print("draw_balance_scale")
+            logger.debug("draw_balance_scale")
             """
             Draws a balance scale below two figures whose bounding boxes are given
             by entity_boxes = [(x0, y0, w0, h0), (x1, y1, w1, h1)].
@@ -4274,8 +4279,8 @@ class IntuitiveVisualGenerator():
             left_x,  left_y,  left_w,  left_h  = entity_boxes[0]
             right_x, right_y, right_w, right_h = entity_boxes[1]
 
-            print("left_x, left_y, left_w, left_h: ", left_x, left_y, left_w, left_h)
-            print("right_x, right_y, right_w, right_h: ", right_x, right_y, right_w, right_h)
+            logger.debug("left_x, left_y, left_w, left_h: %s %s %s %s", left_x, left_y, left_w, left_h)
+            logger.debug("right_x, right_y, right_w, right_h: %s %s %s %s", right_x, right_y, right_w, right_h)
 
             # Define how far below the bottom of the two figures to place the horizontal bar of the scale
             vertical_offset = 0
@@ -4503,19 +4508,19 @@ class IntuitiveVisualGenerator():
             # compare2_operations = compare2_operations[::-1]
             # compare1_operations = [{"entity_type": op} for op in compare1_operations]
             # compare2_operations = [{"entity_type": op} for op in compare2_operations]
-            print(f"compare 1 operations: {compare1_operations}")
-            print(f"compare 1 containers: {compare1_containers}")
-            print(f"compare 1 result containers: {compare1_result_containers}")
+            logger.debug(f"compare 1 operations: {compare1_operations}")
+            logger.debug(f"compare 1 containers: {compare1_containers}")
+            logger.debug(f"compare 1 result containers: {compare1_result_containers}")
 
-            print(f"compare 2 operations: {compare2_operations}")
-            print(f"compare 2 containers: {compare2_containers}")
-            print(f"compare 2 result containers: {compare2_result_containers}")
+            logger.debug(f"compare 2 operations: {compare2_operations}")
+            logger.debug(f"compare 2 containers: {compare2_containers}")
+            logger.debug(f"compare 2 result containers: {compare2_result_containers}")
             try:
                 created, svg_width, svg_height = handle_comparison(compare1_operations, compare1_containers, compare1_result_containers,
                             compare2_operations, compare2_containers, compare2_result_containers,
                             svg_root,resources_path, comparison_dsl_path=comparison_dsl_path)
             except Exception as e:
-                print("Error in handle_comparison: ",e)
+                logger.exception("Error in handle_comparison: %s", e)
                 self.error_message = self._translate("Cannot generate visual: Error in handling the comparison.")
                 created = False
         else:
@@ -4538,72 +4543,72 @@ class IntuitiveVisualGenerator():
 
             # operations = operations[::-1]
             # operations = [{"entity_type": op} for op in operations]  # This line was causing the nested structure bug
-            print(f"Operations: {operations}")
-            print(f"containers: {containers}")
-            print(f"Result containers: {result_containers}")
+            logger.debug(f"Operations: {operations}")
+            logger.debug(f"containers: {containers}")
+            logger.debug(f"Result containers: {result_containers}")
 
-            if all(op["entity_type"] in ["addition", "subtraction"] for op in operations):
-                print("Handling tvq_final")
+            if data.get("operation") == "identity":
+                logger.debug("Handling single-container / identity (no operations)")
+                # Suppress container_type so no container icon is rendered
+                for c in containers:
+                    c["container_type"] = ""
+                for r in result_containers:
+                    r["container_type"] = ""
                 try:
-                    created, svg_width, svg_height = handle_tvq_final(operations, containers, svg_root, resources_path,result_containers)
+                    created, svg_width, svg_height = handle_tvq_final(operations, containers, svg_root, resources_path, result_containers, draw_symbols=False)
                 except Exception as e:
-                    print(f"Error in handle_tvq_final: {e}")
-                    import traceback
-                    traceback.print_exc()
+                    logger.exception("Error in single-container handling: %s", e)
+                    created = False
+            elif all(op["entity_type"] in ["addition", "subtraction"] for op in operations):
+                logger.debug("Handling tvq_final")
+                try:
+                    created, svg_width, svg_height = handle_tvq_final(operations, containers, svg_root, resources_path,result_containers, draw_symbols=True)
+                except Exception as e:
+                    logger.exception("Error in handle_tvq_final: %s", e)
                     created = False
             elif all(op["entity_type"] == "multiplication" for op in operations) and len(operations) == 1:
-                print("Handling multiplication")
+                logger.debug("Handling multiplication")
                 try:
                     created, svg_width, svg_height = handle_multiplication(operations, containers, svg_root, resources_path,result_containers)
                 except Exception as e:
-                    print(f"Error in handle_multiplication: {e}")
-                    import traceback
-                    traceback.print_exc()
+                    logger.exception("Error in handle_multiplication: %s", e)
                     created = False
             elif all(op["entity_type"] == "division" for op in operations) and len(operations) == 1:
-                print("Handling division")
+                logger.debug("Handling division")
                 try:
                     created, svg_width, svg_height = handle_division(operations, containers, svg_root, resources_path,result_containers)
                 except Exception as e:
-                    print(f"Error in handle_division: {e}")
-                    import traceback
-                    traceback.print_exc()
+                    logger.exception("Error in handle_division: %s", e)
                     created = False
             elif all(op["entity_type"] == "surplus" for op in operations) and len(operations) == 1:
-                print("Handling surplus")
+                logger.debug("Handling surplus")
                 try:
                     created, svg_width, svg_height = handle_surplus(operations, containers, svg_root, resources_path,result_containers)
                 except Exception as e:
-                    print(f"Error in handle_surplus: {e}")
-                    import traceback
-                    traceback.print_exc()
+                    logger.exception("Error in handle_surplus: %s", e)
                     created = False
             elif all(op["entity_type"] == "area" for op in operations) and len(operations) == 1:
-                print("Handling area")
+                logger.debug("Handling area")
                 try:
                     created, svg_width, svg_height = handle_area(operations, containers, svg_root, resources_path,result_containers)
                 except Exception as e:
-                    print(f"Error in handle_area: {e}")
-                    import traceback
-                    traceback.print_exc()
+                    logger.exception("Error in handle_area: %s", e)
                     created = False
             # this is for tvq_final, if all op contain and only contain addition and subtraction, it is tvq_final
             elif all(op["entity_type"] in ["addition", "subtraction"] for op in operations):
-                print("Handling tvq_final")
+                logger.debug("Handling tvq_final")
                 try:
                     created, svg_width, svg_height = handle_tvq_final(operations, containers, svg_root, resources_path,result_containers)
                 except Exception as e:
-                    print(f"Error in handle_tvq_final: {e}")
-                    import traceback
-                    traceback.print_exc()
+                    logger.exception("Error in handle_tvq_final: %s", e)
                     created = False
         
         # Write to output file
-        print(f"SVG created: {created}")
+        logger.debug(f"SVG created: {created}")
         if created:
             with open(output_file, "wb") as f:
                 f.write(etree.tostring(svg_root, pretty_print=True))
             display(SVG(output_file))
         else:
-            print("error_message: ",self.error_message)
+            logger.debug("error_message: %s", self.error_message)
         return created

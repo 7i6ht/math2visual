@@ -10,7 +10,7 @@ class DSLParser:
     """
     
     def __init__(self):
-        self.operations_list = ["addition", "subtraction", "multiplication", "division", "surplus", "unittrans", "area", "comparison"]
+        self.operations_list = ["addition", "subtraction", "multiplication", "division", "surplus", "unittrans", "area", "comparison", "identity"]
     
     def parse_dsl(self, dsl_str):
         """
@@ -25,7 +25,50 @@ class DSLParser:
         Raises:
             ValueError: If the DSL format is invalid
         """
-        return self._recursive_parse(dsl_str)
+        cleaned = " ".join(dsl_str.strip().split())
+
+        # Accept a bare entity as an identity operation (single-container visualization)
+        bare_entity_pattern = r"^\w+\s*\[.*\]$"
+        if re.match(bare_entity_pattern, cleaned):
+            entity_dict, is_result = self._parse_entity_token(cleaned)
+            result = {"operation": "identity", "entities": []}
+            if is_result:
+                result["result_container"] = entity_dict
+            else:
+                result["entities"].append(entity_dict)
+            # If the only thing provided is a result_container, treat it as the entity
+            if not result["entities"] and result.get("result_container"):
+                result["entities"].append(result.pop("result_container"))
+            return result
+
+        return self._recursive_parse(cleaned)
+
+    def _parse_entity_token(self, entity: str):
+        """
+        Parse an entity token like `container1[...]` into a dict.
+        """
+        entity_pattern = r"(\w+)\[(.*?)\]"
+        entity_match = re.match(entity_pattern, entity)
+        if not entity_match:
+            raise ValueError(f"Entity format is incorrect: {entity}")
+        entity_name, entity_content = entity_match.groups()
+        parts = [p.strip() for p in entity_content.split(',')]
+        entity_dict = {"name": entity_name, "item": {}}
+        for part in parts:
+            if ':' in part:
+                key, val = part.split(':', 1)
+                key, val = key.strip(), val.strip()
+                if key == "entity_quantity":
+                    try:
+                        entity_dict["item"]["entity_quantity"] = float(val)
+                    except ValueError:
+                        entity_dict["item"]["entity_quantity"] = 0.0  # Default to 0.0 if conversion fails
+                elif key == "entity_type":
+                    entity_dict["item"]["entity_type"] = val
+                else:
+                    entity_dict[key] = val
+
+        return entity_dict, entity_name == "result_container"
     
     def _split_entities(self, inside_str):
         """
@@ -93,30 +136,8 @@ class DSLParser:
                 # Recognize and recurse into nested operations
                 parsed_entities.append(self._recursive_parse(entity))
             else:
-                # Parse as a basic entity
-                entity_pattern = r"(\w+)\[(.*?)\]"
-                entity_match = re.match(entity_pattern, entity)
-                if not entity_match:
-                    raise ValueError(f"Entity format is incorrect: {entity}")
-                entity_name, entity_content = entity_match.groups()
-                parts = [p.strip() for p in entity_content.split(',')]
-                entity_dict = {"name": entity_name, "item": {}}
-                for part in parts:
-                    if ':' in part:
-                        key, val = part.split(':', 1)
-                        key, val = key.strip(), val.strip()
-                        if key == "entity_quantity":
-                            try:
-                                entity_dict["item"]["entity_quantity"] = float(val)
-                            except ValueError:
-                                entity_dict["item"]["entity_quantity"] = 0.0  # Default to 0.0 if conversion fails
-                        elif key == "entity_type":
-                            entity_dict["item"]["entity_type"] = val
-                        else:
-                            entity_dict[key] = val
-                
-                # Check if this is a result_container
-                if entity_name == "result_container":
+                entity_dict, is_result = self._parse_entity_token(entity)
+                if is_result:
                     result_container = entity_dict
                 else:
                     parsed_entities.append(entity_dict)

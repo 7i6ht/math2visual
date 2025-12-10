@@ -8,7 +8,7 @@ type ChatVisualProps = {
 
 export const ChatVisual = ({ visual }: ChatVisualProps) => {
   const svgRef = useRef<HTMLDivElement | null>(null);
-  const { makeResponsive, setupResizeListener } = useSVGResponsive();
+  const { makeResponsive, setupResizeObserver } = useSVGResponsive();
 
   useEffect(() => {
     if (!svgRef.current || !visual.svg) return;
@@ -17,11 +17,11 @@ export const ChatVisual = ({ visual }: ChatVisualProps) => {
   }, [visual, makeResponsive]);
 
   useEffect(() => {
-    const cleanup = setupResizeListener([svgRef], { align: "left" });
+    const cleanup = setupResizeObserver([svgRef], { align: "left" });
     return () => {
       cleanup();
     };
-  }, [setupResizeListener]);
+  }, [setupResizeObserver]);
 
   return (
     <div className="mt-3 rounded-lg border bg-card p-3 shadow-sm text-left">

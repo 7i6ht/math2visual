@@ -109,6 +109,16 @@ class FormalVisualGenerator:
             child_ents = node.get("entities", [])
             my_result  = node.get("result_container")
 
+            # --- Identity (single-container) handling ---
+            if op == "identity":
+                if child_ents:
+                    child = child_ents[0]
+                    # Strip container_type for identity visuals to avoid rendering container icons
+                    child = dict(child)
+                    child["container_type"] = ""
+                    entities.append(child)
+                return operations, entities, result_entities
+
             if len(child_ents) < 2:
                 # Not enough children to form an operation—skip
                 return operations, entities, result_entities
@@ -760,7 +770,7 @@ class FormalVisualGenerator:
                 else:
                     # For the last entity, just update the x-coordinate for spacing
                     current_x = e_right + e_gap
-            # Position the equals sign
+            # Position the equals sign (only meaningful when we have operations)
             eq_x = current_x + eq_gap
             eq_y = position_box_y + (entities[0]["planned_height"] / 2) - (OPERATOR_SIZE / 2)
             
@@ -1217,50 +1227,52 @@ class FormalVisualGenerator:
 
 
 
-            # Draw equals
-            equals_svg_path = os.path.join(resources_path, "equals.svg")
-            if not os.path.exists(equals_svg_path):
-                equals_svg_path = os.path.join(resources_path, "equals_default.svg")  # Fallback if necessary
-            svg_root.append(embed_svg(equals_svg_path, x=eq_x, y=eq_y, width=30, height=30))
+            last_x_point = current_x
+            if operations and data.get("operation") != "identity":
+                # Draw equals
+                equals_svg_path = os.path.join(resources_path, "equals.svg")
+                if not os.path.exists(equals_svg_path):
+                    equals_svg_path = os.path.join(resources_path, "equals_default.svg")  # Fallback if necessary
+                svg_root.append(embed_svg(equals_svg_path, x=eq_x, y=eq_y, width=30, height=30))
 
-            last_x_point = 0
-            # Draw question mark
-            if operations and operations[-1]["entity_type"] == "surplus":
-                # Draw the first question mark
-                question_mark_svg_path = os.path.join(resources_path, "question.svg")
-                if not os.path.exists(question_mark_svg_path):
-                    question_mark_svg_path = os.path.join(resources_path, "question_default.svg")  # Fallback if necessary
-                svg_root.append(embed_svg(question_mark_svg_path, x=qmark_x, y=qmark_y, width=60, height=60))
+                last_x_point = 0
+                # Draw question mark
+                if operations and operations[-1]["entity_type"] == "surplus":
+                    # Draw the first question mark
+                    question_mark_svg_path = os.path.join(resources_path, "question.svg")
+                    if not os.path.exists(question_mark_svg_path):
+                        question_mark_svg_path = os.path.join(resources_path, "question_default.svg")  # Fallback if necessary
+                    svg_root.append(embed_svg(question_mark_svg_path, x=qmark_x, y=qmark_y, width=60, height=60))
 
-                # Calculate position for the "with remainder" text
-                text_x = qmark_x + 70  # Adjust spacing to place text after the first question mark
-                text_y = qmark_y + 35  # Vertically aligned with the question mark
+                    # Calculate position for the "with remainder" text
+                    text_x = qmark_x + 70  # Adjust spacing to place text after the first question mark
+                    text_y = qmark_y + 35  # Vertically aligned with the question mark
 
-                # Add the "with remainder" text
-                text_element = etree.SubElement(
-                    svg_root,
-                    "text",
-                    x=str(text_x),
-                    y=str(text_y),
-                    style="font-size: 15px;",
-                    dominant_baseline="middle"
-                )
-                text_element.text = "with remainder"
+                    # Add the "with remainder" text
+                    text_element = etree.SubElement(
+                        svg_root,
+                        "text",
+                        x=str(text_x),
+                        y=str(text_y),
+                        style="font-size: 15px;",
+                        dominant_baseline="middle"
+                    )
+                    text_element.text = "with remainder"
 
-                # Calculate position for the second question mark
-                second_qmark_x = text_x + 100  # Adjust based on text width (approximate)
-                second_qmark_y = qmark_y
+                    # Calculate position for the second question mark
+                    second_qmark_x = text_x + 100  # Adjust based on text width (approximate)
+                    second_qmark_y = qmark_y
 
-                # Draw the second question mark
-                svg_root.append(embed_svg(question_mark_svg_path, x=second_qmark_x, y=second_qmark_y, width=60, height=60))
-                last_x_point = second_qmark_x + 60
-            else:
-                # Default case: draw a single question mark
-                question_mark_svg_path = os.path.join(resources_path, "question.svg")
-                if not os.path.exists(question_mark_svg_path):
-                    question_mark_svg_path = os.path.join(resources_path, "question_default.svg")  # Fallback if necessary
-                svg_root.append(embed_svg(question_mark_svg_path, x=qmark_x, y=qmark_y, width=60, height=60))
-                last_x_point = qmark_x + 60
+                    # Draw the second question mark
+                    svg_root.append(embed_svg(question_mark_svg_path, x=second_qmark_x, y=second_qmark_y, width=60, height=60))
+                    last_x_point = second_qmark_x + 60
+                else:
+                    # Default case: draw a single question mark
+                    question_mark_svg_path = os.path.join(resources_path, "question.svg")
+                    if not os.path.exists(question_mark_svg_path):
+                        question_mark_svg_path = os.path.join(resources_path, "question_default.svg")  # Fallback if necessary
+                    svg_root.append(embed_svg(question_mark_svg_path, x=qmark_x, y=qmark_y, width=60, height=60))
+                    last_x_point = qmark_x + 60
 
 
             # Update SVG size
@@ -1334,7 +1346,6 @@ class FormalVisualGenerator:
                 last_container = result_entities[-1].get('container_name')
                 if any(e.get('container_name') == last_container for e in entities) and last_container:
                     result_entities[-1]['container_name'] = f"{last_container} (result)"
-
 
 
             # Operations are already in the expected format with DSL paths
