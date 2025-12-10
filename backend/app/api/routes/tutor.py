@@ -28,7 +28,23 @@ def _render_visual_request(visual_request: dict, fallback_dsl: str):
             "error": _("Missing DSL scope for visual request."),
         }
 
+    # Try generating with the requested variant first
     svg_content, error, _, is_parse_error = _generate_single_svg(dsl_scope, variant)
+    
+    # If generation failed (no SVG and not a parse error), try fallback to the other variant
+    if not svg_content and not is_parse_error and error:
+        fallback_variant = "intuitive" if variant == "formal" else "formal"
+        fallback_svg, fallback_error, _, fallback_is_parse_error = _generate_single_svg(dsl_scope, fallback_variant)
+        
+        # If fallback succeeded, use it and note the variant switch
+        if fallback_svg:
+            return {
+                "variant": fallback_variant,
+                "svg": fallback_svg,
+                "error": None,
+                "is_parse_error": fallback_is_parse_error,
+                "dsl_scope": dsl_scope
+            }
 
     return {
         "variant": variant,
