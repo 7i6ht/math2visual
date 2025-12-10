@@ -29,6 +29,7 @@ export function ChatView({ onBack }: Props) {
     isSessionActive,
     startSession,
     sendMessage,
+    resetSession,
   } = useTutorSession({ t });
   const {
     speechEnabled,
@@ -74,10 +75,23 @@ export function ChatView({ onBack }: Props) {
     sendMessage(userMessage);
   };
 
+  const handleClose = () => {
+    if (isSessionActive) {
+      // If there's an active session, reset it to show TutorSessionStarter
+      resetSession();
+      setMwp("");
+      setInput("");
+      setMwpError(null);
+    } else {
+      // If no active session, call the onBack prop to go back to landing page
+      onBack?.();
+    }
+  };
+
   return (
     <div className="w-full h-screen overflow-hidden flex flex-col px-3 py-3 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 3xl:px-20 4xl:px-24 5xl:px-32">
       <ChatHeader
-        onBack={onBack}
+        onBack={handleClose}
         t={t}
         speechEnabled={speechEnabled}
         speechSupported={speechSupported}

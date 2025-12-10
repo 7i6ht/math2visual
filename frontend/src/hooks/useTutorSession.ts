@@ -123,6 +123,21 @@ export function useTutorSession({ t }: UseTutorSessionParams) {
     });
   };
 
+  const resetSession = () => {
+    // Stop any ongoing stream
+    if (streamCloserRef.current) {
+      streamCloserRef.current();
+      streamCloserRef.current = null;
+    }
+    // Reset all state
+    setSessionId(null);
+    setMessages([]);
+    setStarting(false);
+    setSending(false);
+    setStreaming(false);
+    streamingBufferRef.current = { raw: "", clean: "" };
+  };
+
   return {
     sessionId,
     messages,
@@ -132,6 +147,7 @@ export function useTutorSession({ t }: UseTutorSessionParams) {
     isSessionActive,
     startSession,
     sendMessage,
+    resetSession,
   };
 }
 
