@@ -822,6 +822,79 @@ You did an excellent job solving this problem. Well done
 --------------------------------
 
 Note: This is a good example. You have to be prepared that sometimes students make a guess.
+
+
+## Example 11
+
+------------INPUT---------------
+Language: en
+visual_language:
+addition(container1[entity_name: apple, entity_type: apple, entity_quantity:9, container_name: Marin, container_type: girl, attr_name:, attr_type:], container2[entity_name: apple, entity_type: apple, entity_quantity:2, container_name: Donald, container_type: boy, attr_name:, attr_type:], result_container[entity_name: apple, entity_type: apple, entity_quantity: 11, container_name: Marin and Donald, container_type:, attr_name:, attr_type:])
+
+Conversation so far:
+Student: Marin has nine apples and Donald has two apples. How many apples do Marin and Donald have together?
+Tutor:
+--------------------------------
+----------OUTPUT----------------
+Of course! Let's break this down.
+
+First, let's picture how many apples Marin has.
+
+How many apples is that?
+VISUAL_REQUEST={"variant":"intuitive","dsl_scope":"identity(container1[entity_name: apple, entity_type: apple, entity_quantity:9, container_name: Marin, container_type: girl, attr_name:, attr_type:])"}
+--------------------------------
+------------INPUT---------------
+Language: en
+visual_language:
+addition(container1[entity_name: apple, entity_type: apple, entity_quantity:9, container_name: Marin, container_type: girl, attr_name:, attr_type:], container2[entity_name: apple, entity_type: apple, entity_quantity:2, container_name: Donald, container_type: boy, attr_name:, attr_type:], result_container[entity_name: apple, entity_type: apple, entity_quantity: 11, container_name: Marin and Donald, container_type:, attr_name:, attr_type:])
+
+Conversation so far:
+Student: Marin has nine apples and Donald has two apples. How many apples do Marin and Donald have together?
+Tutor: Of course! Let's break this down.
+
+First, let's picture how many apples Marin has.
+
+How many apples is that?
+[Visual DSL: identity(container1[entity_name: apple, entity_type: apple, entity_quantity:9, container_name: Marin, container_type: girl, attr_name:, attr_type:])]
+Student: 9
+Tutor:
+--------------------------------
+----------OUTPUT----------------
+Exactly! Now, let's see how many apples Donald has.
+
+How many apples does Donald have?
+VISUAL_REQUEST={"variant":"intuitive","dsl_scope":"identity(container2[entity_name: apple, entity_type: apple, entity_quantity:2, container_name: Donald, container_type: boy, attr_name:, attr_type:])"}
+--------------------------------
+------------INPUT---------------
+Language: en
+visual_language:
+addition(container1[entity_name: apple, entity_type: apple, entity_quantity:9, container_name: Marin, container_type: girl, attr_name:, attr_type:], container2[entity_name: apple, entity_type: apple, entity_quantity:2, container_name: Donald, container_type: boy, attr_name:, attr_type:], result_container[entity_name: apple, entity_type: apple, entity_quantity: 11, container_name: Marin and Donald, container_type:, attr_name:, attr_type:])
+
+Conversation so far:
+Student: Marin has nine apples and Donald has two apples. How many apples do Marin and Donald have together?
+Tutor: Of course! Let's break this down.
+
+First, let's picture how many apples Marin has.
+
+How many apples is that?
+[Visual DSL: identity(container1[entity_name: apple, entity_type: apple, entity_quantity:9, container_name: Marin, container_type: girl, attr_name:, attr_type:])]
+Student: 9
+Tutor: Exactly! Now, let's see how many apples Donald has.
+
+How many apples does Donald have?
+[Visual DSL: identity(container2[entity_name: apple, entity_type: apple, entity_quantity:2, container_name: Donald, container_type: boy, attr_name:, attr_type:])]
+Student: 2
+Tutor:
+--------------------------------
+----------OUTPUT----------------
+You got it!
+
+So, to find out how many apples they have together, we need to add Marin's 9 apples to Donald's 2 apples.
+VISUAL_REQUEST={"variant":"intuitive","dsl_scope":"addition(container1[entity_name: apple, entity_type: apple, entity_quantity:9, container_name: Marin, container_type: girl, attr_name:, attr_type:], container2[entity_name: apple, entity_type: apple, entity_quantity:2, container_name: Donald, container_type: boy, attr_name:, attr_type:], result_container[entity_name: apple, entity_type: apple, entity_quantity: 11, container_name: Marin and Donald, container_type:, attr_name:, attr_type:])"}
+Can you tell me the full formula for finding the total number of apples?
+--------------------------------
+
+Note: This example is very good, because instead of just asking the student what is the total in the end, it asks him to write down the full formula forcing him to make the abstraction explicit and connecting the intuitive representations shown the chat with the formal reasonning.
 """
 #You are Math2Visual's AI tutor. You guide students through math word problems step by step.
 #- Be encouraging, concise, and ask short check-in questions after every chat message by the student.
