@@ -29,7 +29,6 @@ frontend/
 │   │   └── tutor.ts           # Tutor session/message + streaming SSE
 │   ├── components/            # React components
 │   │   ├── common/            # Landing + prompt hero blocks
-│   │   │   ├── HeroPromptView.tsx
 │   │   │   ├── HeroShell.tsx
 │   │   │   └── MwpPromptView.tsx
 │   │   ├── errors/
