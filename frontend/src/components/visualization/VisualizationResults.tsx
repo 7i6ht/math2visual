@@ -158,7 +158,7 @@ export const VisualizationResults = memo(({
             <TabsContent value="formal" className="mt-4">
               <VisualizationSection
                 type="formal"
-                title={t("visualization.formal")}
+                title={t("visualization.formalVisualization")}
                 svgContent={svgFormal}
                 error={filteredFormalError}
                 isOpen={activeTab === "formal"}
@@ -175,7 +175,7 @@ export const VisualizationResults = memo(({
             <TabsContent value="intuitive" className="mt-4">
               <VisualizationSection
                 type="intuitive"
-                title={t("visualization.intuitive")}
+                title={t("visualization.intuitiveVisualization")}
                 svgContent={svgIntuitive}
                 error={filteredIntuitiveError}
                 isOpen={activeTab === "intuitive"}
