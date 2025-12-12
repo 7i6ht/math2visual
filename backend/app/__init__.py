@@ -2,6 +2,7 @@
 Flask application factory for Math2Visual backend.
 """
 import os
+import logging
 from flask import Flask, send_from_directory, request
 from flask_cors import CORS
 from flask_babel import Babel
@@ -15,6 +16,11 @@ from app.api.routes.analytics import analytics_bp
 from app.api.routes.tutor import tutor_bp
 from app.api.middleware.error_handlers import register_error_handlers
 from app.utils.translations import ensure_translation_models_installed
+
+# Disable IPython logging
+logging.getLogger('IPython').setLevel(logging.WARNING)
+logging.getLogger('IPython.core').setLevel(logging.WARNING)
+logging.getLogger('IPython.display').setLevel(logging.WARNING)
 
 
 def create_app():
