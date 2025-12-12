@@ -108,6 +108,16 @@ export function useTutorSpeech({ t, messages }: UseTutorSpeechParams) {
     }
   }, [messages, speechEnabled, speechSupported, t]);
 
+  const stopSpeech = () => {
+    const synth = getSpeechSynthesis();
+    if (synth) {
+      synth.cancel();
+      utteranceRef.current = null;
+      setSpeaking(false);
+      setSpeakingIndex(null);
+    }
+  };
+
   const toggleSpeech = () => {
     const synth = getSpeechSynthesis();
     const UtteranceCtor = getUtteranceCtor();
@@ -141,5 +151,6 @@ export function useTutorSpeech({ t, messages }: UseTutorSpeechParams) {
     speaking,
     speakingIndex,
     toggleSpeech,
+    stopSpeech,
   };
 }

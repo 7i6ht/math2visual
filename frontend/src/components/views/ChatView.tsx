@@ -37,6 +37,7 @@ export function ChatView({ onBack }: Props) {
     speaking,
     speakingIndex,
     toggleSpeech,
+    stopSpeech,
   } = useTutorSpeech({ t, messages });
 
   useEffect(() => {
@@ -48,6 +49,13 @@ export function ChatView({ onBack }: Props) {
     onTranscript: (transcript) =>
       setInput((prev) => (prev ? `${prev}\n${transcript}` : transcript)),
   });
+
+  // Interrupt tutor speech when student starts recording
+  useEffect(() => {
+    if (listening && speaking) {
+      stopSpeech();
+    }
+  }, [listening, speaking, stopSpeech]);
 
   const handleStart = async () => {
     if (!mwp.trim()) {
@@ -68,6 +76,11 @@ export function ChatView({ onBack }: Props) {
     }
     if (!input.trim() || streaming) {
       return;
+    }
+
+    // Interrupt tutor speech if speaking
+    if (speaking) {
+      stopSpeech();
     }
 
     const userMessage = input.trim();
