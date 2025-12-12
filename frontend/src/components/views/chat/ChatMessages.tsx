@@ -19,13 +19,14 @@ type ChatMessageItemProps = {
   tutorSpeakingIndex: number | null;
 };
 
-const ChatMessageItem = memo(({ msg, idx, tutorSpeaking, tutorSpeakingIndex }: ChatMessageItemProps) => {
+const ChatMessageItem = memo(
+  ({ msg, idx, tutorSpeaking, tutorSpeakingIndex }: ChatMessageItemProps) => {
   const isStudent = msg.role === "student";
   const alignment = isStudent ? "justify-end" : "justify-start";
   const slide = isStudent ? "slide-in-from-right-4" : "slide-in-from-left-4";
   const contentAlign = isStudent ? "items-end" : "items-start";
   const isTutorSpeaking = tutorSpeaking && tutorSpeakingIndex === idx;
-  const botAnimated = Boolean(msg.streaming || isTutorSpeaking);
+    const botAnimated = Boolean(isTutorSpeaking);
   const visual = useMemo(
     () =>
       msg.visual && msg.visual.svg?.trim()
