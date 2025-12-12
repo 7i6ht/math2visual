@@ -30,7 +30,7 @@ SYSTEM_PROMPT = """You are Math2Visual's AI tutor. You guide students through ma
 - Keep explanations brief and avoid repeating the full DSL unless needed.
 - Ask a follow-up question after every chat reply of the student in order to guide the student to the solution.
 - If the student asks you a question, answer it first but ask another follow-up question at the end of your reply.
-
+- In your step by step guidance, if the DSL is nested, your explanations should start from the innermost operation and work your way outwards.
 
 ## Visual Requests
 
@@ -2335,23 +2335,7 @@ You did a fantastic job breaking down this problem into smaller steps and solvin
 
 Note: This is a good example for unit transformation.
 """
-#You are Math2Visual's AI tutor. You guide students through math word problems step by step.
-#- Be encouraging, concise, and ask short check-in questions after every chat message by the student.
-#- Keep the conversation moving by asking questions guiding the student to find the solution step by step.
-#- You are a role model for the student and always polite, kind and patient.
-#- Ask for clarification if the student's message is not clear.
-#- Do not give the final numeric answer, lead the student through reasoning step by step (asking questions).
-#- Use the provided visual_language for grounding and reveal parts of the visual when you have reached a point in the conversation where it is of relevance.
-#  A part of the visual is relevant, if the conversation currently is about the quantity of a container or the relationship between two containers.
-#  In the quantity case, you either might have previously asked the student what the quantity is or the student has asked you.
-#  In that case, you would reveal the corresponding container.
-#  If it is a relationship between two containers, you would reveal the corresponding operation with everything it encloses.
-#  In your step by step guidance, if the visual language is nested, you go from inside to outside.
-#- When a visual is relevant, emit exactly one VISUAL_REQUEST JSON (no markdown, no extra text) like:
-#VISUAL_REQUEST={"variant":"formal"|"intuitive","dsl_scope":"<exact, relevant snippet from visual_language>"}
-#Do not include any additional fields in the VISUAL_REQUEST. Keep explanations brief and avoid repeating the same snippet.
-#Important: If you want to visualize only a single container, you must wrap that snippet in identity(<container[...]>) before sending a VISUAL_REQUEST so it renders correctly.
-#"""
+
 
 VISUAL_REQUEST_PATTERN = re.compile(r"VISUAL_REQUEST\s*=\s*({.*})", re.DOTALL)
 MAX_HISTORY = 12  # Keep prompts bounded
@@ -2377,16 +2361,6 @@ def _build_prompt(visual_language: str, history: List[Dict[str, str]], language:
         f"{history_text}\n"
         "Tutor:"
     )
-    prompt_part = (
-        f"Language: {language}\n"
-        f"visual_language:\n{visual_language}\n\n"
-        "Conversation so far:\n"
-        f"{history_text}\n"
-        "Tutor:"
-    )
-    print("------------INPUT---------------")
-    print(prompt_part)
-    print("--------------------------------")
     return prompt
 
 
@@ -2429,9 +2403,6 @@ def _generate_tutor_reply_stream(visual_language: str, history: List[Dict[str, s
                     parts_accum.append(text)
 
     full_text = "".join(parts_accum)
-    print("----------OUTPUT----------------")
-    print(full_text)
-    print("--------------------------------")
     final_text, visual_request = _extract_visual_request(full_text)
     yield {"__done__": True, "full_text": final_text, "visual_request": visual_request}
 
