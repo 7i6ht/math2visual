@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { useTutorSession } from "@/hooks/useTutorSession";
@@ -75,7 +75,7 @@ export function ChatView({ onBack }: Props) {
     sendMessage(userMessage);
   };
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     if (isSessionActive) {
       // If there's an active session, reset it to show TutorSessionStarter
       resetSession();
@@ -86,7 +86,7 @@ export function ChatView({ onBack }: Props) {
       // If no active session, call the onBack prop to go back to landing page
       onBack?.();
     }
-  };
+  }, [isSessionActive, resetSession, onBack]);
 
   return (
     <div className="w-full h-screen overflow-hidden flex flex-col px-3 py-3 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 3xl:px-20 4xl:px-24 5xl:px-32">

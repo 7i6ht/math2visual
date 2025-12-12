@@ -1,3 +1,4 @@
+import { memo } from "react";
 import type { TFunction } from "i18next";
 import { Volume2, VolumeX } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,7 @@ type ChatHeaderProps = {
   onToggleSpeech: () => void;
 };
 
-export const ChatHeader = ({
+export const ChatHeader = memo(({
   onBack,
   t,
   speechEnabled,
@@ -65,5 +66,7 @@ export const ChatHeader = ({
       )}
     </div>
   );
-};
+});
+
+ChatHeader.displayName = "ChatHeader";
 

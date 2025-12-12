@@ -39,15 +39,7 @@ export const VisualizationSection = ({
   const { currentDSLPath, hoverSource } = useHighlightingContext();
 
   // Handle SVG responsiveness
-  const { makeResponsive, setupResizeObserver } = useSVGResponsive();
-  
-  // Setup ResizeObserver for this component (watches for container size changes)
-  useEffect(() => {
-    const cleanup = setupResizeObserver([svgRef]);
-    return () => {
-      cleanup();
-    };
-  }, [setupResizeObserver]);
+  const { makeResponsive } = useSVGResponsive();
   
   // Setup highlighting and interactions directly
   const highlighting = useHighlighting({ svgRef, mwpValue, formulaValue });
@@ -66,7 +58,7 @@ export const VisualizationSection = ({
     if (!isOpen || !svgRef.current || typeof svgContent !== 'string') return;
     
     svgRef.current.innerHTML = svgContent;
-    makeResponsive(svgRef.current); // Sets up SVG attributes/styles and calculates initial size
+    makeResponsive(svgRef.current);
     highlighting.setupTransformOrigins();
   }, [isOpen, svgContent, makeResponsive, highlighting.setupTransformOrigins]);
 
