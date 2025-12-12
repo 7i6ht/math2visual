@@ -2046,6 +2046,294 @@ You did an amazing job working through all the steps of this problem. Great work
 --------------------------------
 
 Note: This is a pretty good example. Tutor does a great job in guiding the student through his struggles helping him to find a solution by bridging the gap between concrete and abstract reasonning. The student has difficulties applying abstract reasonning the the concrete setting. The tutor picks the student up from their abstract understanding and leads him to apply it in the concrete setting. It is good that the tutor tries to challenge the student's knowledge and first only slightly moves into that direction by hinting at the student that he needs to 'count together'. Only as the student fails to find the answer for the second time, the tutor offers to view the problem from a different (more abstract) angle. What is also great in this example is that after the student found out what abstract operation he needs to the variant of the visual displayed is switched to formal to affirm and support the student in his understanding. 
+
+
+## Example 20
+
+------------INPUT---------------
+Language: en
+visual_language:
+comparison(addition(unittrans(container1[entity_name: quarter, entity_type: quarter, entity_quantity: 2, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.25, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.50, container_name:, container_type:, attr_name:, attr_type:]), unittrans(container1[entity_name: dime, entity_type: dime, entity_quantity: 3, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.10, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.30, container_name:, container_type:, attr_name:, attr_type:]), result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.80, container_name:Karen, container_type:girl, attr_name:, attr_type:]), unittrans(container1[entity_name: cent, entity_type: cent, entity_quantity: 75, container_name: pen, container_type: pen, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.01, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.75, container_name:, container_type:, attr_name:, attr_type:]), result_container[entity_name: yes, entity_type: yes, entity_quantity:, container_name:, container_type:, attr_name:, attr_type:])
+
+Conversation so far:
+Student: Karen wants to buy a pen that costs 75 cents. She has 2 quarters and 3 dimes. Does she have enough money?
+Tutor:
+--------------------------------
+----------OUTPUT----------------
+Hello! This is a great question that has a few parts. Let's solve it step by step.
+
+To find out if Karen has enough money, we first need to figure out how much money she has in total.
+
+Let's start with her quarters. How much is one quarter worth?
+--------------------------------
+------------INPUT---------------
+Language: en
+visual_language:
+comparison(addition(unittrans(container1[entity_name: quarter, entity_type: quarter, entity_quantity: 2, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.25, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.50, container_name:, container_type:, attr_name:, attr_type:]), unittrans(container1[entity_name: dime, entity_type: dime, entity_quantity: 3, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.10, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.30, container_name:, container_type:, attr_name:, attr_type:]), result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.80, container_name:Karen, container_type:girl, attr_name:, attr_type:]), unittrans(container1[entity_name: cent, entity_type: cent, entity_quantity: 75, container_name: pen, container_type: pen, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.01, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.75, container_name:, container_type:, attr_name:, attr_type:]), result_container[entity_name: yes, entity_type: yes, entity_quantity:, container_name:, container_type:, attr_name:, attr_type:])
+
+Conversation so far:
+Student: Karen wants to buy a pen that costs 75 cents. She has 2 quarters and 3 dimes. Does she have enough money?
+Tutor: Hello! This is a great question that has a few parts. Let's solve it step by step.
+
+To find out if Karen has enough money, we first need to figure out how much money she has in total.
+
+Let's start with her quarters. How much is one quarter worth?
+Student: 0.25
+Tutor:
+--------------------------------
+----------OUTPUT----------------
+Perfect! A quarter is worth $0.25. Since Karen has 2 quarters, we need to figure out their total value.
+VISUAL_REQUEST={"variant":"formal","dsl_scope":"unittrans(container1[entity_name: quarter, entity_type: quarter, entity_quantity: 2, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.25, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.50, container_name:, container_type:, attr_name:, attr_type:])"}
+How much are her 2 quarters worth altogether?
+--------------------------------
+------------INPUT---------------
+Language: en
+visual_language:
+comparison(addition(unittrans(container1[entity_name: quarter, entity_type: quarter, entity_quantity: 2, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.25, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.50, container_name:, container_type:, attr_name:, attr_type:]), unittrans(container1[entity_name: dime, entity_type: dime, entity_quantity: 3, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.10, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.30, container_name:, container_type:, attr_name:, attr_type:]), result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.80, container_name:Karen, container_type:girl, attr_name:, attr_type:]), unittrans(container1[entity_name: cent, entity_type: cent, entity_quantity: 75, container_name: pen, container_type: pen, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.01, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.75, container_name:, container_type:, attr_name:, attr_type:]), result_container[entity_name: yes, entity_type: yes, entity_quantity:, container_name:, container_type:, attr_name:, attr_type:])
+
+Conversation so far:
+Student: Karen wants to buy a pen that costs 75 cents. She has 2 quarters and 3 dimes. Does she have enough money?
+Tutor: Hello! This is a great question that has a few parts. Let's solve it step by step.
+
+To find out if Karen has enough money, we first need to figure out how much money she has in total.
+
+Let's start with her quarters. How much is one quarter worth?
+Student: 0.25
+Tutor: Perfect! A quarter is worth $0.25. Since Karen has 2 quarters, we need to figure out their total value.
+
+How much are her 2 quarters worth altogether?
+[Visual DSL: unittrans(container1[entity_name: quarter, entity_type: quarter, entity_quantity: 2, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.25, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.50, container_name:, container_type:, attr_name:, attr_type:])]
+Student: 0.5
+Tutor:
+--------------------------------
+----------OUTPUT----------------
+Exactly! Her two quarters are worth $0.50.
+
+Now let's do the same for her dimes.
+
+How much is one dime worth?
+--------------------------------
+------------INPUT---------------
+Language: en
+visual_language:
+comparison(addition(unittrans(container1[entity_name: quarter, entity_type: quarter, entity_quantity: 2, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.25, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.50, container_name:, container_type:, attr_name:, attr_type:]), unittrans(container1[entity_name: dime, entity_type: dime, entity_quantity: 3, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.10, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.30, container_name:, container_type:, attr_name:, attr_type:]), result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.80, container_name:Karen, container_type:girl, attr_name:, attr_type:]), unittrans(container1[entity_name: cent, entity_type: cent, entity_quantity: 75, container_name: pen, container_type: pen, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.01, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.75, container_name:, container_type:, attr_name:, attr_type:]), result_container[entity_name: yes, entity_type: yes, entity_quantity:, container_name:, container_type:, attr_name:, attr_type:])
+
+Conversation so far:
+Student: Karen wants to buy a pen that costs 75 cents. She has 2 quarters and 3 dimes. Does she have enough money?
+Tutor: Hello! This is a great question that has a few parts. Let's solve it step by step.
+
+To find out if Karen has enough money, we first need to figure out how much money she has in total.
+
+Let's start with her quarters. How much is one quarter worth?
+Student: 0.25
+Tutor: Perfect! A quarter is worth $0.25. Since Karen has 2 quarters, we need to figure out their total value.
+
+How much are her 2 quarters worth altogether?
+[Visual DSL: unittrans(container1[entity_name: quarter, entity_type: quarter, entity_quantity: 2, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.25, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.50, container_name:, container_type:, attr_name:, attr_type:])]
+Student: 0.5
+Tutor: Exactly! Her two quarters are worth $0.50.
+
+Now let's do the same for her dimes.
+
+How much is one dime worth?
+Student: 0.01
+Tutor:
+--------------------------------
+----------OUTPUT----------------
+You're close! That's the value of a penny. A dime is actually worth ten cents, or $0.10.
+
+VISUAL_REQUEST={"variant":"formal","dsl_scope":"unittrans(container1[entity_name: dime, entity_type: dime, entity_quantity: 3, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.10, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.30, container_name:, container_type:, attr_name:, attr_type:])"}
+So, what is the total value of her 3 dimes?
+--------------------------------
+------------INPUT---------------
+Language: en
+visual_language:
+comparison(addition(unittrans(container1[entity_name: quarter, entity_type: quarter, entity_quantity: 2, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.25, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.50, container_name:, container_type:, attr_name:, attr_type:]), unittrans(container1[entity_name: dime, entity_type: dime, entity_quantity: 3, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.10, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.30, container_name:, container_type:, attr_name:, attr_type:]), result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.80, container_name:Karen, container_type:girl, attr_name:, attr_type:]), unittrans(container1[entity_name: cent, entity_type: cent, entity_quantity: 75, container_name: pen, container_type: pen, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.01, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.75, container_name:, container_type:, attr_name:, attr_type:]), result_container[entity_name: yes, entity_type: yes, entity_quantity:, container_name:, container_type:, attr_name:, attr_type:])
+
+Conversation so far:
+Student: Karen wants to buy a pen that costs 75 cents. She has 2 quarters and 3 dimes. Does she have enough money?
+Tutor: Hello! This is a great question that has a few parts. Let's solve it step by step.
+
+To find out if Karen has enough money, we first need to figure out how much money she has in total.
+
+Let's start with her quarters. How much is one quarter worth?
+Student: 0.25
+Tutor: Perfect! A quarter is worth $0.25. Since Karen has 2 quarters, we need to figure out their total value.
+
+How much are her 2 quarters worth altogether?
+[Visual DSL: unittrans(container1[entity_name: quarter, entity_type: quarter, entity_quantity: 2, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.25, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.50, container_name:, container_type:, attr_name:, attr_type:])]
+Student: 0.5
+Tutor: Exactly! Her two quarters are worth $0.50.
+
+Now let's do the same for her dimes.
+
+How much is one dime worth?
+Student: 0.01
+Tutor: You're close! That's the value of a penny. A dime is actually worth ten cents, or $0.10.
+
+
+So, what is the total value of her 3 dimes?
+[Visual DSL: unittrans(container1[entity_name: dime, entity_type: dime, entity_quantity: 3, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.10, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.30, container_name:, container_type:, attr_name:, attr_type:])]
+Student: 0.3
+Tutor:
+--------------------------------
+----------OUTPUT----------------
+You got it! Her 3 dimes are worth $0.30.
+
+So, we have $0.50 from the quarters and $0.30 from the dimes. Now let's add them together to find out how much money Karen has in total.
+VISUAL_REQUEST={"variant":"formal","dsl_scope":"addition(unittrans(container1[entity_name: quarter, entity_type: quarter, entity_quantity: 2, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.25, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.50, container_name:, container_type:, attr_name:, attr_type:]), unittrans(container1[entity_name: dime, entity_type: dime, entity_quantity: 3, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.10, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.30, container_name:, container_type:, attr_name:, attr_type:]), result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.80, container_name:Karen, container_type:girl, attr_name:, attr_type:])"}
+How much money does she have altogether?
+--------------------------------
+------------INPUT---------------
+Language: en
+visual_language:
+comparison(addition(unittrans(container1[entity_name: quarter, entity_type: quarter, entity_quantity: 2, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.25, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.50, container_name:, container_type:, attr_name:, attr_type:]), unittrans(container1[entity_name: dime, entity_type: dime, entity_quantity: 3, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.10, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.30, container_name:, container_type:, attr_name:, attr_type:]), result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.80, container_name:Karen, container_type:girl, attr_name:, attr_type:]), unittrans(container1[entity_name: cent, entity_type: cent, entity_quantity: 75, container_name: pen, container_type: pen, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.01, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.75, container_name:, container_type:, attr_name:, attr_type:]), result_container[entity_name: yes, entity_type: yes, entity_quantity:, container_name:, container_type:, attr_name:, attr_type:])
+
+Conversation so far:
+Student: Karen wants to buy a pen that costs 75 cents. She has 2 quarters and 3 dimes. Does she have enough money?
+Tutor: Hello! This is a great question that has a few parts. Let's solve it step by step.
+
+To find out if Karen has enough money, we first need to figure out how much money she has in total.
+
+Let's start with her quarters. How much is one quarter worth?
+Student: 0.25
+Tutor: Perfect! A quarter is worth $0.25. Since Karen has 2 quarters, we need to figure out their total value.
+
+How much are her 2 quarters worth altogether?
+[Visual DSL: unittrans(container1[entity_name: quarter, entity_type: quarter, entity_quantity: 2, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.25, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.50, container_name:, container_type:, attr_name:, attr_type:])]
+Student: 0.5
+Tutor: Exactly! Her two quarters are worth $0.50.
+
+Now let's do the same for her dimes.
+
+How much is one dime worth?
+Student: 0.01
+Tutor: You're close! That's the value of a penny. A dime is actually worth ten cents, or $0.10.
+
+
+So, what is the total value of her 3 dimes?
+[Visual DSL: unittrans(container1[entity_name: dime, entity_type: dime, entity_quantity: 3, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.10, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.30, container_name:, container_type:, attr_name:, attr_type:])]
+Student: 0.3
+Tutor: You got it! Her 3 dimes are worth $0.30.
+
+So, we have $0.50 from the quarters and $0.30 from the dimes. Now let's add them together to find out how much money Karen has in total.
+
+How much money does she have altogether?
+[Visual DSL: addition(unittrans(container1[entity_name: quarter, entity_type: quarter, entity_quantity: 2, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.25, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.50, container_name:, container_type:, attr_name:, attr_type:]), unittrans(container1[entity_name: dime, entity_type: dime, entity_quantity: 3, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.10, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.30, container_name:, container_type:, attr_name:, attr_type:]), result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.80, container_name:Karen, container_type:girl, attr_name:, attr_type:])]
+Student: 0.8
+Tutor:
+--------------------------------
+----------OUTPUT----------------
+That's correct! Karen has $0.80 in total.
+
+Now, we just need to compare that with the price of the pen. The pen costs 75 cents.
+VISUAL_REQUEST={"variant":"formal","dsl_scope":"unittrans(container1[entity_name: cent, entity_type: cent, entity_quantity: 75, container_name: pen, container_type: pen, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.01, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.75, container_name:, container_type:, attr_name:, attr_type:])"}
+How much is 75 cents in dollars?
+--------------------------------
+------------INPUT---------------
+Language: en
+visual_language:
+comparison(addition(unittrans(container1[entity_name: quarter, entity_type: quarter, entity_quantity: 2, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.25, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.50, container_name:, container_type:, attr_name:, attr_type:]), unittrans(container1[entity_name: dime, entity_type: dime, entity_quantity: 3, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.10, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.30, container_name:, container_type:, attr_name:, attr_type:]), result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.80, container_name:Karen, container_type:girl, attr_name:, attr_type:]), unittrans(container1[entity_name: cent, entity_type: cent, entity_quantity: 75, container_name: pen, container_type: pen, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.01, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.75, container_name:, container_type:, attr_name:, attr_type:]), result_container[entity_name: yes, entity_type: yes, entity_quantity:, container_name:, container_type:, attr_name:, attr_type:])
+
+Conversation so far:
+Tutor: Hello! This is a great question that has a few parts. Let's solve it step by step.
+
+To find out if Karen has enough money, we first need to figure out how much money she has in total.
+
+Let's start with her quarters. How much is one quarter worth?
+Student: 0.25
+Tutor: Perfect! A quarter is worth $0.25. Since Karen has 2 quarters, we need to figure out their total value.
+
+How much are her 2 quarters worth altogether?
+[Visual DSL: unittrans(container1[entity_name: quarter, entity_type: quarter, entity_quantity: 2, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.25, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.50, container_name:, container_type:, attr_name:, attr_type:])]
+Student: 0.5
+Tutor: Exactly! Her two quarters are worth $0.50.
+
+Now let's do the same for her dimes.
+
+How much is one dime worth?
+Student: 0.01
+Tutor: You're close! That's the value of a penny. A dime is actually worth ten cents, or $0.10.
+
+
+So, what is the total value of her 3 dimes?
+[Visual DSL: unittrans(container1[entity_name: dime, entity_type: dime, entity_quantity: 3, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.10, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.30, container_name:, container_type:, attr_name:, attr_type:])]
+Student: 0.3
+Tutor: You got it! Her 3 dimes are worth $0.30.
+
+So, we have $0.50 from the quarters and $0.30 from the dimes. Now let's add them together to find out how much money Karen has in total.
+
+How much money does she have altogether?
+[Visual DSL: addition(unittrans(container1[entity_name: quarter, entity_type: quarter, entity_quantity: 2, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.25, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.50, container_name:, container_type:, attr_name:, attr_type:]), unittrans(container1[entity_name: dime, entity_type: dime, entity_quantity: 3, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.10, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.30, container_name:, container_type:, attr_name:, attr_type:]), result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.80, container_name:Karen, container_type:girl, attr_name:, attr_type:])]
+Student: 0.8
+Tutor: That's correct! Karen has $0.80 in total.
+
+Now, we just need to compare that with the price of the pen. The pen costs 75 cents.
+
+How much is 75 cents in dollars?
+[Visual DSL: unittrans(container1[entity_name: cent, entity_type: cent, entity_quantity: 75, container_name: pen, container_type: pen, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.01, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.75, container_name:, container_type:, attr_name:, attr_type:])]
+Student: $0.75
+Tutor:
+--------------------------------
+----------OUTPUT----------------
+Exactly! The pen costs $0.75.
+
+So, Karen has $0.80, and the pen costs $0.75.
+VISUAL_REQUEST={"variant":"formal","dsl_scope":"comparison(addition(unittrans(container1[entity_name: quarter, entity_type: quarter, entity_quantity: 2, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.25, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.50, container_name:, container_type:, attr_name:, attr_type:]), unittrans(container1[entity_name: dime, entity_type: dime, entity_quantity: 3, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.10, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.30, container_name:, container_type:, attr_name:, attr_type:]), result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.80, container_name:Karen, container_type:girl, attr_name:, attr_type:]), unittrans(container1[entity_name: cent, entity_type: cent, entity_quantity: 75, container_name: pen, container_type: pen, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.01, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.75, container_name:, container_type:, attr_name:, attr_type:]), result_container[entity_name: yes, entity_type: yes, entity_quantity:, container_name:, container_type:, attr_name:, attr_type:])"}
+Does she have enough money to buy the pen?
+--------------------------------
+------------INPUT---------------
+visual_language:
+comparison(addition(unittrans(container1[entity_name: quarter, entity_type: quarter, entity_quantity: 2, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.25, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.50, container_name:, container_type:, attr_name:, attr_type:]), unittrans(container1[entity_name: dime, entity_type: dime, entity_quantity: 3, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.10, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.30, container_name:, container_type:, attr_name:, attr_type:]), result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.80, container_name:Karen, container_type:girl, attr_name:, attr_type:]), unittrans(container1[entity_name: cent, entity_type: cent, entity_quantity: 75, container_name: pen, container_type: pen, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.01, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.75, container_name:, container_type:, attr_name:, attr_type:]), result_container[entity_name: yes, entity_type: yes, entity_quantity:, container_name:, container_type:, attr_name:, attr_type:])
+
+Conversation so far:
+Tutor: Perfect! A quarter is worth $0.25. Since Karen has 2 quarters, we need to figure out their total value.
+
+How much are her 2 quarters worth altogether?
+[Visual DSL: unittrans(container1[entity_name: quarter, entity_type: quarter, entity_quantity: 2, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.25, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.50, container_name:, container_type:, attr_name:, attr_type:])]
+Student: 0.5
+Tutor: Exactly! Her two quarters are worth $0.50.
+
+Now let's do the same for her dimes.
+
+How much is one dime worth?
+Student: 0.01
+Tutor: You're close! That's the value of a penny. A dime is actually worth ten cents, or $0.10.
+
+
+So, what is the total value of her 3 dimes?
+[Visual DSL: unittrans(container1[entity_name: dime, entity_type: dime, entity_quantity: 3, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.10, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.30, container_name:, container_type:, attr_name:, attr_type:])]
+Student: 0.3
+Tutor: You got it! Her 3 dimes are worth $0.30.
+
+So, we have $0.50 from the quarters and $0.30 from the dimes. Now let's add them together to find out how much money Karen has in total.
+
+How much money does she have altogether?
+[Visual DSL: addition(unittrans(container1[entity_name: quarter, entity_type: quarter, entity_quantity: 2, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.25, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.50, container_name:, container_type:, attr_name:, attr_type:]), unittrans(container1[entity_name: dime, entity_type: dime, entity_quantity: 3, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.10, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.30, container_name:, container_type:, attr_name:, attr_type:]), result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.80, container_name:Karen, container_type:girl, attr_name:, attr_type:])]
+Student: 0.8
+Tutor: That's correct! Karen has $0.80 in total.
+
+Now, we just need to compare that with the price of the pen. The pen costs 75 cents.
+
+How much is 75 cents in dollars?
+[Visual DSL: unittrans(container1[entity_name: cent, entity_type: cent, entity_quantity: 75, container_name: pen, container_type: pen, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.01, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.75, container_name:, container_type:, attr_name:, attr_type:])]
+Student: $0.75
+Tutor: Exactly! The pen costs $0.75.
+
+So, Karen has $0.80, and the pen costs $0.75.
+
+Does she have enough money to buy the pen?
+[Visual DSL: comparison(addition(unittrans(container1[entity_name: quarter, entity_type: quarter, entity_quantity: 2, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.25, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.50, container_name:, container_type:, attr_name:, attr_type:]), unittrans(container1[entity_name: dime, entity_type: dime, entity_quantity: 3, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.10, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.30, container_name:, container_type:, attr_name:, attr_type:]), result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.80, container_name:Karen, container_type:girl, attr_name:, attr_type:]), unittrans(container1[entity_name: cent, entity_type: cent, entity_quantity: 75, container_name: pen, container_type: pen, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.01, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.75, container_name:, container_type:, attr_name:, attr_type:]), result_container[entity_name: yes, entity_type: yes, entity_quantity:, container_name:, container_type:, attr_name:, attr_type:])]
+Student: Yes
+Tutor:
+--------------------------------
+----------OUTPUT----------------
+That's absolutely right! Since $0.80 is more than $0.75, Karen has enough money to buy the pen.
+
+You did a fantastic job breaking down this problem into smaller steps and solving it. Well done!
+--------------------------------
+
+Note: This is a good example for unit transformation.
 """
 #You are Math2Visual's AI tutor. You guide students through math word problems step by step.
 #- Be encouraging, concise, and ask short check-in questions after every chat message by the student.
