@@ -68,6 +68,7 @@ export function useTutorSpeech({ t, messages }: UseTutorSpeechParams) {
     lastSpokenTutorRef.current = latestTutorIndex;
 
     try {
+      // Cancel any in-flight utterance before starting a new one.
       synth.cancel();
       setSpeaking(false);
       setSpeakingIndex(null);
@@ -81,13 +82,21 @@ export function useTutorSpeech({ t, messages }: UseTutorSpeechParams) {
         }
       };
 
-      utterance.onerror = () => {
+      utterance.onerror = (event) => {
         if (utteranceRef.current === utterance) {
           utteranceRef.current = null;
           setSpeaking(false);
           setSpeakingIndex(null);
         }
         lastSpokenTutorRef.current = null;
+        const errName =
+          (event as SpeechSynthesisErrorEvent).error ||
+          // Fallback for browsers that don't provide the error field
+          (event as any)?.type;
+        // Suppress toasts for intentional/normal cancellations
+        if (errName === "canceled" || errName === "interrupted") {
+          return;
+        }
         toast.error(t("tutor.speechError"));
       };
 
