@@ -2045,7 +2045,7 @@ That's the one! 2 boys plus 6 girls equals 8 children in the classroom.
 You did an amazing job working through all the steps of this problem. Great work!
 --------------------------------
 
-Note: This is a pretty good example. Tutor does a great job in guiding the student through his struggles helping him to find a solution by bridging the gap between concrete and abstract reasonning. The student has difficulties applying abstract reasonning the the concrete setting. The tutor picks the student up from their abstract understanding and leads him to apply it in the concrete setting. It is good that the tutor tries to challenge the student's knowledge and first only slightly moves into that direction by hinting at the student that he needs to 'count together'. Only as the student fails to find the answer for the second time, the tutor offers to view the problem from a different (more abstract) angle. What is also great in this example is that after the student found out what abstract operation he needs to the variant of the visual displayed is switched to formal to affirm and support the student in his understanding. 
+Note: This is a pretty good example. The tutor does a great job in guiding the student through his struggles helping him to find a solution by bridging the gap between concrete and abstract reasonning. The student has difficulties applying abstract reasonning to the concrete setting. The tutor picks up the student at their abstract understanding and leads him to apply it in the concrete setting. It is good that the tutor tries to challenge the student's knowledge and first only slightly moves into that direction by hinting at the student that he needs to 'count together'. Only as the student fails to find the answer for the second time, the tutor offers to view the problem from a different (more abstract) angle. What is also great in this example is that after the student found out what abstract operation he needs to the variant of the visual displayed is switched to formal to affirm and support the student in his understanding. 
 
 
 ## Example 20
@@ -2334,6 +2334,112 @@ You did a fantastic job breaking down this problem into smaller steps and solvin
 --------------------------------
 
 Note: This is a good example for unit transformation.
+
+
+## Example 21
+
+------------INPUT---------------
+Language: en
+visual_language:
+division(container1[entity_name: paper clip, entity_type: paper-clip, entity_quantity: 81, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: box, entity_type: box, entity_quantity: 9, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: paper clip per box, entity_type: paper-clip per box, entity_quantity: 9, container_name:, container_type:, attr_name:, attr_type:])
+
+Conversation so far:
+Student: Lexie’s younger brother helped pick up all the paper clips in Lexie’s room. He was able to collect 81 paper clips. If he wants to distribute the paper clips in 9 boxes, how many paper clips will each box contain?
+Tutor:
+--------------------------------
+----------OUTPUT----------------
+Hello! I can certainly help with that. Let's solve this together.
+
+We have a total of 81 paper clips and we want to put an equal number of them into 9 boxes.
+
+What math operation do you think we should use to figure out how many paper clips go in each box?
+--------------------------------
+------------INPUT---------------
+Language: en
+visual_language:
+division(container1[entity_name: paper clip, entity_type: paper-clip, entity_quantity: 81, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: box, entity_type: box, entity_quantity: 9, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: paper clip per box, entity_type: paper-clip per box, entity_quantity: 9, container_name:, container_type:, attr_name:, attr_type:])
+
+Conversation so far:
+Student: Lexie’s younger brother helped pick up all the paper clips in Lexie’s room. He was able to collect 81 paper clips. If he wants to distribute the paper clips in 9 boxes, how many paper clips will each box contain?
+Tutor: Hello! I can certainly help with that. Let's solve this together.
+
+We have a total of 81 paper clips and we want to put an equal number of them into 9 boxes.
+
+What math operation do you think we should use to figure out how many paper clips go in each box?
+Student: I don't know.
+Tutor:
+--------------------------------
+----------OUTPUT----------------
+No problem at all! Let's think about what's happening in the story.
+
+We have a big collection of 81 paper clips, and we want to *split* them into 9 smaller, equal groups (the boxes).
+VISUAL_REQUEST={"variant":"intuitive","dsl_scope":"division(container1[entity_name: paper clip, entity_type: paper-clip, entity_quantity: 81, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: box, entity_type: box, entity_quantity: 9, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: paper clip per box, entity_type: paper-clip per box, entity_quantity: 9, container_name:, container_type:, attr_name:, attr_type:])"}
+When we split a large number into smaller, equal groups like this, what math operation do we use?
+--------------------------------
+------------INPUT---------------
+Language: en
+visual_language:
+division(container1[entity_name: paper clip, entity_type: paper-clip, entity_quantity: 81, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: box, entity_type: box, entity_quantity: 9, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: paper clip per box, entity_type: paper-clip per box, entity_quantity: 9, container_name:, container_type:, attr_name:, attr_type:])
+
+Conversation so far:
+Student: Lexie’s younger brother helped pick up all the paper clips in Lexie’s room. He was able to collect 81 paper clips. If he wants to distribute the paper clips in 9 boxes, how many paper clips will each box contain?
+Tutor: Hello! I can certainly help with that. Let's solve this together.
+
+We have a total of 81 paper clips and we want to put an equal number of them into 9 boxes.
+
+What math operation do you think we should use to figure out how many paper clips go in each box?
+Student: I don't know.
+Tutor: No problem at all! Let's think about what's happening in the story.
+
+We have a big collection of 81 paper clips, and we want to *split* them into 9 smaller, equal groups (the boxes).
+
+When we split a large number into smaller, equal groups like this, what math operation do we use?
+[Visual DSL: division(container1[entity_name: paper clip, entity_type: paper-clip, entity_quantity: 81, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: box, entity_type: box, entity_quantity: 9, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: paper clip per box, entity_type: paper-clip per box, entity_quantity: 9, container_name:, container_type:, attr_name:, attr_type:])]
+Student: Division!
+Tutor:
+--------------------------------
+----------OUTPUT----------------
+That's exactly right!
+
+So, to find out how many paper clips go into each box, we need to divide the 81 paper clips by the 9 boxes.
+
+How many paper clips will each box contain?
+--------------------------------
+------------INPUT---------------
+Language: en
+visual_language:
+division(container1[entity_name: paper clip, entity_type: paper-clip, entity_quantity: 81, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: box, entity_type: box, entity_quantity: 9, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: paper clip per box, entity_type: paper-clip per box, entity_quantity: 9, container_name:, container_type:, attr_name:, attr_type:])
+
+Conversation so far:
+Student: Lexie’s younger brother helped pick up all the paper clips in Lexie’s room. He was able to collect 81 paper clips. If he wants to distribute the paper clips in 9 boxes, how many paper clips will each box contain?
+Tutor: Hello! I can certainly help with that. Let's solve this together.
+
+We have a total of 81 paper clips and we want to put an equal number of them into 9 boxes.
+
+What math operation do you think we should use to figure out how many paper clips go in each box?
+Student: I don't know.
+Tutor: No problem at all! Let's think about what's happening in the story.
+
+We have a big collection of 81 paper clips, and we want to *split* them into 9 smaller, equal groups (the boxes).
+
+When we split a large number into smaller, equal groups like this, what math operation do we use?
+[Visual DSL: division(container1[entity_name: paper clip, entity_type: paper-clip, entity_quantity: 81, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: box, entity_type: box, entity_quantity: 9, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: paper clip per box, entity_type: paper-clip per box, entity_quantity: 9, container_name:, container_type:, attr_name:, attr_type:])]
+Student: Division!
+Tutor: That's exactly right!
+
+So, to find out how many paper clips go into each box, we need to divide the 81 paper clips by the 9 boxes.
+
+How many paper clips will each box contain?
+Student: 9
+Tutor:
+--------------------------------
+----------OUTPUT----------------
+That's correct! 81 paper clips divided among 9 boxes is 9 paper clips per box.
+
+You did an excellent job solving this problem. Well done!
+--------------------------------
+
+Note: This is again a pretty good example. The tutor again does a great job in helping the student bridging the gap between abstract and concrete reasonning as in Example 19. However, this time the tutor picks up the student at his *concrete* understanding and leads him to abstract reasoning.
 """
 
 
