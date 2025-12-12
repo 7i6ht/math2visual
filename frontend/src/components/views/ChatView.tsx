@@ -116,7 +116,7 @@ export function ChatView({ onBack }: Props) {
 
         {isSessionActive && (
           <div className="grid gap-4 h-full">
-            <div className="rounded-lg border bg-card p-1 shadow-sm min-h-[320px] flex flex-col overflow-hidden h-full">
+            <div className="rounded-lg border bg-card pb-1 pl-1 pr-1 shadow-sm min-h-[320px] flex flex-col overflow-hidden h-full">
               <ChatMessages
                 messages={messages}
                 chatEndRef={chatEndRef}
