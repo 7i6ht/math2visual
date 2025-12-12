@@ -58,7 +58,7 @@ export const VisualizationSection = ({
     if (!isOpen || !svgRef.current || typeof svgContent !== 'string') return;
     
     svgRef.current.innerHTML = svgContent;
-    makeResponsive(svgRef.current);
+    makeResponsive(svgRef.current, { maxHeight: Math.round(window.innerHeight * 0.75) });
     
     // Ensure SVG element itself has overflow-visible
     const svgElement = svgRef.current.firstElementChild;
@@ -68,6 +68,30 @@ export const VisualizationSection = ({
     
     highlighting.setupTransformOrigins();
   }, [isOpen, svgContent, makeResponsive, highlighting.setupTransformOrigins]);
+
+  // Setup resize listener with 75vh clamping
+  useEffect(() => {
+    if (!isOpen || !svgRef.current) return;
+    
+    // Custom resize handler that recalculates 75vh on each resize
+    const handleResize = () => {
+      if (svgRef.current) {
+        makeResponsive(svgRef.current, { maxHeight: Math.round(window.innerHeight * 0.75) });
+      }
+    };
+    
+    // Setup ResizeObserver for container resize
+    const observer = new ResizeObserver(handleResize);
+    observer.observe(svgRef.current);
+    
+    // Also listen to window resize
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [isOpen, makeResponsive]);
 
   // Setup interactions when popup state changes (separate effect to avoid SVG content replacement)
   useEffect(() => {

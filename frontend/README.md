@@ -80,7 +80,8 @@ frontend/
 │   │   │       ├── ChatHeader.tsx
 │   │   │       ├── ChatInputBar.tsx
 │   │   │       ├── ChatMessages.tsx
-│   │   │       └── ChatVisual.tsx
+│   │   │       ├── ChatVisual.tsx
+│   │   │       └── ChatVisualPreview.tsx
 │   │   └── visualization/                 # Visualization display + actions
 │   │       ├── DownloadButton.tsx
 │   │       ├── MissingSVGSection.tsx

@@ -3,6 +3,7 @@ import { useCallback, useMemo } from "react";
 
 type ResponsiveOptions = {
   align?: "left" | "center";
+  maxHeight?: number | "container"; // Max height in pixels, or "container" to use container height
 };
 
 export const useSVGResponsive = () => {
@@ -13,7 +14,7 @@ export const useSVGResponsive = () => {
   };
 
   const makeResponsive = useCallback((root: HTMLDivElement | null, options: ResponsiveOptions = {}) => {
-    const { align = "center" } = options;
+    const { align = "center", maxHeight } = options;
     if (!root) return;
     const svg = root.querySelector('svg');
     if (!svg) return;
@@ -57,28 +58,65 @@ export const useSVGResponsive = () => {
       vbH = toNumber(heightAttr);
     }
 
-    const containerWidth = root.clientWidth || root.getBoundingClientRect().width || 0;
-    const clampPx = Math.round(window.innerHeight * 0.6); // 60vh
+    // Use requestAnimationFrame to ensure container has its final width after layout
+    requestAnimationFrame(() => {
+      const containerWidth = root.clientWidth || root.getBoundingClientRect().width || 0;
+      const containerHeight = root.clientHeight || root.getBoundingClientRect().height || 0;
+      
+      // Determine max height constraint
+      const clampPx = typeof maxHeight === "number" ? maxHeight : containerHeight;
 
-    if (containerWidth > 0 && vbW && vbH && vbW > 0) {
-      const predictedHeight = containerWidth * (vbH / vbW);
-      if (predictedHeight > clampPx) {
-        const scale = clampPx / predictedHeight; // 0..1
-        const widthPercent = Math.max(10, Math.min(100, Math.round(scale * 100)));
+      if (containerWidth > 0 && vbW && vbH && vbW > 0) {
+        // Calculate size based on width constraint
+        const predictedHeightFromWidth = containerWidth * (vbH / vbW);
+        
+        // Calculate size based on height constraint
+        const predictedWidthFromHeight = containerHeight * (vbW / vbH);
+        
+        // Use the constraint that results in smaller size (more restrictive)
+        let finalWidth: number;
+        let finalHeight: number;
+        
+        if (predictedHeightFromWidth > clampPx) {
+          // Height constraint is limiting
+          finalHeight = clampPx;
+          finalWidth = finalHeight * (vbW / vbH);
+          
+          // If width exceeds container, scale down
+          if (finalWidth > containerWidth) {
+            const scale = containerWidth / finalWidth;
+            finalWidth = containerWidth;
+            finalHeight = finalHeight * scale;
+          }
+        } else if (predictedWidthFromHeight > containerWidth) {
+          // Width constraint is limiting
+          finalWidth = containerWidth;
+          finalHeight = finalWidth * (vbH / vbW);
+        } else {
+          // Can use full width
+          finalWidth = containerWidth;
+          finalHeight = predictedHeightFromWidth;
+        }
+        
+        // Ensure we don't exceed height constraint
+        if (finalHeight > clampPx) {
+          const scale = clampPx / finalHeight;
+          finalHeight = clampPx;
+          finalWidth = finalWidth * scale;
+        }
+        
+        const widthPercent = Math.max(10, Math.min(100, Math.round((finalWidth / containerWidth) * 100)));
         svg.removeAttribute('width');
         svg.style.width = `${widthPercent}%`;
       } else {
+        // Fallback
         svg.removeAttribute('width');
         svg.style.width = '100%';
       }
-    } else {
-      // Fallback
-      svg.removeAttribute('width');
-      svg.style.width = '100%';
-    }
+    });
   }, []);
 
-  // Setup window resize listener that triggers makeResponsive on provided refs
+  // Setup resize listeners (both window and container) that trigger makeResponsive on provided refs
   const setupResizeListener = useCallback((refs: Array<React.RefObject<HTMLDivElement | null>>, options: ResponsiveOptions = {}) => {
     const onResize = () => {
       refs.forEach(ref => {
@@ -88,8 +126,27 @@ export const useSVGResponsive = () => {
       });
     };
     
+    // Listen to window resize
     window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
+    
+    // Listen to container resize using ResizeObserver
+    const resizeObservers: ResizeObserver[] = [];
+    refs.forEach(ref => {
+      if (ref.current) {
+        const observer = new ResizeObserver(() => {
+          if (ref.current) {
+            makeResponsive(ref.current, options);
+          }
+        });
+        observer.observe(ref.current);
+        resizeObservers.push(observer);
+      }
+    });
+    
+    return () => {
+      window.removeEventListener('resize', onResize);
+      resizeObservers.forEach(observer => observer.disconnect());
+    };
   }, [makeResponsive]);
 
   const returnValue = useMemo(() => ({

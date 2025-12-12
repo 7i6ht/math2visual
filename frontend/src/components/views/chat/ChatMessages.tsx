@@ -49,31 +49,33 @@ const ChatMessageItem = memo(
           />
         </div>
       )}
-      <div className={`flex flex-col ${contentAlign} space-y-2 max-w-[85%]`}>
-        <div
-          className={`inline-block rounded-lg px-3 py-2 ${
-            isStudent ? "bg-primary text-primary-foreground" : "bg-muted text-foreground"
-          } animate-in fade-in-0 ${slide} duration-200`}
-        >
-          <div className="responsive-text-font-size whitespace-pre-wrap">
-            <span>{msg.content}</span>
-          </div>
-          {msg.streaming && (
-            <div className="flex items-center justify-start gap-1 mt-2">
-              <span
-                className="h-2 w-2 rounded-full bg-current animate-bounce"
-                style={{ animationDelay: "0ms" }}
-              />
-              <span
-                className="h-2 w-2 rounded-full bg-current animate-bounce"
-                style={{ animationDelay: "120ms" }}
-              />
-              <span
-                className="h-2 w-2 rounded-full bg-current animate-bounce"
-                style={{ animationDelay: "240ms" }}
-              />
+      <div className={`flex flex-col ${contentAlign} space-y-2`}>
+        <div className={`max-w-[85%]`}>
+          <div
+            className={`inline-block rounded-lg px-3 py-2 ${
+              isStudent ? "bg-primary text-primary-foreground" : "bg-muted text-foreground"
+            } animate-in fade-in-0 ${slide} duration-200`}
+          >
+            <div className="responsive-text-font-size whitespace-pre-wrap">
+              <span>{msg.content}</span>
             </div>
-          )}
+            {msg.streaming && (
+              <div className="flex items-center justify-start gap-1 mt-2">
+                <span
+                  className="h-2 w-2 rounded-full bg-current animate-bounce"
+                  style={{ animationDelay: "0ms" }}
+                />
+                <span
+                  className="h-2 w-2 rounded-full bg-current animate-bounce"
+                  style={{ animationDelay: "120ms" }}
+                />
+                <span
+                  className="h-2 w-2 rounded-full bg-current animate-bounce"
+                  style={{ animationDelay: "240ms" }}
+                />
+              </div>
+            )}
+          </div>
         </div>
         {visual && (
           <div className="w-full">
@@ -115,4 +117,3 @@ export const ChatMessages = memo(({
 });
 
 ChatMessages.displayName = "ChatMessages";
-
