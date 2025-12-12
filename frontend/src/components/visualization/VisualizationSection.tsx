@@ -59,6 +59,13 @@ export const VisualizationSection = ({
     
     svgRef.current.innerHTML = svgContent;
     makeResponsive(svgRef.current);
+    
+    // Ensure SVG element itself has overflow-visible
+    const svgElement = svgRef.current.firstElementChild;
+    if (svgElement && svgElement instanceof SVGElement) {
+      (svgElement as SVGSVGElement).style.overflow = 'visible';
+    }
+    
     highlighting.setupTransformOrigins();
   }, [isOpen, svgContent, makeResponsive, highlighting.setupTransformOrigins]);
 
