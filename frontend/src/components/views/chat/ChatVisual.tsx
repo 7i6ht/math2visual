@@ -14,7 +14,7 @@ export const ChatVisual = memo(({ visual }: ChatVisualProps) => {
   const { t } = useTranslation();
   const svgRef = useRef<HTMLDivElement | null>(null);
   const previewRef = useRef<HTMLDivElement | null>(null);
-  const { makeResponsive } = useSVGResponsive();
+  const { makeResponsive, setupResizeListener } = useSVGResponsive();
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   useEffect(() => {
@@ -22,6 +22,11 @@ export const ChatVisual = memo(({ visual }: ChatVisualProps) => {
     svgRef.current.innerHTML = visual.svg;
     makeResponsive(svgRef.current, { align: "left" });
   }, [visual, makeResponsive]);
+
+  useEffect(() => {
+    if (!svgRef.current) return;
+    return setupResizeListener([svgRef], { align: "left" });
+  }, [setupResizeListener]);
 
   useEffect(() => {
     if (!isPreviewOpen || !previewRef.current || !visual.svg) return;
@@ -49,7 +54,7 @@ export const ChatVisual = memo(({ visual }: ChatVisualProps) => {
   }, [isPreviewOpen]);
 
   return (
-    <div className="mt-3 w-fit self-start rounded-lg border bg-card p-3 shadow-sm text-left">
+    <div className="mt-3 w-fit min-w-0 sm:min-w-[200px] md:min-w-[240px] lg:min-w-[280px] xl:min-w-[320px] 2xl:min-w-[360px] 3xl:min-w-[640px] 4xl:min-w-[800px] 5xl:min-w-[960px] 6xl:min-w-[1120px] 7xl:min-w-[1280px] max-w-full sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl 2xl:max-w-2xl 3xl:max-w-3xl 4xl:max-w-4xl 5xl:max-w-5xl 6xl:max-w-6xl 7xl:max-w-7xl self-start rounded-lg border bg-card p-3 sm:p-4 md:p-5 lg:p-6 xl:p-7 2xl:p-8 3xl:p-9 4xl:p-10 5xl:p-11 6xl:p-12 7xl:p-14 shadow-sm text-left">
       <div className="relative w-full overflow-hidden rounded-md border bg-white">
         {visual.svg && (
           <div className="absolute top-2 right-2 z-10 flex items-center gap-2">
