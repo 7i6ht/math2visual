@@ -83,20 +83,28 @@ export function useTutorSpeech({ t, messages }: UseTutorSpeechParams) {
       };
 
       utterance.onerror = (event) => {
+        const errName =
+          (event as SpeechSynthesisErrorEvent).error ||
+          // Fallback for browsers that don't provide the error field
+          (event as any)?.type;
+
+        // On intentional cancellation/interruption, just stop speaking state and keep
+        // lastSpokenTutorRef so we don't re-speak the same message.
+        if (errName === "canceled" || errName === "interrupted") {
+          if (utteranceRef.current === utterance) {
+            utteranceRef.current = null;
+            setSpeaking(false);
+            setSpeakingIndex(null);
+          }
+          return;
+        }
+
         if (utteranceRef.current === utterance) {
           utteranceRef.current = null;
           setSpeaking(false);
           setSpeakingIndex(null);
         }
         lastSpokenTutorRef.current = null;
-        const errName =
-          (event as SpeechSynthesisErrorEvent).error ||
-          // Fallback for browsers that don't provide the error field
-          (event as any)?.type;
-        // Suppress toasts for intentional/normal cancellations
-        if (errName === "canceled" || errName === "interrupted") {
-          return;
-        }
         toast.error(t("tutor.speechError"));
       };
 
