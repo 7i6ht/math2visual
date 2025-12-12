@@ -4033,10 +4033,13 @@ class IntuitiveVisualGenerator():
             }
         
             # Update SVG size
-            # Use consistent margin calculation for both identity and regular operations
-            # to ensure consistent sizing in the frontend
-            final_width = max_x + 2 * MARGIN
-            final_height = max_y + 2 * MARGIN + 50
+            # Keep symmetric padding for identity (no symbols) by matching right margin to start_x.
+            if draw_symbols:
+                final_width = max_x + 50
+                final_height = max_y + 50
+            else:
+                final_width = max_x + MARGIN
+                final_height = max_y + MARGIN + 50
             svg_root.attrib["width"] = str(final_width)
             svg_root.attrib["height"] = str(final_height)
 

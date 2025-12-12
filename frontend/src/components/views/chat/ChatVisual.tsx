@@ -49,7 +49,7 @@ export const ChatVisual = memo(({ visual }: ChatVisualProps) => {
   }, [isPreviewOpen]);
 
   return (
-    <div className="mt-3 rounded-lg border bg-card p-3 shadow-sm text-left">
+    <div className="mt-3 w-fit self-start rounded-lg border bg-card p-3 shadow-sm text-left">
       <div className="relative w-full overflow-hidden rounded-md border bg-white">
         {visual.svg && (
           <div className="absolute top-2 right-2 z-10 flex items-center gap-2">
