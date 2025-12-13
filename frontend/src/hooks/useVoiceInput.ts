@@ -10,13 +10,18 @@ type RecognitionEvent = {
   results?: Array<Array<RecognitionAlternative>>;
 };
 
+type RecognitionErrorEvent = {
+  error?: string;
+  message?: string;
+};
+
 type SpeechRecognitionInstance = {
   continuous: boolean;
   lang: string;
   interimResults: boolean;
   maxAlternatives: number;
   onresult: ((event: RecognitionEvent) => void) | null;
-  onerror: ((event: any) => void) | null;
+  onerror: ((event: RecognitionErrorEvent) => void) | null;
   onend: (() => void) | null;
   start: () => void;
   stop: () => void;
@@ -93,7 +98,7 @@ export function useVoiceInput({ t, onTranscript }: UseVoiceInputParams) {
 
       setListening(true);
       recognition.start();
-    } catch (error) {
+    } catch {
       setListening(false);
       toast.error(t("tutor.voiceError"));
     }
