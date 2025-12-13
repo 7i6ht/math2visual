@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import type { TFunction } from "i18next";
 import tutorService from "@/api_services/tutor";
@@ -16,21 +16,40 @@ type UseTutorSessionParams = {
   t: TFunction;
 };
 
+/**
+ * Detects if the message contains NEW_MWP token and extracts the MWP.
+ * Returns the extracted MWP if found, null otherwise.
+ */
+function extractNewMwp(message: string): string | null {
+  if (!message.trim().startsWith("NEW_MWP")) {
+    return null;
+  }
+  
+  // Look for MWP: pattern after NEW_MWP
+  const mwpMatch = message.match(/NEW_MWP\s*\n?\s*MWP:\s*(.+)/s);
+  if (mwpMatch && mwpMatch[1]) {
+    return mwpMatch[1].trim();
+  }
+  
+  return null;
+}
+
 export function useTutorSession({ t }: UseTutorSessionParams) {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [starting, setStarting] = useState(false);
-  const [sending, setSending] = useState(false);
   const [streaming, setStreaming] = useState(false);
   const streamCloserRef = useRef<null | (() => void)>(null);
   const streamingBufferRef = useRef<{ raw: string; clean: string }>({ raw: "", clean: "" });
 
   const isSessionActive = useMemo(() => !!sessionId, [sessionId]);
 
-  const startSession = async (mwp: string) => {
+  const startSession = useCallback(async (mwp: string) => {
     let started = false;
     try {
       setStarting(true);
+      // Reset streaming buffer
+      streamingBufferRef.current = { raw: "", clean: "" };
       const response = await tutorService.startSession(mwp.trim());
       setSessionId(response.session_id);
       setMessages([
@@ -45,7 +64,7 @@ export function useTutorSession({ t }: UseTutorSessionParams) {
       setStarting(false);
     }
     return started;
-  };
+  }, [t]);
 
   const stripVisualLanguage = (text: string): string => {
     // Remove visual_language lines
@@ -58,51 +77,97 @@ export function useTutorSession({ t }: UseTutorSessionParams) {
     return cleaned.trimEnd();
   };
 
-  const sendMessage = async (userMessage: string) => {
-    if (!sessionId) {
-      toast.error(t("tutor.sessionNotFound"));
-      return;
-    }
-    if (!userMessage.trim() || streaming) {
-      return;
-    }
-
-    const messageText = userMessage.trim();
-    setMessages((prev) => [...prev, { role: "student", content: messageText }]);
-
-    const tutorIndex = messages.length + 1;
-    setMessages((prev) => [...prev, { role: "tutor", content: "", streaming: true }]);
-
+  // Internal function to handle new MWP - starts new session while keeping existing messages
+  const handleNewMwpInternal = async (newMwp: string) => {
     setStreaming(true);
-    setSending(true);
-
+    
+    // Add placeholder tutor message with streaming indicator
+    setMessages((prev) => [
+      ...prev,
+      { role: "tutor" as const, content: "", streaming: true },
+    ]);
+    
+    // Start new session with streaming
     streamingBufferRef.current = { raw: "", clean: "" };
+    streamCloserRef.current = tutorService.startSessionStream(
+      newMwp.trim(),
+      createStreamingCallbacks({
+        setSessionIdOnDone: setSessionId,
+      })
+    );
+  };
 
-    streamCloserRef.current = tutorService.sendMessageStream(sessionId, messageText, {
-      onChunk: (delta) => {
+  /**
+   * Creates streaming callbacks for tutor responses.
+   * Handles chunk processing, message updates, and completion.
+   */
+  const createStreamingCallbacks = (
+    options: {
+      checkNewMwp?: boolean;
+      setSessionIdOnDone?: (sessionId: string) => void;
+      onNewMwpDetected?: (mwp: string) => void;
+    } = {}
+  ) => {
+    const { checkNewMwp = false, setSessionIdOnDone, onNewMwpDetected } = options;
+
+    return {
+      onChunk: (delta: string) => {
         streamingBufferRef.current.raw += delta || "";
+        
+        // Check if this is a NEW_MWP message - don't display it (only for regular messages)
+        if (checkNewMwp) {
+          const extractedMwp = extractNewMwp(streamingBufferRef.current.raw);
+          if (extractedMwp) {
+            // Don't update the message display for NEW_MWP messages
+            return;
+          }
+        }
+        
         const cleaned = stripVisualLanguage(streamingBufferRef.current.raw);
         streamingBufferRef.current.clean = cleaned;
+        
         setMessages((prev) => {
           const next = [...prev];
-          const idx = Math.min(tutorIndex, next.length - 1);
+          const idx = next.length - 1;
           if (idx >= 0 && next[idx]) {
             next[idx] = { ...next[idx], content: cleaned, streaming: true };
           }
           return next;
         });
       },
-      onDone: (data) => {
+      onDone: (data: { session_id: string; tutor_message: string; visual?: TutorVisual | null }) => {
         const bufferedClean = streamingBufferRef.current.clean;
+        const rawText = streamingBufferRef.current.raw || data.tutor_message || "";
+        
+        // Check if this message contains NEW_MWP (only for regular messages)
+        if (checkNewMwp && onNewMwpDetected) {
+          const extractedMwp = extractNewMwp(rawText);
+          if (extractedMwp) {
+            // Remove the tutor message from the chat (it was never displayed anyway)
+            setMessages((prev) => prev.slice(0, -1));
+            setStreaming(false);
+            streamingBufferRef.current = { raw: "", clean: "" };
+            
+            // Reset current session and start new one with extracted MWP
+            onNewMwpDetected(extractedMwp);
+            return;
+          }
+        }
+        
         const safeText = bufferedClean || stripVisualLanguage(data.tutor_message || "");
         const safeVisual =
           data.visual && data.visual.dsl_scope
             ? { ...data.visual, dsl_scope: undefined }
             : data.visual;
 
+        // Set session ID if callback provided (for new sessions)
+        if (setSessionIdOnDone) {
+          setSessionIdOnDone(data.session_id);
+        }
+
         setMessages((prev) => {
           const next = [...prev];
-          const idx = Math.min(tutorIndex, next.length - 1);
+          const idx = next.length - 1;
           if (idx >= 0 && next[idx]) {
             next[idx] = {
               role: "tutor",
@@ -114,21 +179,19 @@ export function useTutorSession({ t }: UseTutorSessionParams) {
           return next;
         });
         setStreaming(false);
-        setSending(false);
         streamingBufferRef.current = { raw: "", clean: "" };
       },
-      onError: (err) => {
+      onError: (err: Error) => {
         console.error(err);
         toast.error(t("tutor.streamingError"));
         setStreaming(false);
-        setSending(false);
         streamingBufferRef.current = { raw: "", clean: "" };
         setMessages((prev) => prev.slice(0, -1));
       },
-    });
+    };
   };
 
-  const resetSession = () => {
+  const resetSession = useCallback(() => {
     // Stop any ongoing stream
     if (streamCloserRef.current) {
       streamCloserRef.current();
@@ -138,16 +201,42 @@ export function useTutorSession({ t }: UseTutorSessionParams) {
     setSessionId(null);
     setMessages([]);
     setStarting(false);
-    setSending(false);
     setStreaming(false);
     streamingBufferRef.current = { raw: "", clean: "" };
-  };
+  }, []);
+
+  const sendMessage = useCallback(async (userMessage: string) => {
+    if (!sessionId) {
+      toast.error(t("tutor.sessionNotFound"));
+      return;
+    }
+    if (!userMessage.trim() || streaming) {
+      return;
+    }
+
+    const messageText = userMessage.trim();
+    setMessages((prev) => [...prev, { role: "student" as const, content: messageText }]);
+    setMessages((prev) => [...prev, { role: "tutor" as const, content: "", streaming: true }]);
+
+    setStreaming(true);
+
+    streamingBufferRef.current = { raw: "", clean: "" };
+
+    streamCloserRef.current = tutorService.sendMessageStream(
+      sessionId,
+      messageText,
+      createStreamingCallbacks({
+        checkNewMwp: true,
+        onNewMwpDetected: handleNewMwpInternal,
+      })
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionId, streaming, t]);
 
   return {
     sessionId,
     messages,
     starting,
-    sending,
     streaming,
     isSessionActive,
     startSession,

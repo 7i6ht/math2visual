@@ -1,4 +1,5 @@
 import json
+import uuid
 from typing import List, Dict
 from flask import Blueprint, request, jsonify
 from flask_babel import _, get_locale
@@ -13,6 +14,58 @@ from app.services.tutor.gemini_tutor import (
 from flask import Response, stream_with_context
 
 tutor_bp = Blueprint('tutor', __name__)
+
+
+def _create_tutor_stream_response(visual_language: str, history: List[Dict[str, str]], language: str, session_id: str = None):
+    """
+    Helper function to create a streaming response for tutor replies.
+    Used by both start/stream and message/stream endpoints.
+    """
+    def event_stream():
+        try:
+            visual_request = None
+            for chunk in _generate_tutor_reply_stream(visual_language, history, language):
+                if isinstance(chunk, dict) and chunk.get("__done__"):
+                    final_text = chunk.get("full_text", "")
+                    visual_request = chunk.get("visual_request")
+                    # Update history with visual request DSL if present
+                    tutor_entry = {"role": "tutor", "content": final_text}
+                    if visual_request:
+                        tutor_entry["visual_request"] = visual_request
+                    history.append(tutor_entry)
+                    
+                    # Update session if session_id provided
+                    if session_id:
+                        session = TUTOR_SESSIONS.get(session_id)
+                        if session:
+                            session["history"] = history[-MAX_HISTORY:]
+                        else:
+                            TUTOR_SESSIONS[session_id] = {
+                                "history": history,
+                                "visual_language": visual_language,
+                                "language": language,
+                            }
+                    
+                    # Render visual if requested
+                    visual = _render_visual_request(visual_request, visual_language, session_id=session_id)
+                    payload = {
+                        "type": "done",
+                        "session_id": session_id,
+                        "tutor_message": final_text,
+                        "visual": visual
+                    }
+                    yield f"data: {json.dumps(payload)}\n\n"
+                else:
+                    payload = {
+                        "type": "chunk",
+                        "delta": chunk
+                    }
+                    yield f"data: {json.dumps(payload)}\n\n"
+        except Exception as e:
+            err_payload = {"type": "error", "error": str(e)}
+            yield f"data: {json.dumps(err_payload)}\n\n"
+    
+    return event_stream
 
 
 def _render_visual_request(visual_request: dict, fallback_dsl: str, session_id: str = None):
@@ -99,6 +152,51 @@ def tutor_start():
     })
 
 
+@tutor_bp.route("/api/tutor/start/stream", methods=["POST"])
+def tutor_start_stream():
+    """
+    Start a tutoring session with streaming tutor response.
+    Generates visual language first, then streams the tutor conversation.
+    """
+    body = request.json or {}
+    mwp = (body.get("mwp") or "").strip()
+
+    if not mwp:
+        return jsonify({"error": _("Provide a math word problem (MWP).")}), 400
+
+    language = get_locale()
+
+    # Generate visual language via GPT backend
+    vl_response = generate_visual_language(mwp, None, None, language=language)
+    raw = extract_visual_language(vl_response)
+    if not raw:
+        return jsonify({"error": _("Did not get Visual Language from AI. Please try again.")}), 500
+    dsl = raw.split(":", 1)[1].strip() if raw.lower().startswith("visual_language:") else raw.strip()
+
+    # Create session and get initial history
+    session_id = str(uuid.uuid4())
+    history: List[Dict[str, str]] = [{"role": "student", "content": mwp}]
+    
+    event_stream = _create_tutor_stream_response(dsl, history, str(language), session_id=session_id)
+    
+    # Add visual_language to done payload for start endpoint
+    original_stream = event_stream
+    def enhanced_stream():
+        for event in original_stream():
+            if event.startswith("data: "):
+                try:
+                    payload = json.loads(event[6:])
+                    if payload.get("type") == "done":
+                        payload["visual_language"] = dsl
+                        yield f"data: {json.dumps(payload)}\n\n"
+                        continue
+                except:
+                    pass
+            yield event
+    
+    return Response(stream_with_context(enhanced_stream()), mimetype="text/event-stream")
+
+
 @tutor_bp.route("/api/tutor/message/stream", methods=["POST"])
 def tutor_message_stream():
     """
@@ -125,37 +223,7 @@ def tutor_message_stream():
     # Append user message to history before generation
     history.append({"role": "student", "content": user_message})
 
-    def event_stream():
-        try:
-            for chunk in _generate_tutor_reply_stream(visual_language, history, language):
-                if isinstance(chunk, dict) and chunk.get("__done__"):
-                    final_text = chunk.get("full_text", "")
-                    visual_request = chunk.get("visual_request")
-                    # Update history with visual request DSL if present
-                    tutor_entry = {"role": "tutor", "content": final_text}
-                    if visual_request:
-                        tutor_entry["visual_request"] = visual_request
-                    history.append(tutor_entry)
-                    session["history"] = history[-MAX_HISTORY:]
-                    # Render visual if requested
-                    visual = _render_visual_request(visual_request, visual_language, session_id=session_id)
-                    payload = {
-                        "type": "done",
-                        "session_id": session_id,
-                        "tutor_message": final_text,
-                        "visual": visual
-                    }
-                    yield f"data: {json.dumps(payload)}\n\n"
-                else:
-                    payload = {
-                        "type": "chunk",
-                        "delta": chunk
-                    }
-                    yield f"data: {json.dumps(payload)}\n\n"
-        except Exception as e:
-            err_payload = {"type": "error", "error": str(e)}
-            yield f"data: {json.dumps(err_payload)}\n\n"
-
+    event_stream = _create_tutor_stream_response(visual_language, history, language, session_id=session_id)
     return Response(stream_with_context(event_stream()), mimetype="text/event-stream")
 
 

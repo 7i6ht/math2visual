@@ -24,13 +24,15 @@ export function ChatView({ onBack }: Props) {
     sessionId,
     messages,
     starting,
-    sending,
     streaming,
     isSessionActive,
     startSession,
     sendMessage,
     resetSession,
-  } = useTutorSession({ t });
+  } = useTutorSession({ 
+    t
+  });
+
   const {
     speechEnabled,
     speechSupported,
@@ -145,7 +147,6 @@ export function ChatView({ onBack }: Props) {
                   onVoiceToggle={toggleVoice}
                   voiceSupported={voiceSupported}
                   listening={listening}
-                  sending={sending}
                   streaming={streaming}
                   t={t}
                 />

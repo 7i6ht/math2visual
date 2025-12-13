@@ -10,7 +10,6 @@ type ChatInputBarProps = {
   onVoiceToggle: () => void;
   voiceSupported: boolean;
   listening: boolean;
-  sending: boolean;
   streaming: boolean;
   t: TFunction;
 };
@@ -22,7 +21,6 @@ export const ChatInputBar = ({
   onVoiceToggle,
   voiceSupported,
   listening,
-  sending,
   streaming,
   t,
 }: ChatInputBarProps) => {
@@ -61,7 +59,7 @@ export const ChatInputBar = ({
           type="button"
           variant="ghost"
           onClick={onSend}
-          disabled={sending || streaming}
+          disabled={streaming}
           className="p-0 flex items-center justify-center rounded-full bg-black text-white hover:bg-black/90 hover:text-white shadow-sm"
           style={{
             width: "clamp(48px, 2.6vw, 88px)",
