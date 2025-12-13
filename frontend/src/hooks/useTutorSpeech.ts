@@ -82,11 +82,11 @@ export function useTutorSpeech({ t, messages }: UseTutorSpeechParams) {
         }
       };
 
-      utterance.onerror = (event) => {
+      utterance.onerror = (event: SpeechSynthesisErrorEvent) => {
         const errName =
-          (event as SpeechSynthesisErrorEvent).error ||
+          event.error ||
           // Fallback for browsers that don't provide the error field
-          (event as any)?.type;
+          event.type;
 
         // On intentional cancellation/interruption, just stop speaking state and keep
         // lastSpokenTutorRef so we don't re-speak the same message.
@@ -118,7 +118,7 @@ export function useTutorSpeech({ t, messages }: UseTutorSpeechParams) {
 
       utteranceRef.current = utterance;
       synth.speak(utterance);
-    } catch (error) {
+    } catch {
       utteranceRef.current = null;
       lastSpokenTutorRef.current = null;
       toast.error(t("tutor.speechError"));
