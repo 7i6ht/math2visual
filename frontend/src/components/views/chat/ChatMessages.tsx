@@ -101,7 +101,7 @@ export const ChatMessages = memo(({
   tutorSpeakingIndex,
 }: ChatMessagesProps) => {
   return (
-    <div className="flex-1 space-y-4 overflow-y-auto px-1 sm:px-1.5 md:px-2 lg:px-3 xl:px-4 2xl:px-5 3xl:px-6 4xl:px-8 5xl:px-10">
+    <div className="flex-1 space-y-4 overflow-y-auto px-1 sm:px-1.5 md:px-2 lg:px-3 xl:px-4 2xl:px-5 3xl:px-6 4xl:px-8 5xl:px-10 pt-4 pb-2">
       {messages.map((msg, idx) => (
         <ChatMessageItem
           key={idx}
