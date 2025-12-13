@@ -2471,10 +2471,16 @@ def _build_prompt(visual_language: str, history: List[Dict[str, str]], language:
         else:
             history_lines.append(f"{role}: {content}")
     history_text = "\n".join(history_lines)
+    
+    # Handle empty visual_language (for autostart sessions without MWP)
+    visual_language_section = ""
+    if visual_language and visual_language.strip():
+        visual_language_section = f"visual_language:\n{visual_language}\n\n"
+    
     prompt = (
         f"{SYSTEM_PROMPT}\n\n"
         f"Language: {language}\n"
-        f"visual_language:\n{visual_language}\n\n"
+        f"{visual_language_section}"
         "Conversation so far:\n"
         f"{history_text}\n"
         "Tutor:"
@@ -2547,7 +2553,6 @@ def start_tutor_session(mwp: str, visual_language: str, language: str = "en") ->
     TUTOR_SESSIONS[session_id] = {
         "history": history,
         "visual_language": visual_language,
-        "language": language,
     }
 
     return session_id, tutor_reply, visual_request

@@ -39,23 +39,34 @@ export function useTutorSession({ t }: UseTutorSessionParams) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [starting, setStarting] = useState(false);
   const [streaming, setStreaming] = useState(false);
+  const [hasDsl, setHasDsl] = useState(false); // Track if session has visual_language (DSL)
   const streamCloserRef = useRef<null | (() => void)>(null);
   const streamingBufferRef = useRef<{ raw: string; clean: string }>({ raw: "", clean: "" });
 
   const isSessionActive = useMemo(() => !!sessionId, [sessionId]);
 
-  const startSession = useCallback(async (mwp: string) => {
+  const startSession = useCallback(async (mwp: string | null = null) => {
     let started = false;
     try {
       setStarting(true);
       // Reset streaming buffer
       streamingBufferRef.current = { raw: "", clean: "" };
-      const response = await tutorService.startSession(mwp.trim());
+      const response = await tutorService.startSession(mwp ? mwp.trim() : null);
       setSessionId(response.session_id);
-      setMessages([
-        { role: "student", content: mwp.trim() },
-        { role: "tutor", content: response.tutor_message, visual: response.visual },
-      ]);
+      // Track if DSL exists (visual_language is non-empty)
+      setHasDsl(!!response.visual_language && response.visual_language.trim().length > 0);
+      if (mwp && response.tutor_message) {
+        // If MWP provided, show both student and tutor messages
+        setMessages([
+          { role: "student", content: mwp.trim() },
+          { role: "tutor", content: response.tutor_message, visual: response.visual },
+        ]);
+      } else {
+        // Autostart mode - show initial tutor message
+        setMessages([
+          { role: "tutor", content: t("tutor.initialMessage") },
+        ]);
+      }
       started = true;
     } catch (error) {
       const message = error instanceof Error ? error.message : t("errors.unexpectedError");
@@ -65,6 +76,21 @@ export function useTutorSession({ t }: UseTutorSessionParams) {
     }
     return started;
   }, [t]);
+
+  const generateDsl = useCallback(async (mwp: string) => {
+    if (!sessionId) {
+      return false;
+    }
+    try {
+      await tutorService.generateDsl(sessionId, mwp.trim());
+      setHasDsl(true); // Mark DSL as generated
+      return true;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : t("errors.unexpectedError");
+      toast.error(message);
+      return false;
+    }
+  }, [sessionId, t]);
 
   const stripVisualLanguage = (text: string): string => {
     // Remove visual_language lines
@@ -202,6 +228,7 @@ export function useTutorSession({ t }: UseTutorSessionParams) {
     setMessages([]);
     setStarting(false);
     setStreaming(false);
+    setHasDsl(false);
     streamingBufferRef.current = { raw: "", clean: "" };
   }, []);
 
@@ -239,9 +266,11 @@ export function useTutorSession({ t }: UseTutorSessionParams) {
     starting,
     streaming,
     isSessionActive,
+    hasDsl,
     startSession,
     sendMessage,
     resetSession,
+    generateDsl,
   };
 }
 

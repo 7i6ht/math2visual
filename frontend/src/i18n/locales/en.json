@@ -161,7 +161,8 @@
     "speechOn": "Read-aloud on",
     "speechOff": "Read-aloud off",
     "speechNotSupported": "Voice output not supported",
-    "speechError": "Could not read the answer aloud. Please try again."
+    "speechError": "Could not read the answer aloud. Please try again.",
+    "initialMessage": "Hello! I'm here to help you with your math word problems. Please share a problem you'd like to work on."
   }
 }
 

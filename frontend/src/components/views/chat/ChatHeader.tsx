@@ -4,6 +4,7 @@ import { Volume2, VolumeX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TextCancelButton } from "@/components/ui/text-cancel-button";
 import { ResponsiveLogo } from "@/components/ui/ResponsiveLogo";
+import { LanguageSelector } from "@/components/ui/language-selector";
 
 type ChatHeaderProps = {
   onBack?: () => void;
@@ -57,6 +58,7 @@ export const ChatHeader = memo(({
               <VolumeX className="responsive-icon-font-size" />
             )}
           </Button>
+          <LanguageSelector />
           <TextCancelButton
             onClick={onBack}
             label={t("common.close")}

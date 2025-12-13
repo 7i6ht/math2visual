@@ -74,7 +74,6 @@ frontend/
 │   │   │   ├── ChatView.tsx
 │   │   │   ├── InitialView.tsx
 │   │   │   ├── LandingPage.tsx
-│   │   │   ├── TutorSessionStarter.tsx
 │   │   │   ├── TwoColumnView.tsx
 │   │   │   └── chat/
 │   │   │       ├── ChatHeader.tsx
@@ -234,7 +233,7 @@ npx serve -s dist -l 3000
 
 1. **Choose your mode**
    - **Teacher mode (visual generation):** Generates formal/intuitive SVGs from MWPs or DSL. Entry via the main math problem form or regenerate/DSL forms; backed by `POST /api/generate` and SVG dataset endpoints.
-   - **Student mode (AI tutor):** Conversational tutor that guides a learner, streams responses, and can render scoped visuals. Entry via `ChatView`/`TutorSessionStarter`; backed by `POST /api/tutor/start` and `GET /api/tutor/message/stream`.
+   - **Student mode (AI tutor):** Conversational tutor that guides a learner, streams responses, and can render scoped visuals. Entry via `ChatView`; backed by `POST /api/tutor/start` and `POST /api/tutor/message/stream`.
 
 2. **Teacher mode: Visual generation**
    - Enter a Math Word Problem in the main text area.
@@ -342,7 +341,8 @@ All endpoints are relative to `BACKEND_API_URL` from `src/config/api.ts`.
 
 - **Generation**: `POST /api/generate` — create visualizations from MWPs or DSL.
 - **Tutor (Gemini)**:
-  - `POST /api/tutor/start` — initialize a tutor session with DSL + first turn.
+  - `POST /api/tutor/start` — initialize a tutor session with DSL + first turn (non-streaming). Used for autostarting sessions (when `mwp` is `null`) and regular session starts. Accepts `{ "mwp": "..." }` or `{ "mwp": null }`. Returns JSON with `session_id`, `tutor_message`, `visual_language`, and optional `visual`.
+  - `POST /api/tutor/start/stream` — initialize a tutor session with streaming tutor response (Server-Sent Events). Accepts `{ "mwp": "..." }`. Returns SSE stream with `chunk` and `done` events. The `done` event includes `session_id`, `tutor_message`, `visual_language`, and optional `visual`. **Note**: This streaming endpoint is NOT used for autostarting (when `mwp` is `null`); autostart uses the non-streaming `POST /api/tutor/start` endpoint instead. While the backend technically supports `null`/empty `mwp`, the frontend always provides an MWP string when calling this endpoint.
   - `POST /api/tutor/message/stream` — streaming tutor replies (SSE-style over POST) with JSON body `{ "session_id": "...", "message": "..." }`, returning `chunk` and `done` events.
 - **SVG Dataset**:
   - `POST /api/svg-dataset/generate` — AI-generate a temporary SVG icon.

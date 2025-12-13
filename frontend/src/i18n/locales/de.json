@@ -161,7 +161,8 @@
     "speechOn": "Vorlesen an",
     "speechOff": "Vorlesen aus",
     "speechNotSupported": "Sprachausgabe nicht unterstützt",
-    "speechError": "Sprachausgabe fehlgeschlagen. Bitte erneut versuchen."
+    "speechError": "Sprachausgabe fehlgeschlagen. Bitte erneut versuchen.",
+    "initialMessage": "Hallo! Ich bin hier, um dir bei deinen Mathe-Textaufgaben zu helfen. Bitte teile ein Problem mit, an dem du arbeiten möchtest."
   }
 }
 

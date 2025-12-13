@@ -12,6 +12,7 @@ type ChatInputBarProps = {
   listening: boolean;
   streaming: boolean;
   t: TFunction;
+  placeholder?: string;
 };
 
 export const ChatInputBar = ({
@@ -23,16 +24,17 @@ export const ChatInputBar = ({
   listening,
   streaming,
   t,
+  placeholder,
 }: ChatInputBarProps) => {
   return (
     <div className="relative rounded-md border bg-white shadow-sm">
       <Textarea
         value={input}
         onChange={(e) => onInputChange(e.target.value)}
-        placeholder={t("tutor.sendPlaceholder")}
+        placeholder={placeholder ?? t("tutor.sendPlaceholder")}
         spellCheck={false}
-        rows={1}
-        className="w-full responsive-text-font-size border-0 bg-transparent p-3 pr-32 sm:pr-40 lg:pr-48 xl:pr-56 shadow-none resize-none !min-h-0"
+        rows={2.5}
+        className="w-full responsive-text-font-size border-0 bg-transparent p-3 pr-32 sm:pr-40 lg:pr-48 xl:pr-56 shadow-none resize-none"
         onKeyDown={(e) => {
           if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
@@ -40,7 +42,7 @@ export const ChatInputBar = ({
           }
         }}
       />
-      <div className="absolute top-1/2 -translate-y-1/2 right-3 sm:right-4 md:right-5 flex items-center gap-0.5 sm:gap-0.5 md:gap-0.5 lg:gap-1 xl:gap-2 2xl:gap-4 3xl:gap-6 4xl:gap-8 5xl:gap-12 6xl:gap-14">
+      <div className="absolute bottom-3 sm:bottom-4 right-3 sm:right-4 md:right-5 flex items-center gap-0.5 sm:gap-0.5 md:gap-0.5 lg:gap-1 xl:gap-2 2xl:gap-4 3xl:gap-6 4xl:gap-8 5xl:gap-12 6xl:gap-14">
         <Button
           type="button"
           variant="ghost"

@@ -43,7 +43,6 @@ def _create_tutor_stream_response(visual_language: str, history: List[Dict[str, 
                             TUTOR_SESSIONS[session_id] = {
                                 "history": history,
                                 "visual_language": visual_language,
-                                "language": language,
                             }
                     
                     # Render visual if requested
@@ -124,15 +123,28 @@ def _render_visual_request(visual_request: dict, fallback_dsl: str, session_id: 
 def tutor_start():
     """
     Start a tutoring session for a math word problem.
-    Generates visual language first, then initializes the tutor conversation.
+    If MWP is provided, generates visual language first, then initializes the tutor conversation.
+    If MWP is null/empty, creates a session without DSL generation (for autostart).
     """
     body = request.json or {}
     mwp = (body.get("mwp") or "").strip()
-
-    if not mwp:
-        return jsonify({"error": _("Provide a math word problem (MWP).")}), 400
-
     language = get_locale()
+
+    # If no MWP provided, create session without DSL (autostart mode)
+    if not mwp:
+        session_id = str(uuid.uuid4())
+        empty_dsl = ""
+        # Create session with empty history and empty visual_language
+        TUTOR_SESSIONS[session_id] = {
+            "history": [],
+            "visual_language": empty_dsl,
+        }
+        return jsonify({
+            "session_id": session_id,
+            "tutor_message": "",
+            "visual_language": empty_dsl,
+            "visual": None
+        })
 
     # Generate visual language via GPT backend
     vl_response = generate_visual_language(mwp, None, None, language=language)
@@ -156,15 +168,26 @@ def tutor_start():
 def tutor_start_stream():
     """
     Start a tutoring session with streaming tutor response.
-    Generates visual language first, then streams the tutor conversation.
+    If MWP is provided, generates visual language first, then streams the tutor conversation.
+    If MWP is null/empty, creates a session without DSL generation (for autostart).
     """
     body = request.json or {}
     mwp = (body.get("mwp") or "").strip()
-
-    if not mwp:
-        return jsonify({"error": _("Provide a math word problem (MWP).")}), 400
-
     language = get_locale()
+
+    # If no MWP provided, create session without DSL (autostart mode)
+    if not mwp:
+        session_id = str(uuid.uuid4())
+        empty_dsl = ""
+        history: List[Dict[str, str]] = []
+        TUTOR_SESSIONS[session_id] = {
+            "history": history,
+            "visual_language": empty_dsl,
+        }
+        # Return empty response for autostart
+        def empty_stream():
+            yield f"data: {json.dumps({'type': 'done', 'session_id': session_id, 'tutor_message': '', 'visual_language': empty_dsl, 'visual': None})}\n\n"
+        return Response(stream_with_context(empty_stream()), mimetype="text/event-stream")
 
     # Generate visual language via GPT backend
     vl_response = generate_visual_language(mwp, None, None, language=language)
@@ -197,6 +220,44 @@ def tutor_start_stream():
     return Response(stream_with_context(enhanced_stream()), mimetype="text/event-stream")
 
 
+@tutor_bp.route("/api/tutor/generate-dsl", methods=["POST"])
+def tutor_generate_dsl():
+    """
+    Generate DSL for an existing session based on a message (typically the MWP).
+    Updates the session's visual_language.
+    """
+    body = request.json or {}
+    session_id = (body.get("session_id") or "").strip()
+    mwp = (body.get("mwp") or "").strip()
+
+    if not session_id:
+        return jsonify({"error": _("Missing session id.")}), 400
+    if not mwp:
+        return jsonify({"error": _("Provide a math word problem (MWP).")}), 400
+
+    session = TUTOR_SESSIONS.get(session_id)
+    if not session:
+        return jsonify({"error": _("Session not found or expired.")}), 404
+
+    # Always use language from request header
+    language = str(get_locale())
+
+    # Generate visual language via GPT backend
+    vl_response = generate_visual_language(mwp, None, None, language=language)
+    raw = extract_visual_language(vl_response)
+    if not raw:
+        return jsonify({"error": _("Did not get Visual Language from AI. Please try again.")}), 500
+    dsl = raw.split(":", 1)[1].strip() if raw.lower().startswith("visual_language:") else raw.strip()
+
+    # Update session with new visual_language
+    session["visual_language"] = dsl
+
+    return jsonify({
+        "session_id": session_id,
+        "visual_language": dsl
+    })
+
+
 @tutor_bp.route("/api/tutor/message/stream", methods=["POST"])
 def tutor_message_stream():
     """
@@ -217,7 +278,8 @@ def tutor_message_stream():
         return jsonify({"error": _("Session not found or expired.")}), 404
 
     visual_language = session["visual_language"]
-    language = session.get("language", "en")
+    # Always use language from request header
+    language = str(get_locale())
     history: List[Dict[str, str]] = session["history"]
 
     # Append user message to history before generation

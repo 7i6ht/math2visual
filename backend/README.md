@@ -550,6 +550,41 @@ Start a tutoring session (generates DSL first).
 }
 ```
 
+#### `POST /api/tutor/start/stream`
+Start a tutoring session with a new math word problem using streaming tutor response (Server-Sent Events).
+Generates visual language (DSL) from the MWP first, then streams the tutor's initial response.
+
+**Request Body:**
+```json
+{
+  "mwp": "Janet has 9 oranges and Sharon has 7 oranges. How many oranges do they have together?"
+}
+```
+
+**Stream Payloads:**
+- Chunk: `data: {"type":"chunk","delta":"..."}`
+- Final: `data: {"type":"done","session_id":"...","tutor_message":"...","visual_language":"...","visual":{...}}`
+- Error: `data: {"type":"error","error":"..."}`
+
+**Response Format:**
+Server-Sent Events (SSE) stream with `Content-Type: text/event-stream`
+
+**Example Stream:**
+```
+data: {"type":"chunk","delta":"Hi! "}
+data: {"type":"chunk","delta":"Let's "}
+data: {"type":"chunk","delta":"work "}
+data: {"type":"chunk","delta":"through "}
+data: {"type":"chunk","delta":"this "}
+data: {"type":"chunk","delta":"together..."}
+data: {"type":"done","session_id":"9ad3c7a9-...","tutor_message":"Hi! Let's work through this together...","visual_language":"addition(...)","visual":{"variant":"intuitive","svg":"<svg>...</svg>","error":null,"is_parse_error":false,"dsl_scope":"addition(...)"}}
+```
+
+**Notes:**
+- If MWP is provided, generates visual language first, then streams the tutor conversation
+- The final `done` payload includes `visual_language` field (unlike `/api/tutor/message/stream`)
+- The `visual` field in the done payload contains the rendered visualization if a visual request was generated
+
 #### `POST /api/tutor/message/stream`
 Stream a tutoring reply (Server-Sent Events over a POST request).
 

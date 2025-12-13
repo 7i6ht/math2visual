@@ -4,7 +4,6 @@ import { toast } from "sonner";
 import { useTutorSession } from "@/hooks/useTutorSession";
 import { useTutorSpeech } from "@/hooks/useTutorSpeech";
 import { useVoiceInput } from "@/hooks/useVoiceInput";
-import { TutorSessionStarter } from "./TutorSessionStarter";
 import { ChatHeader } from "./chat/ChatHeader";
 import { ChatMessages } from "./chat/ChatMessages";
 import { ChatInputBar } from "./chat/ChatInputBar";
@@ -15,9 +14,7 @@ type Props = {
 
 export function ChatView({ onBack }: Props) {
   const { t } = useTranslation();
-  const [mwp, setMwp] = useState("");
   const [input, setInput] = useState("");
-  const [mwpError, setMwpError] = useState<string | null>(null);
   const chatEndRef = useRef<HTMLDivElement | null>(null);
 
   const {
@@ -52,6 +49,13 @@ export function ChatView({ onBack }: Props) {
       setInput((prev) => (prev ? `${prev}\n${transcript}` : transcript)),
   });
 
+  // Auto-start session with null MWP when component mounts
+  useEffect(() => {
+    if (!isSessionActive && !starting) {
+      startSession(null);
+    }
+  }, [isSessionActive, starting, startSession]);
+
   // Interrupt tutor speech when student starts recording
   useEffect(() => {
     if (listening && speaking) {
@@ -59,24 +63,13 @@ export function ChatView({ onBack }: Props) {
     }
   }, [listening, speaking, stopSpeech]);
 
-  const handleStart = async () => {
-    if (!mwp.trim()) {
-      setMwpError(t("forms.mwpRequired"));
+  const handleSend = () => {
+    if (!input.trim() || streaming || starting) {
       return;
     }
-    setMwpError(null);
-    const started = await startSession(mwp.trim());
-    if (started) {
-      setInput("");
-    }
-  };
 
-  const handleSend = () => {
     if (!sessionId) {
       toast.error(t("tutor.sessionNotFound"));
-      return;
-    }
-    if (!input.trim() || streaming) {
       return;
     }
 
@@ -91,16 +84,12 @@ export function ChatView({ onBack }: Props) {
   };
 
   const handleClose = useCallback(() => {
+    // Reset session if active to clean up
     if (isSessionActive) {
-      // If there's an active session, reset it to show TutorSessionStarter
       resetSession();
-      setMwp("");
-      setInput("");
-      setMwpError(null);
-    } else {
-      // If no active session, call the onBack prop to go back to landing page
-      onBack?.();
     }
+    // Always redirect to landing page
+    onBack?.();
   }, [isSessionActive, resetSession, onBack]);
 
   return (
@@ -114,51 +103,35 @@ export function ChatView({ onBack }: Props) {
       />
 
       <div className="flex-1 overflow-hidden">
-        {!isSessionActive && (
-          <TutorSessionStarter
-            mwp={mwp}
-            onMwpChange={(value) => {
-              setMwp(value);
-              if (mwpError && value.trim()) {
-                setMwpError(null);
-              }
-            }}
-            onStart={handleStart}
-            starting={starting}
-            errorText={mwpError}
-          />
-        )}
+        <div className="grid gap-4 h-full">
+          <div className="rounded-lg border bg-card pb-1 pl-1 pr-1 shadow-sm min-h-[320px] flex flex-col overflow-hidden h-full">
+            <ChatMessages
+              messages={messages}
+              chatEndRef={chatEndRef}
+              tutorSpeaking={speaking}
+              tutorSpeakingIndex={speakingIndex}
+            />
 
-        {isSessionActive && (
-          <div className="grid gap-4 h-full">
-            <div className="rounded-lg border bg-card pb-1 pl-1 pr-1 shadow-sm min-h-[320px] flex flex-col overflow-hidden h-full">
-              <ChatMessages
-                messages={messages}
-                chatEndRef={chatEndRef}
-                tutorSpeaking={speaking}
-                tutorSpeakingIndex={speakingIndex}
+            <div className="flex-shrink-0">
+              <ChatInputBar
+                input={input}
+                onInputChange={setInput}
+                onSend={handleSend}
+                onVoiceToggle={toggleVoice}
+                voiceSupported={voiceSupported}
+                listening={listening}
+                streaming={streaming || starting}
+                t={t}
+                placeholder={t("tutor.sendPlaceholder")}
               />
-
-              <div className="flex-shrink-0">
-                <ChatInputBar
-                  input={input}
-                  onInputChange={setInput}
-                  onSend={handleSend}
-                  onVoiceToggle={toggleVoice}
-                  voiceSupported={voiceSupported}
-                  listening={listening}
-                  streaming={streaming}
-                  t={t}
-                />
-                {!voiceSupported && (
-                  <div className="mt-2 responsive-text-font-size text-muted-foreground">
-                    {t("tutor.voiceNotSupported")}
-                  </div>
-                )}
-              </div>
+              {!voiceSupported && (
+                <div className="mt-2 responsive-text-font-size text-muted-foreground">
+                  {t("tutor.voiceNotSupported")}
+                </div>
+              )}
             </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
