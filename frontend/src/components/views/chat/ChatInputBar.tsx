@@ -33,8 +33,8 @@ export const ChatInputBar = ({
         onChange={(e) => onInputChange(e.target.value)}
         placeholder={placeholder ?? t("tutor.sendPlaceholder")}
         spellCheck={false}
-        rows={2.5}
-        className="w-full responsive-text-font-size border-0 bg-transparent p-3 pr-32 sm:pr-40 lg:pr-48 xl:pr-56 shadow-none resize-none"
+        rows={2}
+        className="w-full responsive-text-font-size border-0 bg-transparent p-3 pr-24 sm:pr-28 md:pr-32 lg:pr-36 xl:pr-40 2xl:pr-44 3xl:pr-48 4xl:pr-52 5xl:pr-56 6xl:pr-60 shadow-none resize-none"
         onKeyDown={(e) => {
           if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
