@@ -155,7 +155,6 @@
     "visualClosePreview": "Großansicht schließen",
     "voiceStart": "Spracheingabe",
     "voiceStop": "Stopp",
-    "voiceNotSupported": "Spracheingabe nicht unterstützt",
     "voiceError": "Spracheingabe fehlgeschlagen. Bitte erneut versuchen.",
     "streamingError": "Streaming fehlgeschlagen. Bitte erneut versuchen.",
     "speechOn": "Vorlesen an",

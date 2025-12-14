@@ -155,7 +155,6 @@
     "visualClosePreview": "Close visualization preview",
     "voiceStart": "Voice input",
     "voiceStop": "Stop",
-    "voiceNotSupported": "Voice input not supported",
     "voiceError": "Voice input failed. Please try again.",
     "streamingError": "Streaming failed. Please try again.",
     "speechOn": "Read-aloud on",
