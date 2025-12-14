@@ -58,12 +58,6 @@ export function useVoiceInput({ t, onTranscript }: UseVoiceInputParams) {
   }, []);
 
   const toggleVoice = () => {
-    const SpeechRecognition = getSpeechRecognition();
-    if (!SpeechRecognition) {
-      toast.error(t("tutor.voiceNotSupported"));
-      return;
-    }
-
     if (listening) {
       const recognitionInstance = (window as SpeechRecognitionWindow).__m2vRecognitionInstance;
       if (recognitionInstance) {
@@ -71,6 +65,9 @@ export function useVoiceInput({ t, onTranscript }: UseVoiceInputParams) {
       }
       return;
     }
+
+    const SpeechRecognition = getSpeechRecognition()!;
+    // Button is only shown when voiceSupported is true, so SpeechRecognition exists
 
     try {
       const recognition = new SpeechRecognition();
