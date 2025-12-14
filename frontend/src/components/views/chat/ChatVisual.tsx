@@ -14,28 +14,44 @@ type ChatVisualProps = {
 export const ChatVisual = memo(({ visual }: ChatVisualProps) => {
   const { t } = useTranslation();
   const svgRef = useRef<HTMLDivElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const { makeResponsive } = useSVGResponsive();
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   useEffect(() => {
     if (!svgRef.current || !visual.svg) return;
     svgRef.current.innerHTML = visual.svg;
-    makeResponsive(svgRef.current, { align: "center", maxHeight: Math.round(window.innerHeight * 0.8) });
+    // Calculate height based on container's actual available space
+    if (containerRef.current) {
+      const containerHeight = containerRef.current.clientHeight;
+      makeResponsive(svgRef.current, { align: "left", maxHeight: containerHeight });
+      // Make SVG fill the container height
+      const svg = svgRef.current.firstElementChild;
+      if (svg instanceof SVGSVGElement) {
+        svg.style.height = '100%';
+      }
+    }
   }, [visual, makeResponsive]);
 
   useEffect(() => {
-    if (!svgRef.current) return;
+    if (!svgRef.current || !containerRef.current) return;
     
-    // Custom resize handler that recalculates 80vh on each resize
+    // Custom resize handler that uses container's actual height
     const handleResize = () => {
-      if (svgRef.current) {
-        makeResponsive(svgRef.current, { align: "center", maxHeight: Math.round(window.innerHeight * 0.8) });
+      if (svgRef.current && containerRef.current) {
+        const containerHeight = containerRef.current.clientHeight;
+        makeResponsive(svgRef.current, { align: "left", maxHeight: containerHeight });
+        // Make SVG fill the container height
+        const svg = svgRef.current.firstElementChild;
+        if (svg instanceof SVGSVGElement) {
+          svg.style.height = '100%';
+        }
       }
     };
     
     // Setup ResizeObserver for container resize
     const observer = new ResizeObserver(handleResize);
-    observer.observe(svgRef.current);
+    observer.observe(containerRef.current);
     
     // Also listen to window resize
     window.addEventListener('resize', handleResize);
@@ -48,35 +64,33 @@ export const ChatVisual = memo(({ visual }: ChatVisualProps) => {
 
   return (
     <>
-      <div className="mt-3 w-full min-w-0 sm:min-w-[200px] md:min-w-[240px] lg:min-w-[280px] xl:min-w-[320px] 2xl:min-w-[360px] 3xl:min-w-[640px] 4xl:min-w-[800px] 5xl:min-w-[960px] 6xl:min-w-[1120px] 7xl:min-w-[1280px] self-center rounded-lg border bg-card p-3 sm:p-4 md:p-5 lg:p-6 xl:p-7 2xl:p-8 3xl:p-9 4xl:p-10 5xl:p-11 6xl:p-12 7xl:p-14 shadow-sm text-center">
-        <div className="relative w-full overflow-hidden rounded-md border bg-white">
-          {visual.svg && (
-            <div className="absolute top-2 right-2 z-10 flex items-center gap-2">
-              <DownloadButton
-                svgContent={visual.svg ?? null}
-                type={visual.variant}
-                title={
-                  visual.variant === "formal"
-                    ? t("visualization.formalVisualization")
-                    : t("visualization.intuitiveVisualization")
-                }
-              />
-              <Button
-                variant="ghost"
-                size="content"
-                className="p-2 h-auto w-10 sm:w-12 md:w-14 lg:w-16 xl:w-18 2xl:w-20 3xl:w-22 4xl:w-24 5xl:w-26 6xl:w-28 7xl:w-30 rounded-md"
-                aria-label={t("tutor.visualOpenLarge")}
-                onClick={(event) => {
-                  event.stopPropagation();
-                  setIsPreviewOpen(true);
-                }}
-              >
-                <Maximize2 className="responsive-smaller-icon-font-size" aria-hidden="true" />
-              </Button>
-            </div>
-          )}
-          <div ref={svgRef} className="w-full" />
-        </div>
+      <div ref={containerRef} className="relative mt-3 w-fit h-[70vh] rounded-lg border bg-card p-2 sm:p-3 md:p-4 shadow-sm overflow-hidden flex flex-col">
+        {visual.svg && (
+          <div className="absolute top-2 right-2 z-10 flex items-center gap-2">
+            <DownloadButton
+              svgContent={visual.svg ?? null}
+              type={visual.variant}
+              title={
+                visual.variant === "formal"
+                  ? t("visualization.formalVisualization")
+                  : t("visualization.intuitiveVisualization")
+              }
+            />
+            <Button
+              variant="ghost"
+              size="content"
+              className="p-2 h-auto w-10 sm:w-12 md:w-14 lg:w-16 xl:w-18 2xl:w-20 3xl:w-22 4xl:w-24 5xl:w-26 6xl:w-28 7xl:w-30 rounded-md"
+              aria-label={t("tutor.visualOpenLarge")}
+              onClick={(event) => {
+                event.stopPropagation();
+                setIsPreviewOpen(true);
+              }}
+            >
+              <Maximize2 className="responsive-smaller-icon-font-size" aria-hidden="true" />
+            </Button>
+          </div>
+        )}
+        <div ref={svgRef} className="w-full h-full flex-1 min-h-0" />
       </div>
 
       {isPreviewOpen && (
