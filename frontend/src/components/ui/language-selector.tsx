@@ -20,11 +20,11 @@ export const LanguageSelector: React.FC = () => {
         <Button
           variant="outline"
           size="content"
-          className="gap-1.5 sm:gap-2 h-8 sm:h-8 md:h-9 lg:h-10 xl:h-12 2xl:h-14 3xl:h-16 4xl:h-20 5xl:h-24 6xl:h-28 7xl:h-32 px-2 sm:px-2.5 md:px-4 lg:px-6 xl:px-8 2xl:px-10 3xl:px-12 4xl:px-16 5xl:px-20 6xl:px-24 7xl:px-28 py-1.5 sm:py-2 md:py-2.5 lg:py-3 xl:py-4 2xl:py-5 3xl:py-6 4xl:py-8 5xl:py-10 6xl:py-12 7xl:py-14 rounded-md min-w-[fit-content] sm:min-w-[6rem] md:min-w-[7rem] lg:min-w-[8rem] !responsive-text-font-size"
+          className="gap-1.5 sm:gap-2 h-8 sm:h-8 md:h-9 lg:h-10 xl:h-12 2xl:h-14 3xl:h-16 4xl:h-20 5xl:h-24 6xl:h-28 7xl:h-32 px-2 sm:px-2.5 md:px-4 lg:px-6 xl:px-8 2xl:px-10 3xl:px-12 4xl:px-16 5xl:px-20 6xl:px-24 7xl:px-28 py-1.5 sm:py-2 md:py-2.5 lg:py-3 xl:py-4 2xl:py-5 3xl:py-6 4xl:py-8 5xl:py-10 6xl:py-12 7xl:py-14 rounded-md min-w-[5.5rem] sm:min-w-[6rem] md:min-w-[7rem] lg:min-w-[8rem] !responsive-text-font-size"
           aria-label={t('language.select')}
         >
           <Languages className="responsive-smaller-icon-font-size" />
-          <span className="hidden sm:inline !responsive-text-font-size">
+          <span className="inline !responsive-text-font-size">
             {availableLanguages.find(lang => lang.code === language)?.name || 'English'}
           </span>
         </Button>
@@ -33,7 +33,7 @@ export const LanguageSelector: React.FC = () => {
         align="end"
         sideOffset={0}
         alignOffset={0}
-        className="w-auto min-w-[5.5rem] sm:!w-[var(--radix-dropdown-menu-trigger-width)] sm:!min-w-[var(--radix-dropdown-menu-trigger-width)] sm:!max-w-[var(--radix-dropdown-menu-trigger-width)] max-w-[90vw] overflow-visible p-1 md:p-1.5 lg:p-2"
+        className="w-[var(--radix-dropdown-menu-trigger-width)] min-w-[var(--radix-dropdown-menu-trigger-width)] max-w-[var(--radix-dropdown-menu-trigger-width)] max-w-[90vw] overflow-visible p-1 md:p-1.5 lg:p-2"
       >
         {availableLanguages.map((lang) => (
           <DropdownMenuItem
