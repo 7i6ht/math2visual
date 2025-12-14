@@ -38,7 +38,7 @@ export function AppLayout() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-muted/30">
       {!selectedRole && <LandingPage onRoleSelect={handleRoleSelect} />}
-      {selectedRole === "student" && <ChatView onBack={() => setSelectedRole(null)} />}
+      {selectedRole === "student" && <ChatView />}
       {selectedRole === "teacher" && (
         appState.hasCompletedGeneration ? (
           <TwoColumnView appState={appState} />

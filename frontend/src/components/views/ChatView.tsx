@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { useTutorSession } from "@/hooks/useTutorSession";
@@ -8,11 +8,7 @@ import { ChatHeader } from "./chat/ChatHeader";
 import { ChatMessages } from "./chat/ChatMessages";
 import { ChatInputBar } from "./chat/ChatInputBar";
 
-type Props = {
-  onBack?: () => void;
-};
-
-export function ChatView({ onBack }: Props) {
+export function ChatView() {
   const { t } = useTranslation();
   const [input, setInput] = useState("");
   const chatEndRef = useRef<HTMLDivElement | null>(null);
@@ -25,7 +21,6 @@ export function ChatView({ onBack }: Props) {
     isSessionActive,
     startSession,
     sendMessage,
-    resetSession,
   } = useTutorSession({ 
     t
   });
@@ -83,19 +78,9 @@ export function ChatView({ onBack }: Props) {
     sendMessage(userMessage);
   };
 
-  const handleClose = useCallback(() => {
-    // Reset session if active to clean up
-    if (isSessionActive) {
-      resetSession();
-    }
-    // Always redirect to landing page
-    onBack?.();
-  }, [isSessionActive, resetSession, onBack]);
-
   return (
     <div className="w-full h-screen overflow-hidden flex flex-col px-3 py-1 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 3xl:px-20 4xl:px-24 5xl:px-32">
       <ChatHeader
-        onBack={handleClose}
         t={t}
         speechEnabled={speechEnabled}
         speechSupported={speechSupported}
