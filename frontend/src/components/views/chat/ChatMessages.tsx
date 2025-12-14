@@ -51,7 +51,7 @@ const ChatMessageItem = memo(
       )}
       <div className={`flex flex-col ${contentAlign} space-y-2`}>
         <div
-          className={`inline-block rounded-lg px-3 py-2 max-w-[85%] ${
+          className={`inline-block rounded-lg pl-3 pr-4 py-2 max-w-[85%] ${
             isStudent ? "bg-primary text-primary-foreground" : "bg-muted text-foreground"
           } animate-in fade-in-0 ${slide} duration-200`}
         >
@@ -59,7 +59,7 @@ const ChatMessageItem = memo(
             <span>{msg.content}</span>
           </div>
             {msg.streaming && (
-              <div className="flex items-center justify-start gap-1 mt-2">
+              <div className="flex items-center justify-start gap-1 mt-2 pr-1">
                 <span
                   className="h-2 w-2 aspect-square rounded-full bg-current animate-bounce flex-shrink-0 block"
                   style={{ animationDelay: "0ms" }}
