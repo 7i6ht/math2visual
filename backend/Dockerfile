@@ -14,6 +14,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libmagic1 \
     libxml2-dev \
     libxslt1-dev \
+    pkg-config \
+    cmake \
     && rm -rf /var/lib/apt/lists/*
 
 # Create app user for security
