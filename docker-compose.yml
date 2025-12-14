@@ -1,6 +1,7 @@
 services:
   app:
     build: .
+    image: math2visual:latest
     container_name: math2visual
     ports:
       - "80:80"
