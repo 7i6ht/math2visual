@@ -19,8 +19,8 @@ export const LanguageSelector: React.FC = () => {
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
-          size="sm"
-          className="gap-1.5 sm:gap-2 !responsive-text-font-size"
+          size="sm:size-sm md:size-default lg:size-lg xl:size-xl 2xl:size-2xl 3xl:size-3xl 4xl:size-4xl 5xl:size-5xl 6xl:size-6xl 7xl:size-7xl"
+          className="gap-1.5 sm:gap-2 px-2 sm:px-2.5 md:px-3 lg:px-3.5 xl:px-4 2xl:px-4.5 3xl:px-5 4xl:px-5.5 5xl:px-6 py-1.5 sm:py-2 md:py-2.5 lg:py-3 xl:py-3.5 2xl:py-4 3xl:py-4.5 4xl:py-5 5xl:py-5.5 !responsive-text-font-size"
           aria-label={t('language.select')}
         >
           <Languages className="responsive-smaller-icon-font-size" />
