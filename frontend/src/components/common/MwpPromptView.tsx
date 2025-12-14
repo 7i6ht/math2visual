@@ -58,12 +58,12 @@ export const MwpPromptView = ({
     },
   });
 
-  const micButton = (
+  const micButton = voiceSupported ? (
     <Button
       type="button"
       variant="ghost"
       onClick={toggleVoice}
-      disabled={!voiceSupported || loading}
+      disabled={loading}
       className="h-11 w-11 sm:h-12 sm:w-12 lg:h-13 lg:w-13 xl:h-15 xl:w-15 p-0 flex items-center justify-center rounded-full"
       aria-label={listening ? t("tutor.voiceStop") : t("tutor.voiceStart")}
     >
@@ -73,7 +73,7 @@ export const MwpPromptView = ({
         <Mic className="responsive-icon-font-size" />
       )}
     </Button>
-  );
+  ) : undefined;
 
   const content = (
     <HeroShell
@@ -93,12 +93,6 @@ export const MwpPromptView = ({
           rows={rows}
           trailingContent={micButton}
         />
-
-        {!voiceSupported && (
-          <p className="text-muted-foreground responsive-text-font-size">
-            {t("tutor.voiceNotSupported")}
-          </p>
-        )}
 
         <div className="flex flex-col items-center gap-5 sm:gap-6 md:gap-8 lg:gap-10 xl:gap-12 2xl:gap-14 3xl:gap-16 4xl:gap-20 5xl:gap-24 6xl:gap-28">
           {!hideSubmit && (

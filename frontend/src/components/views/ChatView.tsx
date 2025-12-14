@@ -109,11 +109,6 @@ export function ChatView() {
                 t={t}
                 placeholder={t("tutor.sendPlaceholder")}
               />
-              {!voiceSupported && (
-                <div className="mt-2 responsive-text-font-size text-muted-foreground">
-                  {t("tutor.voiceNotSupported")}
-                </div>
-              )}
             </div>
           </div>
         </div>

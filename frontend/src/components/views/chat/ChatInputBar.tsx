@@ -43,20 +43,21 @@ export const ChatInputBar = ({
         }}
       />
       <div className="absolute bottom-3 sm:bottom-4 right-3 sm:right-4 md:right-5 flex items-center gap-0.5 sm:gap-0.5 md:gap-0.5 lg:gap-1 xl:gap-2 2xl:gap-4 3xl:gap-6 4xl:gap-8 5xl:gap-12 6xl:gap-14">
-        <Button
-          type="button"
-          variant="ghost"
-          onClick={onVoiceToggle}
-          disabled={!voiceSupported}
-          className="h-11 w-11 sm:h-12 sm:w-12 lg:h-13 lg:w-13 xl:h-15 xl:w-15 p-0 flex items-center justify-center rounded-full"
-          aria-label={listening ? t("tutor.voiceStop") : t("tutor.voiceStart")}
-        >
-          {listening ? (
-            <Square className="responsive-icon-font-size" />
-          ) : (
-            <Mic className="responsive-icon-font-size" />
-          )}
-        </Button>
+        {voiceSupported && (
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={onVoiceToggle}
+            className="h-11 w-11 sm:h-12 sm:w-12 lg:h-13 lg:w-13 xl:h-15 xl:w-15 p-0 flex items-center justify-center rounded-full"
+            aria-label={listening ? t("tutor.voiceStop") : t("tutor.voiceStart")}
+          >
+            {listening ? (
+              <Square className="responsive-icon-font-size" />
+            ) : (
+              <Mic className="responsive-icon-font-size" />
+            )}
+          </Button>
+        )}
         <Button
           type="button"
           variant="ghost"
