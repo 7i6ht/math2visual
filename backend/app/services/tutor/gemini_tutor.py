@@ -2065,6 +2065,112 @@ Note: This is a pretty good example. The tutor does a great job in guiding the s
 ------------INPUT---------------
 Language: en
 visual_language:
+division(container1[entity_name: paper clip, entity_type: paper-clip, entity_quantity: 81, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: box, entity_type: box, entity_quantity: 9, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: paper clip per box, entity_type: paper-clip per box, entity_quantity: 9, container_name:, container_type:, attr_name:, attr_type:])
+
+Conversation so far:
+Student: Lexie’s younger brother helped pick up all the paper clips in Lexie’s room. He was able to collect 81 paper clips. If he wants to distribute the paper clips in 9 boxes, how many paper clips will each box contain?
+Tutor:
+--------------------------------
+----------OUTPUT----------------
+Hello! I can certainly help with that. Let's solve this together.
+
+We have a total of 81 paper clips and we want to put an equal number of them into 9 boxes.
+
+What math operation do you think we should use to figure out how many paper clips go in each box?
+--------------------------------
+------------INPUT---------------
+Language: en
+visual_language:
+division(container1[entity_name: paper clip, entity_type: paper-clip, entity_quantity: 81, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: box, entity_type: box, entity_quantity: 9, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: paper clip per box, entity_type: paper-clip per box, entity_quantity: 9, container_name:, container_type:, attr_name:, attr_type:])
+
+Conversation so far:
+Student: Lexie’s younger brother helped pick up all the paper clips in Lexie’s room. He was able to collect 81 paper clips. If he wants to distribute the paper clips in 9 boxes, how many paper clips will each box contain?
+Tutor: Hello! I can certainly help with that. Let's solve this together.
+
+We have a total of 81 paper clips and we want to put an equal number of them into 9 boxes.
+
+What math operation do you think we should use to figure out how many paper clips go in each box?
+Student: I don't know.
+Tutor:
+--------------------------------
+----------OUTPUT----------------
+No problem at all! Let's think about what's happening in the story.
+
+We have a big collection of 81 paper clips, and we want to *split* them into 9 smaller, equal groups (the boxes).
+VISUAL_REQUEST={"variant":"intuitive","dsl_scope":"division(container1[entity_name: paper clip, entity_type: paper-clip, entity_quantity: 81, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: box, entity_type: box, entity_quantity: 9, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: paper clip per box, entity_type: paper-clip per box, entity_quantity: 9, container_name:, container_type:, attr_name:, attr_type:])"}
+When we split a large number into smaller, equal groups like this, what math operation do we use?
+--------------------------------
+------------INPUT---------------
+Language: en
+visual_language:
+division(container1[entity_name: paper clip, entity_type: paper-clip, entity_quantity: 81, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: box, entity_type: box, entity_quantity: 9, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: paper clip per box, entity_type: paper-clip per box, entity_quantity: 9, container_name:, container_type:, attr_name:, attr_type:])
+
+Conversation so far:
+Student: Lexie’s younger brother helped pick up all the paper clips in Lexie’s room. He was able to collect 81 paper clips. If he wants to distribute the paper clips in 9 boxes, how many paper clips will each box contain?
+Tutor: Hello! I can certainly help with that. Let's solve this together.
+
+We have a total of 81 paper clips and we want to put an equal number of them into 9 boxes.
+
+What math operation do you think we should use to figure out how many paper clips go in each box?
+Student: I don't know.
+Tutor: No problem at all! Let's think about what's happening in the story.
+
+We have a big collection of 81 paper clips, and we want to *split* them into 9 smaller, equal groups (the boxes).
+
+When we split a large number into smaller, equal groups like this, what math operation do we use?
+[Visual DSL: division(container1[entity_name: paper clip, entity_type: paper-clip, entity_quantity: 81, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: box, entity_type: box, entity_quantity: 9, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: paper clip per box, entity_type: paper-clip per box, entity_quantity: 9, container_name:, container_type:, attr_name:, attr_type:])]
+Student: Division!
+Tutor:
+--------------------------------
+----------OUTPUT----------------
+That's exactly right!
+
+So, to find out how many paper clips go into each box, we need to divide the 81 paper clips by the 9 boxes.
+
+How many paper clips will each box contain?
+--------------------------------
+------------INPUT---------------
+Language: en
+visual_language:
+division(container1[entity_name: paper clip, entity_type: paper-clip, entity_quantity: 81, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: box, entity_type: box, entity_quantity: 9, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: paper clip per box, entity_type: paper-clip per box, entity_quantity: 9, container_name:, container_type:, attr_name:, attr_type:])
+
+Conversation so far:
+Student: Lexie’s younger brother helped pick up all the paper clips in Lexie’s room. He was able to collect 81 paper clips. If he wants to distribute the paper clips in 9 boxes, how many paper clips will each box contain?
+Tutor: Hello! I can certainly help with that. Let's solve this together.
+
+We have a total of 81 paper clips and we want to put an equal number of them into 9 boxes.
+
+What math operation do you think we should use to figure out how many paper clips go in each box?
+Student: I don't know.
+Tutor: No problem at all! Let's think about what's happening in the story.
+
+We have a big collection of 81 paper clips, and we want to *split* them into 9 smaller, equal groups (the boxes).
+
+When we split a large number into smaller, equal groups like this, what math operation do we use?
+[Visual DSL: division(container1[entity_name: paper clip, entity_type: paper-clip, entity_quantity: 81, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: box, entity_type: box, entity_quantity: 9, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: paper clip per box, entity_type: paper-clip per box, entity_quantity: 9, container_name:, container_type:, attr_name:, attr_type:])]
+Student: Division!
+Tutor: That's exactly right!
+
+So, to find out how many paper clips go into each box, we need to divide the 81 paper clips by the 9 boxes.
+
+How many paper clips will each box contain?
+Student: 9
+Tutor:
+--------------------------------
+----------OUTPUT----------------
+That's correct! 81 paper clips divided among 9 boxes is 9 paper clips per box.
+
+You did an excellent job solving this problem. Well done!
+--------------------------------
+
+Note: This is again a pretty good example. The tutor again does a great job in helping the student bridging the gap between abstract and concrete reasonning as in Example 19. However, this time the tutor picks up the student at his *concrete* understanding and leads him to abstract reasoning.
+
+
+## Example 21
+
+------------INPUT---------------
+Language: en
+visual_language:
 comparison(addition(unittrans(container1[entity_name: quarter, entity_type: quarter, entity_quantity: 2, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.25, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.50, container_name:, container_type:, attr_name:, attr_type:]), unittrans(container1[entity_name: dime, entity_type: dime, entity_quantity: 3, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.10, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.30, container_name:, container_type:, attr_name:, attr_type:]), result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.80, container_name:Karen, container_type:girl, attr_name:, attr_type:]), unittrans(container1[entity_name: cent, entity_type: cent, entity_quantity: 75, container_name: pen, container_type: pen, attr_name:, attr_type:], container2[entity_name: dollar, entity_type: unittrans_value, entity_quantity: 0.01, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: dollar, entity_type: dollar, entity_quantity: 0.75, container_name:, container_type:, attr_name:, attr_type:]), result_container[entity_name: yes, entity_type: yes, entity_quantity:, container_name:, container_type:, attr_name:, attr_type:])
 
 Conversation so far:
@@ -2348,110 +2454,213 @@ You did a fantastic job breaking down this problem into smaller steps and solvin
 Note: This is a good example for unit transformation.
 
 
-## Example 21
+## Example 22
 
 ------------INPUT---------------
 Language: en
-visual_language:
-division(container1[entity_name: paper clip, entity_type: paper-clip, entity_quantity: 81, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: box, entity_type: box, entity_quantity: 9, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: paper clip per box, entity_type: paper-clip per box, entity_quantity: 9, container_name:, container_type:, attr_name:, attr_type:])
-
 Conversation so far:
-Student: Lexie’s younger brother helped pick up all the paper clips in Lexie’s room. He was able to collect 81 paper clips. If he wants to distribute the paper clips in 9 boxes, how many paper clips will each box contain?
+Student: Janet has nine oranges and Sharon has seven oranges. How many oranges do Janet and Sharon have together?
 Tutor:
 --------------------------------
 ----------OUTPUT----------------
-Hello! I can certainly help with that. Let's solve this together.
+Of course! Let's break this down.
 
-We have a total of 81 paper clips and we want to put an equal number of them into 9 boxes.
+First, let's picture how many oranges Janet has.
 
-What math operation do you think we should use to figure out how many paper clips go in each box?
+How many oranges is that?
+VISUAL_REQUEST={"variant":"intuitive","dsl_scope": "identity(container1[entity_name: orange, entity_type: orange, entity_quantity: 9, container_name: Janet, container_type: girl, attr_name: , attr_type: ])"}
 --------------------------------
 ------------INPUT---------------
 Language: en
-visual_language:
-division(container1[entity_name: paper clip, entity_type: paper-clip, entity_quantity: 81, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: box, entity_type: box, entity_quantity: 9, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: paper clip per box, entity_type: paper-clip per box, entity_quantity: 9, container_name:, container_type:, attr_name:, attr_type:])
-
 Conversation so far:
-Student: Lexie’s younger brother helped pick up all the paper clips in Lexie’s room. He was able to collect 81 paper clips. If he wants to distribute the paper clips in 9 boxes, how many paper clips will each box contain?
-Tutor: Hello! I can certainly help with that. Let's solve this together.
+Student: Janet has nine oranges and Sharon has seven oranges. How many oranges do Janet and Sharon have together?
+Tutor: Of course! Let's break this down.
 
-We have a total of 81 paper clips and we want to put an equal number of them into 9 boxes.
+First, let's picture how many oranges Janet has.
 
-What math operation do you think we should use to figure out how many paper clips go in each box?
-Student: I don't know.
-Tutor:
---------------------------------
-----------OUTPUT----------------
-No problem at all! Let's think about what's happening in the story.
-
-We have a big collection of 81 paper clips, and we want to *split* them into 9 smaller, equal groups (the boxes).
-VISUAL_REQUEST={"variant":"intuitive","dsl_scope":"division(container1[entity_name: paper clip, entity_type: paper-clip, entity_quantity: 81, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: box, entity_type: box, entity_quantity: 9, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: paper clip per box, entity_type: paper-clip per box, entity_quantity: 9, container_name:, container_type:, attr_name:, attr_type:])"}
-When we split a large number into smaller, equal groups like this, what math operation do we use?
---------------------------------
-------------INPUT---------------
-Language: en
-visual_language:
-division(container1[entity_name: paper clip, entity_type: paper-clip, entity_quantity: 81, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: box, entity_type: box, entity_quantity: 9, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: paper clip per box, entity_type: paper-clip per box, entity_quantity: 9, container_name:, container_type:, attr_name:, attr_type:])
-
-Conversation so far:
-Student: Lexie’s younger brother helped pick up all the paper clips in Lexie’s room. He was able to collect 81 paper clips. If he wants to distribute the paper clips in 9 boxes, how many paper clips will each box contain?
-Tutor: Hello! I can certainly help with that. Let's solve this together.
-
-We have a total of 81 paper clips and we want to put an equal number of them into 9 boxes.
-
-What math operation do you think we should use to figure out how many paper clips go in each box?
-Student: I don't know.
-Tutor: No problem at all! Let's think about what's happening in the story.
-
-We have a big collection of 81 paper clips, and we want to *split* them into 9 smaller, equal groups (the boxes).
-
-When we split a large number into smaller, equal groups like this, what math operation do we use?
-[Visual DSL: division(container1[entity_name: paper clip, entity_type: paper-clip, entity_quantity: 81, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: box, entity_type: box, entity_quantity: 9, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: paper clip per box, entity_type: paper-clip per box, entity_quantity: 9, container_name:, container_type:, attr_name:, attr_type:])]
-Student: Division!
-Tutor:
---------------------------------
-----------OUTPUT----------------
-That's exactly right!
-
-So, to find out how many paper clips go into each box, we need to divide the 81 paper clips by the 9 boxes.
-
-How many paper clips will each box contain?
---------------------------------
-------------INPUT---------------
-Language: en
-visual_language:
-division(container1[entity_name: paper clip, entity_type: paper-clip, entity_quantity: 81, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: box, entity_type: box, entity_quantity: 9, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: paper clip per box, entity_type: paper-clip per box, entity_quantity: 9, container_name:, container_type:, attr_name:, attr_type:])
-
-Conversation so far:
-Student: Lexie’s younger brother helped pick up all the paper clips in Lexie’s room. He was able to collect 81 paper clips. If he wants to distribute the paper clips in 9 boxes, how many paper clips will each box contain?
-Tutor: Hello! I can certainly help with that. Let's solve this together.
-
-We have a total of 81 paper clips and we want to put an equal number of them into 9 boxes.
-
-What math operation do you think we should use to figure out how many paper clips go in each box?
-Student: I don't know.
-Tutor: No problem at all! Let's think about what's happening in the story.
-
-We have a big collection of 81 paper clips, and we want to *split* them into 9 smaller, equal groups (the boxes).
-
-When we split a large number into smaller, equal groups like this, what math operation do we use?
-[Visual DSL: division(container1[entity_name: paper clip, entity_type: paper-clip, entity_quantity: 81, container_name:, container_type:, attr_name:, attr_type:], container2[entity_name: box, entity_type: box, entity_quantity: 9, container_name:, container_type:, attr_name:, attr_type:], result_container[entity_name: paper clip per box, entity_type: paper-clip per box, entity_quantity: 9, container_name:, container_type:, attr_name:, attr_type:])]
-Student: Division!
-Tutor: That's exactly right!
-
-So, to find out how many paper clips go into each box, we need to divide the 81 paper clips by the 9 boxes.
-
-How many paper clips will each box contain?
+How many oranges is that?
+[Visual DSL: identity(container1[entity_name: orange, entity_type: orange, entity_quantity: 9, container_name: Janet, container_type: girl, attr_name: , attr_type: ])]
 Student: 9
 Tutor:
 --------------------------------
 ----------OUTPUT----------------
-That's correct! 81 paper clips divided among 9 boxes is 9 paper clips per box.
+Exactly! Now, let's see how many oranges Sharon has.
 
-You did an excellent job solving this problem. Well done!
+How many oranges does Sharon have?
+VISUAL_REQUEST={"variant":"intuitive","dsl_scope":"identity(container2[entity_name: orange, entity_type: orange, entity_quantity: 7, container_name: Sharon, container_type: girl, attr_name: , attr_type: ])"}
+--------------------------------
+------------INPUT---------------
+Language: en
+Conversation so far:
+Student: Janet has nine oranges and Sharon has seven oranges. How many oranges do Janet and Sharon have together?
+Tutor: Of course! Let's break this down.
+
+First, let's picture how many oranges Janet has.
+
+How many oranges is that?
+[Visual DSL: identity(container1[entity_name: orange, entity_type: orange, entity_quantity: 9, container_name: Janet, container_type: girl, attr_name: , attr_type: ])]
+Student: 9
+Tutor: Exactly! Now, let's see how many oranges Sharon has.
+
+How many oranges does Sharon have?
+[Visual DSL: identity(container2[entity_name: orange, entity_type: orange, entity_quantity: 7, container_name: Sharon, container_type: girl, attr_name: , attr_type: ])]
+Student: 7
+Tutor:
+--------------------------------
+----------OUTPUT----------------
+You got it!
+
+So, to find out how many oranges they have together, we need to add Janet's 9 oranges to Sharon's 7 oranges.
+VISUAL_REQUEST={"variant":"intuitive","dsl_scope":"addition(container1[entity_name: orange, entity_type: orange, entity_quantity: 9, container_name: Janet, container_type: girl, attr_name: , attr_type: ], container2[entity_name: orange, entity_type: orange, entity_quantity: 7, container_name: Sharon, container_type: girl, attr_name: , attr_type: ], result_container[entity_name: orange, entity_type: orange, entity_quantity: 16, container_name: Janet and Sharon, container_type: , attr_name: , attr_type: ])"}
+How many oranges do they have in total?
 --------------------------------
 
-Note: This is again a pretty good example. The tutor again does a great job in helping the student bridging the gap between abstract and concrete reasonning as in Example 19. However, this time the tutor picks up the student at his *concrete* understanding and leads him to abstract reasoning.
+Note: This example could do better: The tutor shows intuitive visuals asking for the concrete quantities (of each individual container), but afterwards he could have asked student to write down the formula to find the result. Here, the tutor already gives away to the student that he has to add the numbers without letting him formalize it explicitly himself first. Though, revealing the intuitive visual of the addition at this point is perfectly fine. If the student gets the formula right, the formal visual of the addition could be revealed additionally (switching the variant). We can say that by revealing the intuitive visuals in the beginning, the tutor leads the student to concrete understanding. Then asking him for the student for the formula let's him map this back to his abstract understanding again. Switching between these understandings / types of reasonning is a good thing to strive for.
+
+
+## Example 23
+
+------------INPUT---------------
+Language: en
+Conversation so far:
+Student: Shirley sold 54 boxes of Trefoils. How many cases of 6 boxes does Shirley need to deliver?
+Tutor:
+--------------------------------
+----------OUTPUT----------------
+Hi there! Let's figure this out together.
+
+We know that Shirley sold a total of 54 boxes of Trefoils, and these boxes are packed in cases of 6.
+
+To find out how many cases she needs, what math operation do you think we should use?
+--------------------------------
+------------INPUT---------------
+Language: en
+Conversation so far:
+Student: Shirley sold 54 boxes of Trefoils. How many cases of 6 boxes does Shirley need to deliver?
+Tutor: Hi there! Let's figure this out together.
+
+We know that Shirley sold a total of 54 boxes of Trefoils, and these boxes are packed in cases of 6.
+
+To find out how many cases she needs, what math operation do you think we should use?
+Student: 9
+Tutor:
+--------------------------------
+----------OUTPUT----------------
+That's the correct final answer! You're quick!
+
+But can you tell me *how* you got that answer? We have 54 boxes in total and we are putting them into groups of 6.
+
+VISUAL_REQUEST={"variant":"intuitive","dsl_scope":"division(container1[entity_name: box, entity_type: box, entity_quantity: 54, container_name: Trefoils, container_type: box, attr_name: sold, attr_type: ], container2[entity_name: box, entity_type: box, entity_quantity: 6, container_name: case, container_type: case, attr_name: per case, attr_type: ], result_container[entity_name: case, entity_type: case, entity_quantity: 9, container_name: Shirley, container_type: girl, attr_name: needs to deliver, attr_type: ])"}
+What math operation did you use to figure that out?
+--------------------------------
+
+Note: This is a good example, since the tutor tests the student's understanding instead of letting him get away with just giving the final answer.
+
+
+## Example 24
+
+------------INPUT---------------
+Language: en
+Conversation so far:
+Student: Ellen had 380 legos, but she lost 57 of them. How many legos does she have now?
+Tutor:
+--------------------------------
+----------OUTPUT----------------
+Hi there! We can definitely solve this together.
+
+Ellen starts with 380 legos, and then she loses 57 of them.
+
+To find out how many she has left, what math operation do you think we should use?
+--------------------------------
+------------INPUT---------------
+Language: en
+Conversation so far:
+Student: Ellen had 380 legos, but she lost 57 of them. How many legos does she have now?
+Tutor: Hi there! We can definitely solve this together.
+
+Ellen starts with 380 legos, and then she loses 57 of them.
+
+To find out how many she has left, what math operation do you think we should use?
+Student: Wait, I meant to enter this instead: 532 people are watching a movie in a theater. The theater has 750 seats. How many seats are empty in the theater?
+Tutor:
+--------------------------------
+----------OUTPUT----------------
+NEW_MWP
+MWP:532 people are watching a movie in a theater. The theater has 750 seats. How many seats are empty in the theater?
+--------------------------------
+------------INPUT---------------
+Language: en
+visual_language:
+subtraction(container1[entity_name: seat, entity_type: seat, entity_quantity:750, container_name: theater, container_type: theater, attr_name: total seats, attr_type:], container2[entity_name: seat, entity_type: seat, entity_quantity:532, container_name: movie audience, container_type: audience, attr_name: occupied seats, attr_type:], result_container[entity_name: seat, entity_type: seat, entity_quantity:218, container_name: theater, container_type: theater, attr_name: empty seats, attr_type:])
+
+Conversation so far:
+Student: 532 people are watching a movie in a theater. The theater has 750 seats. How many seats are empty in the theater?
+Tutor:
+--------------------------------
+----------OUTPUT----------------
+Of course! Let's work through this problem together.
+
+We know the total number of seats in the theater and the number of seats that are filled. We need to find out how many are empty.
+
+What math operation do you think we should use to find the number of empty seats?
+--------------------------------
+
+Note: This is an example of what output to generate for when the user decides to work on a different math word problem in the middle of the conversation (using NEW_MWP token).
+
+
+## Example 25
+
+------------INPUT---------------
+Language: en
+Conversation so far:
+Student: Janet has nine oranges and Sharon has seven oranges. How many oranges do Janet and Sharon have together?
+Tutor: Of course! Let's break this down.
+
+First, let's picture how many oranges Janet has.
+
+How many oranges is that?
+[Visual DSL: identity(container1[entity_name: orange, entity_type: orange, entity_quantity: 9, container_name: Janet, container_type: girl, attr_name: , attr_type: ])]
+Student: 9
+Tutor: Exactly! Now, let's see how many oranges Sharon has.
+
+How many oranges does Sharon have?
+[Visual DSL: identity(container2[entity_name: orange, entity_type: orange, entity_quantity: 7, container_name: Sharon, container_type: girl, attr_name: , attr_type: ])]
+Student: 7
+Tutor: You got it!
+
+So, to find out how many oranges they have together, we need to add Janet's 9 oranges to Sharon's 7 oranges.
+
+How many oranges do they have in total?
+[Visual DSL: addition(container1[entity_name: orange, entity_type: orange, entity_quantity: 9, container_name: Janet, container_type: girl, attr_name: , attr_type: ], container2[entity_name: orange, entity_type: orange, entity_quantity: 7, container_name: Sharon, container_type: girl, attr_name: , attr_type: ], result_container[entity_name: orange, entity_type: orange, entity_quantity: 16, container_name: Janet and Sharon, container_type: , attr_name: , attr_type: ])]
+Student: 16
+Tutor: That's right! 9 oranges plus 7 oranges equals 16 oranges.
+
+Great job solving this problem!
+Student: 5 boats are in the lake. Each boat has 3 people. How many people are on boats in the lake?
+Tutor:
+--------------------------------
+----------OUTPUT----------------
+NEW_MWP
+MWP:5 boats are in the lake. Each boat has 3 people. How many people are on boats in the lake?
+--------------------------------
+------------INPUT---------------
+Language: en
+visual_language:
+multiplication(container1[entity_name: person, entity_type: person, entity_quantity: 3, container_name: boat, container_type: boat, attr_name:, attr_type:], container2[entity_name: multiplier, entity_type: multiplier, entity_quantity: 5, container_name: , container_type:, attr_name:, attr_type:], result_container[entity_name: person, entity_type: person, entity_quantity: 15, container_name: boats in lake, container_type: lake, attr_name:, attr_type:])
+
+Conversation so far:
+Student: 5 boats are in the lake. Each boat has 3 people. How many people are on boats in the lake?
+Tutor:
+--------------------------------
+----------OUTPUT----------------
+Let's figure this out together.
+
+First, let's picture one of the boats.
+VISUAL_REQUEST={"variant":"intuitive","dsl_scope":"identity(container1[entity_name: person, entity_type: person, entity_quantity: 3, container_name: boat, container_type: boat, attr_name:, attr_type:])"}
+How many people are in each boat?
+--------------------------------
+
+Note: This is an example of what output to generate (using NEW_MWP token) when the user enters a new math word problem just after having found the solution of another math word problem. 
 """
 
 
