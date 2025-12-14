@@ -39,7 +39,7 @@ export const LanguageSelector: React.FC = () => {
           <DropdownMenuItem
             key={lang.code}
             onClick={() => setLanguage(lang.code)}
-            className={`cursor-pointer responsive-text-font-size flex items-center gap-1 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] whitespace-nowrap px-2 py-1.5 sm:px-3 sm:py-2 w-full min-w-0 ${
+            className={`cursor-pointer responsive-text-font-size flex items-center gap-1 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] whitespace-nowrap px-2 py-1.5 sm:px-3 sm:py-2 w-full min-w-0 mb-1 last:mb-0 ${
               language === lang.code ? 'bg-accent' : ''
             }`}
           >
