@@ -61,15 +61,15 @@ const ChatMessageItem = memo(
             {msg.streaming && (
               <div className="flex items-center justify-start gap-1 mt-2 pr-1">
                 <span
-                  className="h-2 w-2 aspect-square rounded-full bg-current animate-bounce flex-shrink-0 block"
+                  className="h-1 w-1 md:h-2 md:w-2 4xl:h-4 4xl:w-4 aspect-square rounded-full bg-current animate-bounce flex-shrink-0 block"
                   style={{ animationDelay: "0ms" }}
                 />
                 <span
-                  className="h-2 w-2 aspect-square rounded-full bg-current animate-bounce flex-shrink-0 block"
+                  className="h-1 w-1 md:h-2 md:w-2 4xl:h-4 4xl:w-4 aspect-square rounded-full bg-current animate-bounce flex-shrink-0 block"
                   style={{ animationDelay: "120ms" }}
                 />
                 <span
-                  className="h-2 w-2 aspect-square rounded-full bg-current animate-bounce flex-shrink-0 block"
+                  className="h-1 w-1 md:h-2 md:w-2 4xl:h-4 4xl:w-4 aspect-square rounded-full bg-current animate-bounce flex-shrink-0 block"
                   style={{ animationDelay: "240ms" }}
                 />
               </div>
