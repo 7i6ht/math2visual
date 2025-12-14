@@ -37,7 +37,11 @@ This interactive system builds upon the Math2Visual research framework:
 
 ## 🧮 User Interface
 
-![app](./images/app.png)
+![Landing Page](./images/app1.png)
+
+![Student Mode](./images/app2.png)
+
+![Teacher Mode](./images/app3.png)
 
 ## 📚 Usage Workflow
 
