@@ -19,8 +19,8 @@ export const LanguageSelector: React.FC = () => {
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
-          size="sm:size-sm md:size-default lg:size-lg xl:size-xl 2xl:size-2xl 3xl:size-3xl 4xl:size-4xl 5xl:size-5xl 6xl:size-6xl 7xl:size-7xl"
-          className="gap-1.5 sm:gap-2 px-2 sm:px-2.5 md:px-3 lg:px-3.5 xl:px-4 2xl:px-4.5 3xl:px-5 4xl:px-5.5 5xl:px-6 py-1.5 sm:py-2 md:py-2.5 lg:py-3 xl:py-3.5 2xl:py-4 3xl:py-4.5 4xl:py-5 5xl:py-5.5 !responsive-text-font-size"
+          size="content"
+          className="gap-1.5 sm:gap-2 h-8 sm:h-8 md:h-9 lg:h-10 xl:h-12 2xl:h-14 3xl:h-16 4xl:h-20 5xl:h-24 6xl:h-28 7xl:h-32 px-2 sm:px-2.5 md:px-4 lg:px-6 xl:px-8 2xl:px-10 3xl:px-12 4xl:px-16 5xl:px-20 6xl:px-24 7xl:px-28 py-1.5 sm:py-2 md:py-2.5 lg:py-3 xl:py-4 2xl:py-5 3xl:py-6 4xl:py-8 5xl:py-10 6xl:py-12 7xl:py-14 rounded-md min-w-[fit-content] sm:min-w-[6rem] md:min-w-[7rem] lg:min-w-[8rem] !responsive-text-font-size"
           aria-label={t('language.select')}
         >
           <Languages className="responsive-smaller-icon-font-size" />
@@ -33,13 +33,13 @@ export const LanguageSelector: React.FC = () => {
         align="end"
         sideOffset={0}
         alignOffset={0}
-        className="w-[var(--radix-dropdown-menu-trigger-width)] min-w-0 overflow-x-visible p-1 md:p-1.5 lg:p-2 [&>*:not(:last-child)]:mb-1"
+        className="w-auto min-w-[5.5rem] sm:!w-[var(--radix-dropdown-menu-trigger-width)] sm:!min-w-[var(--radix-dropdown-menu-trigger-width)] sm:!max-w-[var(--radix-dropdown-menu-trigger-width)] max-w-[90vw] overflow-visible p-1 md:p-1.5 lg:p-2"
       >
         {availableLanguages.map((lang) => (
           <DropdownMenuItem
             key={lang.code}
             onClick={() => setLanguage(lang.code)}
-            className={`cursor-pointer responsive-text-font-size flex items-center gap-1 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] ${
+            className={`cursor-pointer responsive-text-font-size flex items-center gap-1 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] whitespace-nowrap px-2 py-1.5 sm:px-3 sm:py-2 w-full min-w-0 ${
               language === lang.code ? 'bg-accent' : ''
             }`}
           >
