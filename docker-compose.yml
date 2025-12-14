@@ -24,18 +24,18 @@ services:
       - CLAMAV_PORT=3310
       - SVG_STORAGE_MODE=local
       - SVG_DATASET_PATH=/app/storage/datasets/svg_dataset
-      # Analytics database configuration
-      # Default: empty (analytics disabled by default)
-      # To enable analytics with --profile analytics:
-      #   Option 1: Set in .env file: DATABASE_URL=postgresql://math2visual_user:${POSTGRES_PASSWORD}@postgres:5432/math2visual_analytics
-      #   Option 2: Override inline: DATABASE_URL=postgresql://math2visual_user:your_password@postgres:5432/math2visual_analytics docker-compose --profile analytics up
+      # Database configuration (PostgreSQL is always started for tutor sessions)
+      # Default DATABASE_URL connects to the postgres service
+      # To override, set DATABASE_URL in .env file or override inline
       # Password is set via POSTGRES_PASSWORD environment variable (defaults to math2visual_password)
+      # Note: If you change POSTGRES_PASSWORD, also update DATABASE_URL to match
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-math2visual_password}
-      - DATABASE_URL=${DATABASE_URL:-}
+      - DATABASE_URL=${DATABASE_URL:-postgresql://math2visual_user:math2visual_password@postgres:5432/math2visual_analytics}
       - DATABASE_ECHO=false
     restart: unless-stopped
-    # Note: depends_on removed - app handles missing database gracefully
-    # When using analytics, start with: docker-compose --profile analytics up
+    depends_on:
+      postgres:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "python", "-c", "import socket; s = socket.socket(); s.settimeout(2); result = s.connect_ex(('127.0.0.1', 80)); s.close(); exit(0 if result == 0 else 1)"]
       interval: 30s
@@ -65,10 +65,8 @@ services:
       # Update database on container start
       - UPDATE=true
 
-  # PostgreSQL database for analytics (only starts with --profile analytics)
+  # PostgreSQL database (always started - required for tutor sessions and optional for analytics)
   postgres:
-    profiles:
-      - analytics
     image: postgres:16-alpine
     container_name: math2visual-postgres
     restart: unless-stopped

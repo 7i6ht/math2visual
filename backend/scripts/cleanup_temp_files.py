@@ -142,6 +142,20 @@ def main():
     print(f"  Old files size: {format_bytes(temp_svg_stats['old_size_bytes'])}")
     print()
     
+    # Clean up expired tutor sessions from database (always run, unless just showing stats)
+    if not args.stats:
+        try:
+            from app.services.tutor.session_storage import cleanup_expired_sessions
+            expired_count = cleanup_expired_sessions()
+            if expired_count > 0:
+                print(f"Cleaned up {expired_count} expired tutor session(s)")
+            else:
+                print("No expired tutor sessions to clean up")
+        except Exception as e:
+            # Database might not be available, which is fine
+            print(f"Note: Could not clean up tutor sessions: {e}")
+        print()
+    
     if args.stats:
         return
     

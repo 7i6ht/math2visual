@@ -83,6 +83,9 @@ def init_database():
     
     engine = create_database_engine()
     
+    # Import all models to ensure they're registered with Base.metadata
+    from app.models.tutor_session import TutorSession  # noqa: F401
+    
     # Create all tables
     Base.metadata.create_all(bind=engine)
     print("✅ Database tables created successfully")

@@ -38,7 +38,8 @@ backend/
 │   │   └── storage_config.py               # Storage backend configuration
 │   ├── models/                             # Data models
 │   │   ├── __init__.py
-│   │   └── user_actions.py                 # User action tracking models
+│   │   ├── user_actions.py                 # User action tracking models
+│   │   └── tutor_session.py                # Tutor session database model
 │   ├── services/                           # Business logic
 │   │   ├── language_generation/            # GPT-based DSL generation
 │   │   │   ├── __init__.py
@@ -48,7 +49,8 @@ backend/
 │   │   │   ├── __init__.py
 │   │   │   └── svg_generator.py            # Gemini-based SVG generation
 │   │   ├── tutor/                          # Gemini-powered tutor orchestration
-│   │   │   └── gemini_tutor.py             # Tutor session + streaming helpers
+│   │   │   ├── gemini_tutor.py             # Tutor session + streaming helpers
+│   │   │   └── session_storage.py          # Tutor session storage (database-backed, shared across workers)
 │   │   ├── validation/                     # Input/output validation
 │   │   │   ├── __init__.py
 │   │   │   ├── security_scanner.py         # ClamAV integration

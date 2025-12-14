@@ -4,12 +4,13 @@ This document explains how to set up periodic cleanup of temporary files generat
 
 ## Overview
 
-The Math2Visual API generates temporary files in two locations:
+The Math2Visual API generates temporary files and database records that need periodic cleanup:
 
 1. **Visualization Output** (`storage/output/`): Temporary SVG files for visualization requests using unique UUIDs to prevent conflicts in parallel requests.
 2. **SVG Generation** (`storage/temp_svgs/`): Temporary AI-generated SVG icons that haven't been confirmed by the user yet.
+3. **Tutor Sessions** (database): Expired tutor session records stored in PostgreSQL that are no longer active.
 
-These files are not cleaned up immediately to avoid blocking the API. Instead, a periodic cleanup job removes old files.
+These files and records are not cleaned up immediately to avoid blocking the API. Instead, a periodic cleanup job removes old files and expired sessions.
 
 ## Files
 
@@ -88,6 +89,13 @@ chmod +x backend/scripts/cleanup_temp_files.py
 - Configurable via `--temp-svg-age-hours` parameter
 - Shorter threshold since these are meant to be very temporary (user-aborted generations)
 
+#### Tutor Sessions (Database)
+- Default: 2 hours of inactivity
+- Fixed expiration time (not configurable via CLI)
+- Sessions are automatically expired based on `last_activity` timestamp
+- Only cleaned up when database is available (gracefully skips if database is unavailable)
+- Required for proper operation with multiple Gunicorn workers (sessions are shared via database)
+
 ### Archive Files
 Archive files are only created when running in **debug mode** (`FLASK_DEBUG=true`):
 - `formal_{timestamp}_{uuid}.svg`
@@ -154,6 +162,20 @@ If storage is filling up:
 1. Check cron service: `systemctl status cron`
 2. Check cron logs: `grep CRON /var/log/syslog`
 3. Test script manually: `python scripts/cleanup_temp_files.py --dry-run`
+
+### Tutor Sessions Not Being Cleaned
+If tutor session cleanup is not working:
+1. **Check database connection**: Ensure `DATABASE_URL` is set correctly in your environment
+2. **Verify database is running**: Check that PostgreSQL is accessible
+3. **Check cleanup logs**: Look for "Could not clean up tutor sessions" messages
+4. **Manual verification**: Sessions expire after 2 hours of inactivity - check `tutor_sessions` table in database:
+   ```sql
+   SELECT session_id, last_activity, 
+          NOW() - last_activity AS age 
+   FROM tutor_sessions 
+   ORDER BY last_activity DESC;
+   ```
+5. **Note**: Tutor session cleanup gracefully skips if database is unavailable (won't cause errors)
 
 ## Performance Impact
 

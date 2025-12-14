@@ -8,9 +8,9 @@ from app.services.language_generation.gpt_generator import generate_visual_langu
 from app.services.tutor.gemini_tutor import (
     start_tutor_session,
     _generate_tutor_reply_stream,
-    TUTOR_SESSIONS,
     MAX_HISTORY,
 )
+from app.services.tutor.session_storage import get_session, save_session
 from flask import Response, stream_with_context
 
 tutor_bp = Blueprint('tutor', __name__)
@@ -36,14 +36,9 @@ def _create_tutor_stream_response(visual_language: str, history: List[Dict[str, 
                     
                     # Update session if session_id provided
                     if session_id:
-                        session = TUTOR_SESSIONS.get(session_id)
-                        if session:
-                            session["history"] = history[-MAX_HISTORY:]
-                        else:
-                            TUTOR_SESSIONS[session_id] = {
-                                "history": history,
-                                "visual_language": visual_language,
-                            }
+                        # Truncate history to MAX_HISTORY
+                        truncated_history = history[-MAX_HISTORY:]
+                        save_session(session_id, visual_language, truncated_history)
                     
                     # Render visual if requested
                     visual = _render_visual_request(visual_request, visual_language, session_id=session_id)
@@ -72,7 +67,7 @@ def _render_visual_request(visual_request: dict, fallback_dsl: str, session_id: 
         return None
 
     # Check if session has a preferred variant (from previous fallback)
-    session = TUTOR_SESSIONS.get(session_id) if session_id else None
+    session = get_session(session_id) if session_id else None
     preferred_variant = session.get("preferred_variant") if session else None
     
     # Use preferred variant if available, otherwise use requested variant
@@ -99,8 +94,10 @@ def _render_visual_request(visual_request: dict, fallback_dsl: str, session_id: 
         if fallback_svg:
             # Remember this fallback variant for future requests in this session
             if session:
-                session["preferred_variant"] = fallback_variant
-                TUTOR_SESSIONS[session_id] = session
+                # Update session with preferred variant
+                visual_language = session.get("visual_language", fallback_dsl)
+                history = session.get("history", [])
+                save_session(session_id, visual_language, history, metadata={"preferred_variant": fallback_variant})
             
             return {
                 "variant": fallback_variant,
@@ -135,10 +132,7 @@ def tutor_start():
         session_id = str(uuid.uuid4())
         empty_dsl = ""
         # Create session with empty history and empty visual_language
-        TUTOR_SESSIONS[session_id] = {
-            "history": [],
-            "visual_language": empty_dsl,
-        }
+        save_session(session_id, empty_dsl, [])
         return jsonify({
             "session_id": session_id,
             "tutor_message": "",
@@ -180,10 +174,7 @@ def tutor_start_stream():
         session_id = str(uuid.uuid4())
         empty_dsl = ""
         history: List[Dict[str, str]] = []
-        TUTOR_SESSIONS[session_id] = {
-            "history": history,
-            "visual_language": empty_dsl,
-        }
+        save_session(session_id, empty_dsl, history)
         # Return empty response for autostart
         def empty_stream():
             yield f"data: {json.dumps({'type': 'done', 'session_id': session_id, 'tutor_message': '', 'visual_language': empty_dsl, 'visual': None})}\n\n"
@@ -235,7 +226,7 @@ def tutor_generate_dsl():
     if not mwp:
         return jsonify({"error": _("Provide a math word problem (MWP).")}), 400
 
-    session = TUTOR_SESSIONS.get(session_id)
+    session = get_session(session_id)
     if not session:
         return jsonify({"error": _("Session not found or expired.")}), 404
 
@@ -250,7 +241,8 @@ def tutor_generate_dsl():
     dsl = raw.split(":", 1)[1].strip() if raw.lower().startswith("visual_language:") else raw.strip()
 
     # Update session with new visual_language
-    session["visual_language"] = dsl
+    history = session.get("history", [])
+    save_session(session_id, dsl, history)
 
     return jsonify({
         "session_id": session_id,
@@ -273,14 +265,14 @@ def tutor_message_stream():
     if not user_message:
         return jsonify({"error": _("Please provide a message.")}), 400
 
-    session = TUTOR_SESSIONS.get(session_id)
+    session = get_session(session_id)
     if not session:
         return jsonify({"error": _("Session not found or expired.")}), 404
 
-    visual_language = session["visual_language"]
+    visual_language = session.get("visual_language", "")
     # Always use language from request header
     language = str(get_locale())
-    history: List[Dict[str, str]] = session["history"]
+    history: List[Dict[str, str]] = session.get("history", [])
 
     # Append user message to history before generation
     history.append({"role": "student", "content": user_message})

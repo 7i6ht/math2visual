@@ -16,8 +16,8 @@ genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
 # Default to the latest Pro model; allow override via GEMINI_TUTOR_MODEL
 MODEL_NAME = os.environ.get("GEMINI_TUTOR_MODEL", "gemini-pro-latest")
 
-# In-memory store for lightweight tutor sessions
-TUTOR_SESSIONS: Dict[str, Dict] = {}
+# Import session storage (replaces in-memory TUTOR_SESSIONS)
+from app.services.tutor.session_storage import save_session
 
 
 SYSTEM_PROMPT = """You are Math2Visual's AI tutor. You guide students through math word problems step by step.
@@ -2759,10 +2759,7 @@ def start_tutor_session(mwp: str, visual_language: str, language: str = "en") ->
         tutor_entry["visual_request"] = visual_request
     history.append(tutor_entry)
 
-    TUTOR_SESSIONS[session_id] = {
-        "history": history,
-        "visual_language": visual_language,
-    }
+    save_session(session_id, visual_language, history)
 
     return session_id, tutor_reply, visual_request
 
