@@ -247,6 +247,15 @@ button.responsive-text-font-size.xl\:text-lg {
   );
 }
 
+/* Responsive width matching icon size */
+.responsive-icon-width {
+  width: clamp(
+    var(--responsive-icon-min),
+    var(--responsive-icon-scale),
+    var(--responsive-icon-max)
+  );
+}
+
 /* Additional specificity for icon elements */
 svg.responsive-icon-font-size,
 i.responsive-icon-font-size,

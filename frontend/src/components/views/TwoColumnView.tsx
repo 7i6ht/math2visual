@@ -121,6 +121,16 @@ export function TwoColumnView({ appState }: Props) {
     }
   }, [analyticsEnabled]);
 
+  const handleCollapseVisualPanel = useCallback(() => {
+    if (visualLanguagePanelRef.current) {
+      visualLanguagePanelRef.current.collapse();
+      setIsVisualPanelCollapsed(true);
+      if (analyticsEnabled) {
+        trackElementClick('visual_language_panel_collapse_button');
+      }
+    }
+  }, [analyticsEnabled]);
+
   const handleExpandMathProblemPanel = useCallback(() => {
     if (mathProblemPanelRef.current) {
       mathProblemPanelRef.current.expand();
@@ -210,8 +220,22 @@ export function TwoColumnView({ appState }: Props) {
 
   // Visual language column content
   const visualLanguageColumn = (
-    <div className="relative flex flex-col h-full w-full">
-      {visualLanguageForm}
+    <div className="flex flex-row h-full w-full">
+      <div className="flex flex-col h-full flex-1 min-w-0">
+        {visualLanguageForm}
+      </div>
+      {/* Collapse button positioned to the right */}
+      <div 
+        className="h-full bg-muted hover:opacity-80 cursor-pointer flex items-center justify-center transition-opacity rounded-r-md flex-shrink-0 responsive-icon-width"
+        onClick={(e) => {
+          e.stopPropagation();
+          handleCollapseVisualPanel();
+        }}
+        aria-label={t("forms.visualLanguageTitle", "Visual Language")}
+        title={t("forms.visualLanguageTitle", "Visual Language - Click to collapse")}
+      >
+        <ChevronRight className="responsive-icon-font-size text-foreground" />
+      </div>
     </div>
   );
 
@@ -308,7 +332,7 @@ export function TwoColumnView({ appState }: Props) {
                   {isVisualPanelCollapsed ? (
                     // Collapsed state: Matching tabs styling with centered chevron
                     <div 
-                      className="w-full h-full bg-muted hover:opacity-80 cursor-pointer flex items-center justify-center transition-opacity rounded-l-md"
+                      className="h-full bg-muted hover:opacity-80 cursor-pointer flex items-center justify-center transition-opacity rounded-l-md responsive-icon-width"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleExpandVisualPanel();
