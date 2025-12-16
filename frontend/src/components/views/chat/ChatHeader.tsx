@@ -4,6 +4,7 @@ import { Volume2, VolumeX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ResponsiveLogo } from "@/components/ui/ResponsiveLogo";
 import { LanguageSelector } from "@/components/ui/language-selector";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 type ChatHeaderProps = {
   t: TFunction;
@@ -54,6 +55,7 @@ export const ChatHeader = memo(({
             <VolumeX className="responsive-icon-font-size" />
           )}
         </Button>
+        <ThemeToggle />
         <LanguageSelector />
       </div>
     </div>

@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { ResponsiveLogo } from "@/components/ui/ResponsiveLogo";
 import { LanguageSelector } from "@/components/ui/language-selector";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 type HeroShellProps = {
   title: string;
@@ -20,7 +21,8 @@ export const HeroShell = ({
   return (
     <div className="w-full px-3 py-3 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 3xl:px-20 4xl:px-24 5xl:px-32">
       {showLanguageSelector && (
-        <div className="fixed top-4 right-4 z-50">
+        <div className="fixed top-4 right-4 z-50 flex items-center gap-2">
+          <ThemeToggle />
           <LanguageSelector />
         </div>
       )}

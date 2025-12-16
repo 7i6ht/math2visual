@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { ResponsiveLogo } from "@/components/ui/ResponsiveLogo";
 import { LanguageSelector } from "@/components/ui/language-selector";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Button } from "@/components/ui/button";
 
 type Props = {
@@ -12,7 +13,8 @@ export function LandingPage({ onRoleSelect }: Props) {
 
   return (
     <div className="w-full px-3 py-3 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 3xl:px-20 4xl:px-24 5xl:px-32">
-      <div className="fixed top-4 right-4 z-50">
+      <div className="fixed top-4 right-4 z-50 flex items-center gap-2">
+        <ThemeToggle />
         <LanguageSelector />
       </div>
       <div className="flex flex-col items-center justify-center min-h-[calc(100vh-1.5rem)] sm:min-h-[calc(100vh-2rem)] lg:min-h-[calc(100vh-2rem)] xl:min-h-[calc(100vh-2rem)] 2xl:min-h-[calc(100vh-2rem)] 3xl:min-h-[calc(100vh-2rem)] 4xl:min-h-[calc(100vh-2rem)] 5xl:min-h-[calc(100vh-2rem)]">

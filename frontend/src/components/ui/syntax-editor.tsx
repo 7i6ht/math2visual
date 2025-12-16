@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Editor, { type Monaco } from '@monaco-editor/react';
 import type { editor as MonacoEditor } from 'monaco-editor';
 import { cn } from '@/lib/utils';
+import { useTheme } from '@/contexts/ThemeContext';
 import './syntax-editor.css';
 
 interface SyntaxEditorProps {
@@ -158,6 +159,7 @@ export const SyntaxEditor: React.FC<SyntaxEditorProps> = ({
   onCursorPositionChange,
   onScroll,
 }) => {
+  const { theme } = useTheme();
   const isLanguageSetup = useRef(false);
   const [formattedValue, setFormattedValue] = useState(value);
   const [isEditorMounted, setIsEditorMounted] = useState(false);
@@ -328,6 +330,13 @@ export const SyntaxEditor: React.FC<SyntaxEditorProps> = ({
     }
   }, [highlightRanges]);
 
+  // Update Monaco editor theme when theme changes
+  useEffect(() => {
+    if (monacoRef.current && editorRef.current) {
+      monacoRef.current.editor.setTheme(theme === 'dark' ? 'vl-theme-dark' : 'vl-theme');
+    }
+  }, [theme]);
+
   const handleEditorDidMount = (
     editor: MonacoEditor.IStandaloneCodeEditor,
     monaco: Monaco
@@ -341,9 +350,8 @@ export const SyntaxEditor: React.FC<SyntaxEditorProps> = ({
       isLanguageSetup.current = true;
     }
 
-    // Set the theme based on system preference or default to light
-    const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    monaco.editor.setTheme(isDark ? 'vl-theme-dark' : 'vl-theme');
+    // Set the theme based on user preference
+    monaco.editor.setTheme(theme === 'dark' ? 'vl-theme-dark' : 'vl-theme');
     
     // Handle cursor position changes
     // Note: We're not automatically triggering highlighting here to avoid infinite loops

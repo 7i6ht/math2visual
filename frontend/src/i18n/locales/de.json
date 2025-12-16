@@ -106,6 +106,10 @@
     "english": "Englisch",
     "german": "Deutsch"
   },
+  "theme": {
+    "light": "Hellmodus",
+    "dark": "Dunkelmodus"
+  },
   "app": {
     "subtitle": "Mathe-Textaufgaben auf pädagogisch bedeutsame Weise durch KI visualisieren",
     "noVisualLanguageForRegeneration": "Keine visuelle Sprache für Wiedererzeugung verfügbar",

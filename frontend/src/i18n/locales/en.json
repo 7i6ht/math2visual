@@ -106,6 +106,10 @@
     "english": "English",
     "german": "German"
   },
+  "theme": {
+    "light": "Light mode",
+    "dark": "Dark mode"
+  },
   "app": {
     "subtitle": "Visualizing Math Word Problems in a Pedagogically Meaningful way through AI",
     "noVisualLanguageForRegeneration": "No visual language available for regeneration",
