@@ -27,7 +27,7 @@ export const ChatInputBar = ({
   placeholder,
 }: ChatInputBarProps) => {
   return (
-    <div className="relative rounded-md border bg-white shadow-sm">
+    <div className="relative rounded-md border border-input bg-background text-foreground shadow-sm">
       <Textarea
         value={input}
         onChange={(e) => onInputChange(e.target.value)}
