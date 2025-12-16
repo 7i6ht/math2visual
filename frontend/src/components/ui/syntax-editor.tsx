@@ -168,6 +168,15 @@ export const SyntaxEditor: React.FC<SyntaxEditorProps> = ({
   const decorationsRef = useRef<string[]>([]);
   const monacoRef = useRef<Monaco | null>(null);
   const lastScrollTopRef = useRef<number>(0);
+  const contentSizeListenerDisposeRef = useRef<null | { dispose: () => void }>(null);
+  
+  // Ensure Monaco listeners are cleaned up even if the component unmounts.
+  useEffect(() => {
+    return () => {
+      contentSizeListenerDisposeRef.current?.dispose();
+      contentSizeListenerDisposeRef.current = null;
+    };
+  }, []);
   
   // Calculate responsive font size using CSS responsive-text-font-size class
   const getResponsiveFontSize = useCallback(() => {
@@ -189,26 +198,32 @@ export const SyntaxEditor: React.FC<SyntaxEditorProps> = ({
     return Math.round(fontSize);
   }, []);
 
-  // Calculate dynamic height based on content
-  const calculateDynamicHeight = useCallback((content: string, fontSize: number) => {
-    if (!content.trim()) {
-      return `${rows * 24}px`; // Default height for empty content
+  const updateHeightFromMonaco = useCallback(() => {
+    const editor = editorRef.current;
+    const container = containerRef.current;
+    if (!editor || !container) return;
+
+    // Check if the container should fill available space (has h-full class)
+    const shouldFillContainer = className?.includes('h-full');
+    if (shouldFillContainer) {
+      container.style.height = '100%';
+      container.style.minHeight = '';
+      editor.layout();
+      return;
     }
 
-    const lines = content.split('\n').length;
-    const lineHeight = fontSize * 1.3; // More accurate line height based on font size
-    const padding = 16; // Account for editor padding and borders
-    const minHeight = 120; // Minimum height for usability
-    
-    // Calculate base height needed for content
-    const contentHeight = lines * lineHeight + padding;
-    const availableHeight = 0.9*window.innerHeight;
-    
-    // Take the minimum between content height and available height
-    const calculatedHeight = Math.max(minHeight, Math.min(contentHeight, availableHeight));
-    
-    return `${calculatedHeight}px`;
-  }, [rows]);
+    // Monaco provides the true rendered content height (includes its internal padding).
+    const minHeightPx = Math.max(120, rows * 24); // keep the previous baseline, but never smaller than 120px
+    const availableHeightPx = typeof window !== 'undefined' ? 0.9 * window.innerHeight : minHeightPx;
+    const contentHeightPx = editor.getContentHeight();
+    const heightPx = Math.max(minHeightPx, Math.min(contentHeightPx, availableHeightPx));
+
+    container.style.height = `${heightPx}px`;
+    container.style.minHeight = `${heightPx}px`;
+
+    const currentLayout = editor.getLayoutInfo();
+    editor.layout({ width: currentLayout.width, height: heightPx });
+  }, [className, rows]);
 
   // Update formatted value when value changes externally (no formatting needed since backend sends formatted DSL)
   useEffect(() => {
@@ -218,31 +233,10 @@ export const SyntaxEditor: React.FC<SyntaxEditorProps> = ({
   }, [value, formattedValue]);
 
   // Update height when content changes (only after editor is mounted)
-  useEffect(() => {    
-    if (isEditorMounted && editorRef.current && containerRef.current && formattedValue) {
-      // Check if the container should fill available space (has h-full class)
-      const shouldFillContainer = className?.includes('h-full');
-      
-      if (shouldFillContainer) {
-        // Remove inline height styles to let h-full work
-        containerRef.current.style.height = '100%';
-        containerRef.current.style.minHeight = '';
-      } else {
-        // Use dynamic height calculation for non-full-height editors
-        const fontSize = getResponsiveFontSize();
-        const newHeight = calculateDynamicHeight(formattedValue, fontSize);
-              
-        // Set container height directly (no React re-render)
-        containerRef.current.style.height = newHeight;
-        containerRef.current.style.minHeight = newHeight; // Also set minHeight in case something is constraining it
-        
-        // Then resize the editor to fill the container
-        const heightValue = parseInt(newHeight);
-        const currentLayout = editorRef.current.getLayoutInfo();
-        editorRef.current.layout({ width: currentLayout.width, height: heightValue });
-      }
-    }
-  }, [isEditorMounted, formattedValue, calculateDynamicHeight, getResponsiveFontSize, className]);
+  useEffect(() => {
+    if (!isEditorMounted) return;
+    updateHeightFromMonaco();
+  }, [isEditorMounted, formattedValue, updateHeightFromMonaco]);
 
   // Initialize and update font size cache and handle window resize
   useEffect(() => {
@@ -252,21 +246,7 @@ export const SyntaxEditor: React.FC<SyntaxEditorProps> = ({
       if (editorRef.current && containerRef.current && formattedValue) {
         const newFontSize = getResponsiveFontSize();
         editorRef.current.updateOptions({ fontSize: newFontSize });
-        
-        // Check if the container should fill available space (has h-full class)
-        const shouldFillContainer = className?.includes('h-full');
-        
-        if (!shouldFillContainer) {
-          const newHeight = calculateDynamicHeight(formattedValue, newFontSize);
-          
-          // Set container height directly (no React re-render)
-          containerRef.current.style.height = newHeight;
-          
-          // Then resize the editor to fill the container
-          const heightValue = parseInt(newHeight);
-          const currentLayout = editorRef.current.getLayoutInfo();
-          editorRef.current.layout({ width: currentLayout.width, height: heightValue });
-        }
+        updateHeightFromMonaco();
       }
     };
 
@@ -274,7 +254,7 @@ export const SyntaxEditor: React.FC<SyntaxEditorProps> = ({
     return () => {
       window.removeEventListener('resize', handleWindowResize);
     };
-  }, [getResponsiveFontSize, formattedValue, calculateDynamicHeight, className]);
+  }, [getResponsiveFontSize, formattedValue, updateHeightFromMonaco]);
 
   // Add highlighting functionality
   useEffect(() => {
@@ -384,6 +364,16 @@ export const SyntaxEditor: React.FC<SyntaxEditorProps> = ({
         lastScrollTopRef.current = currentScrollTop;
       });
     }
+
+    // Keep the outer container height perfectly synced with Monaco's rendered content height.
+    // This avoids off-by-a-few-pixels clipping caused by approximating line-height/padding/borders.
+    contentSizeListenerDisposeRef.current?.dispose();
+    contentSizeListenerDisposeRef.current = editor.onDidContentSizeChange(() => {
+      updateHeightFromMonaco();
+    });
+
+    // Initial sizing after mount.
+    updateHeightFromMonaco();
   };
 
   return (
@@ -402,6 +392,8 @@ export const SyntaxEditor: React.FC<SyntaxEditorProps> = ({
           minimap: { enabled: false },
           scrollBeyondLastLine: false,
           fontSize: getResponsiveFontSize(),
+          // Ensure Monaco has explicit padding so its content height is stable & predictable.
+          padding: { top: 8, bottom: 8 },
           lineNumbers: 'off',
           glyphMargin: false,
           folding: true,

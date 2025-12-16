@@ -40,8 +40,8 @@
     "formalError": "Formale Visualisierung konnte nicht generiert werden. Ein erneuter Versuch könnte helfen.",
     "intuitiveError": "Intuitive Visualisierung konnte nicht erzeugt werden. Ein erneuter Versuch könnte helfen.",
     "tabs": {
-      "formalVisual": "Formale Visual.",
-      "intuitiveVisual": "Intuitive Visual.",
+      "formalVisual": "Formale Visualisierung",
+      "intuitiveVisual": "Intuitive Visualisierung",
       "missingSVG": "Fehlendes SVG"
     }
   },

@@ -212,7 +212,7 @@ export function TwoColumnView({ appState }: Props) {
 
   // Math problem content (shared across all layouts)
   const mathProblemContent = (
-    <div className="space-y-4 flex flex-col w-full">
+    <div className="space-y-6 3xl:space-y-8 6xl:space-y-10 flex flex-col w-full">
       {logoAndTitle}
       {mathProblemForm}
     </div>

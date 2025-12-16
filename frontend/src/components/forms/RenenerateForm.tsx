@@ -88,7 +88,7 @@ export const RenenerateForm = ({
           render={({ field }) => (
             <FormItem>
               <div className="relative">
-                <label className="absolute -top-2 4xl:-top-6 left-3 bg-background px-1 text-sm 3xl:text-xl 4xl:text-2xl 5xl:text-3xl 6xl:text-4xl 7xl:text-5xl text-muted-foreground z-10">
+                <label className="absolute -top-2 3xl:-top-4 6xl:-top-6 left-3 bg-background px-1 responsive-smaller-text-font-size text-muted-foreground z-10">
                   {t("forms.mwpLabel")}
                 </label>
                 <FormControl>
@@ -116,7 +116,7 @@ export const RenenerateForm = ({
           render={({ field }) => (
             <FormItem>
               <div className="relative">
-                <label className="absolute -top-2 4xl:-top-8 left-3 bg-background px-1 text-sm 3xl:text-xl 4xl:text-2xl 5xl:text-3xl 6xl:text-4xl 7xl:text-5xl text-muted-foreground z-10">
+                <label className="absolute -top-2 3xl:-top-4 6xl:-top-6 left-3 bg-background px-1 responsive-smaller-text-font-size text-muted-foreground z-10">
                   {t("forms.formulaLabel")}
                 </label>
                 <FormControl>
@@ -150,7 +150,7 @@ export const RenenerateForm = ({
             render={({ field }) => (
               <FormItem>
                 <div className="relative">
-                  <label className="absolute -top-2 4xl:-top-6 left-3 bg-background px-1 text-sm 3xl:text-xl 4xl:text-2xl 5xl:text-3xl 6xl:text-4xl 7xl:text-5xl text-muted-foreground z-10">
+                  <label className="absolute -top-2 3xl:-top-4 6xl:-top-6 left-3 bg-background px-1 responsive-smaller-text-font-size text-muted-foreground z-10">
                     {t("forms.hintLabel")}
                   </label>
                   <FormControl>

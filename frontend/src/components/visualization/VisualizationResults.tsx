@@ -96,53 +96,89 @@ export const VisualizationResults = memo(({
         onValueChange={setActiveTab}
         className="w-full"
       >
-        <TabsList className="w-full grid grid-cols-2 lg:grid-cols-4 h-auto">
-          {/* Show parse error tab when parse error exists */}
-          {hasParseError && (
-            <TabsTrigger 
-              value="parse-error"
-              className="responsive-text-font-size data-[state=active]:bg-destructive/10"
+        <TabsList className="w-full flex h-auto gap-0 relative overflow-hidden">
+          {(
+            [
+              // Show parse error tab when parse error exists
+              ...(hasParseError
+                ? ([
+                    {
+                      key: "parse-error",
+                      value: "parse-error" as const,
+                      onClick:
+                        analyticsEnabled ? () => trackElementClick("tab_parse_error_click") : undefined,
+                      className: "data-[state=active]:bg-destructive/10",
+                      icon: (
+                        <AlertCircle className="responsive-smaller-icon-font-size mr-2 text-destructive" />
+                      ),
+                      label: t("visualization.parseError"),
+                    },
+                  ] as const)
+                : []),
+
+              // Hide visualization tabs if parse error exists
+              ...(!hasParseError
+                ? ([
+                    {
+                      key: "formal",
+                      value: "formal" as const,
+                      onClick:
+                        analyticsEnabled ? () => trackElementClick("tab_formal_click") : undefined,
+                      className: "",
+                      icon: null,
+                      label: t("visualization.tabs.formalVisual"),
+                    },
+                    {
+                      key: "intuitive",
+                      value: "intuitive" as const,
+                      onClick:
+                        analyticsEnabled ? () => trackElementClick("tab_intuitive_click") : undefined,
+                      className: "",
+                      icon: null,
+                      label: t("visualization.tabs.intuitiveVisual"),
+                    },
+                  ] as const)
+                : []),
+
+              ...(missingSVGEntities.length > 0
+                ? ([
+                    {
+                      key: "missing-svg",
+                      value: "missing-svg" as const,
+                      onClick:
+                        analyticsEnabled ? () => trackElementClick("tab_missing_svg_click") : undefined,
+                      className: "data-[state=active]:bg-destructive/10",
+                      icon: (
+                        <AlertCircle className="responsive-smaller-icon-font-size mr-2 text-destructive" />
+                      ),
+                      label: t("visualization.tabs.missingSVG"),
+                    },
+                  ] as const)
+                : []),
+            ] as const
+          ).map((tab, idx) => (
+            <TabsTrigger
+              // Later tabs stack above earlier tabs so if things get cramped,
+              // the earlier label visually disappears "behind" the next tab.
+              style={{ zIndex: idx + 1 }}
+              key={tab.key}
+              value={tab.value}
+              className={`
+                responsive-text-font-size
+                relative min-w-0 overflow-hidden
+                flex-1
+                -ml-2 first:ml-0
+                ${tab.className}
+              `}
               disabled={isDisabled}
+              {...(tab.onClick ? { onClick: tab.onClick } : {})}
             >
-              <AlertCircle className="responsive-smaller-icon-font-size mr-2 text-destructive" />
-              {t("visualization.parseError")}
+              {tab.icon}
+              <span className="min-w-0 block whitespace-nowrap">
+                {tab.label}
+              </span>
             </TabsTrigger>
-          )}
-
-          {/* Hide visualization tabs if parse error exists */}
-          {!hasParseError && (
-            <>
-              <TabsTrigger 
-                value="formal"
-                className="responsive-text-font-size"
-                disabled={isDisabled}
-                {...(analyticsEnabled ? {onClick: () => trackElementClick('tab_formal_click')} : {})}
-              >
-                {t("visualization.tabs.formalVisual")}
-              </TabsTrigger>
-
-              <TabsTrigger 
-                value="intuitive"
-                className="responsive-text-font-size"
-                disabled={isDisabled}
-                {...(analyticsEnabled ? {onClick: () => trackElementClick('tab_intuitive_click')} : {})}
-              >
-                {t("visualization.tabs.intuitiveVisual")}
-              </TabsTrigger>
-            </>
-          )}
-
-          {missingSVGEntities.length > 0 && (
-            <TabsTrigger 
-              value="missing-svg"
-              className="responsive-text-font-size data-[state=active]:bg-destructive/10"
-              disabled={isDisabled}
-              {...(analyticsEnabled ? {onClick: () => trackElementClick('tab_missing_svg_click')} : {})}
-            >
-              <AlertCircle className="responsive-smaller-icon-font-size mr-2 text-destructive" />
-              {t("visualization.tabs.missingSVG")}
-            </TabsTrigger>
-          )}
+          ))}
         </TabsList>
 
         {/* Parse error content */}
