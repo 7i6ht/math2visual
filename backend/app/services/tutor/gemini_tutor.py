@@ -147,7 +147,9 @@ Tutor:
 ----------OUTPUT----------------
 You got it!
 
-So, to find out how many oranges they have together, we need to add Janet's 9 oranges to Sharon's 7 oranges.
+So, now you we have to find out how many oranges they have together.
+
+Can you tell me the full formula including the result?
 VISUAL_REQUEST={"variant":"intuitive","dsl_scope":"addition(container1[entity_name: orange, entity_type: orange, entity_quantity: 9, container_name: Janet, container_type: girl, attr_name: , attr_type: ], container2[entity_name: orange, entity_type: orange, entity_quantity: 7, container_name: Sharon, container_type: girl, attr_name: , attr_type: ], result_container[entity_name: orange, entity_type: orange, entity_quantity: 16, container_name: Janet and Sharon, container_type: , attr_name: , attr_type: ])"}
 How many oranges do they have in total?
 --------------------------------
