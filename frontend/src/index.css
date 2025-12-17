@@ -36,6 +36,48 @@
   --radius: 0.5rem;
 }
 
+/*
+  Responsive corner radius
+  - Default stays the same for laptop-sized viewports.
+  - Only scales up on very large screens (desktop/ultrawide) so corners don't look too sharp.
+*/
+@media (min-width: 1600px) {
+  :root {
+    --radius: 0.55rem;
+  }
+}
+
+@media (min-width: 1920px) {
+  :root {
+    /* Grows gently with screen width, capped to avoid cartoonishly round corners */
+    --radius: clamp(0.55rem, 0.35vw, 0.75rem);
+  }
+}
+
+@media (min-width: 2560px) {
+  :root {
+    --radius: clamp(0.65rem, 0.3vw, 1rem);
+  }
+}
+
+@media (min-width: 3200px) {
+  :root {
+    --radius: clamp(0.75rem, 0.28vw, 1.25rem);
+  }
+}
+
+@media (min-width: 3840px) {
+  :root {
+    --radius: clamp(0.85rem, 0.26vw, 1.5rem);
+  }
+}
+
+@media (min-width: 7680px) {
+  :root {
+    --radius: clamp(1rem, 0.24vw, 2rem);
+  }
+}
+
 .dark {
   --background: 222.2 84% 4.9%;
   --foreground: 210 40% 98%;
