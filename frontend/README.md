@@ -92,7 +92,8 @@ frontend/
 │   ├── contexts/
 │   │   ├── DSLContext.tsx                 # DSL state and operations
 │   │   ├── HighlightingContext.tsx        # Syntax highlighting state
-│   │   └── LanguageContext.tsx            # i18n selection
+│   │   ├── LanguageContext.tsx            # i18n selection
+│   │   └── ThemeContext.tsx               # Theme (light/dark) state
 │   ├── hooks/                             # Custom React hooks
 │   │   ├── useAppState.ts
 │   │   ├── useElementInteractions.ts
