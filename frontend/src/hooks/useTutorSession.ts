@@ -112,8 +112,16 @@ export function useTutorSession({ t }: UseTutorSessionParams) {
           return next;
         });
       },
-      onDone: (data: { session_id: string; tutor_message: string; visual?: TutorVisual | null }) => {
+      onDone: (data: { session_id: string; tutor_message: string; visual?: TutorVisual | null; suppress_message?: boolean }) => {
         const bufferedClean = streamingBufferRef.current.clean;
+
+        if (data.suppress_message) {
+          // Backend decided not to emit a tutor message (e.g., hallucinated NEW_MWP).
+          setMessages((prev) => prev.slice(0, -1));
+          setStreaming(false);
+          streamingBufferRef.current = { raw: "", clean: "" };
+          return;
+        }
 
         const safeText = bufferedClean || stripVisualLanguage(data.tutor_message || "");
         const safeVisual =

@@ -15,6 +15,7 @@ export type TutorStartResponse = {
   tutor_message: string;
   visual_language: string;
   visual?: TutorVisual | null;
+  suppress_message?: boolean;
 };
 
 type StartStreamCallbacks = {
@@ -27,6 +28,7 @@ export type TutorMessageResponse = {
   session_id: string;
   tutor_message: string;
   visual?: TutorVisual | null;
+  suppress_message?: boolean;
 };
 
 type StreamCallbacks = {
@@ -41,6 +43,7 @@ type StreamDonePayload = {
   tutor_message: string;
   visual?: TutorVisual | null;
   visual_language?: string;
+  suppress_message?: boolean;
 };
 
 type StreamChunkPayload = {
@@ -193,6 +196,7 @@ const tutorService = {
         tutor_message: data.tutor_message,
         visual_language: data.visual_language || "",
         visual: data.visual,
+        suppress_message: data.suppress_message,
       })
     );
   },
@@ -206,6 +210,7 @@ const tutorService = {
         session_id: data.session_id,
         tutor_message: data.tutor_message,
         visual: data.visual,
+        suppress_message: data.suppress_message,
       })
     );
   },

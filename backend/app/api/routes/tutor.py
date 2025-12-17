@@ -18,6 +18,28 @@ tutor_bp = Blueprint('tutor', __name__)
 
 NEW_MWP_PATTERN = re.compile(r"^\s*NEW_MWP\s*\n?\s*MWP:\s*(.+)\s*$", re.DOTALL)
 
+def _normalize_text_for_contains_check(text: str) -> str:
+    """Normalize text for containment checks (casefold + collapse whitespace)."""
+    if not text:
+        return ""
+    return re.sub(r"\s+", " ", text).strip().casefold()
+
+
+def _is_new_mwp_supported_by_last_student_message(extracted_mwp: str, history: List[Dict[str, str]]) -> bool:
+    """
+    Safeguard against hallucinated NEW_MWP: only accept if the extracted MWP text is contained
+    in the most recent student message (after normalization).
+    """
+    mwp_norm = _normalize_text_for_contains_check(extracted_mwp)
+    if not mwp_norm:
+        return False
+    last_student = next(
+        (h.get("content") or "" for h in reversed(history) if h.get("role") == "student"),
+        "",
+    )
+    student_norm = _normalize_text_for_contains_check(last_student)
+    return mwp_norm in student_norm if student_norm else False
+
 
 def _extract_new_mwp(text: str) -> str | None:
     """
@@ -55,6 +77,20 @@ def _create_tutor_stream_response(visual_language: str, history: List[Dict[str, 
                     "session_id": session_id,
                     "tutor_message": final_text,
                     "visual": visual,
+                }
+                return f"data: {json.dumps(payload)}\n\n"
+
+            def _emit_suppress_done():
+                """
+                End the stream without emitting a tutor message.
+                The frontend should drop the placeholder bubble and stop streaming.
+                """
+                payload = {
+                    "type": "done",
+                    "session_id": session_id,
+                    "tutor_message": "",
+                    "visual": None,
+                    "suppress_message": True,
                 }
                 return f"data: {json.dumps(payload)}\n\n"
 
@@ -119,11 +155,9 @@ def _create_tutor_stream_response(visual_language: str, history: List[Dict[str, 
 
             if mode == "new_mwp":
                 mwp = _extract_new_mwp(final_text)
-                if not mwp:
-                    cleaned = final_text.replace("NEW_MWP", "", 1).lstrip()
-                    _finalize_and_persist(cleaned, visual_request, visual_language)
-                    visual = _render_visual_request(visual_request, visual_language, session_id=session_id)
-                    yield _emit_done(cleaned, visual)
+                # Safeguard against hallucinated NEW_MWP: only accept if it's contained in the last student message.
+                if (not mwp) or (not _is_new_mwp_supported_by_last_student_message(mwp, history)):
+                    yield _emit_suppress_done()
                     return
 
                 vl_response = generate_visual_language(mwp, None, None, language=language)
