@@ -49,6 +49,7 @@ backend/
 │   │   │   ├── __init__.py
 │   │   │   └── svg_generator.py            # Gemini-based SVG generation
 │   │   ├── tutor/                          # Gemini-powered tutor orchestration
+│   │   │   ├── dsl_container_types.py      # DSL container type utilities
 │   │   │   ├── gemini_tutor.py             # Tutor session + streaming helpers
 │   │   │   └── session_storage.py          # Tutor session storage (database-backed, shared across workers)
 │   │   ├── validation/                     # Input/output validation
@@ -57,24 +58,20 @@ backend/
 │   │   │   └── svg_validator.py
 │   │   ├── visual_generation/              # SVG generation engines
 │   │   │   ├── __init__.py
+│   │   │   ├── container_type_utils.py     # Container type utilities
 │   │   │   ├── dsl_parser.py
 │   │   │   ├── formal_generator.py
 │   │   │   └── intuitive_generator.py
 │   │   └── __init__.py
-│   ├── storage/                            # Application storage (within app, usually not used in production)
-│   │   ├── datasets/                       # Dataset files
-│   │   ├── models/                         # ML model files
-│   │   ├── output/                         # Generated outputs (temp visualization files)
-│   │   ├── temp_svgs/                      # Temporary AI-generated SVG icons
-│   │   └── analytics/                      # Analytics data storage (screenshots, etc.)
 │   ├── translations/                       # Flask-Babel translation catalogs
-│   │   ├── messages.pot                    # Extracted message template
 │   │   ├── en/                             # English translations (source language)
 │   │   │   └── LC_MESSAGES/
-│   │   │       └── messages.(po|mo)
+│   │   │       ├── messages.mo
+│   │   │       └── messages.po
 │   │   └── de/                             # German translations
 │   │       └── LC_MESSAGES/
-│   │           └── messages.(po|mo)
+│   │           ├── messages.mo
+│   │           └── messages.po
 │   └── utils/                              # Utility functions
 │       ├── __init__.py
 │       ├── cleanup.py                      # Temp/output cleanup helpers
@@ -85,6 +82,7 @@ backend/
 ├── gunicorn.conf.py                        # Gunicorn WSGI server configuration
 ├── math2visual.yml                         # Conda environment file
 ├── babel.cfg                               # Babel extraction configuration
+├── messages.pot                            # Extracted message template (Babel)
 ├── requirements.txt                        # Python dependencies
 ├── storage/                                # Local storage directory
 │   ├── datasets/svg_dataset/               # SVG entity library (1,549 files)
