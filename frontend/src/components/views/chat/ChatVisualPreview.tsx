@@ -59,7 +59,7 @@ export const ChatVisualPreview = memo(({ visual, onClose }: ChatVisualPreviewPro
       onClick={onClose}
     >
       <div
-        className="relative h-full w-full overflow-hidden rounded-md bg-white shadow-xl flex items-center justify-center"
+        className="relative h-full w-full overflow-hidden rounded-md border border-border bg-card text-foreground shadow-xl flex items-center justify-center"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="absolute top-3 right-3 z-10 flex items-center gap-2">
@@ -75,7 +75,7 @@ export const ChatVisualPreview = memo(({ visual, onClose }: ChatVisualPreviewPro
           <Button
             variant="ghost"
             size="icon"
-            className="rounded-md"
+            className="rounded-md text-foreground"
             aria-label={t("tutor.visualClosePreview")}
             onClick={onClose}
           >

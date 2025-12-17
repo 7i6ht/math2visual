@@ -47,12 +47,12 @@ export const ChatHeader = memo(({
               : t("tutor.speechNotSupported")
           }
           aria-disabled={!speechSupported}
-          className="text-muted-foreground hover:text-foreground h-9 w-9 sm:h-10 sm:w-10 lg:h-11 lg:w-11 xl:h-12 xl:w-12 2xl:h-14 2xl:w-14 3xl:h-16 3xl:w-16 4xl:h-18 4xl:w-18 5xl:h-20 5xl:w-20 6xl:h-24 6xl:w-24"
+          className="text-foreground h-9 w-9 sm:h-10 sm:w-10 lg:h-11 lg:w-11 xl:h-12 xl:w-12 2xl:h-14 2xl:w-14 3xl:h-16 3xl:w-16 4xl:h-18 4xl:w-18 5xl:h-20 5xl:w-20 6xl:h-24 6xl:w-24"
         >
           {speechEnabled ? (
-            <Volume2 className="responsive-icon-font-size" />
+            <Volume2 className="responsive-smaller-icon-font-size" />
           ) : (
-            <VolumeX className="responsive-icon-font-size" />
+            <VolumeX className="responsive-smaller-icon-font-size" />
           )}
         </Button>
         <ThemeToggle />
