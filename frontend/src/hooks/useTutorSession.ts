@@ -16,24 +16,6 @@ type UseTutorSessionParams = {
   t: TFunction;
 };
 
-/**
- * Detects if the message contains NEW_MWP token and extracts the MWP.
- * Returns the extracted MWP if found, null otherwise.
- */
-function extractNewMwp(message: string): string | null {
-  if (!message.trim().startsWith("NEW_MWP")) {
-    return null;
-  }
-  
-  // Look for MWP: pattern after NEW_MWP
-  const mwpMatch = message.match(/NEW_MWP\s*\n?\s*MWP:\s*(.+)/s);
-  if (mwpMatch && mwpMatch[1]) {
-    return mwpMatch[1].trim();
-  }
-  
-  return null;
-}
-
 export function useTutorSession({ t }: UseTutorSessionParams) {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -103,52 +85,21 @@ export function useTutorSession({ t }: UseTutorSessionParams) {
     return cleaned.trimEnd();
   };
 
-  // Internal function to handle new MWP - starts new session while keeping existing messages
-  const handleNewMwpInternal = async (newMwp: string) => {
-    setStreaming(true);
-    
-    // Add placeholder tutor message with streaming indicator
-    setMessages((prev) => [
-      ...prev,
-      { role: "tutor" as const, content: "", streaming: true },
-    ]);
-    
-    // Start new session with streaming
-    streamingBufferRef.current = { raw: "", clean: "" };
-    streamCloserRef.current = tutorService.startSessionStream(
-      newMwp.trim(),
-      createStreamingCallbacks({
-        setSessionIdOnDone: setSessionId,
-      })
-    );
-  };
-
   /**
    * Creates streaming callbacks for tutor responses.
    * Handles chunk processing, message updates, and completion.
    */
   const createStreamingCallbacks = (
     options: {
-      checkNewMwp?: boolean;
       setSessionIdOnDone?: (sessionId: string) => void;
-      onNewMwpDetected?: (mwp: string) => void;
     } = {}
   ) => {
-    const { checkNewMwp = false, setSessionIdOnDone, onNewMwpDetected } = options;
+    const { setSessionIdOnDone } = options;
 
     return {
       onChunk: (delta: string) => {
         streamingBufferRef.current.raw += delta || "";
-        
-        // Check if this is a NEW_MWP message - don't display it (only for regular messages)
-        if (checkNewMwp) {
-          const extractedMwp = extractNewMwp(streamingBufferRef.current.raw);
-          if (extractedMwp) {
-            // Don't update the message display for NEW_MWP messages
-            return;
-          }
-        }
-        
+
         const cleaned = stripVisualLanguage(streamingBufferRef.current.raw);
         streamingBufferRef.current.clean = cleaned;
         
@@ -163,23 +114,7 @@ export function useTutorSession({ t }: UseTutorSessionParams) {
       },
       onDone: (data: { session_id: string; tutor_message: string; visual?: TutorVisual | null }) => {
         const bufferedClean = streamingBufferRef.current.clean;
-        const rawText = streamingBufferRef.current.raw || data.tutor_message || "";
-        
-        // Check if this message contains NEW_MWP (only for regular messages)
-        if (checkNewMwp && onNewMwpDetected) {
-          const extractedMwp = extractNewMwp(rawText);
-          if (extractedMwp) {
-            // Remove the tutor message from the chat (it was never displayed anyway)
-            setMessages((prev) => prev.slice(0, -1));
-            setStreaming(false);
-            streamingBufferRef.current = { raw: "", clean: "" };
-            
-            // Reset current session and start new one with extracted MWP
-            onNewMwpDetected(extractedMwp);
-            return;
-          }
-        }
-        
+
         const safeText = bufferedClean || stripVisualLanguage(data.tutor_message || "");
         const safeVisual =
           data.visual && data.visual.dsl_scope
@@ -253,8 +188,6 @@ export function useTutorSession({ t }: UseTutorSessionParams) {
       sessionId,
       messageText,
       createStreamingCallbacks({
-        checkNewMwp: true,
-        onNewMwpDetected: handleNewMwpInternal,
       })
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps

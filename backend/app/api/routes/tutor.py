@@ -10,10 +10,30 @@ from app.services.tutor.gemini_tutor import (
     _generate_tutor_reply_stream,
     MAX_HISTORY,
 )
-from app.services.tutor.session_storage import get_session, save_session
+from app.services.tutor.session_storage import get_session, save_session, delete_session
 from flask import Response, stream_with_context
+import re
 
 tutor_bp = Blueprint('tutor', __name__)
+
+NEW_MWP_PATTERN = re.compile(r"^\s*NEW_MWP\s*\n?\s*MWP:\s*(.+)\s*$", re.DOTALL)
+
+
+def _extract_new_mwp(text: str) -> str | None:
+    """
+    Extract a new math word problem from a NEW_MWP control message.
+    Returns the extracted MWP if present, otherwise None.
+    """
+    if not text:
+        return None
+    stripped = text.lstrip()
+    if not stripped.startswith("NEW_MWP"):
+        return None
+    match = NEW_MWP_PATTERN.match(stripped)
+    if not match:
+        return None
+    mwp = (match.group(1) or "").strip()
+    return mwp or None
 
 
 def _create_tutor_stream_response(visual_language: str, history: List[Dict[str, str]], language: str, session_id: str = None):
@@ -24,37 +44,120 @@ def _create_tutor_stream_response(visual_language: str, history: List[Dict[str, 
     def event_stream():
         try:
             visual_request = None
-            for chunk in _generate_tutor_reply_stream(visual_language, history, language):
-                if isinstance(chunk, dict) and chunk.get("__done__"):
-                    final_text = chunk.get("full_text", "")
-                    visual_request = chunk.get("visual_request")
-                    # Update history with visual request DSL if present
-                    tutor_entry = {"role": "tutor", "content": final_text}
-                    if visual_request:
-                        tutor_entry["visual_request"] = visual_request
-                    history.append(tutor_entry)
-                    
-                    # Update session if session_id provided
-                    if session_id:
-                        # Truncate history to MAX_HISTORY
-                        truncated_history = history[-MAX_HISTORY:]
-                        save_session(session_id, visual_language, truncated_history)
-                    
-                    # Render visual if requested
+
+            def _emit_chunk(delta: str):
+                payload = {"type": "chunk", "delta": delta}
+                return f"data: {json.dumps(payload)}\n\n"
+
+            def _emit_done(final_text: str, visual):
+                payload = {
+                    "type": "done",
+                    "session_id": session_id,
+                    "tutor_message": final_text,
+                    "visual": visual,
+                }
+                return f"data: {json.dumps(payload)}\n\n"
+
+            def _finalize_and_persist(final_text: str, vr: dict | None, current_vl: str):
+                # Update history with visual request DSL if present
+                tutor_entry = {"role": "tutor", "content": final_text}
+                if vr:
+                    tutor_entry["visual_request"] = vr
+                history.append(tutor_entry)
+
+                # Update session if session_id provided
+                if session_id:
+                    truncated_history = history[-MAX_HISTORY:]
+                    save_session(session_id, current_vl, truncated_history)
+
+            def _stream_reply_events(current_vl: str):
+                """
+                Stream model output and yield SSE chunk events.
+                Suppresses NEW_MWP control messages from being sent to the client.
+
+                Returns: (mode, final_text, visual_request)
+                  - mode: "normal" | "new_mwp"
+                """
+                buffered = ""
+                mode = None  # None=undecided, "normal", "new_mwp"
+                last_visual_request = None
+
+                for chunk in _generate_tutor_reply_stream(current_vl, history, language):
+                    if not (isinstance(chunk, dict) and chunk.get("__done__")):
+                        delta = chunk or ""
+                        if mode is None:
+                            buffered += delta
+                            stripped = buffered.lstrip()
+                            if stripped.startswith("NEW_MWP"):
+                                if len(stripped) >= len("NEW_MWP"):
+                                    mode = "new_mwp"
+                                    continue
+                            else:
+                                if stripped:
+                                    mode = "normal"
+                                    yield _emit_chunk(buffered)
+                                    buffered = ""
+                        else:
+                            if mode == "normal":
+                                yield _emit_chunk(delta)
+                        continue
+
+                    final_text = chunk.get("full_text", "") or ""
+                    last_visual_request = chunk.get("visual_request")
+                    if mode is None:
+                        stripped = final_text.lstrip()
+                        mode = "new_mwp" if stripped.startswith("NEW_MWP") else "normal"
+                    if mode == "normal" and buffered:
+                        yield _emit_chunk(buffered)
+                        buffered = ""
+                    return mode, final_text, last_visual_request
+
+                # Shouldn't happen, but keep behavior safe
+                return "normal", "", last_visual_request
+
+            mode, final_text, visual_request = yield from _stream_reply_events(visual_language)
+
+            if mode == "new_mwp":
+                mwp = _extract_new_mwp(final_text)
+                if not mwp:
+                    cleaned = final_text.replace("NEW_MWP", "", 1).lstrip()
+                    _finalize_and_persist(cleaned, visual_request, visual_language)
                     visual = _render_visual_request(visual_request, visual_language, session_id=session_id)
-                    payload = {
-                        "type": "done",
-                        "session_id": session_id,
-                        "tutor_message": final_text,
-                        "visual": visual
-                    }
-                    yield f"data: {json.dumps(payload)}\n\n"
-                else:
-                    payload = {
-                        "type": "chunk",
-                        "delta": chunk
-                    }
-                    yield f"data: {json.dumps(payload)}\n\n"
+                    yield _emit_done(cleaned, visual)
+                    return
+
+                vl_response = generate_visual_language(mwp, None, None, language=language)
+                raw = extract_visual_language(vl_response)
+                if not raw:
+                    err_payload = {"type": "error", "error": _("Did not get Visual Language from AI. Please try again.")}
+                    yield f"data: {json.dumps(err_payload)}\n\n"
+                    return
+                new_dsl = raw.split(":", 1)[1].strip() if raw.lower().startswith("visual_language:") else raw.strip()
+
+                # Reset conversation history to the new problem (keep session_id stable)
+                history.clear()
+                history.append({"role": "student", "content": mwp})
+                if session_id:
+                    delete_session(session_id)
+                    save_session(session_id, new_dsl, history[-MAX_HISTORY:])
+
+                new_mode, new_final_text, new_visual_request = yield from _stream_reply_events(new_dsl)
+                if new_mode == "new_mwp":
+                    err_payload = {"type": "error", "error": _("Could not start a new problem. Please try again.")}
+                    yield f"data: {json.dumps(err_payload)}\n\n"
+                    return
+
+                _finalize_and_persist(new_final_text, new_visual_request, new_dsl)
+                visual = _render_visual_request(new_visual_request, new_dsl, session_id=session_id)
+                done_event = json.loads(_emit_done(new_final_text, visual)[6:])
+                done_event["visual_language"] = new_dsl
+                yield f"data: {json.dumps(done_event)}\n\n"
+                return
+
+            _finalize_and_persist(final_text, visual_request, visual_language)
+            visual = _render_visual_request(visual_request, visual_language, session_id=session_id)
+            yield _emit_done(final_text, visual)
+            return
         except Exception as e:
             err_payload = {"type": "error", "error": str(e)}
             yield f"data: {json.dumps(err_payload)}\n\n"
