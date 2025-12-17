@@ -9,6 +9,7 @@ import copy
 import difflib
 import inflect
 import logging
+from app.services.visual_generation.container_type_utils import update_container_types_optimized
 
 logger = logging.getLogger(__name__)
 
@@ -364,66 +365,6 @@ class IntuitiveVisualGenerator():
             )
             
         #     return containers
-        def update_container_types_optimized(containers, result_containers):
-            logger.debug("update_container_types_optimized")
-            """
-            Update the container_type for containers in the same group (by container_type)
-            when there is more than one unique container_name. In addition, treat the last
-            item of result_containers as one of the containers (by reference) so that its
-            container_type is updated if necessary.
-            
-            If there is only one unique container_name for a given container_type,
-            leave it unchanged. Otherwise, assign a unique container_type value for each
-            container_name within that group.
-            
-            Parameters:
-            containers (list): List of entity dictionaries.
-            result_containers (list): List of result entity dictionaries.
-                If non-empty, the last item will be processed along with containers.
-            
-            Returns:
-            A tuple (containers, result_containers) where:
-                - containers: the original list (with updated container_type values)
-                - result_containers: the modified list (the last item updated as needed)
-            """
-            # Create a temporary combined list from containers.
-            combined = containers[:]  # shallow copy; dictionary objects remain the same
-            if result_containers:
-                # Append the last result entity (by reference) to combined.
-                combined.append(result_containers[-1])
-            
-            # Group combined items by the original container_type.
-            entity_type_to_containers = defaultdict(list)
-            for entity in combined:
-                entity_type_to_containers[entity['container_type']].append(entity)
-            
-            # Iterate through each container_type group.
-            for container_type, group in entity_type_to_containers.items():
-                # Group further by container_name.
-                name_to_containers = defaultdict(list)
-                for entity in group:
-                    name_to_containers[entity['container_name']].append(entity)
-                
-                # If there is only one unique container_name in this group, nothing to change.
-                if len(name_to_containers) <= 1:
-                    continue
-                
-                # Initialize modification index.
-                modification_index = 1  # for the first unique container_name, leave container_type unchanged.
-                
-                # Iterate through unique container_name groups in insertion order.
-                for name, ent_group in name_to_containers.items():
-                    if modification_index == 1:
-                        # Use the original container_type for the first group.
-                        new_entity_type = container_type
-                    else:
-                        new_entity_type = container_type + "-" + str(modification_index)
-                    # Set the container_type for all containers in this group.
-                    for entity in ent_group:
-                        entity['container_type'] = new_entity_type
-                    modification_index += 1
-
-            return containers, result_containers
         
         def handle_multiplication(operations, containers, svg_root, resources_path,result_containers,start_x = 50,start_y = 150):
             logger.debug("Handling multiplication")
@@ -4552,11 +4493,6 @@ class IntuitiveVisualGenerator():
 
             if data.get("operation") == "identity":
                 logger.debug("Handling single-container / identity (no operations)")
-                # Suppress container_type so no container icon is rendered
-                for c in containers:
-                    c["container_type"] = ""
-                for r in result_containers:
-                    r["container_type"] = ""
                 try:
                     created, svg_width, svg_height = handle_tvq_final(operations, containers, svg_root, resources_path, result_containers, draw_symbols=False)
                 except Exception as e:

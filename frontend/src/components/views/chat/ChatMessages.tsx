@@ -55,8 +55,8 @@ const ChatMessageItem = memo(
             isStudent ? "bg-primary text-primary-foreground" : "bg-muted text-foreground"
           } animate-in fade-in-0 ${slide} duration-200`}
         >
-          <div className={`responsive-text-font-size ${!visual ? 'whitespace-pre-line' : ''}`}>
-            <span>{msg.content}</span>
+          <div className={`responsive-text-font-size ${!visual ? 'whitespace-pre-line' : ''} break-words`}>
+            <span className="break-words">{msg.content}</span>
           </div>
             {msg.streaming && (
               <div className="flex items-center justify-start gap-1 mt-2 pr-1">

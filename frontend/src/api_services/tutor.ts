@@ -172,20 +172,6 @@ const tutorService = {
     return result as TutorStartResponse;
   },
 
-  async generateDsl(sessionId: string, mwp: string): Promise<{ session_id: string; visual_language: string }> {
-    const response = await fetch(`${API_BASE_URL}/tutor/generate-dsl`, {
-      method: "POST",
-      headers: getHeadersWithLanguage(),
-      body: JSON.stringify({ session_id: sessionId, mwp }),
-    });
-
-    const result = await response.json();
-    if (!response.ok) {
-      throw new ApiError(result.error || "Failed to generate DSL", response.status);
-    }
-    return result as { session_id: string; visual_language: string };
-  },
-
   startSessionStream(mwp: string, callbacks: StartStreamCallbacks) {
     return createTutorStream<TutorStartResponse>(
       "/tutor/start/stream",

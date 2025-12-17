@@ -59,21 +59,6 @@ export function useTutorSession({ t }: UseTutorSessionParams) {
     return started;
   }, [t]);
 
-  const generateDsl = useCallback(async (mwp: string) => {
-    if (!sessionId) {
-      return false;
-    }
-    try {
-      await tutorService.generateDsl(sessionId, mwp.trim());
-      setHasDsl(true); // Mark DSL as generated
-      return true;
-    } catch (error) {
-      const message = error instanceof Error ? error.message : t("errors.unexpectedError");
-      toast.error(message);
-      return false;
-    }
-  }, [sessionId, t]);
-
   const stripVisualLanguage = (text: string): string => {
     // Remove visual_language lines
     let cleaned = text.replace(/visual_language[\s\S]*/i, "");
@@ -211,7 +196,6 @@ export function useTutorSession({ t }: UseTutorSessionParams) {
     startSession,
     sendMessage,
     resetSession,
-    generateDsl,
   };
 }
 

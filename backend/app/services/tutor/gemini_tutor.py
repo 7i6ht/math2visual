@@ -87,7 +87,7 @@ Particularly, pay attention to what is noted about each example and take it into
 ------------INPUT---------------
 Language: en
 visual_language:
-addition(container1[entity_name: orange, entity_type: orange, entity_quantity: 9, container_name: Janet, container_type: girl, attr_name: , attr_type: ], container2[entity_name: orange, entity_type: orange, entity_quantity: 7, container_name: Sharon, container_type: girl, attr_name: , attr_type: ], result_container[entity_name: orange, entity_type: orange, entity_quantity: 16, container_name: Janet and Sharon, container_type: , attr_name: , attr_type: ])
+addition(container1[entity_name: orange, entity_type: orange, entity_quantity: 9, container_name: Janet, container_type: girl, attr_name: , attr_type: ], container2[entity_name: orange, entity_type: orange, entity_quantity: 7, container_name: Sharon, container_type: girl-2, attr_name: , attr_type: ], result_container[entity_name: orange, entity_type: orange, entity_quantity: 16, container_name: Janet and Sharon, container_type: , attr_name: , attr_type: ])
 
 Conversation so far:
 Student: Janet has nine oranges and Sharon has seven oranges. How many oranges do Janet and Sharon have together?
@@ -104,7 +104,7 @@ VISUAL_REQUEST={"variant":"intuitive","dsl_scope": "identity(container1[entity_n
 ------------INPUT---------------
 Language: en
 visual_language:
-addition(container1[entity_name: orange, entity_type: orange, entity_quantity: 9, container_name: Janet, container_type: girl, attr_name: , attr_type: ], container2[entity_name: orange, entity_type: orange, entity_quantity: 7, container_name: Sharon, container_type: girl, attr_name: , attr_type: ], result_container[entity_name: orange, entity_type: orange, entity_quantity: 16, container_name: Janet and Sharon, container_type: , attr_name: , attr_type: ])
+addition(container1[entity_name: orange, entity_type: orange, entity_quantity: 9, container_name: Janet, container_type: girl, attr_name: , attr_type: ], container2[entity_name: orange, entity_type: orange, entity_quantity: 7, container_name: Sharon, container_type: girl-2, attr_name: , attr_type: ], result_container[entity_name: orange, entity_type: orange, entity_quantity: 16, container_name: Janet and Sharon, container_type: , attr_name: , attr_type: ])
 
 Conversation so far:
 Student: Janet has nine oranges and Sharon has seven oranges. How many oranges do Janet and Sharon have together?
@@ -121,12 +121,12 @@ Tutor:
 Exactly! Now, let's see how many oranges Sharon has.
 
 How many oranges does Sharon have?
-VISUAL_REQUEST={"variant":"intuitive","dsl_scope":"identity(container2[entity_name: orange, entity_type: orange, entity_quantity: 7, container_name: Sharon, container_type: girl, attr_name: , attr_type: ])"}
+VISUAL_REQUEST={"variant":"intuitive","dsl_scope":"identity(container2[entity_name: orange, entity_type: orange, entity_quantity: 7, container_name: Sharon, container_type: girl-2, attr_name: , attr_type: ])"}
 --------------------------------
 ------------INPUT---------------
 Language: en
 visual_language:
-addition(container1[entity_name: orange, entity_type: orange, entity_quantity: 9, container_name: Janet, container_type: girl, attr_name: , attr_type: ], container2[entity_name: orange, entity_type: orange, entity_quantity: 7, container_name: Sharon, container_type: girl, attr_name: , attr_type: ], result_container[entity_name: orange, entity_type: orange, entity_quantity: 16, container_name: Janet and Sharon, container_type: , attr_name: , attr_type: ])
+addition(container1[entity_name: orange, entity_type: orange, entity_quantity: 9, container_name: Janet, container_type: girl, attr_name: , attr_type: ], container2[entity_name: orange, entity_type: orange, entity_quantity: 7, container_name: Sharon, container_type: girl-2, attr_name: , attr_type: ], result_container[entity_name: orange, entity_type: orange, entity_quantity: 16, container_name: Janet and Sharon, container_type: , attr_name: , attr_type: ])
 
 Conversation so far:
 Student: Janet has nine oranges and Sharon has seven oranges. How many oranges do Janet and Sharon have together?
@@ -140,7 +140,7 @@ Student: 9
 Tutor: Exactly! Now, let's see how many oranges Sharon has.
 
 How many oranges does Sharon have?
-[Visual DSL: identity(container2[entity_name: orange, entity_type: orange, entity_quantity: 7, container_name: Sharon, container_type: girl, attr_name: , attr_type: ])]
+[Visual DSL: identity(container2[entity_name: orange, entity_type: orange, entity_quantity: 7, container_name: Sharon, container_type: girl-2, attr_name: , attr_type: ])]
 Student: 7
 Tutor:
 --------------------------------
@@ -150,13 +150,13 @@ You got it!
 So, now you we have to find out how many oranges they have together.
 
 Can you tell me the full formula including the result?
-VISUAL_REQUEST={"variant":"intuitive","dsl_scope":"addition(container1[entity_name: orange, entity_type: orange, entity_quantity: 9, container_name: Janet, container_type: girl, attr_name: , attr_type: ], container2[entity_name: orange, entity_type: orange, entity_quantity: 7, container_name: Sharon, container_type: girl, attr_name: , attr_type: ], result_container[entity_name: orange, entity_type: orange, entity_quantity: 16, container_name: Janet and Sharon, container_type: , attr_name: , attr_type: ])"}
+VISUAL_REQUEST={"variant":"intuitive","dsl_scope":"addition(container1[entity_name: orange, entity_type: orange, entity_quantity: 9, container_name: Janet, container_type: girl, attr_name: , attr_type: ], container2[entity_name: orange, entity_type: orange, entity_quantity: 7, container_name: Sharon, container_type: girl-2, attr_name: , attr_type: ], result_container[entity_name: orange, entity_type: orange, entity_quantity: 16, container_name: Janet and Sharon, container_type: , attr_name: , attr_type: ])"}
 How many oranges do they have in total?
 --------------------------------
 ------------INPUT---------------
 Language: en
 visual_language:
-addition(container1[entity_name: orange, entity_type: orange, entity_quantity: 9, container_name: Janet, container_type: girl, attr_name: , attr_type: ], container2[entity_name: orange, entity_type: orange, entity_quantity: 7, container_name: Sharon, container_type: girl, attr_name: , attr_type: ], result_container[entity_name: orange, entity_type: orange, entity_quantity: 16, container_name: Janet and Sharon, container_type: , attr_name: , attr_type: ])
+addition(container1[entity_name: orange, entity_type: orange, entity_quantity: 9, container_name: Janet, container_type: girl, attr_name: , attr_type: ], container2[entity_name: orange, entity_type: orange, entity_quantity: 7, container_name: Sharon, container_type: girl-2, attr_name: , attr_type: ], result_container[entity_name: orange, entity_type: orange, entity_quantity: 16, container_name: Janet and Sharon, container_type: , attr_name: , attr_type: ])
 
 Conversation so far:
 Student: Janet has nine oranges and Sharon has seven oranges. How many oranges do Janet and Sharon have together?
@@ -170,14 +170,14 @@ Student: 9
 Tutor: Exactly! Now, let's see how many oranges Sharon has.
 
 How many oranges does Sharon have?
-[Visual DSL: identity(container2[entity_name: orange, entity_type: orange, entity_quantity: 7, container_name: Sharon, container_type: girl, attr_name: , attr_type: ])]
+[Visual DSL: identity(container2[entity_name: orange, entity_type: orange, entity_quantity: 7, container_name: Sharon, container_type: girl-2, attr_name: , attr_type: ])]
 Student: 7
 Tutor: You got it!
 
 So, now you we have to find out how many oranges they have together.
 
 Can you tell me the full formula including the result?
-[Visual DSL: addition(container1[entity_name: orange, entity_type: orange, entity_quantity: 9, container_name: Janet, container_type: girl, attr_name: , attr_type: ], container2[entity_name: orange, entity_type: orange, entity_quantity: 7, container_name: Sharon, container_type: girl, attr_name: , attr_type: ], result_container[entity_name: orange, entity_type: orange, entity_quantity: 16, container_name: Janet and Sharon, container_type: , attr_name: , attr_type: ])]
+[Visual DSL: addition(container1[entity_name: orange, entity_type: orange, entity_quantity: 9, container_name: Janet, container_type: girl, attr_name: , attr_type: ], container2[entity_name: orange, entity_type: orange, entity_quantity: 7, container_name: Sharon, container_type: girl-2, attr_name: , attr_type: ], result_container[entity_name: orange, entity_type: orange, entity_quantity: 16, container_name: Janet and Sharon, container_type: , attr_name: , attr_type: ])]
 Student: 9 + 7 = 16
 Tutor:
 --------------------------------
@@ -1526,7 +1526,7 @@ Note: What this example does well is that it shows the intuitive variant and the
 ------------INPUT---------------
 Language: en
 visual_language:
-comparison(addition(container1[entity_name: apple, entity_type: apple, entity_quantity: 4, container_name: Tessa, container_type: girl, attr_name:, attr_type:], container2[entity_name: apple, entity_type: apple, entity_quantity: 5, container_name: Anita, container_type: girl, attr_name:, attr_type:], result_container[entity_name: apple, entity_type: apple, entity_quantity: 9, container_name: Tessa, container_type: girl, attr_name:, attr_type:]), container2[entity_name: apple, entity_type: apple, entity_quantity: 10, container_name: pie, container_type: pie, attr_name:, attr_type:])
+comparison(addition(container1[entity_name: apple, entity_type: apple, entity_quantity: 4, container_name: Tessa, container_type: girl, attr_name:, attr_type:], container2[entity_name: apple, entity_type: apple, entity_quantity: 5, container_name: Anita, container_type: girl-2, attr_name:, attr_type:], result_container[entity_name: apple, entity_type: apple, entity_quantity: 9, container_name: Tessa, container_type: girl, attr_name:, attr_type:]), container2[entity_name: apple, entity_type: apple, entity_quantity: 10, container_name: pie, container_type: pie, attr_name:, attr_type:])
 
 Conversation so far:
 Student: Tessa has 4 apples. Anita gave her 5 more. She needs 10 apples to make a pie. Does she have enough to make a pie?
@@ -1542,7 +1542,7 @@ Tutor: Correct!
 Now, let's look at how many apples Anita gave her.
 
 How many more apples did she get?
-[Visual DSL: identity(container2[entity_name: apple, entity_type: apple, entity_quantity: 5, container_name: Anita, container_type: girl, attr_name:, attr_type:])]
+[Visual DSL: identity(container2[entity_name: apple, entity_type: apple, entity_quantity: 5, container_name: Anita, container_type: girl-2, attr_name:, attr_type:])]
 Student: 5
 Tutor:
 --------------------------------
@@ -1550,7 +1550,7 @@ Tutor:
 You got it!
 
 So, to find out how many apples Tessa has in total, we need to add the 4 she started with to the 5 Anita gave her.
-VISUAL_REQUEST={"variant":"intuitive","dsl_scope":"addition(container1[entity_name: apple, entity_type: apple, entity_quantity: 4, container_name: Tessa, container_type: girl, attr_name:, attr_type:], container2[entity_name: apple, entity_type: apple, entity_quantity: 5, container_name: Anita, container_type: girl, attr_name:, attr_type:], result_container[entity_name: apple, entity_type: apple, entity_quantity: 9, container_name: Tessa, container_type: girl, attr_name:, attr_type:])"}
+VISUAL_REQUEST={"variant":"intuitive","dsl_scope":"addition(container1[entity_name: apple, entity_type: apple, entity_quantity: 4, container_name: Tessa, container_type: girl, attr_name:, attr_type:], container2[entity_name: apple, entity_type: apple, entity_quantity: 5, container_name: Anita, container_type: girl-2, attr_name:, attr_type:], result_container[entity_name: apple, entity_type: apple, entity_quantity: 9, container_name: Tessa, container_type: girl, attr_name:, attr_type:])"}
 How many apples does Tessa have now?
 --------------------------------
 
@@ -2491,7 +2491,7 @@ Tutor:
 Exactly! Now, let's see how many oranges Sharon has.
 
 How many oranges does Sharon have?
-VISUAL_REQUEST={"variant":"intuitive","dsl_scope":"identity(container2[entity_name: orange, entity_type: orange, entity_quantity: 7, container_name: Sharon, container_type: girl, attr_name: , attr_type: ])"}
+VISUAL_REQUEST={"variant":"intuitive","dsl_scope":"identity(container2[entity_name: orange, entity_type: orange, entity_quantity: 7, container_name: Sharon, container_type: girl-2, attr_name: , attr_type: ])"}
 --------------------------------
 ------------INPUT---------------
 Language: en
@@ -2507,7 +2507,7 @@ Student: 9
 Tutor: Exactly! Now, let's see how many oranges Sharon has.
 
 How many oranges does Sharon have?
-[Visual DSL: identity(container2[entity_name: orange, entity_type: orange, entity_quantity: 7, container_name: Sharon, container_type: girl, attr_name: , attr_type: ])]
+[Visual DSL: identity(container2[entity_name: orange, entity_type: orange, entity_quantity: 7, container_name: Sharon, container_type: girl-2, attr_name: , attr_type: ])]
 Student: 7
 Tutor:
 --------------------------------
@@ -2515,7 +2515,7 @@ Tutor:
 You got it!
 
 So, to find out how many oranges they have together, we need to add Janet's 9 oranges to Sharon's 7 oranges.
-VISUAL_REQUEST={"variant":"intuitive","dsl_scope":"addition(container1[entity_name: orange, entity_type: orange, entity_quantity: 9, container_name: Janet, container_type: girl, attr_name: , attr_type: ], container2[entity_name: orange, entity_type: orange, entity_quantity: 7, container_name: Sharon, container_type: girl, attr_name: , attr_type: ], result_container[entity_name: orange, entity_type: orange, entity_quantity: 16, container_name: Janet and Sharon, container_type: , attr_name: , attr_type: ])"}
+VISUAL_REQUEST={"variant":"intuitive","dsl_scope":"addition(container1[entity_name: orange, entity_type: orange, entity_quantity: 9, container_name: Janet, container_type: girl, attr_name: , attr_type: ], container2[entity_name: orange, entity_type: orange, entity_quantity: 7, container_name: Sharon, container_type: girl-2, attr_name: , attr_type: ], result_container[entity_name: orange, entity_type: orange, entity_quantity: 16, container_name: Janet and Sharon, container_type: , attr_name: , attr_type: ])"}
 How many oranges do they have in total?
 --------------------------------
 
@@ -2628,14 +2628,14 @@ Student: 9
 Tutor: Exactly! Now, let's see how many oranges Sharon has.
 
 How many oranges does Sharon have?
-[Visual DSL: identity(container2[entity_name: orange, entity_type: orange, entity_quantity: 7, container_name: Sharon, container_type: girl, attr_name: , attr_type: ])]
+[Visual DSL: identity(container2[entity_name: orange, entity_type: orange, entity_quantity: 7, container_name: Sharon, container_type: girl-2, attr_name: , attr_type: ])]
 Student: 7
 Tutor: You got it!
 
 So, now we have to find out how many oranges they have together.
 
 Can you tell me the full formula including the result?
-[Visual DSL: addition(container1[entity_name: orange, entity_type: orange, entity_quantity: 9, container_name: Janet, container_type: girl, attr_name: , attr_type: ], container2[entity_name: orange, entity_type: orange, entity_quantity: 7, container_name: Sharon, container_type: girl, attr_name: , attr_type: ], result_container[entity_name: orange, entity_type: orange, entity_quantity: 16, container_name: Janet and Sharon, container_type: , attr_name: , attr_type: ])]
+[Visual DSL: addition(container1[entity_name: orange, entity_type: orange, entity_quantity: 9, container_name: Janet, container_type: girl, attr_name: , attr_type: ], container2[entity_name: orange, entity_type: orange, entity_quantity: 7, container_name: Sharon, container_type: girl-2, attr_name: , attr_type: ], result_container[entity_name: orange, entity_type: orange, entity_quantity: 16, container_name: Janet and Sharon, container_type: , attr_name: , attr_type: ])]
 Student: 9 + 7 = 16
 Tutor: That's right! 9 oranges plus 7 oranges equals 16 oranges.
 
@@ -2650,7 +2650,7 @@ MWP:5 boats are in the lake. Each boat has 3 people. How many people are on boat
 ------------INPUT---------------
 Language: en
 visual_language:
-multiplication(container1[entity_name: person, entity_type: person, entity_quantity: 3, container_name: boat, container_type: boat, attr_name:, attr_type:], container2[entity_name: multiplier, entity_type: multiplier, entity_quantity: 5, container_name: , container_type:, attr_name:, attr_type:], result_container[entity_name: person, entity_type: person, entity_quantity: 15, container_name: boats in lake, container_type: lake, attr_name:, attr_type:])
+multiplication(container1[entity_name: person, entity_type: person, entity_quantity: 3, container_name: boat, container_type: boat, attr_name:, attr_type:], container2[entity_name: multiplier, entity_type: multiplier, entity_quantity: 5, container_name: , container_type:, attr_name:, attr_type:], result_container[entity_name: person, entity_type: person, entity_quantity: 15, container_name: boats in lake, container_type: lake-2, attr_name:, attr_type:])
 
 Conversation so far:
 Student: 5 boats are in the lake. Each boat has 3 people. How many people are on boats in the lake?

@@ -11,6 +11,7 @@ from app.services.tutor.gemini_tutor import (
     MAX_HISTORY,
 )
 from app.services.tutor.session_storage import get_session, save_session, delete_session
+from app.services.tutor.dsl_container_types import apply_container_type_modifications
 from flask import Response, stream_with_context
 import re
 
@@ -167,6 +168,9 @@ def _create_tutor_stream_response(visual_language: str, history: List[Dict[str, 
                     yield f"data: {json.dumps(err_payload)}\n\n"
                     return
                 new_dsl = raw.split(":", 1)[1].strip() if raw.lower().startswith("visual_language:") else raw.strip()
+                
+                # Apply container type modifications to ensure consistent icon selection
+                new_dsl = apply_container_type_modifications(new_dsl)
 
                 # Reset conversation history to the new problem (keep session_id stable)
                 history.clear()
@@ -283,6 +287,9 @@ def tutor_start():
     if not raw:
         return jsonify({"error": _("Did not get Visual Language from AI. Please try again.")}), 500
     dsl = raw.split(":", 1)[1].strip() if raw.lower().startswith("visual_language:") else raw.strip()
+    
+    # Apply container type modifications to ensure consistent icon selection
+    dsl = apply_container_type_modifications(dsl)
 
     session_id, tutor_reply, visual_request = start_tutor_session(mwp, dsl, language=str(language))
     visual = _render_visual_request(visual_request, dsl, session_id=session_id)
@@ -323,6 +330,9 @@ def tutor_start_stream():
     if not raw:
         return jsonify({"error": _("Did not get Visual Language from AI. Please try again.")}), 500
     dsl = raw.split(":", 1)[1].strip() if raw.lower().startswith("visual_language:") else raw.strip()
+    
+    # Apply container type modifications to ensure consistent icon selection
+    dsl = apply_container_type_modifications(dsl)
 
     # Create session and get initial history
     session_id = str(uuid.uuid4())
@@ -346,45 +356,6 @@ def tutor_start_stream():
             yield event
     
     return Response(stream_with_context(enhanced_stream()), mimetype="text/event-stream")
-
-
-@tutor_bp.route("/api/tutor/generate-dsl", methods=["POST"])
-def tutor_generate_dsl():
-    """
-    Generate DSL for an existing session based on a message (typically the MWP).
-    Updates the session's visual_language.
-    """
-    body = request.json or {}
-    session_id = (body.get("session_id") or "").strip()
-    mwp = (body.get("mwp") or "").strip()
-
-    if not session_id:
-        return jsonify({"error": _("Missing session id.")}), 400
-    if not mwp:
-        return jsonify({"error": _("Provide a math word problem (MWP).")}), 400
-
-    session = get_session(session_id)
-    if not session:
-        return jsonify({"error": _("Session not found or expired.")}), 404
-
-    # Always use language from request header
-    language = str(get_locale())
-
-    # Generate visual language via GPT backend
-    vl_response = generate_visual_language(mwp, None, None, language=language)
-    raw = extract_visual_language(vl_response)
-    if not raw:
-        return jsonify({"error": _("Did not get Visual Language from AI. Please try again.")}), 500
-    dsl = raw.split(":", 1)[1].strip() if raw.lower().startswith("visual_language:") else raw.strip()
-
-    # Update session with new visual_language
-    history = session.get("history", [])
-    save_session(session_id, dsl, history)
-
-    return jsonify({
-        "session_id": session_id,
-        "visual_language": dsl
-    })
 
 
 @tutor_bp.route("/api/tutor/message/stream", methods=["POST"])
