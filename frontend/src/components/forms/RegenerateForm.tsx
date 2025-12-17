@@ -17,7 +17,7 @@ import type { ComponentMapping } from "@/types/visualInteraction";
 import { useHighlightingContext } from "@/contexts/HighlightingContext";
 import { MWPTextEntry } from "@/components/ui/mwp-text-entry";
 
-interface RenenerateFormProps {
+interface RegenerateFormProps {
   onSuccess: (vl: string, svgFormal: string | null, svgIntuitive: string | null, parsedDSL: ParsedOperation, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], mwp?: string, formula?: string, hint?: string, componentMappings?: ComponentMapping, hasParseError?: boolean) => void;
   onLoadingChange: (loading: boolean, abortFn?: () => void) => void;
   mwp?: string;
@@ -29,7 +29,7 @@ interface RenenerateFormProps {
   showHintInput?: boolean;
 }
 
-export const RenenerateForm = ({ 
+export const RegenerateForm = ({ 
   onSuccess, 
   onLoadingChange, 
   mwp = "",
@@ -39,7 +39,7 @@ export const RenenerateForm = ({
   rows = 8,
   isDisabled = false,
   showHintInput = false,
-}: RenenerateFormProps) => {
+}: RegenerateFormProps) => {
   const { t } = useTranslation();
   const { mwpHighlightRanges, formulaHighlightRanges, clearHighlightingState } = useHighlightingContext();
   const analyticsEnabled = isAnalyticsEnabled();

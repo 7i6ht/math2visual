@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState, useSyncExternalStore, useRef } from "react";
 import { ResponsiveLogo } from "@/components/ui/ResponsiveLogo";
-import { RenenerateForm } from "@/components/forms/RenenerateForm";
+import { RegenerateForm } from "@/components/forms/RegenerateForm";
 import { VisualLanguageForm } from "@/components/forms/VisualLanguageForm";
 import { VisualizationResults } from "@/components/visualization/VisualizationResults";
 import { SparklesLoading } from "@/components/ui/sparkles-loading";
@@ -162,7 +162,7 @@ export function TwoColumnView({ appState }: Props) {
 
   const mathProblemForm = (
     <div className="flex flex-col w-full">
-      <RenenerateForm
+      <RegenerateForm
         onSuccess={setResults}
         onLoadingChange={(loading, abortFn) => {
           setMpFormLoading(loading, abortFn);

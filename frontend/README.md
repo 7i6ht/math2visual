@@ -34,7 +34,7 @@ frontend/
 │   │   ├── errors/
 │   │   │   └── SVGMissingError.tsx
 │   │   ├── forms/
-│   │   │   ├── RenenerateForm.tsx          # Regenerate from DSL/formula
+│   │   │   ├── RegenerateForm.tsx          # Regenerate from DSL/formula
 │   │   │   └── VisualLanguageForm.tsx
 │   │   ├── popups/                         # Entity + SVG management dialogs
 │   │   │   ├── BasePopup.tsx
