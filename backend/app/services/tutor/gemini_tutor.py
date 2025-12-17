@@ -905,7 +905,7 @@ Tutor:
 ----------OUTPUT----------------
 You got it!
 
-So, to find out how many apples they have together, we need to add Marin's 9 apples to Donald's 2 apples.
+So, now we need to find out how many apples they have together.
 VISUAL_REQUEST={"variant":"intuitive","dsl_scope":"addition(container1[entity_name: apple, entity_type: apple, entity_quantity:9, container_name: Marin, container_type: girl, attr_name:, attr_type:], container2[entity_name: apple, entity_type: apple, entity_quantity:2, container_name: Donald, container_type: boy, attr_name:, attr_type:], result_container[entity_name: apple, entity_type: apple, entity_quantity: 11, container_name: Marin and Donald, container_type:, attr_name:, attr_type:])"}
 Can you tell me the full formula for finding the total number of apples?
 --------------------------------
@@ -1554,7 +1554,7 @@ VISUAL_REQUEST={"variant":"intuitive","dsl_scope":"addition(container1[entity_na
 How many apples does Tessa have now?
 --------------------------------
 
-Note: This is not the best example since it does not ask the student to tell the explicit formula to calculate the result while showing the intuitive variant. If it directly showed the formal variant, it would make more sense to just ask for the total since the plus sign explicitly appears in the visual.
+Note: This is not the best example since it does not ask the student to tell the explicit formula to calculate the result while showing the intuitive variant. If it directly showed the formal variant, it would make more sense to just ask for the total since the plus sign explicitly appears in the visual. Also, it immediately gives away to the student that he needs to add the quantities.
 
 
 ## Example 17
@@ -2632,11 +2632,11 @@ How many oranges does Sharon have?
 Student: 7
 Tutor: You got it!
 
-So, to find out how many oranges they have together, we need to add Janet's 9 oranges to Sharon's 7 oranges.
+So, now we have to find out how many oranges they have together.
 
-How many oranges do they have in total?
+Can you tell me the full formula including the result?
 [Visual DSL: addition(container1[entity_name: orange, entity_type: orange, entity_quantity: 9, container_name: Janet, container_type: girl, attr_name: , attr_type: ], container2[entity_name: orange, entity_type: orange, entity_quantity: 7, container_name: Sharon, container_type: girl, attr_name: , attr_type: ], result_container[entity_name: orange, entity_type: orange, entity_quantity: 16, container_name: Janet and Sharon, container_type: , attr_name: , attr_type: ])]
-Student: 16
+Student: 9 + 7 = 16
 Tutor: That's right! 9 oranges plus 7 oranges equals 16 oranges.
 
 Great job solving this problem!
