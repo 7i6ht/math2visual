@@ -62,22 +62,37 @@ This interactive system builds upon the Math2Visual research framework:
 
 ```mermaid
 flowchart TD
+    %% Teacher mode (visual generation)
     A["Teacher Input"] --> B["React Frontend"]
     B --- C["Math Word Problem + Formula"]
     B --> K["Download & Export"]
     C --> D["Flask Backend"]
     D --> E["OpenAI GPT Model"]
     E --- F["Visual Language DSL"]
-    F --> G["SVG Generation Engine"]
-    G --> H["Entity Library - 1,548+ SVG Assets"] & I["Formal Visualization"] & J["Intuitive Visualization"]
+    F --> G["SVG Renderer"]
+    G --> H["Entity Library - 1,548+ SVG Assets"] & I["(Scoped) Formal Visualization"] & J["(Scoped) Intuitive Visualization"]
     I --> B
     J --> B
 
+    %% Student mode (AI tutor using generated visuals)
+    S["Student Input"] --> B
+    B --- T["Tutor Chat + DSL"]
+    T --> M["Gemini Tutor Model"]
+    M --- N["DSL Fragments (scoped)"]
+    M --- P["Tutor Reply Text"]
+    P --> B
+    N --> G
+
     A@{ shape: text}
+    S@{ shape: text}
     C@{ shape: text}
+    T@{ shape: text}
+    P@{ shape: text}
     K@{ shape: terminal}
     E@{ shape: h-cyl}
+    M@{ shape: h-cyl}
     F@{ shape: text}
+    N@{ shape: text}
     H@{ shape: cyl}
     I@{ shape: hex}
     J@{ shape: hex}
@@ -90,6 +105,7 @@ flowchart TD
      H:::Sky
      I:::Peach
      J:::Peach
+     M:::Ash
     classDef Sky stroke-width:1px, stroke-dasharray:none, stroke:#374D7C, fill:#E2EBFF, color:#374D7C
     classDef Peach stroke-width:1px, stroke-dasharray:none, stroke:#FBB35A, fill:#FFEFDB, color:#8F632D
     classDef Rose stroke-width:1px, stroke-dasharray:none, stroke:#FF5978, fill:#FFDFE5, color:#8E2236
