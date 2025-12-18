@@ -1,7 +1,7 @@
 """
 Database models for user action recording in Math2Visual.
 """
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional, Dict, Any
 from sqlalchemy import Column, Integer, String, DateTime, Text, JSON, Index, ForeignKey, Float
 from sqlalchemy.ext.declarative import declarative_base
@@ -19,8 +19,8 @@ class UserSession(Base):
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     session_id = Column(String(100), unique=True, nullable=False, index=True)
     user_agent = Column(Text, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    last_activity = Column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
+    last_activity = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
     
     # Relationships
     actions = relationship("Action", back_populates="session", cascade="all, delete-orphan")
@@ -39,7 +39,7 @@ class Action(Base):
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     session_id = Column(String(36), ForeignKey('user_sessions.id'), nullable=False)
     type = Column(String(50), nullable=False, index=True)  # e.g., 'form_submit', 'element_click', 'download'
-    timestamp = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+    timestamp = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False, index=True)
     
     # Action-specific data
     data = Column(JSON, nullable=True)  # Flexible JSON for action-specific data
@@ -73,7 +73,7 @@ class Screenshot(Base):
     height = Column(Integer, nullable=True)  # Image height in pixels
     
     # Timestamps
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False, index=True)
     
     # Relationships
     session = relationship("UserSession", back_populates="screenshots")
@@ -105,7 +105,7 @@ class CursorPosition(Base):
     element_id = Column(String(255), nullable=True)  # Element ID if available
     
     # Timestamps
-    timestamp = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+    timestamp = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False, index=True)
     
     # Relationships
     session = relationship("UserSession", back_populates="cursor_positions")

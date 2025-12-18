@@ -2,7 +2,7 @@
 Analytics API routes for user action recording and analysis.
 """
 from flask import Blueprint, request, jsonify
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional, Dict, Any, List
 import uuid
 import os
@@ -26,13 +26,13 @@ def ensure_dir_exists(directory: str) -> None:
 def parse_timestamp(timestamp_str: Optional[str]) -> datetime:
     """Parse ISO timestamp string, falling back to current time."""
     if not timestamp_str:
-        return datetime.utcnow()
+        return datetime.now(timezone.utc)
     
     try:
         return datetime.fromisoformat(timestamp_str.replace('Z', '+00:00'))
     except (ValueError, AttributeError):
         logger.warning(f"Failed to parse timestamp: {timestamp_str}")
-        return datetime.utcnow()
+        return datetime.now(timezone.utc)
 
 
 def decode_base64_image(image_data: str) -> bytes:
@@ -68,7 +68,7 @@ def get_or_create_session(session_id: str, user_agent: Optional[str] = None) -> 
 
         if session:
             # Update last activity
-            session.last_activity = datetime.utcnow()
+            session.last_activity = datetime.now(timezone.utc)
             db.commit()
             return session.id
 

@@ -22,8 +22,9 @@ class TutorSession(Base):
     visual_language = Column(Text, nullable=False, default="")
     history = Column(JSON, nullable=False, default=list)
     session_metadata = Column(JSON, nullable=True, default=dict)  # For storing additional fields like preferred_variant
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False, index=True)
-    last_activity = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False, index=True)
+    # Store UTC timestamps as timezone-aware datetimes (TIMESTAMP WITH TIME ZONE in PostgreSQL)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False, index=True)
+    last_activity = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False, index=True)
     
     # Indexes for efficient queries
     __table_args__ = (
