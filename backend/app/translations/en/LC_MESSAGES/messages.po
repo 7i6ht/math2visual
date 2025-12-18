@@ -123,7 +123,8 @@ msgid "Search failed: %(error)s"
 msgstr ""
 
 #: app/api/routes/svg_dataset.py:165
-msgid "Request too large (max 10MB)"
+#, python-format
+msgid "Request too large (max %(max)dMB)"
 msgstr ""
 
 #: app/api/routes/svg_dataset.py:169
@@ -260,6 +261,32 @@ msgstr ""
 #: app/api/routes/tutor.py:91
 msgid "Session not found or expired."
 msgstr ""
+
+#: app/api/routes/generation.py:69 app/api/routes/generation.py:250
+#: app/api/routes/generation.py:277
+#, python-format
+msgid "Visual Language is too long (max %(max)d characters)."
+msgstr "Visual Language is too long (max %(max)d characters)."
+
+#: app/api/routes/generation.py:87 app/api/routes/tutor.py:319
+#, python-format
+msgid "Math word problem is too long (max %(max)d characters)."
+msgstr "Math word problem is too long (max %(max)d characters)."
+
+#: app/api/routes/generation.py:89
+#, python-format
+msgid "Formula is too long (max %(max)d characters)."
+msgstr "Formula is too long (max %(max)d characters)."
+
+#: app/api/routes/generation.py:91
+#, python-format
+msgid "Hint is too long (max %(max)d characters)."
+msgstr "Hint is too long (max %(max)d characters)."
+
+#: app/api/routes/tutor.py:384
+#, python-format
+msgid "Message is too long (max %(max)d characters)."
+msgstr "Message is too long (max %(max)d characters)."
 
 # Generator error messages (from visual_generation modules)
 #~ msgid "Cannot generate visual: SVG file not found for %(base_name)s."

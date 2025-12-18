@@ -22,6 +22,10 @@ except ImportError as e:
 
 logger = logging.getLogger(__name__)
 
+# Import maximum request body size from validation constants (single source of truth)
+# Note: nginx.conf client_max_body_size should match this value (currently 12MB)
+from app.utils.validation_constants import MAX_REQUEST_BODY_SIZE
+
 
 class SVGValidationError(Exception):
     """Custom exception for SVG validation errors."""
@@ -33,9 +37,10 @@ class SVGValidator:
     Comprehensive SVG file validator with security-focused content analysis.
     """
     
-    # Maximum file sizes
-    MAX_RAW_FILE_SIZE = 5 * 1024 * 1024  # 5MB for raw content
-    MAX_DECODED_FILE_SIZE = 10 * 1024 * 1024  # 10MB for decoded content
+    # Maximum file sizes - use MAX_REQUEST_BODY_SIZE from validation_constants
+    # to maintain single source of truth across backend components
+    MAX_RAW_FILE_SIZE = MAX_REQUEST_BODY_SIZE
+    MAX_DECODED_FILE_SIZE = MAX_REQUEST_BODY_SIZE
     MAX_FILENAME_LENGTH = 255
     
     # Dangerous content patterns for SVG security

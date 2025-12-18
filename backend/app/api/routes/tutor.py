@@ -12,6 +12,7 @@ from app.services.tutor.gemini_tutor import (
 )
 from app.services.tutor.session_storage import get_session, save_session, delete_session
 from app.services.tutor.dsl_container_types import apply_container_type_modifications
+from app.utils.validation_constants import MWP_MAX_LENGTH, MESSAGE_MAX_LENGTH
 from flask import Response, stream_with_context
 import re
 
@@ -313,6 +314,13 @@ def tutor_start_stream():
     mwp = (body.get("mwp") or "").strip()
     language = get_locale()
 
+    # Validate MWP length if provided
+    if mwp and len(mwp) > MWP_MAX_LENGTH:
+        err_payload = {"type": "error", "error": _("Math word problem is too long (max %(max)d characters).", max=MWP_MAX_LENGTH)}
+        def error_stream():
+            yield f"data: {json.dumps(err_payload)}\n\n"
+        return Response(stream_with_context(error_stream()), mimetype="text/event-stream")
+
     # If no MWP provided, create session without DSL (autostart mode)
     if not mwp:
         session_id = str(uuid.uuid4())
@@ -372,6 +380,8 @@ def tutor_message_stream():
         return jsonify({"error": _("Missing session id.")}), 400
     if not user_message:
         return jsonify({"error": _("Please provide a message.")}), 400
+    if len(user_message) > MESSAGE_MAX_LENGTH:
+        return jsonify({"error": _("Message is too long (max %(max)d characters).", max=MESSAGE_MAX_LENGTH)}), 400
 
     session = get_session(session_id)
     if not session:

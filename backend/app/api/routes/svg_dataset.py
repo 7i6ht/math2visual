@@ -10,6 +10,7 @@ from app.config.storage_config import get_svg_dataset_path
 from app.services.validation.svg_validator import validate_file
 from app.services.svg_generation.svg_generator import generate_svg_icon
 from app.utils.translations import expand_search_terms
+from app.utils.validation_constants import MAX_REQUEST_BODY_SIZE
 from flask_babel import _
 from werkzeug.utils import secure_filename
 
@@ -160,9 +161,10 @@ def upload_svg():
         JSON response with success status and validation details
     """
     try:
-        # Check request size limit (10MB)
-        if request.content_length and request.content_length > 10 * 1024 * 1024:
-            return jsonify({"success": False, "error": _("Request too large (max 10MB)")}), 413
+        # Check request size limit (matches MAX_REQUEST_BODY_SIZE from validation_constants)
+        if request.content_length and request.content_length > MAX_REQUEST_BODY_SIZE:
+            max_mb = MAX_REQUEST_BODY_SIZE // (1024 * 1024)
+            return jsonify({"success": False, "error": _("Request too large (max %(max)dMB)", max=max_mb)}), 413
         
         # Check if file was uploaded
         if 'file' not in request.files:

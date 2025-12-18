@@ -2,6 +2,7 @@ import type { TFunction } from "i18next";
 import { Mic, Square, ArrowUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { STRING_SIZE_LIMITS } from "@/utils/validation";
 
 type ChatInputBarProps = {
   input: string;
@@ -34,6 +35,7 @@ export const ChatInputBar = ({
         placeholder={placeholder ?? t("tutor.sendPlaceholder")}
         spellCheck={false}
         rows={2}
+        maxLength={STRING_SIZE_LIMITS.MESSAGE_MAX_LENGTH}
         className="w-full responsive-text-font-size border-0 bg-transparent p-3 pr-24 sm:pr-28 md:pr-32 lg:pr-36 xl:pr-40 2xl:pr-44 3xl:pr-48 4xl:pr-52 5xl:pr-56 6xl:pr-60 shadow-none resize-none"
         onKeyDown={(e) => {
           if (e.key === "Enter" && !e.shiftKey) {

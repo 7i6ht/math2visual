@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { MWPTextEntry } from "@/components/ui/mwp-text-entry";
 import { HeroShell } from "@/components/common/HeroShell";
 import { useVoiceInput } from "@/hooks/useVoiceInput";
+import { STRING_SIZE_LIMITS } from "@/utils/validation";
 
 type MwpPromptViewProps = {
   mwp: string;
@@ -53,7 +54,13 @@ export const MwpPromptView = ({
   const { listening, voiceSupported, toggleVoice } = useVoiceInput({
     t,
     onTranscript: (transcript) => {
-      const nextValue = mwpRef.current ? `${mwpRef.current}\n${transcript}` : transcript;
+      const currentValue = mwpRef.current || "";
+      const newlineLength = currentValue ? 1 : 0; // '\n' if appending to existing text
+      const remainingSpace = STRING_SIZE_LIMITS.MWP_MAX_LENGTH - currentValue.length - newlineLength;
+      
+      // Slice transcript to fit remaining space, then concatenate
+      const truncatedTranscript = transcript.slice(0, Math.max(0, remainingSpace));
+      const nextValue = currentValue ? `${currentValue}\n${truncatedTranscript}` : truncatedTranscript;
       onMwpChange(nextValue);
     },
   });
@@ -92,6 +99,7 @@ export const MwpPromptView = ({
           disabled={loading}
           rows={rows}
           trailingContent={micButton}
+          maxLength={STRING_SIZE_LIMITS.MWP_MAX_LENGTH}
         />
 
         <div className="flex flex-col items-center gap-5 sm:gap-6 md:gap-8 lg:gap-10 xl:gap-12 2xl:gap-14 3xl:gap-16 4xl:gap-20 5xl:gap-24 6xl:gap-28">

@@ -1,6 +1,6 @@
 /**
- * Shared validation constants and utilities for file names
- * These should match the backend validation rules in validation_constants
+ * Shared validation constants and utilities for file names and string inputs
+ * These should match the backend validation rules in validation_constants.py
  */
 
 import { SVGDatasetService } from '@/api_services/svgDataset';
@@ -9,6 +9,16 @@ export const FILE_NAME_VALIDATION = {
   MAX_LENGTH: 100,
   ALLOWED_CHARS_PATTERN: /^[a-zA-Z\-\s]+$/,
   CONSECUTIVE_PATTERN: /\s{2,}|-{2,}/,
+} as const;
+
+// String size limits for API inputs (in characters)
+// These should match the backend constants in validation_constants.py
+export const STRING_SIZE_LIMITS = {
+  MWP_MAX_LENGTH: 5000,        // Math word problems
+  DSL_MAX_LENGTH: 10000,       // Visual Language DSL (can be lengthy)
+  MESSAGE_MAX_LENGTH: 5000,    // Chat messages
+  FORMULA_MAX_LENGTH: 1000,    // Mathematical formulas
+  HINT_MAX_LENGTH: 5000,       // Hints (same as MWP)
 } as const;
 
 export interface ValidationResult {

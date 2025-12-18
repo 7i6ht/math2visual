@@ -13,6 +13,9 @@ from app.services.visual_generation.formal_generator import FormalVisualGenerato
 from app.services.visual_generation.intuitive_generator import IntuitiveVisualGenerator
 from app.services.visual_generation.dsl_parser import DSLParser
 from app.config.storage_config import get_svg_dataset_path
+from app.utils.validation_constants import (
+    DSL_MAX_LENGTH, MWP_MAX_LENGTH, FORMULA_MAX_LENGTH, HINT_MAX_LENGTH
+)
 from flask_babel import _, get_locale
 
 # Check if running in debug mode
@@ -62,6 +65,8 @@ def generate():
         raw_dsl = body["dsl"].strip()
         if not raw_dsl:
             return jsonify({"error": _("Empty Visual Language provided.")}), 400
+        if len(raw_dsl) > DSL_MAX_LENGTH:
+            return jsonify({"error": _("Visual Language is too long (max %(max)d characters).", max=DSL_MAX_LENGTH)}), 400
         # Strip the prefix if present
         if raw_dsl.lower().startswith("visual_language:"):
             dsl = raw_dsl.split(":", 1)[1].strip()
@@ -70,12 +75,20 @@ def generate():
     else:
         # Generate DSL from math word problem
         mwp = body.get("mwp", "").strip()
-        formula = body.get("formula") or None
-        hint = body.get("hint") or None
+        formula_raw = body.get("formula")
+        hint_raw = body.get("hint")
+        formula = formula_raw.strip() if formula_raw else None
+        hint = hint_raw.strip() if hint_raw else None
         # Get language from Accept-Language header (via Flask-Babel)
         language = get_locale()
         if not mwp:
             return jsonify({"error": _("Provide a math word problem (MWP).")}), 400
+        if len(mwp) > MWP_MAX_LENGTH:
+            return jsonify({"error": _("Math word problem is too long (max %(max)d characters).", max=MWP_MAX_LENGTH)}), 400
+        if formula and len(formula) > FORMULA_MAX_LENGTH:
+            return jsonify({"error": _("Formula is too long (max %(max)d characters).", max=FORMULA_MAX_LENGTH)}), 400
+        if hint and len(hint) > HINT_MAX_LENGTH:
+            return jsonify({"error": _("Hint is too long (max %(max)d characters).", max=HINT_MAX_LENGTH)}), 400
 
         # Generate via GPT and extract
         vl_response = generate_visual_language(mwp, formula, hint, language=language)
@@ -233,6 +246,8 @@ def generate_formal():
 
     if not dsl:
         return jsonify({"error": _("Empty Visual Language provided.")}), 400
+    if len(dsl) > DSL_MAX_LENGTH:
+        return jsonify({"error": _("Visual Language is too long (max %(max)d characters).", max=DSL_MAX_LENGTH)}), 400
 
     svg_content, error, missing_entities, is_parse_error = _generate_single_svg(dsl, "formal")
 
@@ -258,6 +273,8 @@ def generate_intuitive():
 
     if not dsl:
         return jsonify({"error": _("Empty Visual Language provided.")}), 400
+    if len(dsl) > DSL_MAX_LENGTH:
+        return jsonify({"error": _("Visual Language is too long (max %(max)d characters).", max=DSL_MAX_LENGTH)}), 400
 
     svg_content, error, missing_entities, is_parse_error = _generate_single_svg(dsl, "intuitive")
 

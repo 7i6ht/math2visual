@@ -7,6 +7,7 @@ import { useVoiceInput } from "@/hooks/useVoiceInput";
 import { ChatHeader } from "./chat/ChatHeader";
 import { ChatMessages } from "./chat/ChatMessages";
 import { ChatInputBar } from "./chat/ChatInputBar";
+import { STRING_SIZE_LIMITS } from "@/utils/validation";
 
 export function ChatView() {
   const { t } = useTranslation();
@@ -41,7 +42,15 @@ export function ChatView() {
   const { listening, voiceSupported, toggleVoice } = useVoiceInput({
     t,
     onTranscript: (transcript) =>
-      setInput((prev) => (prev ? `${prev}\n${transcript}` : transcript)),
+      setInput((prev) => {
+        const currentValue = prev || "";
+        const newlineLength = currentValue ? 1 : 0; // '\n' if appending to existing text
+        const remainingSpace = STRING_SIZE_LIMITS.MESSAGE_MAX_LENGTH - currentValue.length - newlineLength;
+        
+        // Slice transcript to fit remaining space, then concatenate
+        const truncatedTranscript = transcript.slice(0, Math.max(0, remainingSpace));
+        return currentValue ? `${currentValue}\n${truncatedTranscript}` : truncatedTranscript;
+      }),
   });
 
   // Auto-start session with null MWP when component mounts
@@ -68,12 +77,19 @@ export function ChatView() {
       return;
     }
 
+    const userMessage = input.trim();
+    
+    // Validate message length (provide user feedback if limit exceeded)
+    if (userMessage.length > STRING_SIZE_LIMITS.MESSAGE_MAX_LENGTH) {
+      toast.error(t("forms.messageTooLong", { max: STRING_SIZE_LIMITS.MESSAGE_MAX_LENGTH }));
+      return;
+    }
+
     // Interrupt tutor speech if speaking
     if (speaking) {
       stopSpeech();
     }
 
-    const userMessage = input.trim();
     setInput("");
     sendMessage(userMessage);
   };

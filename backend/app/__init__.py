@@ -32,6 +32,10 @@ def create_app():
     app = Flask(__name__, static_folder=static_folder, static_url_path='')
     CORS(app)
     
+    # Configure request size limits for security
+    from app.utils.validation_constants import MAX_REQUEST_BODY_SIZE
+    app.config['MAX_CONTENT_LENGTH'] = MAX_REQUEST_BODY_SIZE
+    
     # Configure Flask-Babel for internationalization
     app.config['LANGUAGES'] = {
         'en': 'English',
