@@ -2,13 +2,15 @@
 Database model for tutor sessions in Math2Visual.
 Stores tutor session data in the database to support multiple Gunicorn workers.
 """
-from datetime import datetime, timedelta
-from typing import Optional, Dict, List
+import os
+from datetime import datetime, timedelta, timezone
+from typing import Dict
 from sqlalchemy import Column, String, DateTime, Text, JSON, Index
 from app.models.user_actions import Base
 
-# Session expiration: 2 hours of inactivity
-SESSION_EXPIRATION_HOURS = 2
+# Session expiration (hours of inactivity), configurable via environment.
+# Defaults to 2 hours if TUTOR_SESSION_EXPIRATION_HOURS is not set.
+SESSION_EXPIRATION_HOURS = float(os.getenv("TUTOR_SESSION_EXPIRATION_HOURS", "2"))
 
 
 class TutorSession(Base):
@@ -20,8 +22,8 @@ class TutorSession(Base):
     visual_language = Column(Text, nullable=False, default="")
     history = Column(JSON, nullable=False, default=list)
     session_metadata = Column(JSON, nullable=True, default=dict)  # For storing additional fields like preferred_variant
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
-    last_activity = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False, index=True)
+    last_activity = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False, index=True)
     
     # Indexes for efficient queries
     __table_args__ = (
@@ -34,7 +36,7 @@ class TutorSession(Base):
         if not self.last_activity:
             return True
         expiration_time = self.last_activity + timedelta(hours=SESSION_EXPIRATION_HOURS)
-        return datetime.utcnow() > expiration_time
+        return datetime.now(timezone.utc) > expiration_time
     
     def to_dict(self) -> Dict:
         """Convert session to dictionary format compatible with existing code."""

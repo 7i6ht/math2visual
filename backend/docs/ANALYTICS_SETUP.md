@@ -42,7 +42,7 @@ Copy the analytics template into `.env`:
 config_templates/env_analytics_template
 ```
 
-Edit `.env` with your database configuration:
+Edit `.env` with your database configuration (the main AI keys like `OPENAI_API_KEY` and `GEMINI_API_KEY` should already be configured as in the backend README):
 ```bash
 # For PostgreSQL
 DATABASE_URL=postgresql://math2visual_user:your_password@localhost:5432/math2visual_analytics

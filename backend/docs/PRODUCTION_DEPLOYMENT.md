@@ -41,10 +41,27 @@ Create or update your `.env` file:
 # OpenAI Configuration
 OPENAI_API_KEY=your_openai_api_key
 
+# Gemini Configuration (SVG generation + tutor)
+GEMINI_API_KEY=your_gemini_api_key
+GEMINI_TUTOR_MODEL=gemini-pro-latest  # optional override
+
 # Storage Configuration
 SVG_STORAGE_MODE=local  # or 'juicefs'
 SVG_DATASET_PATH=/path/to/svg/dataset
 SVG_CACHE_SIZE=100
+
+# Database Configuration (PostgreSQL for tutor sessions and analytics)
+# Example:
+DATABASE_URL=postgresql://math2visual_user:math2visual_password@localhost:5432/math2visual_analytics
+DATABASE_ECHO=false  # Set to true for SQL query logging (development only)
+
+# Tutor Session Configuration
+# Inactivity-based expiration for tutor sessions (in hours). Default: 2
+TUTOR_SESSION_EXPIRATION_HOURS=2
+# Soft / hard memory limits (in MB) for in-memory tutor session fallback.
+# Used only when the database is unavailable. Defaults: 256 / 512
+TUTOR_SESSION_MEMORY_SOFT_LIMIT_MB=256
+TUTOR_SESSION_MEMORY_HARD_LIMIT_MB=512
 ```
 
 ## Deployment Options

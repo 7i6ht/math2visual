@@ -157,6 +157,19 @@ SVG_STORAGE_MODE=local  # or 'juicefs'
 SVG_DATASET_PATH=/path/to/svg/dataset
 SVG_CACHE_SIZE=100
 
+# Database Configuration (PostgreSQL for tutor sessions and analytics)
+# Example (matches the default docker-compose configuration):
+DATABASE_URL=postgresql://math2visual_user:math2visual_password@localhost:5432/math2visual_analytics
+DATABASE_ECHO=false  # Set to true for SQL query logging (development only)
+
+# Tutor Session Configuration
+# Inactivity-based expiration for tutor sessions (in hours). Default: 2
+TUTOR_SESSION_EXPIRATION_HOURS=2
+# Soft / hard memory limits (in MB) for in-memory tutor session fallback.
+# Used only when the database is unavailable. Defaults: 256 / 512
+TUTOR_SESSION_MEMORY_SOFT_LIMIT_MB=256
+TUTOR_SESSION_MEMORY_HARD_LIMIT_MB=512
+
 # JuiceFS Configuration (only if using JuiceFS)
 See [`docs/JUICEFS_SETUP.md`](docs/JUICEFS_SETUP.md)
 

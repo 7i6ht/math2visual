@@ -165,14 +165,30 @@ pip install flask flask-cors python-dotenv openai torch transformers peft accele
 Create `backend/.env` (or export env vars):
 
 ```bash
-# AI keys
+# OpenAI Configuration
 OPENAI_API_KEY=your_openai_api_key
+
+# Gemini Configuration (SVG generation + tutor)
 GEMINI_API_KEY=your_gemini_api_key
+GEMINI_TUTOR_MODEL=gemini-pro-latest  # optional override
 
 # Storage
 SVG_STORAGE_MODE=local         # or 'juicefs'
 SVG_DATASET_PATH=./storage/datasets/svg_dataset
 SVG_CACHE_SIZE=100
+
+# Database (PostgreSQL) for tutor sessions and analytics
+# Example (matches the default docker-compose configuration):
+DATABASE_URL=postgresql://math2visual_user:math2visual_password@localhost:5432/math2visual_analytics
+DATABASE_ECHO=false  # Set to true for SQL query logging (development only)
+
+# Tutor session configuration
+# Inactivity-based expiration for tutor sessions (in hours). Default: 2
+TUTOR_SESSION_EXPIRATION_HOURS=2
+# Soft / hard memory limits (in MB) for in-memory tutor session fallback.
+# Used only when the database is unavailable. Defaults: 256 / 512
+TUTOR_SESSION_MEMORY_SOFT_LIMIT_MB=256
+TUTOR_SESSION_MEMORY_HARD_LIMIT_MB=512
 
 # Optional distributed storage (JuiceFS + Postgres)
 JUICEFS_METADATA_URL=postgres://user:pass@host:port/database
