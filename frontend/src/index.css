@@ -279,26 +279,26 @@ h1 {
 @layer utilities {
   
   .button-responsive-size {
-    @apply !h-10 !px-6 md:!h-12 md:!px-8 lg:!h-14 lg:!px-10 xl:!h-16 xl:!px-12 2xl:!h-20 2xl:!px-16 3xl:!h-24 3xl:!px-20 4xl:!h-28 4xl:!px-24 5xl:!h-32 5xl:!px-28 6xl:!h-36 6xl:!px-32 7xl:!h-40 7xl:!px-36;
+    @apply !h-10 !px-6 md:!h-12 md:!px-8 lg:!h-14 lg:!px-10 xl:!h-16 xl:!px-12 2xl:!h-20 2xl:!px-16 3xl:!h-24 3xl:!px-20 4xl:!h-28 4xl:!px-24 5xl:!h-32 5xl:!px-28 6xl:!h-36 6xl:!px-32 7xl:!h-40 7xl:!px-36 8xl:!h-44 8xl:!px-40;
   }
   
   .popup-button-responsive-height {
-    @apply !h-9 md:!h-10 lg:!h-11 xl:!h-12 2xl:!h-14 3xl:!h-16 4xl:!h-20;
+    @apply !h-9 md:!h-10 lg:!h-11 xl:!h-12 2xl:!h-14 3xl:!h-16 4xl:!h-20 8xl:!h-24;
   }
   
   .popup-responsive-width {
     /* Base: 8 characters + icon + button + padding, scaling up for larger screens, doubled for ultrawide */
-    @apply !w-[14ch] !min-w-[14ch] !max-w-[14ch] sm:!w-[15ch] sm:!min-w-[15ch] sm:!max-w-[15ch] md:!w-[16ch] md:!min-w-[16ch] md:!max-w-[16ch] lg:!w-[17ch] lg:!min-w-[17ch] lg:!max-w-[17ch] xl:!w-[18ch] xl:!min-w-[18ch] xl:!max-w-[18ch] 2xl:!w-[19ch] 2xl:!min-w-[19ch] 2xl:!max-w-[19ch] 3xl:!w-[20ch] 3xl:!min-w-[20ch] 3xl:!max-w-[20ch] 4xl:!w-[21ch] 4xl:!min-w-[21ch] 4xl:!max-w-[21ch] 5xl:!w-[44ch] 5xl:!min-w-[44ch] 5xl:!max-w-[44ch] 6xl:!w-[46ch] 6xl:!min-w-[46ch] 6xl:!max-w-[46ch] 7xl:!w-[48ch] 7xl:!min-w-[48ch] 7xl:!max-w-[48ch];
+    @apply !w-[14ch] !min-w-[14ch] !max-w-[14ch] sm:!w-[15ch] sm:!min-w-[15ch] sm:!max-w-[15ch] md:!w-[16ch] md:!min-w-[16ch] md:!max-w-[16ch] lg:!w-[17ch] lg:!min-w-[17ch] lg:!max-w-[17ch] xl:!w-[18ch] xl:!min-w-[18ch] xl:!max-w-[18ch] 2xl:!w-[19ch] 2xl:!min-w-[19ch] 2xl:!max-w-[19ch] 3xl:!w-[20ch] 3xl:!min-w-[20ch] 3xl:!max-w-[20ch] 4xl:!w-[21ch] 4xl:!min-w-[21ch] 4xl:!max-w-[21ch] 5xl:!w-[44ch] 5xl:!min-w-[44ch] 5xl:!max-w-[44ch] 6xl:!w-[46ch] 6xl:!min-w-[46ch] 6xl:!max-w-[46ch] 7xl:!w-[48ch] 7xl:!min-w-[48ch] 7xl:!max-w-[48ch] 8xl:!w-[50ch] 8xl:!min-w-[50ch] 8xl:!max-w-[50ch];
   }
 
   .popup-search-width {
     /* Search popup: 1.3x larger than base popup-responsive-width */
-    @apply !w-[18ch] !min-w-[18ch] !max-w-[18ch] sm:!w-[20ch] sm:!min-w-[20ch] sm:!max-w-[20ch] md:!w-[21ch] md:!min-w-[21ch] md:!max-w-[21ch] lg:!w-[22ch] lg:!min-w-[22ch] lg:!max-w-[22ch] xl:!w-[23ch] xl:!min-w-[23ch] xl:!max-w-[23ch] 2xl:!w-[25ch] 2xl:!min-w-[25ch] 2xl:!max-w-[25ch] 3xl:!w-[26ch] 3xl:!min-w-[26ch] 3xl:!max-w-[26ch] 4xl:!w-[27ch] 4xl:!min-w-[27ch] 4xl:!max-w-[27ch] 5xl:!w-[57ch] 5xl:!min-w-[57ch] 5xl:!max-w-[57ch] 6xl:!w-[60ch] 6xl:!min-w-[60ch] 6xl:!max-w-[60ch] 7xl:!w-[62ch] 7xl:!min-w-[62ch] 7xl:!max-w-[62ch];
+    @apply !w-[18ch] !min-w-[18ch] !max-w-[18ch] sm:!w-[20ch] sm:!min-w-[20ch] sm:!max-w-[20ch] md:!w-[21ch] md:!min-w-[21ch] md:!max-w-[21ch] lg:!w-[22ch] lg:!min-w-[22ch] lg:!max-w-[22ch] xl:!w-[23ch] xl:!min-w-[23ch] xl:!max-w-[23ch] 2xl:!w-[25ch] 2xl:!min-w-[25ch] 2xl:!max-w-[25ch] 3xl:!w-[26ch] 3xl:!min-w-[26ch] 3xl:!max-w-[26ch] 4xl:!w-[27ch] 4xl:!min-w-[27ch] 4xl:!max-w-[27ch] 5xl:!w-[57ch] 5xl:!min-w-[57ch] 5xl:!max-w-[57ch] 6xl:!w-[60ch] 6xl:!min-w-[60ch] 6xl:!max-w-[60ch] 7xl:!w-[62ch] 7xl:!min-w-[62ch] 7xl:!max-w-[62ch] 8xl:!w-[65ch] 8xl:!min-w-[65ch] 8xl:!max-w-[65ch];
   }
 
   .popup-upload-width {
     /* Upload popup: slightly larger than search popup for laptop screens */
-    @apply !w-[18ch] !min-w-[18ch] !max-w-[18ch] sm:!w-[20ch] sm:!min-w-[20ch] sm:!max-w-[20ch] md:!w-[21ch] md:!min-w-[21ch] md:!max-w-[21ch] lg:!w-[24ch] lg:!min-w-[24ch] lg:!max-w-[24ch] xl:!w-[25ch] xl:!min-w-[25ch] xl:!max-w-[25ch] 2xl:!w-[25ch] 2xl:!min-w-[25ch] 2xl:!max-w-[25ch] 3xl:!w-[26ch] 3xl:!min-w-[26ch] 3xl:!max-w-[26ch] 4xl:!w-[27ch] 4xl:!min-w-[27ch] 4xl:!max-w-[27ch] 5xl:!w-[57ch] 5xl:!min-w-[57ch] 5xl:!max-w-[57ch] 6xl:!w-[60ch] 6xl:!min-w-[60ch] 6xl:!max-w-[60ch] 7xl:!w-[62ch] 7xl:!min-w-[62ch] 7xl:!max-w-[62ch];
+    @apply !w-[18ch] !min-w-[18ch] !max-w-[18ch] sm:!w-[20ch] sm:!min-w-[20ch] sm:!max-w-[20ch] md:!w-[21ch] md:!min-w-[21ch] md:!max-w-[21ch] lg:!w-[24ch] lg:!min-w-[24ch] lg:!max-w-[24ch] xl:!w-[25ch] xl:!min-w-[25ch] xl:!max-w-[25ch] 2xl:!w-[25ch] 2xl:!min-w-[25ch] 2xl:!max-w-[25ch] 3xl:!w-[26ch] 3xl:!min-w-[26ch] 3xl:!max-w-[26ch] 4xl:!w-[27ch] 4xl:!min-w-[27ch] 4xl:!max-w-[27ch] 5xl:!w-[57ch] 5xl:!min-w-[57ch] 5xl:!max-w-[57ch] 6xl:!w-[60ch] 6xl:!min-w-[60ch] 6xl:!max-w-[60ch] 7xl:!w-[62ch] 7xl:!min-w-[62ch] 7xl:!max-w-[62ch] 8xl:!w-[65ch] 8xl:!min-w-[65ch] 8xl:!max-w-[65ch];
   }
   
 }

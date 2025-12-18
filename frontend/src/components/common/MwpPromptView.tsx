@@ -102,7 +102,7 @@ export const MwpPromptView = ({
           maxLength={STRING_SIZE_LIMITS.MWP_MAX_LENGTH}
         />
 
-        <div className="flex flex-col items-center gap-5 sm:gap-6 md:gap-8 lg:gap-10 xl:gap-12 2xl:gap-14 3xl:gap-16 4xl:gap-20 5xl:gap-24 6xl:gap-28">
+        <div className="flex flex-col items-center gap-5 sm:gap-6 md:gap-8 lg:gap-10 xl:gap-12 2xl:gap-14 3xl:gap-16 4xl:gap-20 5xl:gap-24 6xl:gap-28 8xl:gap-32">
           {!hideSubmit && (
             <Button
               onClick={onSubmit}

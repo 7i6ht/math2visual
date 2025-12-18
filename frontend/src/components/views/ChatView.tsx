@@ -95,7 +95,7 @@ export function ChatView() {
   };
 
   return (
-    <div className="w-full h-screen overflow-hidden flex flex-col px-3 py-1 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 3xl:px-20 4xl:px-24 5xl:px-32">
+    <div className="w-full h-screen overflow-hidden flex flex-col px-3 py-1 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 3xl:px-20 4xl:px-24 5xl:px-32 8xl:px-48">
       <ChatHeader
         t={t}
         speechEnabled={speechEnabled}

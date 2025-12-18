@@ -36,7 +36,7 @@ export const ChatInputBar = ({
         spellCheck={false}
         rows={2}
         maxLength={STRING_SIZE_LIMITS.MESSAGE_MAX_LENGTH}
-        className="w-full responsive-text-font-size border-0 bg-transparent p-3 pr-24 sm:pr-28 md:pr-32 lg:pr-36 xl:pr-40 2xl:pr-44 3xl:pr-48 4xl:pr-52 5xl:pr-56 6xl:pr-60 shadow-none resize-none"
+        className="w-full responsive-text-font-size border-0 bg-transparent p-3 pr-24 sm:pr-28 md:pr-32 lg:pr-36 xl:pr-40 2xl:pr-44 3xl:pr-48 4xl:pr-52 5xl:pr-56 6xl:pr-60 8xl:pr-64 shadow-none resize-none"
         onKeyDown={(e) => {
           if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
@@ -44,7 +44,7 @@ export const ChatInputBar = ({
           }
         }}
       />
-      <div className="absolute bottom-3 sm:bottom-4 right-3 sm:right-4 md:right-5 flex items-center gap-0.5 sm:gap-0.5 md:gap-0.5 lg:gap-1 xl:gap-2 2xl:gap-4 3xl:gap-6 4xl:gap-8 5xl:gap-12 6xl:gap-14">
+      <div className="absolute bottom-3 sm:bottom-4 right-3 sm:right-4 md:right-5 flex items-center gap-0.5 sm:gap-0.5 md:gap-0.5 lg:gap-1 xl:gap-2 2xl:gap-4 3xl:gap-6 4xl:gap-8 5xl:gap-12 6xl:gap-14 8xl:gap-16">
         {voiceSupported && (
           <Button
             type="button"

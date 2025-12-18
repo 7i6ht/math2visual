@@ -240,7 +240,7 @@ export function TwoColumnView({ appState }: Props) {
   );
 
   return (
-    <div className="w-full px-1 py-4 sm:px-2 lg:px-4 xl:px-6 2xl:px-8 3xl:px-8 4xl:px-8">
+    <div className="w-full px-1 py-4 sm:px-2 lg:px-4 xl:px-6 2xl:px-8 3xl:px-8 4xl:px-8 8xl:px-12">
       {analyticsEnabled && <SessionAnalyticsDisplay sessionId={sessionId} isCapturingScreenshot={isCapturingScreenshot} />}
       
       {formattedDSL && (
@@ -250,7 +250,7 @@ export function TwoColumnView({ appState }: Props) {
             <div className="relative h-full">
               <ResizablePanelGroup 
                 direction="horizontal" 
-                className="flex gap-4 2xl:gap-6 3xl:gap-8 h-full"
+                className="flex gap-4 2xl:gap-6 3xl:gap-8 8xl:gap-12 h-full"
                 style={{ overflow: 'visible' }}
                 {...(analyticsEnabled ? {onLayout: trackPanelResize} : {})}
               >

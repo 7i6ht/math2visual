@@ -11,6 +11,7 @@
   --container-padding-md: 2rem;
   --container-padding-lg: 4rem;
   --container-padding-xl: 6rem;
+  --container-padding-8k: 12rem;
   
   /* Animation variables */
   --animation-duration-fast: 0.3s;
@@ -127,6 +128,14 @@
   .container {
     padding-left: var(--container-padding-xl);
     padding-right: var(--container-padding-xl);
+  }
+}
+
+/* 8K screen support (7680px and above) */
+@media (min-width: 7680px) {
+  .container {
+    padding-left: var(--container-padding-8k);
+    padding-right: var(--container-padding-8k);
   }
 }
 
