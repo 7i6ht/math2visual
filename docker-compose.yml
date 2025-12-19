@@ -131,18 +131,9 @@ services:
     command: |
       /bin/bash -c '
       echo "Cleanup service starting..." &&
-      PYTHON3="/usr/local/bin/python3" &&
-      echo "Set PYTHON3 to: ${PYTHON3}" &&
-      if ! /usr/local/bin/python3 --version >/dev/null 2>&1; then
-        PYTHON3="/usr/local/bin/python3.12" &&
-        echo "Switched to: ${PYTHON3}"
-      fi &&
-      echo "Final PYTHON3: ${PYTHON3}" &&
-      test -n "${PYTHON3}" || (echo "ERROR: PYTHON3 is empty" >&2 && exit 1) &&
-      "${PYTHON3}" --version &&
       echo "PATH=/usr/local/bin:/usr/bin:/bin:/home/appuser/.local/bin" > /etc/cron.d/cleanup-cron &&
       echo "SHELL=/bin/bash" >> /etc/cron.d/cleanup-cron &&
-      echo "0 * * * * appuser cd /app && ${PYTHON3} scripts/cleanup_temp_files.py --age-hours $${CLEANUP_OUTPUT_AGE_HOURS:-24} --temp-svg-age-hours $${CLEANUP_TEMP_SVG_AGE_HOURS:-1} >> /var/log/cleanup.log 2>&1" >> /etc/cron.d/cleanup-cron &&
+      echo "0 * * * * appuser cd /app && /usr/local/bin/python3 scripts/cleanup_temp_files.py --age-hours $${CLEANUP_OUTPUT_AGE_HOURS:-24} --temp-svg-age-hours $${CLEANUP_TEMP_SVG_AGE_HOURS:-1} >> /var/log/cleanup.log 2>&1" >> /etc/cron.d/cleanup-cron &&
       chmod 0644 /etc/cron.d/cleanup-cron &&
       printenv | grep -E "^CLEANUP_" >> /etc/environment &&
       touch /var/log/cleanup.log &&
