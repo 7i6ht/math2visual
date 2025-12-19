@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import type { TFunction } from "i18next";
 import tutorService from "@/api_services/tutor";
 import type { TutorVisual } from "@/api_services/tutor";
+import { trackStudentMessage, isAnalyticsEnabled } from "@/services/analyticsTracker";
 
 export type Message = {
   role: "student" | "tutor";
@@ -38,6 +39,10 @@ export function useTutorSession({ t }: UseTutorSessionParams) {
       // Track if DSL exists (visual_language is non-empty)
       setHasDsl(!!response.visual_language && response.visual_language.trim().length > 0);
       if (mwp && response.tutor_message) {
+        // Track initial MWP message submission with analytics
+        if (isAnalyticsEnabled()) {
+          trackStudentMessage(mwp.trim());
+        }
         // If MWP provided, show both student and tutor messages
         setMessages([
           { role: "student", content: mwp.trim() },
@@ -170,6 +175,12 @@ export function useTutorSession({ t }: UseTutorSessionParams) {
     }
 
     const messageText = userMessage.trim();
+    
+    // Track student message submission with analytics
+    if (isAnalyticsEnabled()) {
+      trackStudentMessage(messageText);
+    }
+    
     setMessages((prev) => [...prev, { role: "student" as const, content: messageText }]);
     setMessages((prev) => [...prev, { role: "tutor" as const, content: "", streaming: true }]);
 

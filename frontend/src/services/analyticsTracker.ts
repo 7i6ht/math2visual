@@ -356,6 +356,14 @@ export function trackFormSubmit(actionType: string, value: string): void {
   });
 }
 
+// Student message submission tracking
+export function trackStudentMessage(message: string): void {
+  analyticsService.recordAction({
+    type: 'student_message_submit',
+    data: JSON.stringify({ message: message }),
+  });
+}
+
 // Download tracking
 export function trackDownload(format: 'svg' | 'png' | 'pdf', filename?: string): void {
   analyticsService.recordAction({
