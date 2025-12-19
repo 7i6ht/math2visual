@@ -3,7 +3,7 @@ import { Mic, Square, ArrowUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { STRING_SIZE_LIMITS } from "@/utils/validation";
-import { trackStudentMessageButtonClick, trackStudentMessageEnterKey, isAnalyticsEnabled } from "@/services/analyticsTracker";
+import { trackMessageButtonClick, trackMessageEnterKey, isAnalyticsEnabled } from "@/services/analyticsTracker";
 
 type ChatInputBarProps = {
   input: string;
@@ -15,6 +15,7 @@ type ChatInputBarProps = {
   streaming: boolean;
   t: TFunction;
   placeholder?: string;
+  context?: 'student' | 'chatgpt';
 };
 
 export const ChatInputBar = ({
@@ -27,6 +28,7 @@ export const ChatInputBar = ({
   streaming,
   t,
   placeholder,
+  context = 'student',
 }: ChatInputBarProps) => {
   const analyticsEnabled = isAnalyticsEnabled();
 
@@ -44,7 +46,7 @@ export const ChatInputBar = ({
           if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
             if (analyticsEnabled) {
-              trackStudentMessageEnterKey();
+              trackMessageEnterKey(context);
             }
             onSend();
           }
@@ -71,7 +73,7 @@ export const ChatInputBar = ({
           variant="ghost"
           onClick={() => {
             if (analyticsEnabled) {
-              trackStudentMessageButtonClick();
+              trackMessageButtonClick(context);
             }
             onSend();
           }}

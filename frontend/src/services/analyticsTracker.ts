@@ -143,21 +143,21 @@ export function trackDSLType(): void {
 }
 
 // Voice input tracking
-export function trackVoiceInputStart(context: 'mwp' | 'student_message'): void {
+export function trackVoiceInputStart(context: 'mwp' | 'student_message' | 'chatgpt_message'): void {
   analyticsService.recordAction({
     type: 'voice_input_start',
     data: JSON.stringify({ context: context }),
   });
 }
 
-export function trackVoiceInputComplete(context: 'mwp' | 'student_message', transcript: string): void {
+export function trackVoiceInputComplete(context: 'mwp' | 'student_message' | 'chatgpt_message', transcript: string): void {
   analyticsService.recordAction({
     type: 'voice_input_complete',
     data: JSON.stringify({ context: context, transcript: transcript, transcript_length: transcript.length }),
   });
 }
 
-export function trackVoiceInputError(context: 'mwp' | 'student_message', error?: string): void {
+export function trackVoiceInputError(context: 'mwp' | 'student_message' | 'chatgpt_message', error?: string): void {
   analyticsService.recordAction({
     type: 'voice_input_error',
     data: JSON.stringify({ context: context, error: error || 'unknown' }),
@@ -418,16 +418,24 @@ export function trackStudentMessage(message: string): void {
   });
 }
 
-// Student message submission method tracking
-export function trackStudentMessageButtonClick(): void {
+// ChatGPT message submission tracking
+export function trackChatGPTMessage(message: string): void {
   analyticsService.recordAction({
-    type: 'student_message_button_click',
+    type: 'chatgpt_message_submit',
+    data: JSON.stringify({ message: message }),
   });
 }
 
-export function trackStudentMessageEnterKey(): void {
+// Unified message submission method tracking (takes context parameter)
+export function trackMessageButtonClick(context: 'student' | 'chatgpt'): void {
   analyticsService.recordAction({
-    type: 'student_message_enter_key',
+    type: context === 'chatgpt' ? 'chatgpt_message_button_click' : 'student_message_button_click',
+  });
+}
+
+export function trackMessageEnterKey(context: 'student' | 'chatgpt'): void {
+  analyticsService.recordAction({
+    type: context === 'chatgpt' ? 'chatgpt_message_enter_key' : 'student_message_enter_key',
   });
 }
 
@@ -436,6 +444,42 @@ export function trackDownload(format: 'svg' | 'png' | 'pdf', filename?: string):
   analyticsService.recordAction({
     type: `download_${format}_button_click`,
     data: JSON.stringify({ filename: filename }),
+  });
+}
+
+export function trackDownloadStart(format: 'svg' | 'png' | 'pdf', filename?: string): void {
+  analyticsService.recordAction({
+    type: `download_${format}_start`,
+    data: JSON.stringify({ filename: filename }),
+  });
+}
+
+export function trackDownloadComplete(format: 'svg' | 'png' | 'pdf', filename?: string): void {
+  analyticsService.recordAction({
+    type: `download_${format}_complete`,
+    data: JSON.stringify({ filename: filename }),
+  });
+}
+
+// ChatGPT image download tracking
+export function trackChatGPTImageDownload(format: 'jpg' | 'png' | 'gif' | 'webp', filename?: string): void {
+  analyticsService.recordAction({
+    type: 'chatgpt_image_download',
+    data: JSON.stringify({ format: format, filename: filename }),
+  });
+}
+
+export function trackChatGPTImageDownloadStart(format: 'jpg' | 'png' | 'gif' | 'webp', filename?: string): void {
+  analyticsService.recordAction({
+    type: 'chatgpt_image_download_start',
+    data: JSON.stringify({ format: format, filename: filename }),
+  });
+}
+
+export function trackChatGPTImageDownloadComplete(format: 'jpg' | 'png' | 'gif' | 'webp', filename?: string): void {
+  analyticsService.recordAction({
+    type: 'chatgpt_image_download_complete',
+    data: JSON.stringify({ format: format, filename: filename }),
   });
 }
 

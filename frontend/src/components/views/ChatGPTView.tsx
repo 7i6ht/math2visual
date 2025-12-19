@@ -5,6 +5,7 @@ import { useChatGPTSession } from "@/hooks/useChatGPTSession";
 import { useVoiceInput } from "@/hooks/useVoiceInput";
 import { ChatInputBar } from "./chat/ChatInputBar";
 import { STRING_SIZE_LIMITS } from "@/utils/validation";
+import { trackChatGPTImageDownloadStart, trackChatGPTImageDownloadComplete, trackError, isAnalyticsEnabled } from "@/services/analyticsTracker";
 import { User, Download } from "lucide-react";
 import { memo } from "react";
 import type { RefObject } from "react";
@@ -29,6 +30,7 @@ type ChatGPTMessageItemProps = {
  */
 const downloadImage = async (imageUrl: string, alt: string = "image", t: (key: string, params?: any) => string) => {
   let toastId: string | number | undefined;
+  const analyticsEnabled = isAnalyticsEnabled();
   
   try {
     // Show loading toast
@@ -71,28 +73,25 @@ const downloadImage = async (imageUrl: string, alt: string = "image", t: (key: s
       contentType = response.headers.get("content-type") || "image/png";
     }
     
-    // Determine file extension
-    let extension = "png";
-    if (contentType.includes("jpeg") || contentType.includes("jpg")) {
-      extension = "jpg";
-    } else if (contentType.includes("png")) {
-      extension = "png";
-    } else if (contentType.includes("gif")) {
-      extension = "gif";
-    } else if (contentType.includes("webp")) {
-      extension = "webp";
-    } else {
-      // Try to get extension from URL
-      const urlMatch = imageUrl.match(/\.(jpg|jpeg|png|gif|webp)/i);
-      if (urlMatch) {
-        extension = urlMatch[1].toLowerCase();
-      }
-    }
+    // Determine file extension from content type
+    const mimeToExt: Record<string, 'jpg' | 'png' | 'gif' | 'webp'> = {
+      'image/jpeg': 'jpg',
+      'image/jpg': 'jpg',
+      'image/png': 'png',
+      'image/gif': 'gif',
+      'image/webp': 'webp',
+    };
+    const extension: 'jpg' | 'png' | 'gif' | 'webp' = mimeToExt[contentType.toLowerCase()] || 'png';
     
     // Generate filename
     const filename = alt !== "Image" 
       ? `${alt.replace(/[^a-z0-9]/gi, "_").toLowerCase()}.${extension}`
       : `chatgpt-image-${Date.now()}.${extension}`;
+    
+    // Track download start (before actual download)
+    if (analyticsEnabled) {
+      trackChatGPTImageDownloadStart(extension, filename);
+    }
     
     // Create download link
     const url = URL.createObjectURL(blob);
@@ -106,6 +105,11 @@ const downloadImage = async (imageUrl: string, alt: string = "image", t: (key: s
     // Clean up
     URL.revokeObjectURL(url);
     
+    // Track successful download completion (after download completes)
+    if (analyticsEnabled) {
+      trackChatGPTImageDownloadComplete(extension, filename);
+    }
+    
     // Show success toast
     toast.success(t("download.success", { format: "Image" }), {
       id: toastId,
@@ -113,6 +117,12 @@ const downloadImage = async (imageUrl: string, alt: string = "image", t: (key: s
     });
   } catch (error) {
     console.error("Error downloading image:", error);
+    
+    // Track download error
+    if (analyticsEnabled) {
+      trackError('chatgpt_image_download_failed', error instanceof Error ? error.message : "Download failed");
+    }
+    
     toast.error(t("download.error", { format: "Image" }), {
       id: toastId,
       description:
@@ -399,6 +409,7 @@ export function ChatGPTView() {
                 streaming={streaming || starting}
                 t={t}
                 placeholder={t("chatgpt.inputPlaceholder")}
+                context="chatgpt"
               />
             </div>
           </div>

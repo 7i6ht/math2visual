@@ -2,6 +2,7 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import type { TFunction } from "i18next";
 import chatgptService from "@/api_services/chatgpt";
+import { trackChatGPTMessage, isAnalyticsEnabled } from "@/services/analyticsTracker";
 
 export type ChatGPTMessage = {
   role: "user" | "assistant";
@@ -180,6 +181,11 @@ export function useChatGPTSession({ t }: UseChatGPTSessionParams) {
     }
 
     const messageText = userMessage.trim();
+
+    // Track ChatGPT message submission with analytics
+    if (isAnalyticsEnabled()) {
+      trackChatGPTMessage(messageText);
+    }
 
     setMessages((prev) => [...prev, { role: "user", content: messageText, images, files }]);
     setMessages((prev) => [...prev, { role: "assistant", content: "", streaming: true }]);

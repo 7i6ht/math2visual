@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Download, FileImage, File, FileText } from "lucide-react";
 import { downloadSvg, downloadPng, downloadPdf, generateVisualizationFilename } from "@/utils/download";
-import { trackDownload, trackError, isAnalyticsEnabled } from "@/services/analyticsTracker";
+import { trackDownloadStart, trackDownloadComplete, trackError, isAnalyticsEnabled } from "@/services/analyticsTracker";
 import { toast } from "sonner";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -78,15 +78,15 @@ export const DownloadButton = ({
 
     // Track download start
     if (analyticsEnabled) {
-      trackDownload(format, `${type}_${format}`);
+      trackDownloadStart(format, `${type}_${format}`);
     }
 
     try {
       await handler(svgContent, type);
       
-      // Track successful download
+      // Track successful download completion
       if (analyticsEnabled) {
-        trackDownload(format, `${type}_${format}`);
+        trackDownloadComplete(format, `${type}_${format}`);
       }
       
       toast.success(t("download.success", { format: format.toUpperCase() }), {
