@@ -132,15 +132,18 @@ services:
       /bin/bash -c '
       echo "Cleanup service starting..." &&
       PYTHON3="" &&
-      if [ -x "/usr/local/bin/python3" ]; then
+      if [ -e "/usr/local/bin/python3" ] && /usr/local/bin/python3 --version >/dev/null 2>&1; then
         PYTHON3="/usr/local/bin/python3"
-      elif [ -x "/usr/bin/python3" ]; then
+      elif [ -e "/usr/bin/python3" ] && /usr/bin/python3 --version >/dev/null 2>&1; then
         PYTHON3="/usr/bin/python3"
       else
         PYTHON3=$(command -v python3 2>/dev/null || echo "")
+        if [ -n "${PYTHON3}" ] && ! ${PYTHON3} --version >/dev/null 2>&1; then
+          PYTHON3=""
+        fi
       fi &&
-      if [ -z "${PYTHON3}" ] || [ ! -x "${PYTHON3}" ]; then
-        echo "ERROR: Python3 not found or not executable" >&2
+      if [ -z "${PYTHON3}" ]; then
+        echo "ERROR: Python3 not found or not working" >&2
         echo "Checked: /usr/local/bin/python3, /usr/bin/python3, command -v python3" >&2
         ls -la /usr/local/bin/python* /usr/bin/python* 2>&1 || true
         exit 1
