@@ -128,12 +128,9 @@ services:
       - CLEANUP_TEMP_SVG_AGE_HOURS=1
       - DATABASE_URL=${DATABASE_URL:-}
     # Set up cron job and start cron daemon
-    command: >
+    command: |
       /bin/bash -c "
       echo 'Cleanup service starting...' &&
-      # Create cron file with PATH and cron job
-      # PATH is needed because the script's shebang uses /usr/bin/env python3
-      # Also set PATH so python3 can be found when cron runs the job
       echo 'PATH=/usr/local/bin:/usr/bin:/bin:/home/appuser/.local/bin' > /etc/cron.d/cleanup-cron &&
       echo 'SHELL=/bin/bash' >> /etc/cron.d/cleanup-cron &&
       echo '0 * * * * appuser cd /app && python3 scripts/cleanup_temp_files.py --age-hours $${CLEANUP_OUTPUT_AGE_HOURS:-24} --temp-svg-age-hours $${CLEANUP_TEMP_SVG_AGE_HOURS:-1} >> /var/log/cleanup.log 2>&1' >> /etc/cron.d/cleanup-cron &&
