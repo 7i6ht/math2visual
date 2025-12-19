@@ -5,7 +5,7 @@ import os
 from contextlib import contextmanager
 from typing import Generator, Iterator
 
-from sqlalchemy import create_engine, text, event
+from sqlalchemy import create_engine, text, event, TypeDecorator, DateTime as SQLDateTime
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.pool import StaticPool
 from datetime import datetime, timezone
@@ -18,6 +18,33 @@ load_dotenv()
 DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql://localhost/math2visual_analytics')
 ENGINE = None
 SessionLocal = None
+
+
+class UTCDateTime(TypeDecorator):
+    """
+    A DateTime type that ensures all retrieved values are timezone-aware UTC.
+    This guarantees consistency across all Gunicorn workers by normalizing
+    datetimes at the type level, regardless of how PostgreSQL returns them.
+    """
+    impl = SQLDateTime
+    cache_ok = True
+    
+    def load_dialect_impl(self, dialect):
+        # Use TIMESTAMP WITH TIME ZONE for PostgreSQL
+        return dialect.type_descriptor(SQLDateTime(timezone=True))
+    
+    def process_result_value(self, value, dialect):
+        """Normalize all datetime values to UTC timezone-aware."""
+        if value is None:
+            return None
+        if isinstance(value, datetime):
+            if value.tzinfo is None:
+                # If timezone-naive, assume it's UTC (as stored)
+                return value.replace(tzinfo=timezone.utc)
+            else:
+                # If timezone-aware, convert to UTC
+                return value.astimezone(timezone.utc)
+        return value
 
 
 def get_database_url() -> str:
@@ -69,22 +96,6 @@ def create_database_engine():
                 cursor.close()
         
         SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=ENGINE)
-        
-        # Ensure all timezone-aware DateTime columns are normalized to UTC when loaded
-        # This guarantees consistency across all Gunicorn workers
-        @event.listens_for(Session, "loaded_instance")
-        def normalize_datetime_to_utc(instance, context):
-            """Normalize all timezone-aware datetime attributes to UTC."""
-            for key, value in instance.__dict__.items():
-                if isinstance(value, datetime):
-                    if value.tzinfo is None:
-                        # If timezone-naive, assume it's UTC (as stored)
-                        instance.__dict__[key] = value.replace(tzinfo=timezone.utc)
-                    else:
-                        # If timezone-aware, convert to UTC
-                        utc_value = value.astimezone(timezone.utc)
-                        if utc_value != value:
-                            instance.__dict__[key] = utc_value
     
     return ENGINE
 

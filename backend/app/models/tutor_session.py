@@ -6,7 +6,8 @@ import os
 import logging
 from datetime import datetime, timedelta, timezone
 from typing import Dict
-from sqlalchemy import Column, String, DateTime, Text, JSON, Index
+from sqlalchemy import Column, String, Text, JSON, Index
+from app.config.database import UTCDateTime
 from app.models.user_actions import Base
 
 logger = logging.getLogger(__name__)
@@ -26,8 +27,9 @@ class TutorSession(Base):
     history = Column(JSON, nullable=False, default=list)
     session_metadata = Column(JSON, nullable=True, default=dict)  # For storing additional fields like preferred_variant
     # Store UTC timestamps as timezone-aware datetimes (TIMESTAMP WITH TIME ZONE in PostgreSQL)
-    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False, index=True)
-    last_activity = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False, index=True)
+    # UTCDateTime ensures all retrieved values are normalized to UTC, regardless of connection timezone
+    created_at = Column(UTCDateTime, default=lambda: datetime.now(timezone.utc), nullable=False, index=True)
+    last_activity = Column(UTCDateTime, default=lambda: datetime.now(timezone.utc), nullable=False, index=True)
     
     # Indexes for efficient queries
     __table_args__ = (
@@ -40,24 +42,18 @@ class TutorSession(Base):
         if not self.last_activity:
             return True
         
-        # Ensure last_activity is timezone-aware UTC for consistent comparison
-        # This handles edge cases where SQLAlchemy might return timezone-naive
-        # or timezone-aware datetimes in different timezones
+        # UTCDateTime TypeDecorator ensures last_activity is always timezone-aware UTC
+        # This defensive check handles any edge cases
         if self.last_activity.tzinfo is None:
-            # If timezone-naive, assume it's UTC (as stored)
+            # This should not happen with UTCDateTime, but handle it defensively
             last_activity_utc = self.last_activity.replace(tzinfo=timezone.utc)
-            logger.warning(
-                f"Session {self.session_id} has timezone-naive last_activity: {self.last_activity}. "
-                f"Assuming UTC. This should not happen with proper timezone configuration."
+            logger.error(
+                f"Session {self.session_id} has timezone-naive last_activity despite UTCDateTime. "
+                f"This indicates a bug in the TypeDecorator. Assuming UTC."
             )
         else:
-            # If timezone-aware, convert to UTC
+            # Convert to UTC if not already (UTCDateTime should ensure it's already UTC)
             last_activity_utc = self.last_activity.astimezone(timezone.utc)
-            if self.last_activity.tzinfo != timezone.utc:
-                logger.debug(
-                    f"Session {self.session_id} last_activity timezone converted: "
-                    f"{self.last_activity.tzinfo} -> UTC"
-                )
         
         expiration_time = last_activity_utc + timedelta(hours=SESSION_EXPIRATION_HOURS)
         now_utc = datetime.now(timezone.utc)
