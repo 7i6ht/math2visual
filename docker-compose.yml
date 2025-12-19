@@ -120,7 +120,7 @@ services:
     command: >
       /bin/bash -c "
       echo 'Cleanup service starting...' &&
-      echo '0 * * * * appuser cd /app && python scripts/cleanup_temp_files.py --age-hours $${CLEANUP_OUTPUT_AGE_HOURS:-24} --temp-svg-age-hours $${CLEANUP_TEMP_SVG_AGE_HOURS:-1} >> /var/log/cleanup.log 2>&1' > /etc/cron.d/cleanup-cron &&
+      echo '0 * * * * appuser cd /app && python3 scripts/cleanup_temp_files.py --age-hours $${CLEANUP_OUTPUT_AGE_HOURS:-24} --temp-svg-age-hours $${CLEANUP_TEMP_SVG_AGE_HOURS:-1} >> /var/log/cleanup.log 2>&1' > /etc/cron.d/cleanup-cron &&
       chmod 0644 /etc/cron.d/cleanup-cron &&
       printenv | grep -E '^CLEANUP_' >> /etc/environment &&
       touch /var/log/cleanup.log &&
