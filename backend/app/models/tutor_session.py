@@ -3,10 +3,13 @@ Database model for tutor sessions in Math2Visual.
 Stores tutor session data in the database to support multiple Gunicorn workers.
 """
 import os
+import logging
 from datetime import datetime, timedelta, timezone
 from typing import Dict
 from sqlalchemy import Column, String, DateTime, Text, JSON, Index
 from app.models.user_actions import Base
+
+logger = logging.getLogger(__name__)
 
 # Session expiration (hours of inactivity), configurable via environment.
 # Defaults to 2 hours if TUTOR_SESSION_EXPIRATION_HOURS is not set.
@@ -36,8 +39,37 @@ class TutorSession(Base):
         """Check if the session has expired based on last activity."""
         if not self.last_activity:
             return True
-        expiration_time = self.last_activity + timedelta(hours=SESSION_EXPIRATION_HOURS)
-        return datetime.now(timezone.utc) > expiration_time
+        
+        # Ensure last_activity is timezone-aware UTC for consistent comparison
+        # This handles edge cases where SQLAlchemy might return timezone-naive
+        # or timezone-aware datetimes in different timezones
+        if self.last_activity.tzinfo is None:
+            # If timezone-naive, assume it's UTC (as stored)
+            last_activity_utc = self.last_activity.replace(tzinfo=timezone.utc)
+            logger.warning(
+                f"Session {self.session_id} has timezone-naive last_activity: {self.last_activity}. "
+                f"Assuming UTC. This should not happen with proper timezone configuration."
+            )
+        else:
+            # If timezone-aware, convert to UTC
+            last_activity_utc = self.last_activity.astimezone(timezone.utc)
+            if self.last_activity.tzinfo != timezone.utc:
+                logger.debug(
+                    f"Session {self.session_id} last_activity timezone converted: "
+                    f"{self.last_activity.tzinfo} -> UTC"
+                )
+        
+        expiration_time = last_activity_utc + timedelta(hours=SESSION_EXPIRATION_HOURS)
+        now_utc = datetime.now(timezone.utc)
+        is_expired = now_utc > expiration_time
+        
+        if is_expired:
+            logger.debug(
+                f"Session {self.session_id} expired: last_activity={last_activity_utc}, "
+                f"expiration_time={expiration_time}, now={now_utc}"
+            )
+        
+        return is_expired
     
     def to_dict(self) -> Dict:
         """Convert session to dictionary format compatible with existing code."""

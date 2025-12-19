@@ -53,8 +53,17 @@ def create_database_engine():
         # timezone-related session expiration issues
         if database_url.startswith('postgresql'):
             @event.listens_for(ENGINE, "connect")
-            def set_timezone(dbapi_conn, connection_record):
-                """Set timezone to UTC for all PostgreSQL connections."""
+            def set_timezone_on_connect(dbapi_conn, connection_record):
+                """Set timezone to UTC for all new PostgreSQL connections."""
+                cursor = dbapi_conn.cursor()
+                cursor.execute("SET timezone = 'UTC'")
+                cursor.close()
+            
+            @event.listens_for(ENGINE, "checkout")
+            def set_timezone_on_checkout(dbapi_conn, connection_record, connection_proxy):
+                """Set timezone to UTC when connections are checked out from the pool.
+                This ensures reused connections also have the correct timezone setting.
+                """
                 cursor = dbapi_conn.cursor()
                 cursor.execute("SET timezone = 'UTC'")
                 cursor.close()
@@ -67,11 +76,15 @@ def create_database_engine():
         def normalize_datetime_to_utc(instance, context):
             """Normalize all timezone-aware datetime attributes to UTC."""
             for key, value in instance.__dict__.items():
-                if isinstance(value, datetime) and value.tzinfo is not None:
-                    # Convert to UTC if not already in UTC
-                    utc_value = value.astimezone(timezone.utc)
-                    if utc_value != value:
-                        instance.__dict__[key] = utc_value
+                if isinstance(value, datetime):
+                    if value.tzinfo is None:
+                        # If timezone-naive, assume it's UTC (as stored)
+                        instance.__dict__[key] = value.replace(tzinfo=timezone.utc)
+                    else:
+                        # If timezone-aware, convert to UTC
+                        utc_value = value.astimezone(timezone.utc)
+                        if utc_value != value:
+                            instance.__dict__[key] = utc_value
     
     return ENGINE
 
