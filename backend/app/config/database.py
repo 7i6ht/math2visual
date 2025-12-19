@@ -134,6 +134,7 @@ def init_database():
     
     # Import all models to ensure they're registered with Base.metadata
     from app.models.tutor_session import TutorSession  # noqa: F401
+    from app.models.chatgpt_session import ChatGPTSession  # noqa: F401
     
     # Create all tables
     Base.metadata.create_all(bind=engine)

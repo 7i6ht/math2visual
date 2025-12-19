@@ -150,6 +150,7 @@
   },
   "landing": {
     "roleQuestion": "What are you?",
+    "modeQuestion": "Please select mode:",
     "student": "Student",
     "teacher": "Teacher"
   },
@@ -171,6 +172,27 @@
     "speechNotSupported": "Voice output not supported",
     "speechError": "Could not read the answer aloud. Please try again.",
     "initialMessage": "Hello! I'm here to help you with your math word problems. Please share a problem you'd like to work on."
+  },
+  "chatgpt": {
+    "title": "ChatGPT",
+    "startConversation": "Start a conversation with ChatGPT...",
+    "inputPlaceholder": "Type your message to ChatGPT...",
+    "downloadImage": "Download image",
+    "imageAlt": "Image {{number}}",
+    "failedToFetchImage": "Failed to fetch image",
+    "failedToStreamResponse": "Failed to stream ChatGPT response",
+    "streamingNotSupported": "Streaming not supported in this browser.",
+    "failedToStartSession": "Failed to start ChatGPT session",
+    "failedToFetchImageViaProxy": "Failed to fetch image via proxy",
+    "failedToStartSessionError": "Failed to start ChatGPT session.",
+    "missingSessionId": "Missing session id.",
+    "pleaseProvideMessage": "Please provide a message.",
+    "messageTooLong": "Message is too long (max {{max}} characters).",
+    "sessionNotFoundOrExpired": "Session not found or expired.",
+    "sessionNotFound": "Session not found.",
+    "missingImageUrl": "Missing image URL.",
+    "failedToFetchImageError": "Failed to fetch image: {{error}}",
+    "failedToProxyImage": "Failed to proxy image."
   }
 }
 

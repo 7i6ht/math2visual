@@ -6,11 +6,12 @@ import { LandingPage } from "./LandingPage";
 import { ChatView } from "./ChatView";
 import { InitialView } from "./InitialView";
 import { TwoColumnView } from "./TwoColumnView";
+import { ChatGPTView } from "./ChatGPTView";
 
 export function AppLayout() {
   const appState = useAppState();
   const analyticsEnabled = isAnalyticsEnabled();
-  const [selectedRole, setSelectedRole] = useState<"teacher" | "student" | null>(null);
+  const [selectedRole, setSelectedRole] = useState<"teacher" | "student" | "chatgpt" | null>(null);
 
   // Initialize analytics cursor tracking and body scroll tracking
   useEffect(() => {
@@ -31,7 +32,7 @@ export function AppLayout() {
     }
   }, [analyticsEnabled]);
 
-  const handleRoleSelect = (role: "teacher" | "student") => {
+  const handleRoleSelect = (role: "teacher" | "student" | "chatgpt") => {
     setSelectedRole(role);
   };
 
@@ -39,6 +40,7 @@ export function AppLayout() {
     <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-muted/30">
       {!selectedRole && <LandingPage onRoleSelect={handleRoleSelect} />}
       {selectedRole === "student" && <ChatView />}
+      {selectedRole === "chatgpt" && <ChatGPTView />}
       {selectedRole === "teacher" && (
         appState.hasCompletedGeneration ? (
           <TwoColumnView appState={appState} />

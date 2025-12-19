@@ -6,15 +6,15 @@ import { Button } from "@/components/ui/button";
 import { trackLandingPageRoleSelect, isAnalyticsEnabled } from "@/services/analyticsTracker";
 
 type Props = {
-  onRoleSelect: (role: "teacher" | "student") => void;
+  onRoleSelect: (role: "teacher" | "student" | "chatgpt") => void;
 };
 
 export function LandingPage({ onRoleSelect }: Props) {
   const { t } = useTranslation();
   const analyticsEnabled = isAnalyticsEnabled();
 
-  const handleRoleSelect = (role: "teacher" | "student") => {
-    if (analyticsEnabled) {
+  const handleRoleSelect = (role: "teacher" | "student" | "chatgpt") => {
+    if (analyticsEnabled && (role === "teacher" || role === "student")) {
       trackLandingPageRoleSelect(role);
     }
     onRoleSelect(role);
@@ -42,7 +42,7 @@ export function LandingPage({ onRoleSelect }: Props) {
 
           <div className="animate-in fade-in-0 slide-in-from-bottom-4 duration-700 delay-300 mt-8 sm:mt-10 md:mt-12 lg:mt-14 xl:mt-16 2xl:mt-20 3xl:mt-24 8xl:mt-28 flex flex-col items-center gap-6 sm:gap-8 md:gap-10 8xl:gap-12">
             <p className="text-sm sm:text-base md:text-lg lg:text-lg xl:text-xl 2xl:text-2xl 3xl:text-3xl 4xl:text-4xl 5xl:text-5xl 6xl:text-[3.5rem] 8xl:text-[4rem] italic text-foreground leading-relaxed font-medium">
-              {t("landing.roleQuestion")}
+              {analyticsEnabled ? t("landing.modeQuestion") : t("landing.roleQuestion")}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 md:gap-8 w-full sm:w-auto">
               <Button
@@ -58,6 +58,15 @@ export function LandingPage({ onRoleSelect }: Props) {
               >
                 {t("landing.teacher")}
               </Button>
+              {analyticsEnabled && (
+                <Button
+                  onClick={() => handleRoleSelect("chatgpt")}
+                  variant="outline"
+                  className="min-w-[200px] bg-background !text-foreground !responsive-text-font-size button-responsive-size px-6 py-3 md:px-8 md:py-4 lg:px-10 lg:py-5 xl:px-12 xl:py-6 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 border-2"
+                >
+                  ChatGPT
+                </Button>
+              )}
             </div>
           </div>
         </div>

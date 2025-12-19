@@ -14,6 +14,7 @@ from app.api.routes.system import system_bp
 from app.api.routes.svg_dataset import svg_dataset_bp
 from app.api.routes.analytics import analytics_bp
 from app.api.routes.tutor import tutor_bp
+from app.api.routes.chatgpt import chatgpt_bp
 from app.api.middleware.error_handlers import register_error_handlers
 from app.utils.translations import ensure_translation_models_installed
 
@@ -78,6 +79,7 @@ def create_app():
     app.register_blueprint(svg_dataset_bp)
     app.register_blueprint(analytics_bp)
     app.register_blueprint(tutor_bp)
+    app.register_blueprint(chatgpt_bp)
     
     # Register error handlers
     register_error_handlers(app)

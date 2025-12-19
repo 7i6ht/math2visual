@@ -39,7 +39,7 @@ type SpeechRecognitionWindow = Window & {
 type UseVoiceInputParams = {
   t: TFunction;
   onTranscript: (transcript: string) => void;
-  context?: 'mwp' | 'student_message';
+  context?: 'mwp' | 'student_message' | 'chatgpt_message';
 };
 
 export function useVoiceInput({ t, onTranscript, context = 'mwp' }: UseVoiceInputParams) {

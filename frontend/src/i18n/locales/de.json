@@ -150,6 +150,7 @@
   },
   "landing": {
     "roleQuestion": "Was sind Sie?",
+    "modeQuestion": "Bitte Modus auswählen:",
     "student": "Schüler",
     "teacher": "Lehrer"
   },
@@ -171,6 +172,27 @@
     "speechNotSupported": "Sprachausgabe nicht unterstützt",
     "speechError": "Sprachausgabe fehlgeschlagen. Bitte erneut versuchen.",
     "initialMessage": "Hallo! Ich bin hier, um dir bei deinen Mathe-Textaufgaben zu helfen. Bitte teile ein Problem mit, an dem du arbeiten möchtest."
+  },
+  "chatgpt": {
+    "title": "ChatGPT",
+    "startConversation": "Starte eine Unterhaltung mit ChatGPT...",
+    "inputPlaceholder": "Gib deine Nachricht an ChatGPT ein...",
+    "downloadImage": "Bild herunterladen",
+    "imageAlt": "Bild {{number}}",
+    "failedToFetchImage": "Bild konnte nicht abgerufen werden",
+    "failedToStreamResponse": "ChatGPT-Antwort konnte nicht gestreamt werden",
+    "streamingNotSupported": "Streaming wird in diesem Browser nicht unterstützt.",
+    "failedToStartSession": "ChatGPT-Session konnte nicht gestartet werden",
+    "failedToFetchImageViaProxy": "Bild konnte nicht über Proxy abgerufen werden",
+    "failedToStartSessionError": "ChatGPT-Session konnte nicht gestartet werden.",
+    "missingSessionId": "Session-ID fehlt.",
+    "pleaseProvideMessage": "Bitte geben Sie eine Nachricht ein.",
+    "messageTooLong": "Nachricht ist zu lang (max. {{max}} Zeichen).",
+    "sessionNotFoundOrExpired": "Session nicht gefunden oder abgelaufen.",
+    "sessionNotFound": "Session nicht gefunden.",
+    "missingImageUrl": "Bild-URL fehlt.",
+    "failedToFetchImageError": "Bild konnte nicht abgerufen werden: {{error}}",
+    "failedToProxyImage": "Bild konnte nicht über Proxy abgerufen werden."
   }
 }
 
