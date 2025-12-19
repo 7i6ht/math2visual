@@ -134,12 +134,13 @@ services:
       /bin/bash -c "
       echo 'Cleanup service starting...' &&
       # Check if analytics is enabled - if so, exit gracefully and stay stopped
-      if python3 -c \"import os; from dotenv import load_dotenv; load_dotenv(); from app.config.database import is_analytics_enabled; exit(0 if is_analytics_enabled() else 1)\" 2>/dev/null; then
+      if /usr/local/bin/python3 -c \"import os; from dotenv import load_dotenv; load_dotenv(); from app.config.database import is_analytics_enabled; exit(0 if is_analytics_enabled() else 1)\" 2>/dev/null; then
         echo 'Analytics is enabled - cleanup service will not run. Sessions will not be deleted.' &&
         echo 'The cleanup service will remain stopped. To start it, disable analytics first.' &&
         exit 0
       fi &&
-      echo '0 * * * * appuser cd /app && python3 scripts/cleanup_temp_files.py --age-hours $${CLEANUP_OUTPUT_AGE_HOURS:-24} --temp-svg-age-hours $${CLEANUP_TEMP_SVG_AGE_HOURS:-1} >> /var/log/cleanup.log 2>&1' > /etc/cron.d/cleanup-cron &&
+      # Create cron file with cron job (using full path to python3, so PATH not needed)
+      echo '0 * * * * appuser cd /app && /usr/local/bin/python3 scripts/cleanup_temp_files.py --age-hours $${CLEANUP_OUTPUT_AGE_HOURS:-24} --temp-svg-age-hours $${CLEANUP_TEMP_SVG_AGE_HOURS:-1} >> /var/log/cleanup.log 2>&1' > /etc/cron.d/cleanup-cron &&
       chmod 0644 /etc/cron.d/cleanup-cron &&
       printenv | grep -E '^CLEANUP_' >> /etc/environment &&
       touch /var/log/cleanup.log &&
