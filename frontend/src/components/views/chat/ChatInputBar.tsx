@@ -3,6 +3,7 @@ import { Mic, Square, ArrowUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { STRING_SIZE_LIMITS } from "@/utils/validation";
+import { trackStudentMessageButtonClick, trackStudentMessageEnterKey, isAnalyticsEnabled } from "@/services/analyticsTracker";
 
 type ChatInputBarProps = {
   input: string;
@@ -27,6 +28,8 @@ export const ChatInputBar = ({
   t,
   placeholder,
 }: ChatInputBarProps) => {
+  const analyticsEnabled = isAnalyticsEnabled();
+
   return (
     <div className="relative rounded-md border border-input bg-background text-foreground shadow-sm">
       <Textarea
@@ -40,6 +43,9 @@ export const ChatInputBar = ({
         onKeyDown={(e) => {
           if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
+            if (analyticsEnabled) {
+              trackStudentMessageEnterKey();
+            }
             onSend();
           }
         }}
@@ -63,7 +69,12 @@ export const ChatInputBar = ({
         <Button
           type="button"
           variant="ghost"
-          onClick={onSend}
+          onClick={() => {
+            if (analyticsEnabled) {
+              trackStudentMessageButtonClick();
+            }
+            onSend();
+          }}
           disabled={streaming}
           className="p-0 flex items-center justify-center rounded-full bg-black text-white hover:bg-black/90 hover:text-white shadow-sm"
           style={{

@@ -418,6 +418,19 @@ export function trackStudentMessage(message: string): void {
   });
 }
 
+// Student message submission method tracking
+export function trackStudentMessageButtonClick(): void {
+  analyticsService.recordAction({
+    type: 'student_message_button_click',
+  });
+}
+
+export function trackStudentMessageEnterKey(): void {
+  analyticsService.recordAction({
+    type: 'student_message_enter_key',
+  });
+}
+
 // Download tracking
 export function trackDownload(format: 'svg' | 'png' | 'pdf', filename?: string): void {
   analyticsService.recordAction({
