@@ -71,7 +71,7 @@ export const MwpPromptView = ({
       type="button"
       variant="ghost"
       onClick={toggleVoice}
-      disabled={loading}
+      disabled={loading || disableSubmit}
       className="h-11 w-11 sm:h-12 sm:w-12 lg:h-13 lg:w-13 xl:h-15 xl:w-15 p-0 flex items-center justify-center rounded-full"
       aria-label={listening ? t("tutor.voiceStop") : t("tutor.voiceStart")}
     >
