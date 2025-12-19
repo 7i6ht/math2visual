@@ -154,8 +154,7 @@ class IntuitiveVisualGenerator():
             result_containers=None,
             parent_op=None,
             parent_container_name=None,
-            current_path="",
-            current_visual_element_path=""
+            current_path=""
         ):
             logger.debug("extract_operations_and_containers")
             if operations is None:
@@ -231,12 +230,10 @@ class IntuitiveVisualGenerator():
 
             # Construct operation path for use in child paths
             operation_path = f"{current_path}/operation" if current_path else "operation"
-            operation_visual_element_path = f"{current_visual_element_path}/operation" if current_visual_element_path else "i/operation"
 
             # --- A) Handle left child ---
             if "operation" in left_child:
                 left_path = f"{operation_path}/containers[0]"
-                left_visual_element_path = f"{operation_visual_element_path}/containers[0]"
                 extract_operations_and_containers(
                     left_child,
                     operations,
@@ -244,23 +241,19 @@ class IntuitiveVisualGenerator():
                     result_containers,
                     parent_op=op,
                     parent_container_name=container_name,
-                    current_path=left_path,
-                    current_visual_element_path=left_visual_element_path
+                    current_path=left_path
                 )
             else:
                 # Leaf entity - add DSL path
                 left_child["_dsl_path"] = f"{operation_path}/entities[0]"
-                # Also track element path indexed by container order (use entities)
-                left_child["_visual_element_path"] = f"{operation_visual_element_path}/entities[0]"
                 containers.append(left_child)
 
             # --- B) Record the current operation ---
-            operations.append({"entity_type": op, "_dsl_path": operation_path, "_visual_element_path": operation_visual_element_path})
+            operations.append({"entity_type": op, "_dsl_path": operation_path})
 
             # --- C) Handle right child ---
             if "operation" in right_child:
                 right_path = f"{operation_path}/containers[1]"
-                right_visual_element_path = f"{operation_visual_element_path}/containers[1]"
                 extract_operations_and_containers(
                     right_child,
                     operations,
@@ -268,14 +261,11 @@ class IntuitiveVisualGenerator():
                     result_containers,
                     parent_op=op,
                     parent_container_name=container_name,
-                    current_path=right_path,
-                    current_visual_element_path=right_visual_element_path
+                    current_path=right_path
                 )
             else:
                 # Leaf entity - add DSL path
                 right_child["_dsl_path"] = f"{operation_path}/entities[1]"
-                # Also track element path indexed by container order (use entities)
-                right_child["_visual_element_path"] = f"{operation_visual_element_path}/entities[1]"
                 containers.append(right_child)
 
             # --- D) Mark brackets if needed ---
@@ -291,7 +281,6 @@ class IntuitiveVisualGenerator():
             if parent_op is None and my_result:
                 if isinstance(my_result, dict):
                     my_result["_dsl_path"] = f"{operation_path}/result_container"
-                    my_result["_visual_element_path"] = f"{operation_visual_element_path}/result_container"
                     result_containers.append(my_result)
 
             return operations, containers, result_containers
@@ -299,7 +288,7 @@ class IntuitiveVisualGenerator():
 
 
         
-        def extract_operations_and_containers_for_comparison(data, current_path="", current_visual_element_path=""):
+        def extract_operations_and_containers_for_comparison(data, current_path=""):
             logger.debug("extract_operations_and_containers_for_comparison")
             """
             Extract two sides (compare1 and compare2) from a top-level comparison.
@@ -320,8 +309,8 @@ class IntuitiveVisualGenerator():
 
             # We'll parse each side with your original function
             # But that function might return 2 items or 3 items depending on 'unittrans'
-            def safe_extract(data_piece, current_path="", current_visual_element_path=""):
-                ret = extract_operations_and_containers(data_piece, current_path=current_path, current_visual_element_path=current_visual_element_path)
+            def safe_extract(data_piece, current_path=""):
+                ret = extract_operations_and_containers(data_piece, current_path=current_path)
                 if len(ret) == 2:
                     # Means it was (operations, containers_list) => no result containers returned
                     ops, ents = ret
@@ -333,11 +322,10 @@ class IntuitiveVisualGenerator():
 
             # Construct the base path for containers
             base_path = f"{current_path}/entities" if current_path else "entities"
-            base_visual_element_path = f"{current_visual_element_path}/entities" if current_visual_element_path else "i/entities"
             
             # 1) Parse compare1 side
             if isinstance(compare1_data, dict) and "operation" in compare1_data:
-                compare1_ops, compare1_ents, compare1_res = safe_extract(compare1_data, f"{base_path}[0]", f"{base_visual_element_path}[0]")
+                compare1_ops, compare1_ents, compare1_res = safe_extract(compare1_data, f"{base_path}[0]")
             else:
                 # If it's just a single entity, no operation
                 compare1_ops = []
@@ -347,7 +335,7 @@ class IntuitiveVisualGenerator():
 
             # 2) Parse compare2 side
             if isinstance(compare2_data, dict) and "operation" in compare2_data:
-                compare2_ops, compare2_ents, compare2_res = safe_extract(compare2_data, f"{base_path}[1]", f"{base_visual_element_path}[1]")
+                compare2_ops, compare2_ents, compare2_res = safe_extract(compare2_data, f"{base_path}[1]")
             else:
                 compare2_ops = []
                 compare2_data["_dsl_path"] = f"{base_path}[1]"
@@ -380,17 +368,12 @@ class IntuitiveVisualGenerator():
 
                 # Make copies of the first entity
                 base_entity = containers[0]
-                # Derive base DSL paths from the original base entity (left operand)
-                multiplicand_base_element_path = base_entity.get("_visual_element_path", "operation/entities")
-                multiplicand_element_prefix = self._strip_trailing_index(multiplicand_base_element_path)
 
                 replicated = []
                 for i in range(multiplier_val):
                     e_copy = copy.deepcopy(base_entity)
                     # Optionally tag each copy for debugging
                     e_copy["replica_index"] = i
-                    # Assign DSL paths for each replicated multiplicand
-                    e_copy["_visual_element_path"] = f"{multiplicand_element_prefix}[{i}]"
                     replicated.append(e_copy)
 
                 containers = replicated
@@ -704,7 +687,7 @@ class IntuitiveVisualGenerator():
                 return None
 
         
-            def embed_top_figures_and_text(parent, box_x, box_y, box_width, container_type, container_name, attr_type, attr_name, entity_dsl_path="", entity_visual_element_path=""):
+            def embed_top_figures_and_text(parent, box_x, box_y, box_width, container_type, container_name, attr_type, attr_name, entity_dsl_path=""):
                 logger.debug("calling embed_top_figures_and_text")
                 # print("container_type", container_type)
                 # print("container_name", container_name)
@@ -757,15 +740,11 @@ class IntuitiveVisualGenerator():
                             # Add DSL path metadata for SVG elements (container type or attribute type)
                             if v == container_type and container_type:
                                 container_type_dsl_path = f"{entity_dsl_path}/container_type"
-                                container_type_visual_element_path = f"{entity_visual_element_path}/container_type"
                                 svg_el.set('data-dsl-path', container_type_dsl_path)
-                                svg_el.set('visual-element-path', container_type_visual_element_path)
                                 svg_el.set('style', 'pointer-events: bounding-box;')
                             elif v == attr_type and attr_type:
                                 attr_type_dsl_path = f"{entity_dsl_path}/attr_type"
-                                attr_type_visual_element_path = f"{entity_visual_element_path}/attr_type"
                                 svg_el.set('data-dsl-path', attr_type_dsl_path)
-                                svg_el.set('visual-element-path', attr_type_visual_element_path)
                                 svg_el.set('style', 'pointer-events: bounding-box;')
                             # Append the returned svg element to the group
                             group.append(svg_el)
@@ -781,16 +760,10 @@ class IntuitiveVisualGenerator():
                             # This is a container name
                             container_name_dsl_path = f"{entity_dsl_path}/container_name"
                             text_element.set('data-dsl-path', container_name_dsl_path)
-                            # Also set element path for precise element-level mapping
-                            container_name_visual_element_path = f"{entity_visual_element_path}/container_name"
-                            text_element.set('visual-element-path', container_name_visual_element_path)
                         elif v == attr_name and attr_name:
                             # This is an attribute name
                             attr_name_dsl_path = f"{entity_dsl_path}/attr_name"
                             text_element.set('data-dsl-path', attr_name_dsl_path)
-                            # Also set element path for precise element-level mapping
-                            attr_name_visual_element_path = f"{entity_visual_element_path}/attr_name"
-                            text_element.set('visual-element-path', attr_name_visual_element_path)
                         current_x += 50
                     if idx < len(items) - 1:
                         current_x += 10
@@ -807,7 +780,6 @@ class IntuitiveVisualGenerator():
                 attr_name = e.get("attr_name", "").strip()
                 attr_type = e.get("attr_type", "").strip()
                 entity_dsl_path = e.get('_dsl_path', '')
-                entity_visual_element_path = e.get('_visual_element_path', '')
 
                 # UnitTrans-specific attributes
                 unittrans_unit = e.get("unittrans_unit", "")
@@ -838,8 +810,6 @@ class IntuitiveVisualGenerator():
                     quantity_dsl_path = f"{entity_dsl_path}/entity_quantity"
                     text_element.set('data-dsl-path', quantity_dsl_path)
                     # Also set element path for the quantity number itself
-                    quantity_visual_element_path = f"{entity_visual_element_path}/entity_quantity"
-                    text_element.set('visual-element-path', quantity_visual_element_path)
                     update_max_dimensions(text_x + len(q_str)*30, text_y + 50)
                     return
                 # Draw box
@@ -847,7 +817,6 @@ class IntuitiveVisualGenerator():
                                 width=str(w), height=str(h), stroke="black", fill="none",
                                 style="pointer-events: all;")
                 rect_elem.set('data-dsl-path', entity_dsl_path)
-                rect_elem.set('visual-element-path', entity_visual_element_path)
                 update_max_dimensions(x + w, y + h)
 
                 
@@ -856,7 +825,7 @@ class IntuitiveVisualGenerator():
 
                 # Embed text or figures at the top of each entity box
                 
-                embed_top_figures_and_text(svg_root, x, box_y, w, container_type, container_name, attr_type, attr_name, entity_dsl_path, entity_visual_element_path)
+                embed_top_figures_and_text(svg_root, x, box_y, w, container_type, container_name, attr_type, attr_name, entity_dsl_path)
 
 
                 if layout == "large":
@@ -888,7 +857,6 @@ class IntuitiveVisualGenerator():
                     container_dsl_path = e.get('_dsl_path', '')
                     entity_type_dsl_path = f"{container_dsl_path}/entity_type"
                     embedded_svg.set('data-dsl-path', entity_type_dsl_path)
-                    embedded_svg.set('visual-element-path', entity_visual_element_path)
                     embedded_svg.set('style', 'pointer-events: bounding-box;')
                     
                     svg_root.append(embedded_svg) 
@@ -903,11 +871,9 @@ class IntuitiveVisualGenerator():
                                                         y=str(text_y),
                                                         style="font-size: 45px; fill: white; font-weight: bold; stroke: black; stroke-width: 2px;", dominant_baseline="middle")
                     text_element.text = q_str
-                    # Tag large quantity with both path and element-path
+                    # Tag large quantity with DSL path
                     large_quantity_dsl_path = f"{container_dsl_path}/entity_quantity"
-                    large_quantity_visual_element_path = f"{entity_visual_element_path}/entity_quantity"
                     text_element.set('data-dsl-path', large_quantity_dsl_path)
-                    text_element.set('visual-element-path', large_quantity_visual_element_path)
                     update_max_dimensions(start_x_line + tw, center_y_line + 40)
 
                     if unittrans_unit and unittrans_value is not None:
@@ -958,11 +924,8 @@ class IntuitiveVisualGenerator():
                             
                             # Add DSL path metadata for entity_type highlighting
                             container_dsl_path = e.get('_dsl_path', '')
-                            container_visual_element_path = e.get('_visual_element_path', '')
                             entity_type_dsl_path = f"{container_dsl_path}/entity_type[{i}]"
-                            entity_type_visual_element_path = f"{container_visual_element_path}/entity_type[{i}]"
                             embedded_svg.set('data-dsl-path', entity_type_dsl_path)
-                            embedded_svg.set('visual-element-path', entity_type_visual_element_path)
                             embedded_svg.set('style', 'pointer-events: bounding-box;')
                             
                             svg_root.append(embedded_svg)
@@ -1065,8 +1028,7 @@ class IntuitiveVisualGenerator():
                 # Embed text and figures at the top of the big box
                 result_container = result_containers[-1]
                 result_dsl_path = result_container.get('_dsl_path', '')
-                result_visual_element_path = result_container.get('_visual_element_path', '')
-                embed_top_figures_and_text(svg_root, big_box_x, big_box_y, big_box_width, result_container['container_type'], result_container['container_name'], result_container['attr_type'], result_container['attr_name'], result_dsl_path, result_visual_element_path)
+                embed_top_figures_and_text(svg_root, big_box_x, big_box_y, big_box_width, result_container['container_type'], result_container['container_name'], result_container['attr_type'], result_container['attr_name'], result_dsl_path)
 
                 big_box_rect = etree.SubElement(svg_root, "rect", x=str(big_box_x), y=str(big_box_y), width=str(big_box_width),
                                 height=str(big_box_height), stroke="black", fill="none", stroke_width="2",
@@ -1196,16 +1158,12 @@ class IntuitiveVisualGenerator():
                 visual_entity['attr_type'] = divisor_entity['attr_type']
                 # Derive base DSL paths from the original divisor entity when available
                 divisor_base_path = divisor_entity.get("_dsl_path", "operation/entities[1]")
-                divisor_base_element_path = divisor_entity.get("_visual_element_path", "operation/entities")
-                divisor_element_prefix = self._strip_trailing_index(divisor_base_element_path)
-
                 replicated = []
                 for i in range(result_count):
                     e_copy = copy.deepcopy(visual_entity)
                     e_copy["replica_index"] = i
                     # Anchor replicas to the divisor slot while giving each a unique element index
                     e_copy["_dsl_path"] = divisor_base_path
-                    e_copy["_visual_element_path"] = f"{divisor_element_prefix}[{i}]"
                     replicated.append(e_copy)
 
                 containers = replicated
@@ -1229,15 +1187,11 @@ class IntuitiveVisualGenerator():
                 visual_entity['attr_type'] = divisor_entity['attr_type']
                 # Derive base DSL paths from the original divisor entity when available
                 divisor_base_path = divisor_entity.get("_dsl_path", "operation/entities[1]")
-                divisor_base_element_path = divisor_entity.get("_visual_element_path", "operation/entities")
-                divisor_element_prefix = self._strip_trailing_index(divisor_base_element_path)
-
                 replicated = []
                 for i in range(divisor_entity_quantity):
                     e_copy = copy.deepcopy(visual_entity)
                     e_copy["replica_index"] = i
                     e_copy["_dsl_path"] = divisor_base_path
-                    e_copy["_visual_element_path"] = f"{divisor_element_prefix}[{i}]"
                     replicated.append(e_copy)
 
                 containers = replicated
@@ -1541,7 +1495,7 @@ class IntuitiveVisualGenerator():
                 return None
 
         
-            def embed_top_figures_and_text(parent, box_x, box_y, box_width, container_type, container_name, attr_type, attr_name, entity_dsl_path="", entity_visual_element_path=""):
+            def embed_top_figures_and_text(parent, box_x, box_y, box_width, container_type, container_name, attr_type, attr_name, entity_dsl_path=""):
                 logger.debug("calling embed_top_figures_and_text")
 
                 items = []
@@ -1593,15 +1547,11 @@ class IntuitiveVisualGenerator():
                             # Add DSL path metadata for SVG elements (container type or attribute type)
                             if v == container_type and container_type:
                                 container_type_dsl_path = f"{entity_dsl_path}/container_type"
-                                container_type_visual_element_path = f"{entity_visual_element_path}/container_type"
                                 svg_el.set('data-dsl-path', container_type_dsl_path)
-                                svg_el.set('visual-element-path', container_type_visual_element_path)
                                 svg_el.set('style', 'pointer-events: bounding-box;')
                             elif v == attr_type and attr_type:
                                 attr_type_dsl_path = f"{entity_dsl_path}/attr_type"
-                                attr_type_visual_element_path = f"{entity_visual_element_path}/attr_type"
                                 svg_el.set('data-dsl-path', attr_type_dsl_path)
-                                svg_el.set('visual-element-path', attr_type_visual_element_path)
                                 svg_el.set('style', 'pointer-events: bounding-box;')
                             # Append the returned svg element to the group
                             group.append(svg_el)
@@ -1617,14 +1567,10 @@ class IntuitiveVisualGenerator():
                             # This is a container name
                             container_name_dsl_path = f"{entity_dsl_path}/container_name"
                             text_element.set('data-dsl-path', container_name_dsl_path)
-                            container_name_visual_element_path = f"{entity_visual_element_path}/container_name"
-                            text_element.set('visual-element-path', container_name_visual_element_path)
                         elif v == attr_name and attr_name:
                             # This is an attribute name
                             attr_name_dsl_path = f"{entity_dsl_path}/attr_name"
                             text_element.set('data-dsl-path', attr_name_dsl_path)
-                            attr_name_visual_element_path = f"{entity_visual_element_path}/attr_name"
-                            text_element.set('visual-element-path', attr_name_visual_element_path)
                         current_x += 50
                     if idx < len(items) - 1:
                         current_x += 10
@@ -1641,7 +1587,6 @@ class IntuitiveVisualGenerator():
                 attr_name = e.get("attr_name", "").strip()
                 attr_type = e.get("attr_type", "").strip()
                 entity_dsl_path = e.get('_dsl_path', '')
-                entity_visual_element_path = e.get('_visual_element_path', '')
 
                 # UnitTrans-specific attributes
                 unittrans_unit = e.get("unittrans_unit", "")
@@ -1673,8 +1618,6 @@ class IntuitiveVisualGenerator():
                     # Add DSL paths for multiplier quantity
                     quantity_dsl_path = f"{entity_dsl_path}/entity_quantity"
                     text_element.set('data-dsl-path', quantity_dsl_path)
-                    quantity_visual_element_path = f"{entity_visual_element_path}/entity_quantity"
-                    text_element.set('visual-element-path', quantity_visual_element_path)
                     update_max_dimensions(text_x + len(q_str)*30, text_y + 50)
                     return
                 # Draw box
@@ -1682,7 +1625,6 @@ class IntuitiveVisualGenerator():
                                 width=str(w), height=str(h), stroke="black", fill="none",
                                 style="pointer-events: all;")
                 rect_elem.set('data-dsl-path', entity_dsl_path)
-                rect_elem.set('visual-element-path', entity_visual_element_path)
                 update_max_dimensions(x + w, y + h)
 
                 
@@ -1691,7 +1633,7 @@ class IntuitiveVisualGenerator():
 
                 # Embed text or figures at the top of each entity box
                 
-                embed_top_figures_and_text(svg_root, x, box_y, w, container_type, container_name, attr_type, attr_name, entity_dsl_path, entity_visual_element_path)
+                embed_top_figures_and_text(svg_root, x, box_y, w, container_type, container_name, attr_type, attr_name, entity_dsl_path)
 
 
                 if layout == "large":
@@ -1728,11 +1670,8 @@ class IntuitiveVisualGenerator():
                     
                     # Add DSL path metadata for entity_type highlighting
                     container_dsl_path = e.get('_dsl_path', '')
-                    container_visual_element_path = e.get('_visual_element_path', '')
                     entity_type_dsl_path = f"{container_dsl_path}/entity_type"
-                    entity_type_visual_element_path = f"{container_visual_element_path}/entity_type"
                     embedded_svg.set('data-dsl-path', entity_type_dsl_path)
-                    embedded_svg.set('visual-element-path', entity_type_visual_element_path)
                     embedded_svg.set('style', 'pointer-events: bounding-box;')
                     
                     svg_root.append(embedded_svg) 
@@ -1802,11 +1741,8 @@ class IntuitiveVisualGenerator():
                             
                             # Add DSL path metadata for entity_type highlighting
                             container_dsl_path = e.get('_dsl_path', '')
-                            container_visual_element_path = e.get('_visual_element_path', '')
                             entity_type_dsl_path = f"{container_dsl_path}/entity_type[{i}]"
-                            entity_type_visual_element_path = f"{container_visual_element_path}/entity_type[{i}]"
                             embedded_svg.set('data-dsl-path', entity_type_dsl_path)
-                            embedded_svg.set('visual-element-path', entity_type_visual_element_path)
                             embedded_svg.set('style', 'pointer-events: bounding-box;')
                             
                             svg_root.append(embedded_svg)
@@ -1913,8 +1849,7 @@ class IntuitiveVisualGenerator():
                 container_entity = original_containers[0]
                 logger.debug(f"container_entity {container_entity}")
                 container_dsl_path = container_entity.get('_dsl_path', '')
-                container_visual_element_path = container_entity.get('_visual_element_path', '')
-                embed_top_figures_and_text(svg_root, big_box_x, big_box_y, big_box_width, container_entity['container_type'], container_entity['container_name'], container_entity['attr_type'], container_entity['attr_name'], container_dsl_path, container_visual_element_path)
+                embed_top_figures_and_text(svg_root, big_box_x, big_box_y, big_box_width, container_entity['container_type'], container_entity['container_name'], container_entity['attr_type'], container_entity['attr_name'], container_dsl_path)
 
                 # Big box should have the first container's DSL path (entities[0])
                 big_box_rect = etree.SubElement(svg_root, "rect", x=str(big_box_x), y=str(big_box_y), width=str(big_box_width),
@@ -1961,8 +1896,7 @@ class IntuitiveVisualGenerator():
                 container_entity = original_containers[0]
                 logger.debug(f"container_entity {container_entity}")
                 container_dsl_path = container_entity.get('_dsl_path', '')
-                container_visual_element_path = container_entity.get('_visual_element_path', '')
-                embed_top_figures_and_text(svg_root, big_box_x, big_box_y, big_box_width, container_entity['container_type'], container_entity['container_name'], container_entity['attr_type'], container_entity['attr_name'], container_dsl_path, container_visual_element_path)
+                embed_top_figures_and_text(svg_root, big_box_x, big_box_y, big_box_width, container_entity['container_type'], container_entity['container_name'], container_entity['attr_type'], container_entity['attr_name'], container_dsl_path)
 
                 # Big box should have the first container's DSL path (entities[0])
                 big_box_rect = etree.SubElement(svg_root, "rect", x=str(big_box_x), y=str(big_box_y), width=str(big_box_width),
@@ -2070,16 +2004,12 @@ class IntuitiveVisualGenerator():
                 visual_entity['attr_type'] = divisor_entity['attr_type']
                 # Derive base DSL paths from the original divisor entity when available
                 divisor_base_path = divisor_entity.get("_dsl_path", "operation/entities[1]")
-                divisor_base_element_path = divisor_entity.get("_visual_element_path", "operation/entities")
-                # Trim trailing bracketed index using regex
-                divisor_element_prefix = self._strip_trailing_index(divisor_base_element_path)
 
                 replicated = []
                 for i in range(result_count):
                     e_copy = copy.deepcopy(visual_entity)
                     e_copy["replica_index"] = i
                     e_copy["_dsl_path"] = divisor_base_path
-                    e_copy["_visual_element_path"] = f"{divisor_element_prefix}[{i}]"
                     replicated.append(e_copy)
 
             elif(dividend_entity["item"].get("entity_type", "") != divisor_entity["item"].get("entity_type", "") and dividend_entity["item"].get("entity_type", "") and divisor_entity["item"].get("entity_type", "")):
@@ -2098,15 +2028,11 @@ class IntuitiveVisualGenerator():
                 visual_entity['attr_type'] = divisor_entity['attr_type']
                 # Derive base DSL paths from the original divisor entity when available
                 divisor_base_path = divisor_entity.get("_dsl_path", "operation/entities[1]")
-                divisor_base_element_path = divisor_entity.get("_visual_element_path", "operation/entities")
-                divisor_element_prefix = self._strip_trailing_index(divisor_base_element_path)
-
                 replicated = []
                 for i in range(divisor_entity_quantity):
                     e_copy = copy.deepcopy(visual_entity)
                     e_copy["replica_index"] = i
                     e_copy["_dsl_path"] = divisor_base_path
-                    e_copy["_visual_element_path"] = f"{divisor_element_prefix}[{i}]"
                     replicated.append(e_copy)
 
                 containers = replicated
@@ -2133,7 +2059,6 @@ class IntuitiveVisualGenerator():
             remainder_entity["attr_type"] = ""
             # Last container (result container) should have result_container DSL path
             remainder_entity["_dsl_path"] = "operation/result_container"
-            remainder_entity["_visual_element_path"] = f"operation/entities[{len(containers)}]"
             replicated.append(remainder_entity)
             containers = replicated
 
@@ -2439,7 +2364,7 @@ class IntuitiveVisualGenerator():
                 return None
 
         
-            def embed_top_figures_and_text(parent, box_x, box_y, box_width, container_type, container_name, attr_type, attr_name, entity_dsl_path="", entity_visual_element_path=""):
+            def embed_top_figures_and_text(parent, box_x, box_y, box_width, container_type, container_name, attr_type, attr_name, entity_dsl_path=""):
                 logger.debug("calling embed_top_figures_and_text")
                 # print("container_type", container_type)
                 # print("container_name", container_name)
@@ -2492,15 +2417,11 @@ class IntuitiveVisualGenerator():
                             # Add DSL path metadata for SVG elements (container type or attribute type)
                             if v == container_type and container_type:
                                 container_type_dsl_path = f"{entity_dsl_path}/container_type"
-                                container_type_visual_element_path = f"{entity_visual_element_path}/container_type"
                                 svg_el.set('data-dsl-path', container_type_dsl_path)
-                                svg_el.set('visual-element-path', container_type_visual_element_path)
                                 svg_el.set('style', 'pointer-events: bounding-box;')
                             elif v == attr_type and attr_type:
                                 attr_type_dsl_path = f"{entity_dsl_path}/attr_type"
-                                attr_type_visual_element_path = f"{entity_visual_element_path}/attr_type"
                                 svg_el.set('data-dsl-path', attr_type_dsl_path)
-                                svg_el.set('visual-element-path', attr_type_visual_element_path)
                                 svg_el.set('style', 'pointer-events: bounding-box;')
                             # Append the returned svg element to the group
                             group.append(svg_el)
@@ -2516,14 +2437,10 @@ class IntuitiveVisualGenerator():
                             # This is a container name
                             container_name_dsl_path = f"{entity_dsl_path}/container_name"
                             text_element.set('data-dsl-path', container_name_dsl_path)
-                            container_name_visual_element_path = f"{entity_visual_element_path}/container_name"
-                            text_element.set('visual-element-path', container_name_visual_element_path)
                         elif v == attr_name and attr_name:
                             # This is an attribute name
                             attr_name_dsl_path = f"{entity_dsl_path}/attr_name"
                             text_element.set('data-dsl-path', attr_name_dsl_path)
-                            attr_name_visual_element_path = f"{entity_visual_element_path}/attr_name"
-                            text_element.set('visual-element-path', attr_name_visual_element_path)
                         current_x += 50
                     if idx < len(items) - 1:
                         current_x += 10
@@ -2540,7 +2457,6 @@ class IntuitiveVisualGenerator():
                 attr_name = e.get("attr_name", "").strip()
                 attr_type = e.get("attr_type", "").strip()
                 entity_dsl_path = e.get('_dsl_path', '')
-                entity_visual_element_path = e.get('_visual_element_path', '')
 
                 # UnitTrans-specific attributes
                 unittrans_unit = e.get("unittrans_unit", "")
@@ -2575,8 +2491,6 @@ class IntuitiveVisualGenerator():
                     # Add DSL paths for multiplier quantity
                     quantity_dsl_path = f"{entity_dsl_path}/entity_quantity"
                     text_element.set('data-dsl-path', quantity_dsl_path)
-                    quantity_visual_element_path = f"{entity_visual_element_path}/entity_quantity"
-                    text_element.set('visual-element-path', quantity_visual_element_path)
                     update_max_dimensions(text_x + len(q_str)*30, text_y + 50)
                     return
                 # Draw box
@@ -2584,7 +2498,6 @@ class IntuitiveVisualGenerator():
                                 width=str(w), height=str(h), stroke="black", fill="none",
                                 style="pointer-events: all;")
                 rect_elem.set('data-dsl-path', entity_dsl_path)
-                rect_elem.set('visual-element-path', entity_visual_element_path)
                 update_max_dimensions(x + w, y + h)
 
                 
@@ -2593,7 +2506,7 @@ class IntuitiveVisualGenerator():
 
                 # Embed text or figures at the top of each entity box
                 
-                embed_top_figures_and_text(svg_root, x, box_y, w, container_type, container_name, attr_type, attr_name, entity_dsl_path, entity_visual_element_path)
+                embed_top_figures_and_text(svg_root, x, box_y, w, container_type, container_name, attr_type, attr_name, entity_dsl_path)
 
 
                 if layout == "large":
@@ -2636,11 +2549,8 @@ class IntuitiveVisualGenerator():
                     
                     # Add DSL path metadata for entity_type highlighting
                     container_dsl_path = e.get('_dsl_path', '')
-                    container_visual_element_path = e.get('_visual_element_path', '')
                     entity_type_dsl_path = f"{container_dsl_path}/entity_type"
-                    entity_type_visual_element_path = f"{container_visual_element_path}/entity_type"
                     embedded_svg.set('data-dsl-path', entity_type_dsl_path)
-                    embedded_svg.set('visual-element-path', entity_type_visual_element_path)
                     embedded_svg.set('style', 'pointer-events: bounding-box;')
                     
                     svg_root.append(embedded_svg) 
@@ -2707,11 +2617,8 @@ class IntuitiveVisualGenerator():
                             
                             # Add DSL path metadata for entity_type highlighting
                             container_dsl_path = e.get('_dsl_path', '')
-                            container_visual_element_path = e.get('_visual_element_path', '')
                             entity_type_dsl_path = f"{container_dsl_path}/entity_type[{i}]"
-                            entity_type_visual_element_path = f"{container_visual_element_path}/entity_type[{i}]"
                             embedded_svg.set('data-dsl-path', entity_type_dsl_path)
-                            embedded_svg.set('visual-element-path', entity_type_visual_element_path)
                             embedded_svg.set('style', 'pointer-events: bounding-box;')
                             
                             svg_root.append(embedded_svg)
@@ -2816,8 +2723,7 @@ class IntuitiveVisualGenerator():
                 # Big box represents the first container (container1)
                 container_entity = original_containers[0]
                 container_dsl_path = container_entity.get('_dsl_path', '')
-                container_visual_element_path = container_entity.get('_visual_element_path', '')
-                embed_top_figures_and_text(svg_root, big_box_x, big_box_y, big_box_width, container_entity['container_type'], container_entity['container_name'], container_entity['attr_type'], container_entity['attr_name'], container_dsl_path, container_visual_element_path)
+                embed_top_figures_and_text(svg_root, big_box_x, big_box_y, big_box_width, container_entity['container_type'], container_entity['container_name'], container_entity['attr_type'], container_entity['attr_name'], container_dsl_path)
 
                 # Big box should have the first container's DSL path (entities[0])
                 big_box_rect = etree.SubElement(svg_root, "rect", x=str(big_box_x), y=str(big_box_y), width=str(big_box_width),
@@ -2888,7 +2794,6 @@ class IntuitiveVisualGenerator():
             container_type = result_e.get("container_type", "").strip()  
             container_name = result_e.get("container_name", "").strip()
             result_dsl_path = result_e.get('_dsl_path', '')
-            result_visual_element_path = result_e.get('_visual_element_path', '')
 
             # 3. Basic constants
             UNIT_SIZE = 40
@@ -3014,7 +2919,6 @@ class IntuitiveVisualGenerator():
                                     shape_display_width, shape_display_height)
                 # Annotate shape with DSL metadata for entity_type hover
                 shape_svg.set('data-dsl-path', f"{result_dsl_path}/container_type")
-                shape_svg.set('visual-element-path', f"{result_visual_element_path}/container_type")
                 shape_svg.set('style', 'pointer-events: bounding-box;')
                 svg_root.append(shape_svg)
             else:
@@ -3030,7 +2934,6 @@ class IntuitiveVisualGenerator():
                                             stroke_width="2")
                 # Annotate fallback rectangle similarly
                 rectangle.set('data-dsl-path', f"{result_dsl_path}/container_type")
-                rectangle.set('visual-element-path', f"{result_visual_element_path}/container_type")
                 rectangle.set('style', 'pointer-events: all;')
             update_max_dimensions(shape_x + shape_display_width, shape_y + shape_display_height)
             # 10. Place text for length and width
@@ -3056,7 +2959,6 @@ class IntuitiveVisualGenerator():
                                             style="font-size: 20px; text-anchor: middle; pointer-events: auto;")
             container_text_el.text = f"{container_name}"
             container_text_el.set('data-dsl-path', f"{result_dsl_path}/container_name")
-            container_text_el.set('visual-element-path', f"{result_visual_element_path}/container_name")
 
             # Length at lower top-center
             length_text_x = shape_x + shape_display_width / 2
@@ -3069,8 +2971,6 @@ class IntuitiveVisualGenerator():
             # Annotate length with the DSL path of the first operand's entity_quantity
             length_dsl_path = f"{length_entity.get('_dsl_path', '')}/entity_quantity"
             length_text_el.set('data-dsl-path', length_dsl_path)
-            length_visual_element_path = f"{length_entity.get('_visual_element_path', '')}/entity_quantity"
-            length_text_el.set('visual-element-path', length_visual_element_path)
 
             # Width at left-center
             width_text_x = shape_x - 35
@@ -3083,8 +2983,6 @@ class IntuitiveVisualGenerator():
             # Annotate width with the DSL path of the second operand's entity_quantity
             width_dsl_path = f"{width_entity.get('_dsl_path', '')}/entity_quantity"
             width_text_el.set('data-dsl-path', width_dsl_path)
-            width_visual_element_path = f"{width_entity.get('_visual_element_path', '')}/entity_quantity"
-            width_text_el.set('visual-element-path', width_visual_element_path)
 
 
             # handle unittrans
@@ -3591,7 +3489,7 @@ class IntuitiveVisualGenerator():
                 return None
 
         
-            def embed_top_figures_and_text(parent, box_x, box_y, box_width, container_type, container_name, attr_type, attr_name, entity_dsl_path="", entity_visual_element_path=""):
+            def embed_top_figures_and_text(parent, box_x, box_y, box_width, container_type, container_name, attr_type, attr_name, entity_dsl_path=""):
                 logger.debug("calling embed_top_figures_and_text")
                 items = []
                 show_something = container_name or container_type or attr_name or attr_type
@@ -3649,15 +3547,11 @@ class IntuitiveVisualGenerator():
                             # Add DSL path metadata for SVG elements (container type or attribute type)
                             if v == container_type and container_type:
                                 container_type_dsl_path = f"{entity_dsl_path}/container_type"
-                                container_type_visual_element_path = f"{entity_visual_element_path}/container_type"
                                 svg_el.set('data-dsl-path', container_type_dsl_path)
-                                svg_el.set('visual-element-path', container_type_visual_element_path)
                                 svg_el.set('style', 'pointer-events: bounding-box;')
                             elif v == attr_type and attr_type:
                                 attr_type_dsl_path = f"{entity_dsl_path}/attr_type"
-                                attr_type_visual_element_path = f"{entity_visual_element_path}/attr_type"
                                 svg_el.set('data-dsl-path', attr_type_dsl_path)
-                                svg_el.set('visual-element-path', attr_type_visual_element_path)
                                 svg_el.set('style', 'pointer-events: bounding-box;')
                             # Append the returned svg element to the group
                             group.append(svg_el)
@@ -3697,7 +3591,6 @@ class IntuitiveVisualGenerator():
                 attr_name = e.get("attr_name", "").strip()
                 attr_type = e.get("attr_type", "").strip()
                 entity_dsl_path = e.get('_dsl_path', '')
-                entity_visual_element_path = e.get('_visual_element_path', '')
 
                 # UnitTrans-specific attributes
                 unittrans_unit = e.get("unittrans_unit", "")
@@ -3741,7 +3634,6 @@ class IntuitiveVisualGenerator():
                                 width=str(w), height=str(h), stroke="black", fill="none",
                                 style="pointer-events: all;")
                 rect_elem.set('data-dsl-path', entity_dsl_path)
-                rect_elem.set('visual-element-path', entity_visual_element_path)
                 update_max_dimensions(x + w, y + h)
 
                 
@@ -3749,7 +3641,7 @@ class IntuitiveVisualGenerator():
 
 
                 # Embed text or figures at the top
-                embed_top_figures_and_text(svg_root, x, box_y, w, container_type, container_name, attr_type, attr_name, entity_dsl_path, entity_visual_element_path)
+                embed_top_figures_and_text(svg_root, x, box_y, w, container_type, container_name, attr_type, attr_name, entity_dsl_path)
 
 
                 if layout == "large":
@@ -3786,11 +3678,8 @@ class IntuitiveVisualGenerator():
                     
                     # Add DSL path metadata for entity_type highlighting
                     container_dsl_path = e.get('_dsl_path', '')
-                    container_visual_element_path = e.get('_visual_element_path', '')
                     entity_type_dsl_path = f"{container_dsl_path}/entity_type"
-                    entity_type_visual_element_path = f"{container_visual_element_path}/entity_type"
                     embedded_svg.set('data-dsl-path', entity_type_dsl_path)
-                    embedded_svg.set('visual-element-path', entity_type_visual_element_path)
                     embedded_svg.set('style', 'pointer-events: bounding-box;')
                     
                     svg_root.append(embedded_svg) 
@@ -3805,11 +3694,9 @@ class IntuitiveVisualGenerator():
                                                         y=str(text_y),
                                                         style="font-size: 45px; fill: white; font-weight: bold; stroke: black; stroke-width: 2px;", dominant_baseline="middle")
                     text_element.text = q_str
-                    # Tag large quantity with both path and element-path
+                    # Tag large quantity with DSL path
                     large_quantity_dsl_path = f"{container_dsl_path}/entity_quantity"
-                    large_quantity_visual_element_path = f"{container_visual_element_path}/entity_quantity"
                     text_element.set('data-dsl-path', large_quantity_dsl_path)
-                    text_element.set('visual-element-path', large_quantity_visual_element_path)
                     update_max_dimensions(start_x_line + tw, center_y_line + 40)
 
                     if unittrans_unit and unittrans_value is not None:
@@ -3906,11 +3793,8 @@ class IntuitiveVisualGenerator():
                             embedded_svg = embed_svg(item_svg_path, x=item_x, y=item_y, width=ITEM_SIZE, height=ITEM_SIZE)
                             # Add DSL path metadata for entity_type highlighting
                             container_dsl_path = e.get('_dsl_path', '')
-                            container_visual_element_path = e.get('_visual_element_path', '')
                             entity_type_dsl_path = f"{container_dsl_path}/entity_type[{i}]"
-                            entity_type_visual_element_path = f"{container_visual_element_path}/entity_type[{i}]"
                             embedded_svg.set('data-dsl-path', entity_type_dsl_path)
-                            embedded_svg.set('visual-element-path', entity_type_visual_element_path)
                             embedded_svg.set('style', 'pointer-events: bounding-box;')
                             svg_root.append(embedded_svg)
 
@@ -3998,8 +3882,7 @@ class IntuitiveVisualGenerator():
                 # Embed text and figures at the top of the big box
                 result_container = result_containers[-1]
                 result_dsl_path = result_container.get('_dsl_path', '')
-                result_visual_element_path = result_container.get('_visual_element_path', '')
-                embed_top_figures_and_text(svg_root, big_box_x, big_box_y, big_box_width, result_container['container_type'], result_container['container_name'], result_container['attr_type'], result_container['attr_name'], result_dsl_path, result_visual_element_path)
+                embed_top_figures_and_text(svg_root, big_box_x, big_box_y, big_box_width, result_container['container_type'], result_container['container_name'], result_container['attr_type'], result_container['attr_name'], result_dsl_path)
                 
                 big_box_rect = etree.SubElement(svg_root, "rect", x=str(big_box_x), y=str(big_box_y), width=str(big_box_width),
                                 height=str(big_box_height), stroke="black", fill="none", stroke_width="2",
@@ -4418,7 +4301,6 @@ class IntuitiveVisualGenerator():
         if data.get('operation') == "comparison":
             # Get the DSL path for the comparison operation
             comparison_dsl_path = data.get('_dsl_path', 'operation')
-            comparison_visual_element_path = data.get('_visual_element_path', 'i/operation')
             (
             compare1_operations, 
             compare1_containers, 
@@ -4426,7 +4308,7 @@ class IntuitiveVisualGenerator():
             compare2_operations, 
             compare2_containers, 
             compare2_result_containers
-            ) = extract_operations_and_containers_for_comparison(data, comparison_dsl_path, comparison_visual_element_path)
+            ) = extract_operations_and_containers_for_comparison(data, comparison_dsl_path)
 
             # if find container_name of different entity are different but the container entity_type are the same, update the second entity's container entity_type to be original entity_type-2,the third to be original entity_type-3...
             compare1_containers,compare1_result_containers = update_container_types_optimized(compare1_containers, compare1_result_containers)
@@ -4468,7 +4350,7 @@ class IntuitiveVisualGenerator():
                 self.error_message = self._translate("Cannot generate visual: Error in handling the comparison.")
                 created = False
         else:
-            operations, containers, result_containers = extract_operations_and_containers(data, current_path="", current_visual_element_path="i")
+            operations, containers, result_containers = extract_operations_and_containers(data, current_path="")
 
             # if result_containers and containers: 
             #     [e.update({'container_name': '', 'container_type': ''}) for e in containers if e.get('container_name') == result_containers[-1].get('container_name')]
