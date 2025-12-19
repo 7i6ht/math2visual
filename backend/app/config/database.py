@@ -5,9 +5,10 @@ import os
 from contextlib import contextmanager
 from typing import Generator, Iterator
 
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine, text, event
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.pool import StaticPool
+from datetime import datetime, timezone
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -46,7 +47,31 @@ def create_database_engine():
             })
         
         ENGINE = create_engine(database_url, **engine_kwargs)
+        
+        # For PostgreSQL, ensure all connections use UTC timezone
+        # This is critical when using multiple Gunicorn workers to avoid
+        # timezone-related session expiration issues
+        if database_url.startswith('postgresql'):
+            @event.listens_for(ENGINE, "connect")
+            def set_timezone(dbapi_conn, connection_record):
+                """Set timezone to UTC for all PostgreSQL connections."""
+                cursor = dbapi_conn.cursor()
+                cursor.execute("SET timezone = 'UTC'")
+                cursor.close()
+        
         SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=ENGINE)
+        
+        # Ensure all timezone-aware DateTime columns are normalized to UTC when loaded
+        # This guarantees consistency across all Gunicorn workers
+        @event.listens_for(Session, "loaded_instance")
+        def normalize_datetime_to_utc(instance, context):
+            """Normalize all timezone-aware datetime attributes to UTC."""
+            for key, value in instance.__dict__.items():
+                if isinstance(value, datetime) and value.tzinfo is not None:
+                    # Convert to UTC if not already in UTC
+                    utc_value = value.astimezone(timezone.utc)
+                    if utc_value != value:
+                        instance.__dict__[key] = utc_value
     
     return ENGINE
 
