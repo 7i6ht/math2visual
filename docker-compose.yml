@@ -142,9 +142,10 @@ services:
       touch /var/log/cleanup.log &&
       chown appuser:appuser /var/log/cleanup.log &&
       echo "Cron job configured. Cleanup will run every hour at minute 0." &&
-      echo "Logs will appear here when cleanup runs, or check /var/log/cleanup.log" &&
-      tail -F /var/log/cleanup.log &
-      exec cron -f
+      echo "Checking for other cron files..." &&
+      ls -la /etc/cron.d/ &&
+      echo "Starting cron daemon..." &&
+      exec cron -f -L 15
       '
     restart: unless-stopped
     depends_on:
