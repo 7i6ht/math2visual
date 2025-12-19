@@ -3,6 +3,7 @@ import { ResponsiveLogo } from "@/components/ui/ResponsiveLogo";
 import { LanguageSelector } from "@/components/ui/language-selector";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Button } from "@/components/ui/button";
+import { trackLandingPageRoleSelect, isAnalyticsEnabled } from "@/services/analyticsTracker";
 
 type Props = {
   onRoleSelect: (role: "teacher" | "student") => void;
@@ -10,6 +11,14 @@ type Props = {
 
 export function LandingPage({ onRoleSelect }: Props) {
   const { t } = useTranslation();
+  const analyticsEnabled = isAnalyticsEnabled();
+
+  const handleRoleSelect = (role: "teacher" | "student") => {
+    if (analyticsEnabled) {
+      trackLandingPageRoleSelect(role);
+    }
+    onRoleSelect(role);
+  };
 
   return (
     <div className="w-full px-3 py-3 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 3xl:px-20 4xl:px-24 5xl:px-32 8xl:px-48">
@@ -37,14 +46,14 @@ export function LandingPage({ onRoleSelect }: Props) {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 md:gap-8 w-full sm:w-auto">
               <Button
-                onClick={() => onRoleSelect("student")}
+                onClick={() => handleRoleSelect("student")}
                 variant="secondary"
                 className="min-w-[200px] bg-secondary !text-secondary-foreground !responsive-text-font-size button-responsive-size px-6 py-3 md:px-8 md:py-4 lg:px-10 lg:py-5 xl:px-12 xl:py-6 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
               >
                 {t("landing.student")}
               </Button>
               <Button
-                onClick={() => onRoleSelect("teacher")}
+                onClick={() => handleRoleSelect("teacher")}
                 className="min-w-[200px] bg-primary !text-primary-foreground !responsive-text-font-size button-responsive-size px-6 py-3 md:px-8 md:py-4 lg:px-10 lg:py-5 xl:px-12 xl:py-6 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
               >
                 {t("landing.teacher")}

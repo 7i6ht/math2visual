@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { trackLanguageChange, isAnalyticsEnabled } from '@/services/analyticsTracker';
 
 interface LanguageContextType {
   language: string;
@@ -19,6 +20,10 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   ];
 
   const setLanguage = (lang: string) => {
+    // Only track if language is actually changing
+    if (lang !== language && isAnalyticsEnabled()) {
+      trackLanguageChange(lang);
+    }
     i18n.changeLanguage(lang);
     setLanguageState(lang);
     localStorage.setItem('math2visual-language', lang);

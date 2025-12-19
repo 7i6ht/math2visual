@@ -172,6 +172,30 @@ export function trackTutorSpeechToggle(enabled: boolean): void {
   });
 }
 
+// Landing page role selection tracking
+export function trackLandingPageRoleSelect(role: 'teacher' | 'student'): void {
+  analyticsService.recordAction({
+    type: 'landing_page_role_select',
+    data: JSON.stringify({ role: role }),
+  });
+}
+
+// Language change tracking
+export function trackLanguageChange(language: string): void {
+  analyticsService.recordAction({
+    type: 'language_change',
+    data: JSON.stringify({ language: language }),
+  });
+}
+
+// Theme toggle tracking
+export function trackThemeToggle(theme: 'light' | 'dark'): void {
+  analyticsService.recordAction({
+    type: 'theme_toggle',
+    data: JSON.stringify({ theme: theme }),
+  });
+}
+
 export function trackDSLScroll(direction: 'up' | 'down'): void {
   if (dslScrollTimeout) {
     clearTimeout(dslScrollTimeout);

@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { trackThemeToggle, isAnalyticsEnabled } from '@/services/analyticsTracker';
 
 type Theme = 'light' | 'dark';
 
@@ -37,6 +38,9 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const setTheme = (newTheme: Theme) => {
+    if (isAnalyticsEnabled()) {
+      trackThemeToggle(newTheme);
+    }
     setThemeState(newTheme);
     localStorage.setItem('math2visual-theme', newTheme);
     updateDocumentClass(newTheme);
