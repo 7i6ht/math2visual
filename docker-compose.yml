@@ -133,12 +133,13 @@ services:
       echo 'Cleanup service starting...' &&
       PYTHON3=\$(which python3 2>/dev/null || echo '/usr/local/bin/python3') &&
       if [ ! -f \"\${PYTHON3}\" ]; then
-        PYTHON3=\"/usr/bin/python3\"
+        PYTHON3='/usr/bin/python3'
       fi &&
       echo \"Using Python: \${PYTHON3}\" &&
       echo 'PATH=/usr/local/bin:/usr/bin:/bin:/home/appuser/.local/bin' > /etc/cron.d/cleanup-cron &&
       echo 'SHELL=/bin/bash' >> /etc/cron.d/cleanup-cron &&
-      echo \"0 * * * * appuser cd /app && \${PYTHON3} scripts/cleanup_temp_files.py --age-hours \$${CLEANUP_OUTPUT_AGE_HOURS:-24} --temp-svg-age-hours \$${CLEANUP_TEMP_SVG_AGE_HOURS:-1} >> /var/log/cleanup.log 2>&1\" >> /etc/cron.d/cleanup-cron &&
+      CRON_CMD=\"0 * * * * appuser cd /app && \${PYTHON3} scripts/cleanup_temp_files.py --age-hours \$${CLEANUP_OUTPUT_AGE_HOURS:-24} --temp-svg-age-hours \$${CLEANUP_TEMP_SVG_AGE_HOURS:-1} >> /var/log/cleanup.log 2>&1\" &&
+      echo \"\${CRON_CMD}\" >> /etc/cron.d/cleanup-cron &&
       chmod 0644 /etc/cron.d/cleanup-cron &&
       printenv | grep -E '^CLEANUP_' >> /etc/environment &&
       touch /var/log/cleanup.log &&
