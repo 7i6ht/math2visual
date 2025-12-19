@@ -16,7 +16,6 @@ genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
 # Default to the latest Pro model; allow override via GEMINI_TUTOR_MODEL
 MODEL_NAME = os.environ.get("GEMINI_TUTOR_MODEL", "gemini-pro-latest")
 
-# Import session storage (replaces in-memory TUTOR_SESSIONS)
 from app.services.tutor.session_storage import save_session
 
 

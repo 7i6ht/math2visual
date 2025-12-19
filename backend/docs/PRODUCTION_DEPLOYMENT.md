@@ -58,10 +58,6 @@ DATABASE_ECHO=false  # Set to true for SQL query logging (development only)
 # Tutor Session Configuration
 # Inactivity-based expiration for tutor sessions (in hours). Default: 2
 TUTOR_SESSION_EXPIRATION_HOURS=2
-# Soft / hard memory limits (in MB) for in-memory tutor session fallback.
-# Used only when the database is unavailable. Defaults: 256 / 512
-TUTOR_SESSION_MEMORY_SOFT_LIMIT_MB=256
-TUTOR_SESSION_MEMORY_HARD_LIMIT_MB=512
 ```
 
 ## Deployment Options
