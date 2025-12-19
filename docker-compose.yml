@@ -107,10 +107,17 @@ services:
     restart: unless-stopped
 
   # Cleanup service for temporary files (runs via cron every hour)
-  # Note: When analytics is enabled (VITE_ENABLE_ANALYTICS=true), this service will exit
-  # immediately and not perform cleanup. Sessions will not be deleted when analytics is enabled.
-  # To disable this service when analytics is enabled, stop it: docker-compose stop cleanup
+  # Note: This service uses a Docker Compose profile and will only start when explicitly enabled.
+  # When analytics is enabled (VITE_ENABLE_ANALYTICS=true), do NOT start this service,
+  # as it would delete tutor sessions that should be preserved for analytics.
+  #
+  # To start the cleanup service (when analytics is disabled):
+  #   docker-compose --profile cleanup up -d
+  #
+  # To start without cleanup (when analytics is enabled):
+  #   docker-compose up -d
   cleanup:
+    profiles: ["cleanup"]
     build: .
     container_name: math2visual-cleanup
     volumes:
@@ -119,27 +126,11 @@ services:
     environment:
       - CLEANUP_OUTPUT_AGE_HOURS=24
       - CLEANUP_TEMP_SVG_AGE_HOURS=1
-      # Pass analytics environment variable to check analytics status
-      # Docker Compose reads VITE_ENABLE_ANALYTICS from:
-      # 1. System environment variables (set before running docker-compose)
-      # 2. Root-level .env file (same directory as docker-compose.yml)
-      # The ${VITE_ENABLE_ANALYTICS:-} syntax uses the value if set, or empty string if not
-      # Note: The cleanup container's Python code also tries to load from frontend/.env,
-      # but for Docker deployments, set VITE_ENABLE_ANALYTICS in the root .env file
-      - VITE_ENABLE_ANALYTICS=${VITE_ENABLE_ANALYTICS:-}
       - DATABASE_URL=${DATABASE_URL:-}
     # Set up cron job and start cron daemon
-    # Exit early if analytics is enabled (sessions should not be cleaned up)
     command: >
       /bin/bash -c "
       echo 'Cleanup service starting...' &&
-      # Check if analytics is enabled - if so, exit gracefully and stay stopped
-      # Use python3 directly (should be in PATH when running as root during startup)
-      if python3 -c \"import os; from dotenv import load_dotenv; load_dotenv(); from app.config.database import is_analytics_enabled; exit(0 if is_analytics_enabled() else 1)\" 2>/dev/null; then
-        echo 'Analytics is enabled - cleanup service will not run. Sessions will not be deleted.' &&
-        echo 'The cleanup service will remain stopped. To start it, disable analytics first.' &&
-        exit 0
-      fi &&
       # Create cron file with PATH and cron job
       # PATH is needed because the script's shebang uses /usr/bin/env python3
       # Also set PATH so python3 can be found when cron runs the job
@@ -161,7 +152,6 @@ services:
     healthcheck:
       # Check if cron process is running (this service runs cron, not a server)
       # Overrides the inherited healthcheck that checks for port 80/5000
-      # Disabled when analytics is enabled (service exits immediately)
       test: ["CMD-SHELL", "pgrep -x cron > /dev/null 2>&1 || exit 1"]
       interval: 30s
       timeout: 10s
