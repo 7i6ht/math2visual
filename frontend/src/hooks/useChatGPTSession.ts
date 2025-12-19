@@ -196,9 +196,9 @@ export function useChatGPTSession({ t }: UseChatGPTSessionParams) {
     streamCloserRef.current = chatgptService.sendMessageStream(
       sessionId,
       messageText,
+      createStreamingCallbacks(),
       images,
-      files,
-      createStreamingCallbacks()
+      files
     );
   }, [sessionId, streaming, t]);
 

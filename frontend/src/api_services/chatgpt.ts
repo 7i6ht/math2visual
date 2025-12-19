@@ -165,9 +165,9 @@ const chatgptService = {
   sendMessageStream(
     sessionId: string,
     message: string,
+    callbacks: StreamCallbacks,
     images?: string[],
-    files?: Array<{ name: string; url: string; type: string }>,
-    callbacks: StreamCallbacks
+    files?: Array<{ name: string; url: string; type: string }>
   ) {
     return createChatGPTStream(
       "/chatgpt/message/stream",
