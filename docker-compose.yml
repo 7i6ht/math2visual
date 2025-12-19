@@ -132,21 +132,34 @@ services:
       /bin/bash -c '
       echo "Cleanup service starting..." &&
       echo "Checking for Python3..." &&
+      echo "Checking /usr/local/bin/python3: $([ -x /usr/local/bin/python3 ] && echo "EXISTS" || echo "NOT FOUND")" &&
+      echo "Checking /usr/bin/python3: $([ -x /usr/bin/python3 ] && echo "EXISTS" || echo "NOT FOUND")" &&
       if [ -x "/usr/local/bin/python3" ]; then
         PYTHON3="/usr/local/bin/python3"
+        echo "Found Python3 at /usr/local/bin/python3"
       elif [ -x "/usr/bin/python3" ]; then
         PYTHON3="/usr/bin/python3"
+        echo "Found Python3 at /usr/bin/python3"
       else
+        echo "Trying command -v python3..." &&
         PYTHON3=$(command -v python3 2>/dev/null)
         if [ -z "${PYTHON3}" ]; then
           echo "ERROR: Python3 not found. Checking available executables:" >&2
           ls -la /usr/local/bin/python* /usr/bin/python* 2>&1 || true
           which python3 2>&1 || true
+          command -v python3 2>&1 || true
           exit 1
+        else
+          echo "Found Python3 via command -v: ${PYTHON3}"
         fi
       fi &&
       echo "Using Python: ${PYTHON3}" &&
-      ${PYTHON3} --version || (echo "ERROR: Python3 at ${PYTHON3} is not executable" >&2 && exit 1) &&
+      if [ -n "${PYTHON3}" ] && [ -x "${PYTHON3}" ]; then
+        ${PYTHON3} --version || (echo "ERROR: Python3 at ${PYTHON3} failed to run" >&2 && exit 1)
+      else
+        echo "ERROR: PYTHON3 variable is empty or not executable: '${PYTHON3}'" >&2
+        exit 1
+      fi &&
       echo "PATH=/usr/local/bin:/usr/bin:/bin:/home/appuser/.local/bin" > /etc/cron.d/cleanup-cron &&
       echo "SHELL=/bin/bash" >> /etc/cron.d/cleanup-cron &&
       CRON_CMD="0 * * * * appuser cd /app && ${PYTHON3} scripts/cleanup_temp_files.py --age-hours $${CLEANUP_OUTPUT_AGE_HOURS:-24} --temp-svg-age-hours $${CLEANUP_TEMP_SVG_AGE_HOURS:-1} >> /var/log/cleanup.log 2>&1" &&
