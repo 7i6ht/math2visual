@@ -3,6 +3,7 @@ Database configuration and connection management for Math2Visual.
 """
 import os
 from contextlib import contextmanager
+from pathlib import Path
 from typing import Generator, Iterator
 
 from sqlalchemy import create_engine, text, event, TypeDecorator, DateTime as SQLDateTime
@@ -11,8 +12,15 @@ from sqlalchemy.pool import StaticPool
 from datetime import datetime, timezone
 from dotenv import load_dotenv
 
-# Load environment variables
+# Load environment variables from backend .env first (for backend-specific config)
 load_dotenv()
+
+# Also load from frontend .env to read VITE_ENABLE_ANALYTICS
+# This allows the backend to read analytics settings from the frontend configuration
+current_dir = Path(__file__).parent.parent.parent  # backend/
+parent_dir = current_dir.parent  # root/
+frontend_dir = parent_dir / 'frontend'
+load_dotenv(frontend_dir / '.env', override=False)  # Don't override existing env vars
 
 # Database configuration
 DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql://localhost/math2visual_analytics')
@@ -139,6 +147,15 @@ def init_database():
     # Create all tables
     Base.metadata.create_all(bind=engine)
     print("✅ Database tables created successfully")
+
+
+def is_analytics_enabled() -> bool:
+    """
+    Check if analytics is enabled.
+    Analytics is enabled if VITE_ENABLE_ANALYTICS environment variable is explicitly set to 'true'.
+    """
+    vite_enable_analytics = os.getenv('VITE_ENABLE_ANALYTICS', '').lower()
+    return vite_enable_analytics == 'true'
 
 
 def test_database_connection():

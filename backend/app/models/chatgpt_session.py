@@ -36,7 +36,14 @@ class ChatGPTSession(Base):
     )
     
     def is_expired(self) -> bool:
-        """Check if the session has expired based on last activity."""
+        """Check if the session has expired based on last activity.
+        Returns False if analytics is enabled (sessions should not expire when analytics is enabled).
+        """
+        # When analytics is enabled, sessions should never expire
+        from app.config.database import is_analytics_enabled
+        if is_analytics_enabled():
+            return False
+        
         if not self.last_activity:
             return True
         

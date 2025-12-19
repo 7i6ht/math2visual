@@ -19,6 +19,7 @@ def get_session(session_id: str) -> Optional[Dict]:
     """
     Get a tutor session by ID.
     Returns None if session doesn't exist or is expired.
+    When analytics is enabled, sessions never expire and are not deleted.
     """
     try:
         from app.config.database import db_session
@@ -29,9 +30,8 @@ def get_session(session_id: str) -> Optional[Dict]:
             if not session:
                 return None
             
-            # Check expiration
+            # Check expiration - is_expired() already returns False when analytics is enabled
             if session.is_expired():
-                # Delete expired session
                 db.delete(session)
                 db.commit()
                 return None
@@ -105,7 +105,15 @@ def cleanup_expired_sessions() -> int:
     """
     Clean up expired sessions from database.
     Returns the number of sessions deleted.
+    When analytics is enabled, no sessions are deleted (returns 0).
     """
+    from app.config.database import is_analytics_enabled
+    
+    # Skip cleanup if analytics is enabled
+    if is_analytics_enabled():
+        logger.debug("Analytics is enabled, skipping session cleanup")
+        return 0
+    
     try:
         from app.config.database import db_session
         from app.models.tutor_session import TutorSession
