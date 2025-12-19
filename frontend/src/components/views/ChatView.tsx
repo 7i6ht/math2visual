@@ -41,7 +41,8 @@ export function ChatView() {
 
   const { listening, voiceSupported, toggleVoice } = useVoiceInput({
     t,
-    onTranscript: (transcript) =>
+    context: 'student_message',
+    onTranscript: (transcript) => {
       setInput((prev) => {
         const currentValue = prev || "";
         const newlineLength = currentValue ? 1 : 0; // '\n' if appending to existing text
@@ -50,7 +51,8 @@ export function ChatView() {
         // Slice transcript to fit remaining space, then concatenate
         const truncatedTranscript = transcript.slice(0, Math.max(0, remainingSpace));
         return currentValue ? `${currentValue}\n${truncatedTranscript}` : truncatedTranscript;
-      }),
+      });
+    },
   });
 
   // Auto-start session with null MWP when component mounts

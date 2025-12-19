@@ -142,6 +142,36 @@ export function trackDSLType(): void {
   }, 500);
 }
 
+// Voice input tracking
+export function trackVoiceInputStart(context: 'mwp' | 'student_message'): void {
+  analyticsService.recordAction({
+    type: 'voice_input_start',
+    data: JSON.stringify({ context: context }),
+  });
+}
+
+export function trackVoiceInputComplete(context: 'mwp' | 'student_message', transcript: string): void {
+  analyticsService.recordAction({
+    type: 'voice_input_complete',
+    data: JSON.stringify({ context: context, transcript: transcript, transcript_length: transcript.length }),
+  });
+}
+
+export function trackVoiceInputError(context: 'mwp' | 'student_message', error?: string): void {
+  analyticsService.recordAction({
+    type: 'voice_input_error',
+    data: JSON.stringify({ context: context, error: error || 'unknown' }),
+  });
+}
+
+// Tutor speech (speaker) tracking
+export function trackTutorSpeechToggle(enabled: boolean): void {
+  analyticsService.recordAction({
+    type: 'tutor_speech_toggle',
+    data: JSON.stringify({ enabled: enabled }),
+  });
+}
+
 export function trackDSLScroll(direction: 'up' | 'down'): void {
   if (dslScrollTimeout) {
     clearTimeout(dslScrollTimeout);

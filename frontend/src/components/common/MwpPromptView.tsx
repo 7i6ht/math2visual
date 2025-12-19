@@ -53,6 +53,7 @@ export const MwpPromptView = ({
 
   const { listening, voiceSupported, toggleVoice } = useVoiceInput({
     t,
+    context: 'mwp',
     onTranscript: (transcript) => {
       const currentValue = mwpRef.current || "";
       const newlineLength = currentValue ? 1 : 0; // '\n' if appending to existing text

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import type { TFunction } from "i18next";
 import type { Message } from "@/hooks/useTutorSession";
+import { trackTutorSpeechToggle, isAnalyticsEnabled } from "@/services/analyticsTracker";
 
 type UseTutorSpeechParams = {
   t: TFunction;
@@ -145,6 +146,12 @@ export function useTutorSpeech({ t, messages }: UseTutorSpeechParams) {
 
     setSpeechEnabled((prev) => {
       const next = !prev;
+      
+      // Track speaker button click
+      if (isAnalyticsEnabled()) {
+        trackTutorSpeechToggle(next);
+      }
+      
       if (!next) {
         synth.cancel();
         utteranceRef.current = null;
