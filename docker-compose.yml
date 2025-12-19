@@ -131,20 +131,22 @@ services:
     command: |
       /bin/bash -c '
       echo "Cleanup service starting..." &&
-      PYTHON3=$(command -v python3 2>/dev/null) &&
-      if [ -z "${PYTHON3}" ]; then
-        if [ -x "/usr/local/bin/python3" ]; then
-          PYTHON3="/usr/local/bin/python3"
-        elif [ -x "/usr/bin/python3" ]; then
-          PYTHON3="/usr/bin/python3"
-        else
-          echo "ERROR: Python3 not found. Tried: command -v, /usr/local/bin/python3, /usr/bin/python3" >&2
-          echo "Checking available Python executables:" >&2
+      echo "Checking for Python3..." &&
+      if [ -x "/usr/local/bin/python3" ]; then
+        PYTHON3="/usr/local/bin/python3"
+      elif [ -x "/usr/bin/python3" ]; then
+        PYTHON3="/usr/bin/python3"
+      else
+        PYTHON3=$(command -v python3 2>/dev/null)
+        if [ -z "${PYTHON3}" ]; then
+          echo "ERROR: Python3 not found. Checking available executables:" >&2
           ls -la /usr/local/bin/python* /usr/bin/python* 2>&1 || true
+          which python3 2>&1 || true
           exit 1
         fi
       fi &&
       echo "Using Python: ${PYTHON3}" &&
+      ${PYTHON3} --version || (echo "ERROR: Python3 at ${PYTHON3} is not executable" >&2 && exit 1) &&
       echo "PATH=/usr/local/bin:/usr/bin:/bin:/home/appuser/.local/bin" > /etc/cron.d/cleanup-cron &&
       echo "SHELL=/bin/bash" >> /etc/cron.d/cleanup-cron &&
       CRON_CMD="0 * * * * appuser cd /app && ${PYTHON3} scripts/cleanup_temp_files.py --age-hours $${CLEANUP_OUTPUT_AGE_HOURS:-24} --temp-svg-age-hours $${CLEANUP_TEMP_SVG_AGE_HOURS:-1} >> /var/log/cleanup.log 2>&1" &&
