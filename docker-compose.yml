@@ -134,7 +134,10 @@ services:
       echo "PATH=/usr/local/bin:/usr/bin:/bin:/home/appuser/.local/bin" > /etc/cron.d/cleanup-cron &&
       echo "SHELL=/bin/bash" >> /etc/cron.d/cleanup-cron &&
       echo "0 * * * * appuser cd /app && /usr/local/bin/python3 scripts/cleanup_temp_files.py --age-hours $${CLEANUP_OUTPUT_AGE_HOURS:-24} --temp-svg-age-hours $${CLEANUP_TEMP_SVG_AGE_HOURS:-1} >> /var/log/cleanup.log 2>&1" >> /etc/cron.d/cleanup-cron &&
+      echo "" >> /etc/cron.d/cleanup-cron &&
       chmod 0644 /etc/cron.d/cleanup-cron &&
+      echo "Cron file contents:" &&
+      cat /etc/cron.d/cleanup-cron &&
       printenv | grep -E "^CLEANUP_" >> /etc/environment &&
       touch /var/log/cleanup.log &&
       chown appuser:appuser /var/log/cleanup.log &&
