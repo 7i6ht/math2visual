@@ -764,7 +764,7 @@ Server-Sent Events (SSE) stream with `Content-Type: text/event-stream`
 
 **Notes:**
 - The `images` field in the response contains URLs of generated images (if any)
-- ChatGPT can generate images using GPT Image 1.5, which are included in the response
+- ChatGPT can generate images using DALL-E 3, which are included in the response
 
 #### `GET /api/chatgpt/proxy-image`
 Proxy image download to avoid CORS issues. Fetches an image from an external URL and returns it.

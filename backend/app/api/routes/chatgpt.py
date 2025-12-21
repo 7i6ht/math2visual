@@ -26,23 +26,23 @@ chatgpt_bp = Blueprint('chatgpt', __name__)
 client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
 
-def _generate_image_with_chatgpt(prompt: str) -> Optional[str]:
+def _generate_image_with_dalle(prompt: str) -> Optional[str]:
     """
-    Generate an image using ChatGPT's built-in GPT Image 1.5 engine.
+    Generate an image using DALL-E 3 via OpenAI's images API.
     Returns the image URL or None if generation fails.
     """
     try:
         response = client.images.generate(
-            model="gpt-image-1.5",
+            model="dall-e-3",
             prompt=prompt,
             size="1024x1024",
-            quality="high",
+            quality="standard",
             n=1,
         )
         if response.data:
             return response.data[0].url
     except Exception as e:
-        logger.error(f"Error generating image with GPT Image 1.5: {e}")
+        logger.error(f"Error generating image with DALL-E 3: {e}")
     return None
 
 
@@ -84,7 +84,7 @@ def _create_chatgpt_stream_response(history: List[Dict], session_id: str):
                     "type": "function",
                     "function": {
                         "name": "generate_image",
-                        "description": "Generate an image using ChatGPT's built-in GPT Image 1.5 engine. Use this when the user asks to create, generate, make, or draw an image, picture, illustration, or visual representation.",
+                        "description": "Generate an image using DALL-E 3. Use this when the user asks to create, generate, make, or draw an image, picture, illustration, or visual representation.",
                         "parameters": {
                             "type": "object",
                             "properties": {
@@ -141,15 +141,23 @@ def _create_chatgpt_stream_response(history: List[Dict], session_id: str):
                         image_prompt = args.get("prompt", "")
                         
                         # Generate image
-                        image_url = _generate_image_with_chatgpt(image_prompt)
+                        image_url = _generate_image_with_dalle(image_prompt)
                         if image_url:
                             images.append(image_url)
                             
-                            # Add function result to messages
+                            # Add function result to messages (success)
                             messages.append({
                                 "role": "tool",
                                 "tool_call_id": tool_call.id,
                                 "content": json.dumps({"image_url": image_url, "status": "generated"})
+                            })
+                        else:
+                            # Add function result to messages (failure)
+                            # OpenAI API requires every tool_call_id to have a response
+                            messages.append({
+                                "role": "tool",
+                                "tool_call_id": tool_call.id,
+                                "content": json.dumps({"status": "failed", "error": _("Image generation failed")})
                             })
                 
                 # Get final response after function calls (stream this)
