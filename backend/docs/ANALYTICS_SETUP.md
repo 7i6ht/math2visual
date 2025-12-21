@@ -360,9 +360,7 @@ SELECT * FROM cursor_positions ORDER BY timestamp DESC LIMIT 10;
 
 # View screenshots
 SELECT * FROM screenshots ORDER BY created_at DESC LIMIT 10;
-
-# View tutor sessions
-SELECT * FROM tutor_sessions ORDER BY created_at DESC LIMIT 10;
+```
 
 # View ChatGPT sessions
 SELECT * FROM chatgpt_sessions ORDER BY created_at DESC LIMIT 10;
