@@ -2,7 +2,6 @@ import re
 from lxml import etree
 import math
 import os
-from IPython.display import SVG, display
 from collections import defaultdict
 import random
 import copy
@@ -4429,7 +4428,6 @@ class IntuitiveVisualGenerator():
         if created:
             with open(output_file, "wb") as f:
                 f.write(etree.tostring(svg_root, pretty_print=True))
-            display(SVG(output_file))
         else:
             logger.debug("error_message: %s", self.error_message)
         return created
