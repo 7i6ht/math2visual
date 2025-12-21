@@ -264,7 +264,7 @@ export const SVGSearchPopup: React.FC<SVGSearchPopupProps> = ({
               >
                 <div className="w-full h-full p-2 flex items-center justify-center">
                   <img
-                    src={`${BACKEND_API_URL}/svg-dataset/files/${file.filename}`}
+                    src={`${BACKEND_API_URL}/svg-dataset/files/${encodeURIComponent(file.filename)}`}
                     alt={file.name}
                     className="max-w-full max-h-full object-contain"
                     onLoad={() => {
@@ -274,7 +274,8 @@ export const SVGSearchPopup: React.FC<SVGSearchPopupProps> = ({
                       }
                     }}
                     onError={(e) => {
-                      console.error(`Failed to load: ${file.filename}`);
+                      const imageUrl = `${BACKEND_API_URL}/svg-dataset/files/${encodeURIComponent(file.filename)}`;
+                      console.error(`Failed to load SVG: ${file.filename}`, `URL: ${imageUrl}`);
                       e.currentTarget.style.display = 'none';
                       const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
                       if (nextElement) {
