@@ -16,7 +16,7 @@ export function AppLayout() {
   // Initialize analytics cursor tracking and body scroll tracking
   useEffect(() => {
     if (analyticsEnabled) {
-      startCursorTracking();
+      // startCursorTracking();
       
       // Add scroll listener to body element
       const handleBodyScroll = (event: Event) => {
@@ -27,7 +27,7 @@ export function AppLayout() {
       
       return () => {
         document.body.removeEventListener('scroll', handleBodyScroll);
-        stopCursorTracking();
+        // stopCursorTracking();
       };
     }
   }, [analyticsEnabled]);

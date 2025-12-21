@@ -283,10 +283,11 @@ export function trackTwoColumnLayoutRender(): void {
     analyticsService.recordAction({
       type: 'two_column_layout_render',
     });
-    // Capture screenshot after a brief delay to ensure layout is fully rendered
-    setTimeout(() => {
-      captureScreenshot();
-    }, 3000);
+    // Screenshot capture commented out
+    // // Capture screenshot after a brief delay to ensure layout is fully rendered
+    // setTimeout(() => {
+    //   captureScreenshot();
+    // }, 3000);
     isFirstRender = false;
   }
 }
