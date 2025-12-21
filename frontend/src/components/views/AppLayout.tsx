@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { useAppState } from "@/hooks/useAppState";
-import { startCursorTracking, stopCursorTracking, isAnalyticsEnabled, trackOutermostScroll } from "@/services/analyticsTracker";
+// import { startCursorTracking, stopCursorTracking, isAnalyticsEnabled, trackOutermostScroll } from "@/services/analyticsTracker";
+import { isAnalyticsEnabled, trackOutermostScroll } from "@/services/analyticsTracker";
 import { LandingPage } from "./LandingPage";
 import { ChatView } from "./ChatView";
 import { InitialView } from "./InitialView";

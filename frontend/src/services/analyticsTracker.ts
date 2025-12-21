@@ -52,50 +52,50 @@ let lastMouseMoveTime = 0;
 let mouseMoveHandler: ((event: MouseEvent) => void) | null = null;
 
 // Capture screenshot function
-async function captureScreenshot(): Promise<void> {
-  if (_isCapturingScreenshot) {
-    return;
-  }
-  
-  const startTime = Date.now();
-  const MIN_DISPLAY_DURATION = 500; // Minimum time to show "Capturing..." indicator (500ms)
-  
-  setCapturingScreenshot(true);
-  
-  try {
-    // Capture the viewport (what user actually sees) using html-to-image
-    const dataURL = await toPng(document.body, {
-      // Capture the viewport dimensions (what user sees)
-      width: window.innerWidth,
-      height: window.innerHeight,
-      // Use the device's pixel ratio for better quality
-      pixelRatio: window.devicePixelRatio || 1,
-      // Quality and rendering settings
-      backgroundColor: '#ffffff', // Ensure white background
-      quality: 1.0, // Maximum quality
-    });
-
-    // Use the viewport dimensions we specified
-    const width = window.innerWidth * (window.devicePixelRatio || 1);
-    const height = window.innerHeight * (window.devicePixelRatio || 1);
-
-    await analyticsService.uploadScreenshot(dataURL, width, height);
-  } catch (error) {
-    console.error('Failed to capture screenshot:', error);
-  } finally {
-    // Ensure the "Capturing..." indicator is visible for at least MIN_DISPLAY_DURATION
-    const elapsed = Date.now() - startTime;
-    const remainingTime = Math.max(0, MIN_DISPLAY_DURATION - elapsed);
-    
-    if (remainingTime > 0) {
-      setTimeout(() => {
-        setCapturingScreenshot(false);
-      }, remainingTime);
-    } else {
-      setCapturingScreenshot(false);
-    }
-  }
-}
+// async function captureScreenshot(): Promise<void> {
+//   if (_isCapturingScreenshot) {
+//     return;
+//   }
+//   
+//   const startTime = Date.now();
+//   const MIN_DISPLAY_DURATION = 500; // Minimum time to show "Capturing..." indicator (500ms)
+//   
+//   setCapturingScreenshot(true);
+//   
+//   try {
+//     // Capture the viewport (what user actually sees) using html-to-image
+//     const dataURL = await toPng(document.body, {
+//       // Capture the viewport dimensions (what user sees)
+//       width: window.innerWidth,
+//       height: window.innerHeight,
+//       // Use the device's pixel ratio for better quality
+//       pixelRatio: window.devicePixelRatio || 1,
+//       // Quality and rendering settings
+//       backgroundColor: '#ffffff', // Ensure white background
+//       quality: 1.0, // Maximum quality
+//     });
+//
+//     // Use the viewport dimensions we specified
+//     const width = window.innerWidth * (window.devicePixelRatio || 1);
+//     const height = window.innerHeight * (window.devicePixelRatio || 1);
+//
+//     await analyticsService.uploadScreenshot(dataURL, width, height);
+//   } catch (error) {
+//     console.error('Failed to capture screenshot:', error);
+//   } finally {
+//     // Ensure the "Capturing..." indicator is visible for at least MIN_DISPLAY_DURATION
+//     const elapsed = Date.now() - startTime;
+//     const remainingTime = Math.max(0, MIN_DISPLAY_DURATION - elapsed);
+//     
+//     if (remainingTime > 0) {
+//       setTimeout(() => {
+//         setCapturingScreenshot(false);
+//       }, remainingTime);
+//     } else {
+//       setCapturingScreenshot(false);
+//     }
+//   }
+// }
 
 // Input typing tracking with debouncing
 export function trackMWPType(): void {

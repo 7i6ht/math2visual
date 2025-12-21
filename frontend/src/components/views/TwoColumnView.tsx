@@ -4,12 +4,13 @@ import { RegenerateForm } from "@/components/forms/RegenerateForm";
 import { VisualLanguageForm } from "@/components/forms/VisualLanguageForm";
 import { VisualizationResults } from "@/components/visualization/VisualizationResults";
 import { SparklesLoading } from "@/components/ui/sparkles-loading";
-import { SessionAnalyticsDisplay } from "@/components/ui/SessionAnalyticsDisplay";
+// import { SessionAnalyticsDisplay } from "@/components/ui/SessionAnalyticsDisplay";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { ImperativePanelHandle } from "react-resizable-panels";
-import { trackColumnScroll, trackTwoColumnLayoutRender, trackElementClick, trackPanelResize, isAnalyticsEnabled, getSessionId, subscribeToScreenshotState, getIsCapturingScreenshot } from "@/services/analyticsTracker";
+import { trackColumnScroll, trackTwoColumnLayoutRender, trackElementClick, trackPanelResize, isAnalyticsEnabled } from "@/services/analyticsTracker";
+// import { getSessionId, subscribeToScreenshotState, getIsCapturingScreenshot } from "@/services/analyticsTracker";
 import { useDSLContext } from "@/contexts/DSLContext";
 import { useVisualizationHandlers } from "@/hooks/useVisualizationHandlers";
 import { usePopupManagement } from "@/hooks/usePopupManagement";
@@ -46,17 +47,17 @@ export function TwoColumnView({ appState }: Props) {
 
   const { formattedDSL } = useDSLContext();
   const analyticsEnabled = isAnalyticsEnabled();
-  const sessionId = getSessionId();
+  // const sessionId = getSessionId();
   const { t } = useTranslation();
   const [isVisualPanelCollapsed, setIsVisualPanelCollapsed] = useState(true);
   const [isMathProblemPanelCollapsed, setIsMathProblemPanelCollapsed] = useState(false);
   const visualLanguagePanelRef = useRef<ImperativePanelHandle>(null);
   const mathProblemPanelRef = useRef<ImperativePanelHandle>(null);
-  const isCapturingScreenshot = useSyncExternalStore(
-    subscribeToScreenshotState,
-    getIsCapturingScreenshot,
-    () => false // Server snapshot (always false on server)
-  );
+  // const isCapturingScreenshot = useSyncExternalStore(
+  //   subscribeToScreenshotState,
+  //   getIsCapturingScreenshot,
+  //   () => false // Server snapshot (always false on server)
+  // );
 
   const { handleVLResult } =
     useVisualizationHandlers({

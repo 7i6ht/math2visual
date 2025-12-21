@@ -1,9 +1,10 @@
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { SparklesLoading } from "@/components/ui/sparkles-loading";
-import { SessionAnalyticsDisplay } from "@/components/ui/SessionAnalyticsDisplay";
+// import { SessionAnalyticsDisplay } from "@/components/ui/SessionAnalyticsDisplay";
 import { MwpPromptView } from "@/components/common/MwpPromptView";
-import { trackInitialViewRender, isAnalyticsEnabled, getSessionId, trackMWPType } from "@/services/analyticsTracker";
+import { trackInitialViewRender, isAnalyticsEnabled, trackMWPType } from "@/services/analyticsTracker";
+// import { getSessionId } from "@/services/analyticsTracker";
 import { useMathProblemForm } from "@/hooks/useMathProblemForm";
 import type { useAppState } from "@/hooks/useAppState";
 
@@ -24,7 +25,7 @@ export function InitialView({ appState }: Props) {
     handleAbort,
   } = appState;
   const analyticsEnabled = isAnalyticsEnabled();
-  const sessionId = getSessionId();
+  // const sessionId = getSessionId();
 
    const { form, loading, handleSubmit } = useMathProblemForm({
      onSuccess: setResults,
