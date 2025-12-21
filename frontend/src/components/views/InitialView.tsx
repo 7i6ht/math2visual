@@ -70,7 +70,7 @@ export function InitialView({ appState }: Props) {
       hideSubmit={mpFormLoading}
       errorText={mwpError}
       placeholder={t("forms.mwpPlaceholder")}
-      floatingContent={analyticsEnabled ? <SessionAnalyticsDisplay sessionId={sessionId} /> : null}
+      {/* floatingContent={analyticsEnabled ? <SessionAnalyticsDisplay sessionId={sessionId} /> : null} */}
       footerContent={
         mpFormLoading ? (
           <div className="animate-in fade-in-0 slide-in-from-bottom-4 duration-500">

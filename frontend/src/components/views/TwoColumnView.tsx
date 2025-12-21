@@ -241,7 +241,8 @@ export function TwoColumnView({ appState }: Props) {
 
   return (
     <div className="w-full px-1 py-4 sm:px-2 lg:px-4 xl:px-6 2xl:px-8 3xl:px-8 4xl:px-8 8xl:px-12">
-      {analyticsEnabled && <SessionAnalyticsDisplay sessionId={sessionId} isCapturingScreenshot={isCapturingScreenshot} />}
+      {/* Session ID display commented out */}
+      {/* {analyticsEnabled && <SessionAnalyticsDisplay sessionId={sessionId} isCapturingScreenshot={isCapturingScreenshot} />} */}
       
       {formattedDSL && (
         <>
