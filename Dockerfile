@@ -95,7 +95,7 @@ EXPOSE 80 443
 
 # Health check (checks if Nginx is responding)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD python -c "import socket; s = socket.socket(); s.settimeout(2); result = s.connect_ex(('127.0.0.1', 80)); s.close(); exit(0 if result == 0 else 1)"
+    CMD python3 -c "import socket; s = socket.socket(); s.settimeout(2); result = s.connect_ex(('127.0.0.1', 80)); s.close(); exit(0 if result == 0 else 1)"
 
 # Default command (starts both Gunicorn and Nginx)
 CMD ["/docker-entrypoint.sh"]
