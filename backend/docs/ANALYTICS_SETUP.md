@@ -186,8 +186,7 @@ Response:
 POST /api/chatgpt/message/stream
 {
   "session_id": "9ad3c7a9-...",
-  "message": "Please create an image which I can use for teaching for the math word problem \"Janet has nine oranges and Sharon has seven oranges. How many oranges do Janet and Sharon have together?\".",
-  "images": ["base64_encoded_image"]  // optional
+  "message": "Please create an image which I can use for teaching for the math word problem \"Janet has nine oranges and Sharon has seven oranges. How many oranges do Janet and Sharon have together?\"."
 }
 
 Response: Server-Sent Events (SSE) stream

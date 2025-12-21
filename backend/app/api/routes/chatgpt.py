@@ -60,22 +60,23 @@ def _create_chatgpt_stream_response(history: List[Dict], session_id: str):
                 role = "user" if msg.get("role") == "user" else "assistant"
                 content = msg.get("content", "")
                 
-                # Handle content that might include images
-                if isinstance(content, str):
-                    messages.append({"role": role, "content": content})
-                elif isinstance(content, list):
-                    # Multi-modal content (text + images)
-                    messages.append({"role": role, "content": content})
-                else:
-                    messages.append({"role": role, "content": str(content)})
+                # Skip tool messages in history - the final assistant response already
+                # incorporates tool results, so tool messages are redundant for context.
+                # Including them without complete tool_call sequences would cause API errors.
+                if role == "tool":
+                    continue
                 
-                # Handle tool calls in assistant messages (legacy function_call not used)
-                if role == "assistant" and msg.get("tool_calls"):
-                    messages.append({
-                        "role": "assistant",
-                        "content": content,
-                        "tool_calls": msg.get("tool_calls")
-                    })
+                # Content is always a string in current implementation (image uploads not yet implemented).
+                # If image uploads are added later, content may be a list for multimodal messages.
+                if isinstance(content, list):
+                    message_dict = {"role": role, "content": content}
+                else:
+                    message_dict = {"role": role, "content": str(content)}
+                
+                # Don't include tool_calls from history - the final assistant response
+                # already incorporates tool results. Including tool_calls without their
+                # corresponding tool response messages would violate OpenAI's API requirements.
+                messages.append(message_dict)
             
             # Define function for image generation
             functions = [
@@ -220,12 +221,13 @@ def chatgpt_start():
 def chatgpt_message_stream():
     """
     Stream a ChatGPT response using Server-Sent Events.
-    Supports text and images. File attachments are not yet implemented.
+    Supports text and images. Image uploads and file attachments are not yet implemented.
     """
     body = request.get_json(silent=True) or {}
     session_id = (body.get("session_id") or "").strip()
     user_message = (body.get("message") or "").strip()
-    images = body.get("images", [])  # Base64 encoded images
+    # Note: images parameter is accepted but not yet used (image uploads not implemented)
+    _images = body.get("images", [])  # Base64 encoded images (unused)
     # Note: files support is not yet implemented in the backend
     
     if not session_id:
@@ -241,27 +243,10 @@ def chatgpt_message_stream():
     
     history: List[Dict] = session.get("history", [])
     
-    # Build user message content
-    user_content = [{"type": "text", "text": user_message}]
-    
-    # Add images if provided
-    for img_data in images:
-        if isinstance(img_data, str):
-            # Assume base64 encoded image
-            user_content.append({
-                "type": "image_url",
-                "image_url": {
-                    "url": f"data:image/jpeg;base64,{img_data}"
-                }
-            })
-    
     # Append user message to history
-    if len(user_content) == 1:
-        # Simple text message
-        history.append({"role": "user", "content": user_message})
-    else:
-        # Multi-modal message
-        history.append({"role": "user", "content": user_content})
+    # Note: Image uploads are not yet implemented, so content is always a string.
+    # If image uploads are added later, use multimodal format: [{"type": "text", "text": user_message}, ...]
+    history.append({"role": "user", "content": user_message})
     
     event_stream = _create_chatgpt_stream_response(history, session_id)
     return Response(stream_with_context(event_stream()), mimetype="text/event-stream")

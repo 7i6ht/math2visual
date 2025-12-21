@@ -750,8 +750,7 @@ Stream a ChatGPT response using Server-Sent Events. Supports text and images.
 ```json
 {
   "session_id": "9ad3c7a9-...",
-  "message": "Please create an image which I can use for teaching for the math word problem \"Janet has nine oranges and Sharon has seven oranges. How many oranges do Janet and Sharon have together?\".",
-  "images": ["base64_encoded_image"]  // optional
+  "message": "Please create an image which I can use for teaching for the math word problem \"Janet has nine oranges and Sharon has seven oranges. How many oranges do Janet and Sharon have together?\"."
 }
 ```
 
@@ -764,7 +763,6 @@ Stream a ChatGPT response using Server-Sent Events. Supports text and images.
 Server-Sent Events (SSE) stream with `Content-Type: text/event-stream`
 
 **Notes:**
-- The `images` field accepts an array of base64-encoded image strings
 - The `images` field in the response contains URLs of generated images (if any)
 - ChatGPT can generate images using GPT Image 1.5, which are included in the response
 
