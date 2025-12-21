@@ -19,7 +19,7 @@ export interface CursorPosition {
 
 class AnalyticsService {
   private sessionId: string | null = null;
-  private isEnabled: boolean = import.meta.env.VITE_ENABLE_ANALYTICS !== 'false';
+  private isEnabled: boolean = import.meta.env.VITE_ENABLE_ANALYTICS === 'true';
   private actionQueue: Action[] = [];
   private cursorQueue: CursorPosition[] = [];
   private flushTimer: NodeJS.Timeout | null = null;
