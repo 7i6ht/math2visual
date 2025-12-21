@@ -4,7 +4,7 @@
  * across all components for proper debouncing/throttling.
  */
 import type { UIEvent } from 'react';
-import { toPng } from 'html-to-image';
+// import { toPng } from 'html-to-image';
 import { analyticsService } from '@/api_services/analytics';
 
 // Module-level state for debouncing/throttling (shared across all components)
@@ -12,13 +12,13 @@ let _isCapturingScreenshot = false;
 let screenshotListeners: Set<(value: boolean) => void> = new Set();
 
 // Event emitter pattern for reactive updates
-function setCapturingScreenshot(value: boolean): void {
-  if (_isCapturingScreenshot !== value) {
-    _isCapturingScreenshot = value;
-    // Notify all listeners
-    screenshotListeners.forEach(listener => listener(value));
-  }
-}
+// function setCapturingScreenshot(value: boolean): void {
+//   if (_isCapturingScreenshot !== value) {
+//     _isCapturingScreenshot = value;
+//     // Notify all listeners
+//     screenshotListeners.forEach(listener => listener(value));
+//   }
+// }
 
 // Subscribe to screenshot capture state changes
 export function subscribeToScreenshotState(callback: (value: boolean) => void): () => void {

@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState, useSyncExternalStore, useRef } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
+// import { useSyncExternalStore } from "react";
 import { ResponsiveLogo } from "@/components/ui/ResponsiveLogo";
 import { RegenerateForm } from "@/components/forms/RegenerateForm";
 import { VisualLanguageForm } from "@/components/forms/VisualLanguageForm";
