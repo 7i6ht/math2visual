@@ -186,11 +186,18 @@ const ChatGPTMessageItem = memo(({ msg }: ChatGPTMessageItemProps) => {
             isUser ? "bg-primary text-primary-foreground" : "bg-muted text-foreground"
           } animate-in fade-in-0 ${slide} duration-200`}
         >
-          <div className={`responsive-text-font-size break-words prose prose-sm dark:prose-invert max-w-none ${
-            isUser ? "prose-invert" : ""
-          }`}>
+          <div 
+            className={`responsive-text-font-size prose prose-sm dark:prose-invert max-w-none ${
+              isUser ? "prose-invert whitespace-pre-line" : ""
+            }`}
+            style={{ 
+              overflowWrap: msg.content && msg.content.length <= 4 ? 'normal' : 'break-word', 
+              wordBreak: 'normal',
+              hyphens: 'none'
+            }}
+          >
             {isUser ? (
-              <span className="break-words whitespace-pre-line">{msg.content}</span>
+              msg.content
             ) : (
               <ReactMarkdown
                 components={{
