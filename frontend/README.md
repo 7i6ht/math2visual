@@ -24,6 +24,7 @@ frontend/
 ├── src/                       # Source code
 │   ├── api_services/          # Backend API integration
 │   │   ├── analytics.ts       # Session/action/cursor tracking
+│   │   ├── chatgpt.ts         # ChatGPT session/message + streaming SSE
 │   │   ├── generation.ts      # Visualization generation API
 │   │   ├── svgDataset.ts      # SVG search/upload + AI icon generation
 │   │   └── tutor.ts           # Tutor session/message + streaming SSE
@@ -71,6 +72,7 @@ frontend/
 │   │   │   └── textarea.tsx
 │   │   ├── views/                         # Page-level and layout views
 │   │   │   ├── AppLayout.tsx
+│   │   │   ├── ChatGPTView.tsx            # ChatGPT chat interface
 │   │   │   ├── ChatView.tsx
 │   │   │   ├── InitialView.tsx
 │   │   │   ├── LandingPage.tsx
@@ -96,6 +98,7 @@ frontend/
 │   │   └── ThemeContext.tsx               # Theme (light/dark) state
 │   ├── hooks/                             # Custom React hooks
 │   │   ├── useAppState.ts
+│   │   ├── useChatGPTSession.ts           # ChatGPT session management
 │   │   ├── useElementInteractions.ts
 │   │   ├── useEntityQuantityPopup.ts
 │   │   ├── useHighlighting.ts
@@ -356,6 +359,10 @@ All endpoints are relative to `BACKEND_API_URL` from `src/config/api.ts`.
   - `POST /api/analytics/actions/batch` — send batched user actions.
   - `POST /api/analytics/cursor-positions/batch` — send cursor positions for heatmaps.
   - `POST /api/analytics/screenshot` — upload anonymized screenshots.
+- **ChatGPT (Analytics Mode)**:
+  - `POST /api/chatgpt/start` — initialize a ChatGPT session. Request body: `{}`. Returns JSON with `session_id`. **Note**: The ChatGPT view is only available when analytics are enabled.
+  - `POST /api/chatgpt/message/stream` — send a message to ChatGPT with streaming response (Server-Sent Events). Accepts `{ "session_id": "...", "message": "...", "images": [...] }` (images are optional base64-encoded strings). Returns SSE stream with `chunk`, `done`, and `error` events. The `done` event includes `session_id`, `message`, and optional `images` (URLs of generated images). **Note**: ChatGPT can generate images using GPT Image 1.5, which are included in the response as URLs in the `images` field.
+  - `GET /api/chatgpt/proxy-image?url=...` — proxy image downloads to bypass CORS restrictions. Fetches an image from an external URL and returns it as a blob. Timeout is set to 30 seconds.
 
 ## 📄 License
 

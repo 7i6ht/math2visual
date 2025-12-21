@@ -2,19 +2,14 @@
 Database model for ChatGPT sessions in Math2Visual.
 Stores ChatGPT session data in the database to support multiple Gunicorn workers.
 """
-import os
 import logging
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from typing import Dict
 from sqlalchemy import Column, String, JSON, Index
 from app.config.database import UTCDateTime
 from app.models.user_actions import Base
 
 logger = logging.getLogger(__name__)
-
-# Session expiration (hours of inactivity), configurable via environment.
-# Defaults to 2 hours if CHATGPT_SESSION_EXPIRATION_HOURS is not set.
-SESSION_EXPIRATION_HOURS = float(os.getenv("CHATGPT_SESSION_EXPIRATION_HOURS", "2"))
 
 
 class ChatGPTSession(Base):
@@ -36,41 +31,13 @@ class ChatGPTSession(Base):
     )
     
     def is_expired(self) -> bool:
-        """Check if the session has expired based on last activity.
-        Returns False if analytics is enabled (sessions should not expire when analytics is enabled).
+        """Check if the session has expired.
+        ChatGPT sessions never expire since they are only used when analytics is enabled,
+        and analytics sessions should be preserved for research purposes.
         """
-        # When analytics is enabled, sessions should never expire
-        from app.config.database import is_analytics_enabled
-        if is_analytics_enabled():
-            return False
-        
-        if not self.last_activity:
-            return True
-        
-        # UTCDateTime TypeDecorator ensures last_activity is always timezone-aware UTC
-        # This defensive check handles any edge cases
-        if self.last_activity.tzinfo is None:
-            # This should not happen with UTCDateTime, but handle it defensively
-            last_activity_utc = self.last_activity.replace(tzinfo=timezone.utc)
-            logger.error(
-                f"Session {self.session_id} has timezone-naive last_activity despite UTCDateTime. "
-                f"This indicates a bug in the TypeDecorator. Assuming UTC."
-            )
-        else:
-            # Convert to UTC if not already (UTCDateTime should ensure it's already UTC)
-            last_activity_utc = self.last_activity.astimezone(timezone.utc)
-        
-        expiration_time = last_activity_utc + timedelta(hours=SESSION_EXPIRATION_HOURS)
-        now_utc = datetime.now(timezone.utc)
-        is_expired = now_utc > expiration_time
-        
-        if is_expired:
-            logger.debug(
-                f"Session {self.session_id} expired: last_activity={last_activity_utc}, "
-                f"expiration_time={expiration_time}, now={now_utc}"
-            )
-        
-        return is_expired
+        # ChatGPT sessions are only available when analytics is enabled,
+        # and in that case, sessions should never expire
+        return False
     
     def to_dict(self) -> Dict:
         """Convert session to dictionary format compatible with existing code."""

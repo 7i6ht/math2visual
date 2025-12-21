@@ -16,7 +16,6 @@ from app.utils.validation_constants import MESSAGE_MAX_LENGTH
 from app.services.chatgpt.session_storage import (
     get_chatgpt_session,
     save_chatgpt_session,
-    delete_chatgpt_session,
 )
 
 logger = logging.getLogger(__name__)
@@ -266,17 +265,6 @@ def chatgpt_message_stream():
     
     event_stream = _create_chatgpt_stream_response(history, session_id)
     return Response(stream_with_context(event_stream()), mimetype="text/event-stream")
-
-
-@chatgpt_bp.route("/api/chatgpt/session/<session_id>", methods=["DELETE"])
-def chatgpt_delete_session(session_id: str):
-    """Delete a ChatGPT session."""
-    session = get_chatgpt_session(session_id)
-    if not session:
-        return jsonify({"error": _("Session not found.")}), 404
-    
-    delete_chatgpt_session(session_id)
-    return jsonify({"success": True})
 
 
 @chatgpt_bp.route("/api/chatgpt/proxy-image", methods=["GET"])

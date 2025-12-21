@@ -27,6 +27,7 @@ backend/
 │   │   ├── routes/                         # API endpoints
 │   │   │   ├── __init__.py
 │   │   │   ├── analytics.py                # Analytics and usage tracking
+│   │   │   ├── chatgpt.py                  # ChatGPT session endpoints (text + streaming)
 │   │   │   ├── generation.py               # Core generation API
 │   │   │   ├── svg_dataset.py              # SVG dataset management (upload, search, serve)
 │   │   │   ├── tutor.py                    # AI tutor session endpoints (text + streaming)
@@ -38,9 +39,13 @@ backend/
 │   │   └── storage_config.py               # Storage backend configuration
 │   ├── models/                             # Data models
 │   │   ├── __init__.py
+│   │   ├── chatgpt_session.py              # ChatGPT session database model
 │   │   ├── user_actions.py                 # User action tracking models
 │   │   └── tutor_session.py                # Tutor session database model
 │   ├── services/                           # Business logic
+│   │   ├── chatgpt/                        # ChatGPT session management
+│   │   │   ├── __init__.py
+│   │   │   └── session_storage.py          # ChatGPT session storage (database-backed, shared across workers)
 │   │   ├── language_generation/            # GPT-based DSL generation
 │   │   │   ├── __init__.py
 │   │   │   ├── gpt_generator.py
@@ -718,6 +723,68 @@ Record multiple cursor positions.
   ]
 }
 ```
+
+### ChatGPT API (Analytics Mode)
+
+OpenAI ChatGPT integration for analytics mode chat interface. Supports streaming text and images. **Note**: The ChatGPT view is only available when analytics are enabled.
+
+#### `POST /api/chatgpt/start`
+Start a new ChatGPT session.
+
+**Request Body:**
+```json
+{}
+```
+
+**Response:**
+```json
+{
+  "session_id": "9ad3c7a9-..."
+}
+```
+
+#### `POST /api/chatgpt/message/stream`
+Stream a ChatGPT response using Server-Sent Events. Supports text and images.
+
+**Request Body:**
+```json
+{
+  "session_id": "9ad3c7a9-...",
+  "message": "Please create an image which I can use for teaching for the math word problem \"Janet has nine oranges and Sharon has seven oranges. How many oranges do Janet and Sharon have together?\".",
+  "images": ["base64_encoded_image"]  // optional
+}
+```
+
+**Stream Payloads:**
+- Chunk: `data: {"type":"chunk","delta":"..."}`
+- Final: `data: {"type":"done","session_id":"...","message":"...","images":[...]}`
+- Error: `data: {"type":"error","error":"..."}`
+
+**Response Format:**
+Server-Sent Events (SSE) stream with `Content-Type: text/event-stream`
+
+**Notes:**
+- The `images` field accepts an array of base64-encoded image strings
+- The `images` field in the response contains URLs of generated images (if any)
+- ChatGPT can generate images using GPT Image 1.5, which are included in the response
+
+#### `GET /api/chatgpt/proxy-image`
+Proxy image download to avoid CORS issues. Fetches an image from an external URL and returns it.
+
+**Query Parameters:**
+- `url`: The URL of the image to proxy
+
+**Response:**
+Returns the image file with appropriate content-type headers.
+
+**Example:**
+```bash
+GET /api/chatgpt/proxy-image?url=https://example.com/image.png
+```
+
+**Notes:**
+- Used to download images that may have CORS restrictions
+- Timeout is set to 30 seconds
 
 ## 🎨 Visual Generation
 

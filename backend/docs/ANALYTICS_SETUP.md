@@ -11,8 +11,8 @@ The analytics system tracks user interactions and behaviors to provide insights 
 ## 🏗️ Architecture
 
 ### Backend Components
-- **Database Models**: `UserSession`, `Action`, `Screenshot`, `CursorPosition` in SQLAlchemy
-- **API Endpoints**: RESTful endpoints for recording and retrieving analytics data
+- **Database Models**: `UserSession`, `Action`, `Screenshot`, `CursorPosition`, `TutorSession`, `ChatGPTSession` in SQLAlchemy
+- **API Endpoints**: RESTful endpoints for recording and retrieving analytics data, plus ChatGPT endpoints
 - **Database**: PostgreSQL (recommended) or SQLite (development)
 - **Storage**: File-based screenshot storage
 
@@ -63,10 +63,12 @@ if test_database_connection():
 ```
 
 Tables created:
-- `user_sessions`: Session tracking
+- `user_sessions`: User session tracking
 - `actions`: User action records
 - `screenshots`: Screenshot metadata
 - `cursor_positions`: Cursor tracking data
+- `tutor_sessions`: AI tutor session data (also used in non-analytics mode)
+- `chatgpt_sessions`: ChatGPT session data
 
 ### 4. Frontend Configuration
 
@@ -75,6 +77,9 @@ Analytics are controlled by the `VITE_ENABLE_ANALYTICS` environment variable in 
 Edit `frontend/.env`:
 ```bash
 # Enable or disable analytics
+# When enabled, additional features become available:
+# - ChatGPT chat interface
+# - Extended session tracking
 VITE_ENABLE_ANALYTICS=true
 ```
 
@@ -96,6 +101,11 @@ npm run dev
 - **Session Creation**: Unique session IDs stored in localStorage
 - **Session Activity**: Last activity timestamp updates
 - **User Agent**: Browser/device information
+
+### ChatGPT Sessions (Analytics Mode Only)
+- **ChatGPT Interface**: The ChatGPT chat interface is only available when analytics are enabled
+- **Session Storage**: ChatGPT sessions are stored in the database with conversation history
+- **Session Expiration**: Sessions never expire (preserved for research purposes since they're only used in analytics mode)
 
 ### User Actions (Tracked via `useAnalytics` hook)
 
@@ -147,9 +157,52 @@ npm run dev
 - Timestamp and dimensions
 - Stored in `backend/storage/analytics/`
 
+### ChatGPT Interactions
+- **User Messages**: Messages sent by users to ChatGPT are tracked via `chatgpt_message_submit` actions
+- **Image Downloads**: Downloads of ChatGPT-generated images are tracked via `chatgpt_image_download_start` and `chatgpt_image_download_complete` actions
+- **Session History**: Full conversation history (both user and assistant messages, including generated images) is stored in the database in the `chatgpt_sessions` table
+- **Note**: Assistant messages and image generation events are not explicitly tracked as separate analytics actions, but are preserved in the session history for analysis
+
 ## 🔧 API Endpoints
 
-### Sessions
+### ChatGPT Endpoints (Analytics Mode Only)
+
+**Note**: These endpoints are only available when analytics are enabled. The ChatGPT view in the frontend is automatically hidden when analytics is disabled.
+
+```bash
+# Start a ChatGPT session
+POST /api/chatgpt/start
+{
+}
+
+Response:
+{
+  "session_id": "9ad3c7a9-..."
+}
+```
+
+```bash
+# Send a message with streaming response
+POST /api/chatgpt/message/stream
+{
+  "session_id": "9ad3c7a9-...",
+  "message": "Please create an image which I can use for teaching for the math word problem \"Janet has nine oranges and Sharon has seven oranges. How many oranges do Janet and Sharon have together?\".",
+  "images": ["base64_encoded_image"]  // optional
+}
+
+Response: Server-Sent Events (SSE) stream
+```
+
+```bash
+# Proxy image download (bypasses CORS)
+GET /api/chatgpt/proxy-image?url=https://example.com/image.png
+
+Response: Image blob
+```
+
+For detailed ChatGPT API documentation, see the [Backend README](../README.md#chatgpt-api-analytics-mode).
+
+### Analytics Sessions
 ```bash
 # Create/update session
 POST /api/analytics/session
@@ -296,7 +349,7 @@ analyticsService.getQueueSize()
 # Connect to database
 psql math2visual_analytics
 
-# View sessions
+# View user sessions
 SELECT * FROM user_sessions ORDER BY created_at DESC LIMIT 10;
 
 # View actions
@@ -307,9 +360,12 @@ SELECT * FROM cursor_positions ORDER BY timestamp DESC LIMIT 10;
 
 # View screenshots
 SELECT * FROM screenshots ORDER BY created_at DESC LIMIT 10;
-```
 
-# Run the same queries as above
+# View tutor sessions
+SELECT * FROM tutor_sessions ORDER BY created_at DESC LIMIT 10;
+
+# View ChatGPT sessions
+SELECT * FROM chatgpt_sessions ORDER BY created_at DESC LIMIT 10;
 ```
 
 ## 📚 Further Reading

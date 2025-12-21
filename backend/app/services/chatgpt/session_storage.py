@@ -4,15 +4,10 @@ All ChatGPT sessions are persisted in the database so that they are shared
 across all Gunicorn workers and survive process restarts.
 """
 import logging
-import os
 from typing import Dict, Optional, List
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 
 logger = logging.getLogger(__name__)
-
-# Session expiration (hours of inactivity), configurable via environment.
-# Defaults to 2 hours if CHATGPT_SESSION_EXPIRATION_HOURS is not set.
-SESSION_EXPIRATION_HOURS = float(os.getenv("CHATGPT_SESSION_EXPIRATION_HOURS", "2"))
 
 
 def get_chatgpt_session(session_id: str) -> Optional[Dict]:
@@ -75,51 +70,15 @@ def save_chatgpt_session(session_id: str, history: List[Dict]) -> None:
         logger.error(f"Error saving ChatGPT session to database: {e}")
 
 
-def delete_chatgpt_session(session_id: str) -> None:
-    """Delete a ChatGPT session."""
-    try:
-        from app.config.database import db_session
-        from app.models.chatgpt_session import ChatGPTSession
-        
-        with db_session() as db:
-            session = db.query(ChatGPTSession).filter_by(session_id=session_id).first()
-            if session:
-                db.delete(session)
-                db.commit()
-    except Exception as e:
-        logger.error(f"Error deleting ChatGPT session from database: {e}")
-
-
 def cleanup_expired_chatgpt_sessions() -> int:
     """
     Clean up expired ChatGPT sessions from database.
-    Returns the number of sessions deleted.
-    When analytics is enabled, no sessions are deleted (returns 0).
+    ChatGPT sessions never expire since they are only used when analytics is enabled,
+    and analytics sessions should be preserved for research purposes.
+    Returns 0 (no sessions are deleted).
     """
-    from app.config.database import is_analytics_enabled
-    
-    # Skip cleanup if analytics is enabled
-    if is_analytics_enabled():
-        logger.debug("Analytics is enabled, skipping ChatGPT session cleanup")
-        return 0
-    
-    try:
-        from app.config.database import db_session
-        from app.models.chatgpt_session import ChatGPTSession
-        
-        with db_session() as db:
-            expiration_time = datetime.now(timezone.utc) - timedelta(hours=SESSION_EXPIRATION_HOURS)
-            expired_sessions = db.query(ChatGPTSession).filter(
-                ChatGPTSession.last_activity < expiration_time
-            ).all()
-            
-            count = len(expired_sessions)
-            for session in expired_sessions:
-                db.delete(session)
-            
-            db.commit()
-            return count
-    except Exception as e:
-        logger.error(f"Error cleaning up expired ChatGPT sessions: {e}")
-        return 0
+    # ChatGPT sessions are only available when analytics is enabled,
+    # and in that case, sessions should never expire
+    logger.debug("ChatGPT sessions never expire (analytics mode only)")
+    return 0
 
