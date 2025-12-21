@@ -7,6 +7,7 @@ import { SVGDatasetService } from '@/api_services/svgDataset';
 import { BasePopup } from './BasePopup.tsx';
 import { trackSVGSearchPopupType, trackPopupSubmit, trackPopupCancel, isAnalyticsEnabled } from '@/services/analyticsTracker';
 import { useTranslation } from 'react-i18next';
+import { BACKEND_API_URL } from '@/config/api';
 
 interface SVGFile {
   filename: string;
@@ -263,7 +264,7 @@ export const SVGSearchPopup: React.FC<SVGSearchPopupProps> = ({
               >
                 <div className="w-full h-full p-2 flex items-center justify-center">
                   <img
-                    src={`/api/svg-dataset/files/${file.filename}`}
+                    src={`${BACKEND_API_URL}/svg-dataset/files/${file.filename}`}
                     alt={file.name}
                     className="max-w-full max-h-full object-contain"
                     onLoad={() => {
