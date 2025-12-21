@@ -58,6 +58,7 @@ class ClamAVScanner:
         self._availability_checked = False
         self._is_available = False
         self._last_error = None
+        self._using_network_socket = False  # Track if we're using network vs Unix socket
     
     def _check_availability(self) -> bool:
         """
@@ -80,8 +81,10 @@ class ClamAVScanner:
             # Try to create connection
             if self.socket_path and os.path.exists(self.socket_path):
                 cd = pyclamd.ClamdUnixSocket(self.socket_path)
+                self._using_network_socket = False
             else:
                 cd = pyclamd.ClamdNetworkSocket(self.host, self.port)
+                self._using_network_socket = True
             
             # Test connection with ping
             if cd.ping():
@@ -115,9 +118,53 @@ class ClamAVScanner:
             logger.warning(f"Failed to get ClamAV version: {str(e)}")
             return None
     
+    def _process_scan_result(self, scan_result, filename_hint: str, file_path: Optional[str] = None) -> ScanResult:
+        """
+        Process ClamAV scan result and return ScanResult.
+        
+        Args:
+            scan_result: Result from scan_stream() or scan_file()
+            filename_hint: Filename for logging
+            file_path: File path (for file scan results, None for stream scan)
+            
+        Returns:
+            ScanResult with scan details
+        """
+        if scan_result is None or scan_result == "OK":
+            return ScanResult(is_clean=True, scan_performed=True, scanner_available=True)
+        
+        # Extract threat name based on result type
+        threat_name = None
+        if isinstance(scan_result, tuple) and len(scan_result) >= 2:
+            threat_name = scan_result[1]  # Stream scan: (status, threat_name)
+        elif isinstance(scan_result, dict) and file_path and file_path in scan_result:
+            threat_info = scan_result[file_path]  # File scan: {path: threat_info}
+            threat_name = threat_info[1] if isinstance(threat_info, tuple) and len(threat_info) >= 2 else str(threat_info)
+        
+        if threat_name:
+            logger.warning(f"Threat detected in {filename_hint}: {threat_name}")
+            return ScanResult(
+                is_clean=False,
+                threat_found=threat_name,
+                scan_performed=True,
+                scanner_available=True
+            )
+        
+        # Unexpected result format
+        logger.warning(f"Unexpected scan result format: {scan_result}")
+        return ScanResult(
+            is_clean=True,
+            scan_performed=True,
+            scanner_available=True,
+            error_message=f"Unexpected scan result format: {scan_result}"
+        )
+    
     def scan_content(self, content: bytes, filename_hint: str = "unknown") -> ScanResult:
         """
         Scan file content for viruses.
+        
+        Uses stream scanning when ClamAV is accessed over network (Docker containers),
+        falls back to file scanning when using Unix socket (same host).
         
         Args:
             content: File content as bytes
@@ -126,75 +173,43 @@ class ClamAVScanner:
         Returns:
             ScanResult with scan details
         """
-        # Check if ClamAV is available
         if not self._check_availability():
             return ScanResult(
-                is_clean=True,  # Assume clean if scanner not available
+                is_clean=True,
                 scan_performed=False,
                 scanner_available=False,
                 error_message=self._last_error
             )
         
-        # Perform scan using temporary file with proper permissions
         try:
-            # Create temp file in /tmp with world-readable permissions
-            with tempfile.NamedTemporaryFile(delete=False, dir='/tmp', prefix='clamav_scan_') as temp_file:
-                temp_file.write(content)
-                temp_file.flush()
-                temp_path = temp_file.name
-            
-            # Make file readable by ClamAV daemon
-            os.chmod(temp_path, 0o644)
-            
-            try:
-                # Scan the temporary file
-                scan_result = self._connection.scan_file(temp_path)
+            if self._using_network_socket:
+                # Stream scanning: send content directly over network (works across containers)
+                scan_result = self._connection.scan_stream(content)
+                return self._process_scan_result(scan_result, filename_hint)
+            else:
+                # File scanning: use temporary file (works when ClamAV is on same host)
+                with tempfile.NamedTemporaryFile(delete=False, dir='/tmp', prefix='clamav_scan_') as temp_file:
+                    temp_file.write(content)
+                    temp_file.flush()
+                    temp_path = temp_file.name
                 
-                if scan_result is None:
-                    # None means clean
-                    return ScanResult(
-                        is_clean=True,
-                        scan_performed=True,
-                        scanner_available=True
-                    )
-                elif isinstance(scan_result, dict) and temp_path in scan_result:
-                    # Threat found
-                    threat_info = scan_result[temp_path]
-                    if isinstance(threat_info, tuple) and len(threat_info) >= 2:
-                        threat_name = threat_info[1]
-                    else:
-                        threat_name = str(threat_info)
-                    
-                    logger.warning(f"Threat detected in {filename_hint}: {threat_name}")
-                    return ScanResult(
-                        is_clean=False,
-                        threat_found=threat_name,
-                        scan_performed=True,
-                        scanner_available=True
-                    )
-                else:
-                    # Unexpected result format
-                    return ScanResult(
-                        is_clean=True,  # Assume clean for unexpected results
-                        scan_performed=True,
-                        scanner_available=True,
-                        error_message=f"Unexpected scan result format: {scan_result}"
-                    )
-            
-            finally:
-                # Clean up temporary file
+                os.chmod(temp_path, 0o644)
                 try:
-                    os.unlink(temp_path)
-                except Exception:
-                    pass  # Ignore cleanup errors
-                    
+                    scan_result = self._connection.scan_file(temp_path)
+                    return self._process_scan_result(scan_result, filename_hint, temp_path)
+                finally:
+                    try:
+                        os.unlink(temp_path)
+                    except Exception:
+                        pass
         except Exception as e:
-            logger.error(f"Error during ClamAV scan of {filename_hint}: {str(e)}")
+            scan_type = "stream" if self._using_network_socket else "file"
+            logger.error(f"Error during ClamAV {scan_type} scan of {filename_hint}: {str(e)}")
             return ScanResult(
-                is_clean=True,  # Assume clean on scan error
+                is_clean=True,
                 scan_performed=False,
                 scanner_available=True,
-                error_message=f"Scan error: {str(e)}"
+                error_message=f"{scan_type.capitalize()} scan error: {str(e)}"
             )
     
     def get_status(self) -> dict:
