@@ -52,7 +52,7 @@ const ChatMessageItem = memo(
       <div className={`flex flex-col ${contentAlign} space-y-2 sm:space-y-2.5 md:space-y-3 lg:space-y-3.5 xl:space-y-4 2xl:space-y-5 3xl:space-y-6 4xl:space-y-7 5xl:space-y-8 6xl:space-y-9 7xl:space-y-10 8xl:space-y-12`}>
         <div
           className={`responsive-text-font-size inline-block rounded-lg px-3 py-2 sm:px-3.5 sm:py-2.5 md:px-4 md:py-3 lg:px-4.5 lg:py-3.5 xl:px-5 xl:py-4 2xl:px-6 2xl:py-5 3xl:px-7 3xl:py-6 4xl:px-8 4xl:py-7 5xl:px-9 5xl:py-8 6xl:px-10 6xl:py-9 7xl:px-11 7xl:py-10 8xl:px-12 8xl:py-11 max-w-[85%] ${
-            isStudent ? "bg-primary text-primary-foreground min-w-[12ch]" : "bg-muted text-foreground"
+            isStudent ? "bg-primary text-primary-foreground min-w-[16ch]" : "bg-muted text-foreground"
           } animate-in fade-in-0 ${slide} duration-200`}
         >
           <div 
