@@ -14,10 +14,8 @@ RUN npm ci
 COPY frontend/ ./
 
 # Build frontend for production
-# Note: VITE_BACKEND_URL can be set via build arg if needed
-# If not set, frontend will use window.location.origin (same origin)
-ARG VITE_BACKEND_URL
-ENV VITE_BACKEND_URL=${VITE_BACKEND_URL}
+ARG VITE_ENABLE_ANALYTICS=false
+ENV VITE_ENABLE_ANALYTICS=${VITE_ENABLE_ANALYTICS}
 
 # Build for production
 RUN npm run build

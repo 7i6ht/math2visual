@@ -1,6 +1,9 @@
 services:
   app:
-    build: .
+    build:
+      context: .
+      args:
+        VITE_ENABLE_ANALYTICS: ${VITE_ENABLE_ANALYTICS:-false}
     image: math2visual:latest
     container_name: math2visual
     ports:
@@ -118,7 +121,10 @@ services:
   #   docker-compose up -d
   cleanup:
     profiles: ["cleanup"]
-    build: .
+    build:
+      context: .
+      args:
+        VITE_ENABLE_ANALYTICS: ${VITE_ENABLE_ANALYTICS:-false}
     container_name: math2visual-cleanup
     volumes:
       - ./backend/storage:/app/storage
