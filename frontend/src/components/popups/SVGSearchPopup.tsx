@@ -1,10 +1,14 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Search, ArrowRight, Image as ImageIcon, AlertCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { SVGDatasetService } from '@/api_services/svgDataset';
 import { BasePopup } from './BasePopup.tsx';
+import { 
+  InputGroup, 
+  InputGroupAddon, 
+  InputGroupButton, 
+  InputGroupInput 
+} from '@/components/ui/input-group';
 import { trackSVGSearchPopupType, trackPopupSubmit, trackPopupCancel, isAnalyticsEnabled } from '@/services/analyticsTracker';
 import { useTranslation } from 'react-i18next';
 import { BACKEND_API_URL } from '@/config/api';
@@ -193,39 +197,43 @@ export const SVGSearchPopup: React.FC<SVGSearchPopupProps> = ({
   return (
     <BasePopup onClose={handleCancel} onKeyDown={handlePopupKeyDown} className="popup-search-width max-h-[90vh]">
       {/* Search Input */}
-      <div className="flex gap-0 group focus-within:ring-[3px] focus-within:ring-ring/50 focus-within:ring-offset-0 focus-within:border-ring rounded-md transition-all duration-200 border border-ring ring-[3px] ring-ring/50 ring-offset-0">
-        <div className="relative flex-1">
-          <Search className="absolute left-2 sm:left-3 md:left-4 lg:left-4 xl:left-4.5 2xl:left-5.5 3xl:left-6 4xl:left-6.5 5xl:left-7.5 6xl:left-8.5 7xl:left-9.5 top-1/2 transform -translate-y-1/2 responsive-smaller-icon-font-size text-gray-400" />
-          <Input
-            ref={searchInputRef}
-            value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-              if (analyticsEnabled) {
-                trackSVGSearchPopupType(e.target.value);
-              }
-            }}
-            placeholder={t("common.search")}
-            spellCheck={false}
-            className="pl-8 sm:pl-10 md:pl-12 lg:pl-13 xl:pl-14 2xl:pl-15 3xl:pl-17 4xl:pl-18 5xl:pl-20 6xl:pl-22 7xl:pl-24 rounded-r-none border-r-0 popup-button-responsive-height responsive-text-font-size focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation"
-            disabled={!!selectedFile}
-          />
-        </div>
-        <Button
-          onClick={() => {
-            if (selectedFile) {
-              if (analyticsEnabled) {
-                trackPopupSubmit('svg_search', selectedFile.name);
-              }
-              handleFileSelect(selectedFile);
+      <InputGroup className="popup-button-responsive-height overflow-hidden border-ring ring-ring/50 ring-[3px]">
+        <InputGroupInput
+          ref={searchInputRef}
+          value={searchQuery}
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+            if (analyticsEnabled) {
+              trackSVGSearchPopupType(e.target.value);
             }
           }}
-          disabled={!selectedFile}
-          className="px-2 sm:px-3 rounded-l-none popup-button-responsive-height responsive-text-font-size !text-primary-foreground focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation flex-shrink-0"
-        >
-          <ArrowRight className="responsive-smaller-icon-font-size" />
-        </Button>
-      </div>
+          placeholder={t("common.search")}
+          spellCheck={false}
+          className="touch-manipulation"
+          disabled={!!selectedFile}
+        />
+        <InputGroupAddon>
+          <Search className="responsive-smaller-icon-font-size" />
+        </InputGroupAddon>
+        <InputGroupAddon align="inline-end" className="pr-1.5">
+          <InputGroupButton
+            onClick={() => {
+              if (selectedFile) {
+                if (analyticsEnabled) {
+                  trackPopupSubmit('svg_search', selectedFile.name);
+                }
+                handleFileSelect(selectedFile);
+              }
+            }}
+            disabled={!selectedFile}
+            size="sm"
+            variant="default"
+            className="!text-primary-foreground popup-button-responsive-height touch-manipulation rounded-l-none rounded-r-md"
+          >
+            <ArrowRight className="responsive-smaller-icon-font-size" />
+          </InputGroupButton>
+        </InputGroupAddon>
+      </InputGroup>
 
       {/* Image Preview Grid */}
       {showPreview && (

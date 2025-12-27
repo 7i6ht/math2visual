@@ -1,10 +1,14 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Upload, ArrowRight, AlertCircle, Image } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { validateFormatAsync } from '@/utils/validation';
 import { SVGDatasetService } from '@/api_services/svgDataset';
 import { BasePopup } from './BasePopup.tsx';
+import { 
+  InputGroup, 
+  InputGroupAddon, 
+  InputGroupButton, 
+  InputGroupInput 
+} from '@/components/ui/input-group';
 import { trackSVGUploadPopupType, trackPopupSubmit, trackPopupCancel, trackElementClick, isAnalyticsEnabled } from '@/services/analyticsTracker';
 import { useTranslation } from 'react-i18next';
 
@@ -134,8 +138,8 @@ export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
   return (
     <BasePopup onClose={handleCancel} onKeyDown={handlePopupKeyDown} className="popup-upload-width max-h-[90vh]">
       {/* Upload Form */}
-      <div className="flex gap-0 group focus-within:ring-[3px] focus-within:ring-ring/50 focus-within:ring-offset-0 focus-within:border-ring rounded-md transition-all duration-200 border border-ring ring-[3px] ring-ring/50 ring-offset-0">
-        <div className="relative flex-1">
+      <InputGroup className="popup-button-responsive-height overflow-hidden border-ring ring-ring/50 ring-[3px]">
+        <InputGroupAddon className="pl-2">
           <button
             onClick={() => {
               if (analyticsEnabled) {
@@ -143,31 +147,31 @@ export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
               }
               fileInputRef.current?.click();
             }}
-            className="absolute left-1.5 sm:left-2 md:left-2 lg:left-2.5 xl:left-3 2xl:left-3.5 3xl:left-4 4xl:left-4.5 5xl:left-3.5 6xl:left-4 7xl:left-4.5 top-1/2 transform -translate-y-1/2 responsive-smaller-icon-font-size text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 rounded transition-colors duration-200 flex items-center justify-center p-1.5 sm:p-2"
+            className="h-full flex items-center justify-center px-3 3xl:px-6 text-muted-foreground hover:text-foreground transition-colors touch-manipulation text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 rounded duration-200 popup-button-responsive-height"
             title={t("svg.uploadPopup.chooseFile")}
             disabled={isUploading}
           >
             <Upload className="responsive-smaller-icon-font-size" />
           </button>
-          <Input
-            ref={filenameInputRef}
-            value={filename}
-            onChange={(e) => {
-              setFilename(e.target.value);
-              if (analyticsEnabled) {
-                trackSVGUploadPopupType(e.target.value);
-              }
-            }}
-            placeholder={t("svg.uploadPopup.enterName")}
-            spellCheck={false}
-            className="!pl-10 sm:!pl-12 md:!pl-13 lg:!pl-14 xl:!pl-15 2xl:!pl-17 3xl:!pl-18 4xl:!pl-19 5xl:!pl-24 6xl:!pl-28 7xl:!pl-30 !pr-1 rounded-r-none border-r-0 popup-button-responsive-height responsive-text-font-size focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation"
-            disabled={isUploading}
-          />
-        </div>
-        <div className="flex items-center">
-          {uploadFile && (
+        </InputGroupAddon>
+        <InputGroupInput
+          ref={filenameInputRef}
+          value={filename}
+          onChange={(e) => {
+            setFilename(e.target.value);
+            if (analyticsEnabled) {
+              trackSVGUploadPopupType(e.target.value);
+            }
+          }}
+          placeholder={t("svg.uploadPopup.enterName")}
+          spellCheck={false}
+          className="responsive-text-font-size touch-manipulation !px-3"
+          disabled={isUploading}
+        />
+        {uploadFile && (
+          <InputGroupAddon>
             <button
-              className="popup-button-responsive-height w-9 text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 transition-colors duration-200 flex items-center justify-center touch-manipulation"
+              className="h-full flex items-center justify-center px-2 text-muted-foreground hover:text-foreground transition-colors touch-manipulation"
               title={t("svg.uploadPopup.viewInNewTab", { filename: uploadFile.name })}
               onClick={() => {
                 if (analyticsEnabled) {
@@ -182,8 +186,10 @@ export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
             >
               <Image className="responsive-smaller-icon-font-size" />
             </button>
-          )}
-          <Button
+          </InputGroupAddon>
+        )}
+        <InputGroupAddon align="inline-end" className="pr-1.5">
+          <InputGroupButton
             onClick={() => {
               if (analyticsEnabled) {
                 trackPopupSubmit('svg_upload', filename.trim());
@@ -191,16 +197,18 @@ export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
               handleUpload();
             }}
             disabled={!isValidSelection || isUploading}
-            className="px-2 sm:px-3 rounded-l-none popup-button-responsive-height responsive-text-font-size !text-primary-foreground focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation flex-shrink-0"
+            size="sm"
+            variant="default"
+            className="!text-primary-foreground popup-button-responsive-height touch-manipulation rounded-l-none rounded-r-md"
           >
             {isUploading ? (
               <div className="animate-spin rounded-full responsive-smaller-icon-font-size border-b-2 border-white" />
             ) : (
               <ArrowRight className="responsive-smaller-icon-font-size" />
             )}
-          </Button>
-        </div>
-      </div>
+          </InputGroupButton>
+        </InputGroupAddon>
+      </InputGroup>
 
       {/* Hidden file input */}
       <input

@@ -293,12 +293,12 @@ h1 {
 
   .popup-search-width {
     /* Search popup: 1.3x larger than base popup-responsive-width */
-    @apply !w-[18ch] !min-w-[18ch] !max-w-[18ch] sm:!w-[20ch] sm:!min-w-[20ch] sm:!max-w-[20ch] md:!w-[21ch] md:!min-w-[21ch] md:!max-w-[21ch] lg:!w-[22ch] lg:!min-w-[22ch] lg:!max-w-[22ch] xl:!w-[23ch] xl:!min-w-[23ch] xl:!max-w-[23ch] 2xl:!w-[25ch] 2xl:!min-w-[25ch] 2xl:!max-w-[25ch] 3xl:!w-[26ch] 3xl:!min-w-[26ch] 3xl:!max-w-[26ch] 4xl:!w-[27ch] 4xl:!min-w-[27ch] 4xl:!max-w-[27ch] 5xl:!w-[57ch] 5xl:!min-w-[57ch] 5xl:!max-w-[57ch] 6xl:!w-[60ch] 6xl:!min-w-[60ch] 6xl:!max-w-[60ch] 7xl:!w-[62ch] 7xl:!min-w-[62ch] 7xl:!max-w-[62ch] 8xl:!w-[65ch] 8xl:!min-w-[65ch] 8xl:!max-w-[65ch];
+    @apply !w-[18ch] !min-w-[18ch] !max-w-[18ch] sm:!w-[20ch] sm:!min-w-[20ch] sm:!max-w-[20ch] md:!w-[21ch] md:!min-w-[21ch] md:!max-w-[21ch] lg:!w-[22ch] lg:!min-w-[22ch] lg:!max-w-[22ch] xl:!w-[23ch] xl:!min-w-[23ch] xl:!max-w-[23ch] 2xl:!w-[25ch] 2xl:!min-w-[25ch] 2xl:!max-w-[25ch] 3xl:!w-[26ch] 3xl:!min-w-[26ch] 3xl:!max-w-[26ch] 4xl:!w-[27ch] 4xl:!min-w-[27ch] 4xl:!max-w-[27ch] 5xl:!w-[45ch] 5xl:!min-w-[45ch] 5xl:!max-w-[45ch] 6xl:!w-[48ch] 6xl:!min-w-[48ch] 6xl:!max-w-[48ch] 7xl:!w-[50ch] 7xl:!min-w-[50ch] 7xl:!max-w-[50ch] 8xl:!w-[65ch] 8xl:!min-w-[65ch] 8xl:!max-w-[65ch];
   }
 
   .popup-upload-width {
-    /* Upload popup: slightly larger than search popup for laptop screens */
-    @apply !w-[18ch] !min-w-[18ch] !max-w-[18ch] sm:!w-[20ch] sm:!min-w-[20ch] sm:!max-w-[20ch] md:!w-[21ch] md:!min-w-[21ch] md:!max-w-[21ch] lg:!w-[24ch] lg:!min-w-[24ch] lg:!max-w-[24ch] xl:!w-[25ch] xl:!min-w-[25ch] xl:!max-w-[25ch] 2xl:!w-[25ch] 2xl:!min-w-[25ch] 2xl:!max-w-[25ch] 3xl:!w-[26ch] 3xl:!min-w-[26ch] 3xl:!max-w-[26ch] 4xl:!w-[27ch] 4xl:!min-w-[27ch] 4xl:!max-w-[27ch] 5xl:!w-[57ch] 5xl:!min-w-[57ch] 5xl:!max-w-[57ch] 6xl:!w-[60ch] 6xl:!min-w-[60ch] 6xl:!max-w-[60ch] 7xl:!w-[62ch] 7xl:!min-w-[62ch] 7xl:!max-w-[62ch] 8xl:!w-[65ch] 8xl:!min-w-[65ch] 8xl:!max-w-[65ch];
+    /* Upload popup: wider than search popup for better input visibility */
+    @apply !w-[22ch] !min-w-[22ch] !max-w-[22ch] sm:!w-[25ch] sm:!min-w-[25ch] sm:!max-w-[25ch] md:!w-[28ch] md:!min-w-[28ch] md:!max-w-[28ch] lg:!w-[28ch] lg:!min-w-[28ch] lg:!max-w-[28ch] xl:!w-[30ch] xl:!min-w-[30ch] xl:!max-w-[30ch] 2xl:!w-[38ch] 2xl:!min-w-[38ch] 2xl:!max-w-[38ch] 3xl:!w-[40ch] 3xl:!min-w-[40ch] 3xl:!max-w-[40ch] 4xl:!w-[42ch] 4xl:!min-w-[42ch] 4xl:!max-w-[42ch] 5xl:!w-[48ch] 5xl:!min-w-[48ch] 5xl:!max-w-[48ch] 6xl:!w-[52ch] 6xl:!min-w-[52ch] 6xl:!max-w-[52ch] 7xl:!w-[55ch] 7xl:!min-w-[55ch] 7xl:!max-w-[55ch] 8xl:!w-[72ch] 8xl:!min-w-[72ch] 8xl:!max-w-[72ch];
   }
   
 }
