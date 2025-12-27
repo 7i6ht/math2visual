@@ -168,11 +168,11 @@ export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
           className="responsive-text-font-size touch-manipulation !px-3"
           disabled={isUploading}
         />
-        {uploadFile && (
-          <InputGroupAddon>
-            <button
-              className="h-full flex items-center justify-center px-2 text-muted-foreground hover:text-foreground transition-colors touch-manipulation"
-              title={t("svg.uploadPopup.viewInNewTab", { filename: uploadFile.name })}
+        <InputGroupAddon align="inline-end" className="pr-1.5 gap-0">
+          {uploadFile && (
+            <InputGroupButton
+              size="sm"
+              variant="ghost"
               onClick={() => {
                 if (analyticsEnabled) {
                   trackElementClick(`svg_upload_preview_click`, uploadFile.name);
@@ -183,12 +183,12 @@ export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
                 setTimeout(() => URL.revokeObjectURL(url), 1000);
               }}
               disabled={isUploading}
+              title={t("svg.uploadPopup.viewInNewTab", { filename: uploadFile.name })}
+              className="popup-button-responsive-height touch-manipulation rounded-l-none"
             >
               <Image className="responsive-smaller-icon-font-size" />
-            </button>
-          </InputGroupAddon>
-        )}
-        <InputGroupAddon align="inline-end" className="pr-1.5">
+            </InputGroupButton>
+          )}
           <InputGroupButton
             onClick={() => {
               if (analyticsEnabled) {
