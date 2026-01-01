@@ -118,7 +118,7 @@ flowchart TD
 
 ### Frontend (React + TypeScript)
 - **Technologies**: React 19, Vite, ShadCN and Tailwind CSS
-- **Text-To-Image (TTI) Visual Generation**: Generating two types of visualization (intuitive, formal) representing MWP
+- **Visual Generation from MWP**: Generating two types of visualization (intuitive, formal) representing MWP
 - **Visual Language Editing**: Direct modification and regeneration capabilities
 - **Interactive SVG Management**: Search, upload, and manage SVG entities with popup-based interactions
 - **Multi-format Export**: Download visualizations as SVG, PNG or PDF
