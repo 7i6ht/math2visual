@@ -43,7 +43,7 @@ This interactive system builds upon the Math2Visual research framework:
 
 ![Teacher Mode - Visual Language Editing](./images/app3.png)
 
-![Student Mode](./images/app2.png)
+![Student Mode](./images/app4.png)
 
 ## 📚 Usage Workflow
 
