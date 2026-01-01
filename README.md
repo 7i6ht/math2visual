@@ -31,7 +31,7 @@ This interactive system builds upon the Math2Visual research framework:
 
 - **Teacher mode**: Generate formal and intuitive SVGs from MWPs and Visual Language (DSL), then edit interactively and regenerate.
 - **Student mode (AI tutor)**: Gemini-powered tutor with streaming replies that can surface scoped visuals grounded in DSL fragments.
-- **1,549+ SVG entity library**: Search existing icons, upload your own, or AI-generate new SVGs.
+- **1,548+ SVG entity library**: Search existing icons, upload your own, or AI-generate new SVGs.
 - **Exports & sharing**: Download visuals as SVG, PNG, or PDF.
 - **Localization & UX**: English and German UI.
 
@@ -39,9 +39,11 @@ This interactive system builds upon the Math2Visual research framework:
 
 ![Landing Page](./images/app1.png)
 
-![Student Mode](./images/app2.png)
+![Teacher Mode](./images/app2.png)
 
-![Teacher Mode](./images/app3.png)
+![Teacher Mode - Visual Language Editing](./images/app3.png)
+
+![Student Mode](./images/app2.png)
 
 ## 📚 Usage Workflow
 
