@@ -58,7 +58,7 @@
     "validationError": "Validation error"
   },
   "svg": {
-    "missingEntities": "Select the missing entity to upload or generate an icon:",
+    "missingEntities": "Select entity with missing SVG to upload or generate an icon for:",
     "missingFileTitle": "Missing SVG File",
     "missingDescription": "SVG file required for visual generation is missing from the dataset. Attempted to find and pick the closest matching representation in dataset instead.",
     "uploading": "Uploading...",

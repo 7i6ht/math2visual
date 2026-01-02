@@ -58,7 +58,7 @@
     "validationError": "Validierungsfehler"
   },
   "svg": {
-    "missingEntities": "Wählen Sie die fehlende Entität aus, um ein Icon hochzuladen oder zu erzeugen:",
+    "missingEntities": "Wählen Sie die Entität mit fehlendem SVG aus, für welche Sie ein Icon hochladen oder erzeugen wollen:",
     "missingFileTitle": "Fehlende SVG-Datei",
     "missingDescription": "SVG-Datei, die für die Erzeugung der Visualisierungen erforderlich ist, fehlt im Dataset. Es wurde versucht, die am besten passende Darstellung im Datenset zu finden und auszuwählen.",
     "uploading": "Wird hochgeladen...",
