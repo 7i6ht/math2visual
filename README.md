@@ -63,60 +63,67 @@ This interactive system builds upon the Math2Visual research framework:
 ## 🏛️ System Overview
 
 ```mermaid
-flowchart TD
-    %% Teacher mode (visual generation)
-    A["Teacher Input"] --> B["React Frontend"]
-    B --- C["Math Word Problem"]
-    B --> K["Download & Export"]
-    B --> Y["SVG Editing & Customization"]
-    C --> D["Flask Backend"]
-    D --> E["OpenAI GPT Model"]
-    E --- F["Visual Language DSL"]
-    F --> G["SVG Rendering Programs"]
-    G --> H["Entity Library - 1,548+ SVG Assets"] & I["(Scoped) Formal Visualization"] & J["(Scoped) Intuitive Visualization"]
-    I --> B
-    J --> B
-    Y --> G
-
-    %% Student mode (AI tutor using generated visuals)
-    S["Student Input"] --> B
-    B --- T["Tutor Chat + DSL"]
-    T --> M["Gemini Tutor Model"]
-    M --- N["DSL Fragments (scoped)"]
-    M --- P["Tutor Reply Text"]
-    P --> B
-    N --> G
-
-    A@{ shape: text}
-    S@{ shape: text}
-    C@{ shape: text}
-    T@{ shape: text}
-    P@{ shape: text}
-    K@{ shape: terminal}
-    E@{ shape: h-cyl}
-    M@{ shape: h-cyl}
-    F@{ shape: text}
-    N@{ shape: text}
-    H@{ shape: cyl}
-    I@{ shape: hex}
-    J@{ shape: hex}
-    Y@{ shape: text}
-     B:::Peach
-     B:::Ash
-     K:::Rose
-     D:::Ash
-     E:::Ash
-     G:::Ash
-     H:::Sky
-     I:::Peach
-     J:::Peach
-     M:::Ash
-    classDef Sky stroke-width:1px, stroke-dasharray:none, stroke:#374D7C, fill:#E2EBFF, color:#374D7C
-    classDef Peach stroke-width:1px, stroke-dasharray:none, stroke:#FBB35A, fill:#FFEFDB, color:#8F632D
-    classDef Rose stroke-width:1px, stroke-dasharray:none, stroke:#FF5978, fill:#FFDFE5, color:#8E2236
-    classDef Class_01 fill:#FFF9C4
-    classDef Ash stroke-width:1px, stroke-dasharray:none, stroke:#999999, fill:#EEEEEE, color:#000000
-    style D stroke:#757575
+graph TB
+    %% User Layer
+    User["Users<br/>(Teachers & Students)"]
+    
+    %% Frontend
+    Frontend["React Frontend<br/>(TypeScript + Vite)"]
+    
+    %% Backend
+    Backend["Flask Backend<br/>(Python)"]
+    
+    %% AI Services
+    OpenAI["OpenAI GPT<br/>(DSL Generation)"]
+    Gemini["Gemini API<br/>(Tutor + SVG Gen)"]
+    
+    %% Storage
+    PostgreSQL["PostgreSQL<br/>(Sessions & Analytics)"]
+    Storage["File Storage<br/>(SVG Dataset + Outputs)"]
+    
+    %% Security
+    ClamAV["ClamAV<br/>(Virus Scanning)"]
+    
+    %% Cleanup
+    Cleanup["Periodic Cleanup<br/>(Cron Job)"]
+    
+    %% Flows
+    User -->|"Teacher Mode:<br/>MWP Input"| Frontend
+    User -->|"Student Mode:<br/>Tutor Chat"| Frontend
+    Frontend -->|"API Requests"| Backend
+    
+    Backend -->|"Math Word Problem<br/>+ Formula/Hint"| OpenAI
+    Backend -->|"Conversation + DSL<br/>& Entity Types"| Gemini
+    Backend -->|"Uploaded SVG Files"| ClamAV
+    
+    OpenAI -->|"Visual Language DSL"| Backend
+    Gemini -->|"Responses + DSL"| Backend
+    ClamAV -->|"Scan Results"| Backend
+    
+    Backend -->|"Read/Write"| PostgreSQL
+    Backend -->|"SVG Assets & Outputs"| Storage
+    Cleanup -.->|"removes expired<br/>sessions"| PostgreSQL
+    Cleanup -.->|"removes temp<br/>files"| Storage
+    
+    Backend -->|"SVG Visualization /<br/>Tutor message"| Frontend
+    Frontend -->|"Display Results"| User
+    
+    %% Styling
+    classDef frontend fill:#E2EBFF,stroke:#374D7C,stroke-width:2px
+    classDef backend fill:#EEEEEE,stroke:#999999,stroke-width:2px
+    classDef external fill:#FFEFDB,stroke:#FBB35A,stroke-width:2px
+    classDef storage fill:#FFF9C4,stroke:#F57F17,stroke-width:2px
+    classDef security fill:#FFDFE5,stroke:#FF5978,stroke-width:2px
+    classDef user fill:#F3E5F5,stroke:#9C27B0,stroke-width:2px
+    classDef cleanup fill:#F5F5F5,stroke:#999999,stroke-width:2px,stroke-dasharray:5 5
+    
+    class Frontend frontend
+    class Backend backend
+    class OpenAI,Gemini external
+    class PostgreSQL,Storage storage
+    class ClamAV security
+    class User user
+    class Cleanup cleanup
 ```
 
 ### Frontend (React + TypeScript)
