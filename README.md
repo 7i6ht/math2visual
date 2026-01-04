@@ -138,7 +138,7 @@ graph TB
 - **Dual Generation Engines**: Separate formal and intuitive visualization algorithms
 - **Scalable Storage**: Local filesystem or distributed JuiceFS with PostgreSQL metadata
 - **SVG Uploading Security & Validation**: SVG content validation, and optional ClamAV integration
-- **Extensive SVG Entity Library**: 1,549 SVG assets for comprehensive visual coverage
+- **Extensive SVG Entity Library**: 1,548 SVG assets for comprehensive visual coverage
 
 ## 🚀 Quick Start
 
@@ -229,7 +229,7 @@ Open `http://localhost:5173` and start generating visualizations.
 
 - **Backend**: Flask dev server on `http://localhost:5000`.
 - **Frontend**: Vite dev server on `http://localhost:5173`; `/api` proxy targets `VITE_BACKEND_URL` or `BACKEND_URL` (fallback `http://localhost:5000`).
-- **SVG dataset**: 1,549 validated SVGs in `backend/storage/datasets/svg_dataset`. Use JuiceFS + Postgres via `backend/docs/JUICEFS_SETUP.md`.
+- **SVG dataset**: 1,548 SVGs in `backend/storage/datasets/svg_dataset`. Use JuiceFS + Postgres via `backend/docs/JUICEFS_SETUP.md`.
 - **Security & analytics**: Optional ClamAV scanning and analytics stack (see backend docs).
 
 ### Docker / Deployment Notes
