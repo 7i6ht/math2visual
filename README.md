@@ -68,10 +68,11 @@ flowchart TD
     A["Teacher Input"] --> B["React Frontend"]
     B --- C["Math Word Problem"]
     B --> K["Download & Export"]
+    B --> G["SVG Editing & Customization"]
     C --> D["Flask Backend"]
     D --> E["OpenAI GPT Model"]
     E --- F["Visual Language DSL"]
-    F --> G["SVG Renderer"]
+    F --> G["SVG Renderering Programs"]
     G --> H["Entity Library - 1,548+ SVG Assets"] & I["(Scoped) Formal Visualization"] & J["(Scoped) Intuitive Visualization"]
     I --> B
     J --> B
