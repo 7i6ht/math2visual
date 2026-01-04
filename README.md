@@ -68,14 +68,15 @@ flowchart TD
     A["Teacher Input"] --> B["React Frontend"]
     B --- C["Math Word Problem"]
     B --> K["Download & Export"]
-    B --> G["SVG Editing & Customization"]
+    B --> Y["SVG Editing & Customization"]
     C --> D["Flask Backend"]
     D --> E["OpenAI GPT Model"]
     E --- F["Visual Language DSL"]
-    F --> G["SVG Renderering Programs"]
+    F --> G["SVG Rendering Programs"]
     G --> H["Entity Library - 1,548+ SVG Assets"] & I["(Scoped) Formal Visualization"] & J["(Scoped) Intuitive Visualization"]
     I --> B
     J --> B
+    Y --> G
 
     %% Student mode (AI tutor using generated visuals)
     S["Student Input"] --> B
@@ -99,6 +100,7 @@ flowchart TD
     H@{ shape: cyl}
     I@{ shape: hex}
     J@{ shape: hex}
+    Y@{ shape: text}
      B:::Peach
      B:::Ash
      K:::Rose
