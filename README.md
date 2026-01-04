@@ -66,7 +66,7 @@ This interactive system builds upon the Math2Visual research framework:
 flowchart TD
     %% Teacher mode (visual generation)
     A["Teacher Input"] --> B["React Frontend"]
-    B --- C["Math Word Problem + Formula"]
+    B --- C["Math Word Problem"]
     B --> K["Download & Export"]
     C --> D["Flask Backend"]
     D --> E["OpenAI GPT Model"]
