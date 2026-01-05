@@ -70,7 +70,7 @@ For each generator, these cases are listed below.
 5) Area needs exactly two containers (length, width), requires a result container.
 6) Unsupported in addition/subtraction flow: Any operator other than addition/subtraction, subtrahend quantity not an integer, minuend quantity > 10 when subtraction is involved; subtrahend quantity > 10.
 
-In these cases, you know in advance that you will not get a certain variant of visual returnedwhen requesting it.
+In these cases, you know in advance that you will not get a certain variant of visual returned when requesting it.
 Thus, there is no need to make that exact request in the first place.
 If you know it is available, you might request the other variant instead in such cases.
 Only do so, if it makes sense, i.e. you do not give away the solution to the student too fast.
