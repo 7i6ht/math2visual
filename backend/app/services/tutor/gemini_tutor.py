@@ -909,7 +909,7 @@ VISUAL_REQUEST={"variant":"intuitive","dsl_scope":"addition(container1[entity_na
 Can you tell me the full formula for finding the total number of apples?
 --------------------------------
 
-Note: This example is very good, because instead of just asking the student what is the total in the end, it asks him to write down the full formula forcing him to make the abstraction explicit and connecting the intuitive representations shown the chat with the formal reasonning.
+Note: This example is very good, because instead of just asking the student what is the total in the end, it asks him to write down the full formula forcing him to make the abstraction explicit and connecting the intuitive representations shown the chat with the formal reasoning.
 
 
 ## Example 12
@@ -1517,7 +1517,7 @@ That's correct! 5 boats multiplied by 3 people is 15 people.
 Fantastic work solving this problem!
 --------------------------------
 
-Note: What this example does well is that it shows the intuitive variant and then asks for the operation used to calculate the total such that the student has to formalize his reasonning. It is good to bridge the gap between concrete and abstract reasonning going from one to the other and the other way around.
+Note: What this example does well is that it shows the intuitive variant and then asks for the operation used to calculate the total such that the student has to formalize his reasoning. It is good to bridge the gap between concrete and abstract reasoning going from one to the other and the other way around.
 
 
 ## Example 16
@@ -1620,7 +1620,7 @@ VISUAL_REQUEST={"variant":"formal","dsl_scope":"area(container1[entity_name: fee
 What is the area of Rug B?
 --------------------------------
 
-Note: This example starts well since it gives the reason *why* we need to calculate each rug's area (i.e. for comparison). However, for one rug the intuitive variant of the visual is requested whereas the formal variant is requested for the other rug which is suboptimal as it introduces unnecessary confusion. For this exact example, where the student has already mentionned the abstract part (multiplication operation) in the beginning himself, using the intuitive variant for the rug area calculation for comparison would be more appropriate. Thereby, we lead the student from abstract to concrete reasonning, bridging the gap between the two.
+Note: This example starts well since it gives the reason *why* we need to calculate each rug's area (i.e. for comparison). However, for one rug the intuitive variant of the visual is requested whereas the formal variant is requested for the other rug which is suboptimal as it introduces unnecessary confusion. For this exact example, where the student has already mentionned the abstract part (multiplication operation) in the beginning himself, using the intuitive variant for the rug area calculation for comparison would be more appropriate. Thereby, we lead the student from abstract to concrete reasoning, bridging the gap between the two.
 
 
 ## Example 18
@@ -1708,7 +1708,7 @@ VISUAL_REQUEST={"variant":"intuitive","dsl_scope":"subtraction(container1[entity
 How many boys are still in the classroom?
 --------------------------------
 
-Note: This example does a few bad things. It does not give a reason at the beginning *why* we would need to consider how many boys are in the classroom at the beginning as a first step. Moreover, as a first step, it would be better to consider how many boys are left in the classroom right away and show the corresponding intuitive visual of the subtraction (since we want to find out how many children are left in total in the end). That would make more sense for this example. Directly displaying the subtraction using the intuitive variant gets the information across to the student in a less cluttered and more concise manner, since it displays the boys that left in the same visual as the total boys that were there at the beginning (by crossing the ones that left out). So, only one visual is used instead of three to get the same information across in the end. What is also bad in this example is that it misses the opportunity to let student move from concrete reasonning (using the intuitive visuals) to abstract reasonning himself. The example gives away too early the fact that he needs to subtract in order to find out how many boys are left and does not ask the student to come up with the formula first himself.
+Note: This example does a few bad things. It does not give a reason at the beginning *why* we would need to consider how many boys are in the classroom at the beginning as a first step. Moreover, as a first step, it would be better to consider how many boys are left in the classroom right away and show the corresponding intuitive visual of the subtraction (since we want to find out how many children are left in total in the end). That would make more sense for this example. Directly displaying the subtraction using the intuitive variant gets the information across to the student in a less cluttered and more concise manner, since it displays the boys that left in the same visual as the total boys that were there at the beginning (by crossing the ones that left out). So, only one visual is used instead of three to get the same information across in the end. What is also bad in this example is that it misses the opportunity to let student move from concrete reasoning (using the intuitive visuals) to abstract reasoning himself. The example gives away too early the fact that he needs to subtract in order to find out how many boys are left and does not ask the student to come up with the formula first himself.
 
 
 ## Example 19
@@ -2060,7 +2060,7 @@ That's the one! 2 boys plus 6 girls equals 8 children in the classroom.
 You did an amazing job working through all the steps of this problem. Great work!
 --------------------------------
 
-Note: This is a pretty good example. The tutor does a great job in guiding the student through his struggles helping him to find a solution by bridging the gap between concrete and abstract reasonning. The student has difficulties applying abstract reasonning to the concrete setting. The tutor picks up the student at his abstract understanding and leads him to apply it in the concrete setting. It is good that the tutor tries to challenge the student's knowledge and first only slightly moves into that direction by hinting at the student that he needs to 'count together'. Only as the student fails to find the answer for the second time, the tutor offers to view the problem from a different (more abstract) angle. What is also great in this example is that after the student found out what abstract operation he needs to the variant of the visual displayed is switched to formal to affirm and support the student in his understanding. 
+Note: This is a pretty good example. The tutor does a great job in guiding the student through his struggles helping him to find a solution by bridging the gap between concrete and abstract reasoning. The student has difficulties applying abstract reasoning to the concrete setting. The tutor picks up the student at his abstract understanding and leads him to apply it in the concrete setting. It is good that the tutor tries to challenge the student's knowledge and first only slightly moves into that direction by hinting at the student that he needs to 'count together'. Only as the student fails to find the answer for the second time, the tutor offers to view the problem from a different (more abstract) angle. What is also great in this example is that after the student found out what abstract operation he needs to the variant of the visual displayed is switched to formal to affirm and support the student in his understanding. 
 
 
 ## Example 20
@@ -2166,7 +2166,7 @@ That's correct! 81 paper clips divided among 9 boxes is 9 paper clips per box.
 You did an excellent job solving this problem. Well done!
 --------------------------------
 
-Note: This is again a pretty good example. The tutor again does a great job in helping the student bridging the gap between abstract and concrete reasonning as in Example 19. However, this time the tutor picks up the student at his *concrete* understanding and leads him to abstract reasoning.
+Note: This is again a pretty good example. The tutor again does a great job in helping the student bridging the gap between abstract and concrete reasoning as in Example 19. However, this time the tutor picks up the student at his *concrete* understanding and leads him to abstract reasoning.
 
 
 ## Example 21
@@ -2518,7 +2518,7 @@ VISUAL_REQUEST={"variant":"intuitive","dsl_scope":"addition(container1[entity_na
 How many oranges do they have in total?
 --------------------------------
 
-Note: This example could do better: The tutor shows intuitive visuals asking for the concrete quantities (of each individual container), but afterwards he could have asked student to write down the formula to find the result. Here, the tutor already gives away to the student that he has to add the numbers without letting him formalize it explicitly himself first. Though, revealing the intuitive visual of the addition at this point is perfectly fine. If the student gets the formula right, the formal visual of the addition could be revealed additionally (switching the variant). We can say that by revealing the intuitive visuals in the beginning, the tutor leads the student to concrete understanding. Then asking him for the student for the formula let's him map this back to his abstract understanding again. Switching between these understandings / types of reasonning is a good thing to strive for.
+Note: This example could do better: The tutor shows intuitive visuals asking for the concrete quantities (of each individual container), but afterwards he could have asked student to write down the formula to find the result. Here, the tutor already gives away to the student that he has to add the numbers without letting him formalize it explicitly himself first. Though, revealing the intuitive visual of the addition at this point is perfectly fine. If the student gets the formula right, the formal visual of the addition could be revealed additionally (switching the variant). We can say that by revealing the intuitive visuals in the beginning, the tutor leads the student to concrete understanding. Then asking him for the student for the formula let's him map this back to his abstract understanding again. Switching between these understandings / types of reasoning is a good thing to strive for.
 
 
 ## Example 23
