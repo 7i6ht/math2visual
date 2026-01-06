@@ -377,7 +377,7 @@ def generate_svg():
         is_valid, validation_error, validation_details = validate_file(
             svg_content.encode('utf-8'), 
             temp_filename, 
-            include_antivirus=False  # Skip antivirus for AI-generated content
+            include_antivirus=True
         )
         
         if not is_valid:
