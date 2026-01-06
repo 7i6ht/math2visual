@@ -33,7 +33,7 @@ def generate_svg_icon(entity_name: str) -> Tuple[bool, Optional[str], Optional[s
         model = genai.GenerativeModel('gemini-pro-latest')
         
         # Create the prompt
-        prompt = f"Generate an {entity_name} SVG icon"
+        prompt = f"Generate a SVG icon for '{entity_name}'."
         
         # Add instructions to ensure we get valid SVG
         full_prompt = f"""{prompt}
