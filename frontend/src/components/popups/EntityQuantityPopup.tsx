@@ -113,7 +113,7 @@ export const EntityQuantityPopup: React.FC<EntityQuantityPopupProps> = ({
             onChange={handleInputChange}
             placeholder={t("popups.quantity.placeholder")}
             spellCheck={false}
-            className="rounded-r-none border-r-0 popup-button-responsive-height responsive-text-font-size focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation text-center px-2"
+            className="text-primary-foreground rounded-r-none border-r-0 popup-button-responsive-height responsive-text-font-size focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none touch-manipulation text-center px-2"
             disabled={isLoading}
             inputMode="numeric"
           />

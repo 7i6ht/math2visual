@@ -165,7 +165,7 @@ export const SVGUploadPopup: React.FC<SVGUploadPopupProps> = ({
           }}
           placeholder={t("svg.uploadPopup.enterName")}
           spellCheck={false}
-          className="responsive-text-font-size touch-manipulation !px-3"
+          className="text-primary-foreground responsive-text-font-size touch-manipulation !px-3"
           disabled={isUploading}
         />
         <InputGroupAddon align="inline-end" className="pr-1.5 gap-0">
