@@ -12,7 +12,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslation } from "react-i18next";
 
 interface UseMathProblemFormProps {
-  onSuccess: (vl: string, svgFormal: string | null, svgIntuitive: string | null, parsedDSL: ParsedOperation, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], mwp?: string, formula?: string, hint?: string, componentMappings?: ComponentMapping, hasParseError?: boolean) => void;
+  onSuccess: (vl: string, svgFormal: string | null, svgIntuitive: string | null, parsedDSL: ParsedOperation | null, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], mwp?: string, formula?: string, hint?: string, componentMappings?: ComponentMapping, hasParseError?: boolean) => void;
   onLoadingChange: (loading: boolean, abortFn?: () => void) => void;
   mwp?: string;
   formula?: string;
@@ -89,7 +89,7 @@ export const useMathProblemForm = ({
         result.visual_language,
         result.svg_formal,
         result.svg_intuitive,
-        result.parsedDSL!,
+        result.parsedDSL,
         result.formal_error || undefined,
         result.intuitive_error || undefined,
         result.missing_svg_entities,

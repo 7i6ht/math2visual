@@ -15,7 +15,7 @@ import { parseWithErrorHandling } from "@/utils/dsl-parser";
 import { detectDSLChanges, updateMWPInput, replaceEntityTypeInDSL } from "@/lib/dsl-utils";
 
 interface UseVisualLanguageFormProps {
-  onResult: (vl: string, svgFormal: string | null, svgIntuitive: string | null, parsedDSL: ParsedOperation, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], mwp?: string, formula?: string, componentMappings?: ComponentMapping, hasParseError?: boolean) => void;
+  onResult: (vl: string, svgFormal: string | null, svgIntuitive: string | null, parsedDSL: ParsedOperation | null, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], mwp?: string, formula?: string, componentMappings?: ComponentMapping, hasParseError?: boolean) => void;
   onLoadingChange: (loading: boolean, abortFn?: () => void) => void;
   mwp: string;
   formula: string | null;
@@ -70,7 +70,7 @@ export const useVisualLanguageForm = ({
         dslValue,
         null,
         null,
-        { operation: 'unknown', entities: [] }, // Empty but valid ParsedOperation for parse error case
+        null, // No valid parsed DSL on parse error
         'Visual Language parse error.',
         undefined,
         [],
@@ -138,7 +138,7 @@ export const useVisualLanguageForm = ({
         result.visual_language,
         result.svg_formal,
         result.svg_intuitive,
-        result.parsedDSL!,
+        result.parsedDSL,
         result.formal_error,
         result.intuitive_error,
         result.missing_svg_entities,

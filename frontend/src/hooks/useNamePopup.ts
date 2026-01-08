@@ -25,7 +25,7 @@ interface UseNamePopupProps {
     intuitive_error: string | null;
     missing_svg_entities: string[];
     componentMappings: ComponentMapping;
-    parsedDSL: ParsedOperation;
+    parsedDSL: ParsedOperation | null;
     mwp?: string;
     formula?: string | null;
   }) => void;
@@ -117,7 +117,7 @@ export const useNamePopup = ({
         intuitive_error: data.intuitive_error ?? null,
         missing_svg_entities: data.missing_svg_entities || [],
         componentMappings: data.componentMappings || {},
-        parsedDSL: data.parsedDSL!,
+        parsedDSL: data.parsedDSL,
         mwp: updatedMWP,
         formula: formula, // formula doesn't change for name updates
       });

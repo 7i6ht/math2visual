@@ -22,7 +22,7 @@ export interface ApiRequest {
 }
 
 export interface ApiResponse {
-  parsedDSL: ParsedOperation | undefined;
+  parsedDSL: ParsedOperation | null;
   visual_language: string;
   svg_formal: string | null;
   svg_intuitive: string | null;

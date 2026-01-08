@@ -16,7 +16,7 @@ export type PopupManagementDeps = {
     intuitive_error: string | null;
     missing_svg_entities: string[];
     componentMappings: ComponentMapping;
-    parsedDSL: ParsedOperation;
+    parsedDSL: ParsedOperation | null;
     mwp?: string;
     formula?: string | null;
   }) => void;

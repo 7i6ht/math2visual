@@ -32,7 +32,7 @@ export function DSLProvider({ children }: DSLProviderProps) {
   const [parsedDSL, setParsedDSL] = useState<ParsedOperation | null>(null);
 
   const setGenerationResult = useCallback((
-    result: Partial<ApiResponse & { parsedDSL: ParsedOperation }>
+    result: Partial<ApiResponse & { parsedDSL: ParsedOperation | null }>
   ) => {
     if (result.visual_language !== undefined) {
       setFormattedDSL(result.visual_language);

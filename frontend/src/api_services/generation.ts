@@ -1,5 +1,4 @@
 import type { ApiRequest, ApiResponse } from "@/types";
-import type { ParsedOperation } from "@/utils/dsl-parser";
 import { BACKEND_API_URL as API_BASE_URL } from "@/config/api";
 import { DSLFormatter } from "@/utils/dsl-formatter";
 import { parseWithErrorHandling } from "@/utils/dsl-parser";
@@ -45,8 +44,8 @@ const generationService = {
           formal_error: result.error,
           intuitive_error: undefined,
           missing_svg_entities: [],
-          parsedDSL: { operation: 'unknown', entities: [] } // Empty but valid ParsedOperation for parse error case
-        } as ApiResponse & { parsedDSL: ParsedOperation };
+          parsedDSL: null // No valid parsed DSL on parse error
+        } as ApiResponse;
       }
 
       if (!response.ok) {
@@ -60,7 +59,8 @@ const generationService = {
         // Return original DSL with empty mappings on parse error
         return {
           ...result,
-          componentMappings: {}
+          componentMappings: {},
+          parsedDSL: null // Normalize undefined to null
         } as ApiResponse;
       }
 
@@ -69,8 +69,8 @@ const generationService = {
         ...result,
         visual_language: formattedDSL,
         componentMappings: { ...formatter.componentRegistry },
-        parsedDSL: parsed
-      } as ApiResponse & { parsedDSL: ParsedOperation };
+        parsedDSL: parsed ?? null // Normalize undefined to null
+      } as ApiResponse;
     } catch (error) {
       // Handle abort errors
       if (error instanceof DOMException && error.name === 'AbortError') {
