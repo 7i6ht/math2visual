@@ -6,7 +6,7 @@ import type { ComponentMapping } from '@/types/visualInteraction';
 import type { ParsedOperation } from '@/utils/dsl-parser';
 import { useHighlightingContext } from '@/contexts/HighlightingContext';
 import { useDSLContext } from '@/contexts/DSLContext';
-import { replaceEntityTypeInDSL, sanitizeEntityName } from '@/lib/dsl-utils';
+import { replaceEntityTypeInDSL, replaceNameForEntityTypeInDSL, sanitizeEntityName } from '@/lib/dsl-utils';
 import { replaceEntityNames } from '@/utils/mwpUtils';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -105,15 +105,17 @@ export const useSVGSelector = ({
 
     try {
       const loadingToastId = toast.loading(t('svg.updatingAndRegenerating'));
-      
+
+      const sanitizedOldType = sanitizeEntityName(selectorState.currentValue);
+      const sanitizedNewType = sanitizeEntityName(newType);
+
       // Use regex to replace all occurrences of the old type with the new type
-      const updatedDSL = replaceEntityTypeInDSL(formattedDSL, selectorState.currentValue, newType);
+      let updatedDSL = replaceEntityTypeInDSL(formattedDSL, selectorState.currentValue, newType);
+      updatedDSL = replaceNameForEntityTypeInDSL(updatedDSL, sanitizedOldType, sanitizedNewType);
 
       // Update MWP text - replace old entity type with new entity type in entity names
       // Use sanitized values since entity types in DSL may contain special characters
       // but in the MWP they appear as sanitized entity names (letters and spaces only)
-      const sanitizedOldType = sanitizeEntityName(selectorState.currentValue);
-      const sanitizedNewType = sanitizeEntityName(newType);
       const updatedMWP = replaceEntityNames(mwp, sanitizedOldType, sanitizedNewType, language);
 
       // Generate new visuals with updated DSL

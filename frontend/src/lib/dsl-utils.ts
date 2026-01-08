@@ -202,42 +202,33 @@ export function sanitizeEntityName(name: string): string {
     .trim();
 }
 
-/**
- * Replace entity type in DSL with sophisticated handling of type: and name: fields
- * - For "type: ${oldValue}", replaces with "type: ${newValue}" (no sanitization)
- * - For "name: <value containing sanitizedOldType>", replaces entire value with "name: ${sanitizedNewValue}" (letters and spaces only)
- */
+// Replace "type: ${oldValue}" with "type: ${newValue}"
 export function replaceEntityTypeInDSL(dsl: string, oldType: string, newType: string): string {
   if (!dsl || !oldType || !newType) {
     return dsl;
   }
-  
-  let updatedDSL = dsl;
-  let replacementsMade = false;
-  
-  // 1. Replace "type: ${oldValue}" with "type: ${newValue}"
+
   const typePattern = new RegExp(`(type:\\s*)\\b${oldType}\\b`, 'g');
-  const typeReplaced = updatedDSL.replace(typePattern, `$1${newType}`);
-  if (typeReplaced !== updatedDSL) {
-    replacementsMade = true;
-    updatedDSL = typeReplaced;
-  }
-  
-  // 2. Replace "name: <value containing oldType>" with "name: ${sanitizedNewValue}"
-  // Only replace if the name value contains the sanitized old type
-  const sanitizedOldType = sanitizeEntityName(oldType);
-  const sanitizedNewType = sanitizeEntityName(newType);
-  const namePattern = new RegExp(`(name:\\s*)[^,]*\\b${sanitizedOldType}\\b[^,]*(,)`, 'g');
-  const nameReplaced = updatedDSL.replace(namePattern, `$1${sanitizedNewType}$2`);
-  if (nameReplaced !== updatedDSL) {
-    replacementsMade = true;
-    updatedDSL = nameReplaced;
-  }
-  
-  if (!replacementsMade) {
+  const typeReplaced = dsl.replace(typePattern, `$1${newType}`);
+  if (typeReplaced !== dsl) {
+    return typeReplaced;
+  } else{
     throw new Error(`Could not find '${oldType}' in DSL`);
   }
-  
-  return updatedDSL;
+}
+
+/**
+ * Replace <value containing sanitizedOldType>", replaces entire value with "name: ${sanitizedNewValue}" (letters and spaces only)
+ */
+export function replaceNameForEntityTypeInDSL(dsl: string, sanitizedOldType: string, sanitizedNewType: string): string {
+  if (!dsl || !sanitizedOldType || !sanitizedNewType) {
+    return dsl;
+  }
+
+  const namePattern = new RegExp(`(name:\\s*)[^,]*\\b${sanitizedOldType}\\b[^,]*(,)`, 'g');
+  const nameReplaced = dsl.replace(namePattern, `$1${sanitizedNewType}$2`);
+  if (nameReplaced !== dsl) {
+    return nameReplaced;
+  }
 }
 

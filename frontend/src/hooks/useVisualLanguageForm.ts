@@ -12,7 +12,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import type { ComponentMapping } from "@/types/visualInteraction";
 import type { ParsedOperation } from "@/utils/dsl-parser";
 import { parseWithErrorHandling } from "@/utils/dsl-parser";
-import { detectDSLChanges, updateMWPInput, replaceEntityTypeInDSL } from "@/lib/dsl-utils";
+import { detectDSLChanges, updateMWPInput, replaceEntityTypeInDSL, replaceNameForEntityTypeInDSL, sanitizeEntityName } from "@/lib/dsl-utils";
 
 interface UseVisualLanguageFormProps {
   onResult: (vl: string, svgFormal: string | null, svgIntuitive: string | null, parsedDSL: ParsedOperation | null, formalError?: string, intuitiveError?: string, missingSvgEntities?: string[], mwp?: string, formula?: string, componentMappings?: ComponentMapping, hasParseError?: boolean) => void;
@@ -96,14 +96,6 @@ export const useVisualLanguageForm = ({
     if (parsedDSL) {
       const changes = detectDSLChanges(parsedDSL, validatedParsedDSL);
       if (changes.length > 0) {
-        const updated = updateMWPInput(mwp, formula, changes, language);
-        updatedMWP = updated.mwp;
-        updatedFormula = updated.formula ?? null;
-        
-        // Clear highlighting ranges since text positions have changed
-        setMwpHighlightRanges([]);
-        setFormulaHighlightRanges([]);
-        
         // Filter for entity_type changes and collect distinct old->new mappings
         const entityTypeReplacements = changes
           .filter(change => change.type === 'entity_type' && change.oldValue && change.newValue)
@@ -113,11 +105,28 @@ export const useVisualLanguageForm = ({
         // Uses sophisticated replacement that handles type: and name: fields differently
         entityTypeReplacements.forEach((newValue, oldValue) => {
           try {
+            const sanitizedOldValue = sanitizeEntityName(oldValue);
+            const sanitizedNewValue = sanitizeEntityName(newValue);
+            changes.push({
+              type: 'entity_name',
+              oldValue: sanitizedOldValue,
+              newValue: sanitizedNewValue,
+              entityPath: '',
+            });
             updatedDSL = replaceEntityTypeInDSL(updatedDSL, oldValue, newValue);
+            updatedDSL = replaceNameForEntityTypeInDSL(updatedDSL, sanitizedOldValue, sanitizedNewValue);
           } catch (error) {
             console.warn(`Failed to replace entity type '${oldValue}' with '${newValue}':`, error);
           }
         });
+
+        const updated = updateMWPInput(mwp, formula, changes, language);
+        updatedMWP = updated.mwp;
+        updatedFormula = updated.formula ?? null;
+        
+        // Clear highlighting ranges since text positions have changed
+        setMwpHighlightRanges([]);
+        setFormulaHighlightRanges([]);
       }
     }
 
