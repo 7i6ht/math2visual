@@ -74,13 +74,6 @@ def create_database_engine():
             'pool_recycle': 300,  # Recycle connections every 5 minutes
         }
         
-        # For SQLite (development), use different settings
-        if database_url.startswith('sqlite'):
-            engine_kwargs.update({
-                'poolclass': StaticPool,
-                'connect_args': {'check_same_thread': False}
-            })
-        
         ENGINE = create_engine(database_url, **engine_kwargs)
         
         # For PostgreSQL, ensure all connections use UTC timezone
