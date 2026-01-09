@@ -113,13 +113,12 @@ def search_svg_files():
 def _calculate_relevance_score(query: str, filename: str) -> int:
     """
     Calculate relevance score for filename matching.
-    
+
     Higher scores indicate better matches:
     - Exact match: 100
     - Starts with query: 80
-    - Contains query: 60
     - Word boundary match: 70
-    - Partial word match: 30
+    - Contains query: 60
     """
     if not query or not filename:
         return 0
@@ -140,11 +139,7 @@ def _calculate_relevance_score(query: str, filename: str) -> int:
     # Contains query
     if query in filename:
         return 60
-    
-    # Partial word match (query is contained in a word)
-    if any(query in word for word in filename.split()):
-        return 30
-    
+
     return 0
 
 
