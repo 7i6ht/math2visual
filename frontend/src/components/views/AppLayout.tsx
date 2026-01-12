@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { useAppState } from "@/hooks/useAppState";
-// import { startCursorTracking, stopCursorTracking, isAnalyticsEnabled, trackOutermostScroll } from "@/services/analyticsTracker";
-import { isAnalyticsEnabled, trackOutermostScroll } from "@/services/analyticsTracker";
+import { startCursorTracking, stopCursorTracking, isAnalyticsEnabled, trackOutermostScroll } from "@/services/analyticsTracker";
 import { LandingPage } from "./LandingPage";
 import { ChatView } from "./ChatView";
 import { InitialView } from "./InitialView";
@@ -17,18 +16,18 @@ export function AppLayout() {
   // Initialize analytics cursor tracking and body scroll tracking
   useEffect(() => {
     if (analyticsEnabled) {
-      // startCursorTracking();
-      
+      startCursorTracking();
+
       // Add scroll listener to body element
       const handleBodyScroll = (event: Event) => {
         trackOutermostScroll(event);
       };
-      
+
       document.body.addEventListener('scroll', handleBodyScroll);
-      
+
       return () => {
+        stopCursorTracking();
         document.body.removeEventListener('scroll', handleBodyScroll);
-        // stopCursorTracking();
       };
     }
   }, [analyticsEnabled]);

@@ -4,21 +4,21 @@
  * across all components for proper debouncing/throttling.
  */
 import type { UIEvent } from 'react';
-// import { toPng } from 'html-to-image';
+import { toPng } from 'html-to-image';
 import { analyticsService } from '@/api_services/analytics';
 
 // Module-level state for debouncing/throttling (shared across all components)
 let _isCapturingScreenshot = false;
-let screenshotListeners: Set<(value: boolean) => void> = new Set();
+const screenshotListeners: Set<(value: boolean) => void> = new Set();
 
 // Event emitter pattern for reactive updates
-// function setCapturingScreenshot(value: boolean): void {
-//   if (_isCapturingScreenshot !== value) {
-//     _isCapturingScreenshot = value;
-//     // Notify all listeners
-//     screenshotListeners.forEach(listener => listener(value));
-//   }
-// }
+function setCapturingScreenshot(value: boolean): void {
+  if (_isCapturingScreenshot !== value) {
+    _isCapturingScreenshot = value;
+    // Notify all listeners
+    screenshotListeners.forEach(listener => listener(value));
+  }
+}
 
 // Subscribe to screenshot capture state changes
 export function subscribeToScreenshotState(callback: (value: boolean) => void): () => void {
@@ -52,50 +52,50 @@ let lastMouseMoveTime = 0;
 let mouseMoveHandler: ((event: MouseEvent) => void) | null = null;
 
 // Capture screenshot function
-// async function captureScreenshot(): Promise<void> {
-//   if (_isCapturingScreenshot) {
-//     return;
-//   }
-//   
-//   const startTime = Date.now();
-//   const MIN_DISPLAY_DURATION = 500; // Minimum time to show "Capturing..." indicator (500ms)
-//   
-//   setCapturingScreenshot(true);
-//   
-//   try {
-//     // Capture the viewport (what user actually sees) using html-to-image
-//     const dataURL = await toPng(document.body, {
-//       // Capture the viewport dimensions (what user sees)
-//       width: window.innerWidth,
-//       height: window.innerHeight,
-//       // Use the device's pixel ratio for better quality
-//       pixelRatio: window.devicePixelRatio || 1,
-//       // Quality and rendering settings
-//       backgroundColor: '#ffffff', // Ensure white background
-//       quality: 1.0, // Maximum quality
-//     });
-//
-//     // Use the viewport dimensions we specified
-//     const width = window.innerWidth * (window.devicePixelRatio || 1);
-//     const height = window.innerHeight * (window.devicePixelRatio || 1);
-//
-//     await analyticsService.uploadScreenshot(dataURL, width, height);
-//   } catch (error) {
-//     console.error('Failed to capture screenshot:', error);
-//   } finally {
-//     // Ensure the "Capturing..." indicator is visible for at least MIN_DISPLAY_DURATION
-//     const elapsed = Date.now() - startTime;
-//     const remainingTime = Math.max(0, MIN_DISPLAY_DURATION - elapsed);
-//     
-//     if (remainingTime > 0) {
-//       setTimeout(() => {
-//         setCapturingScreenshot(false);
-//       }, remainingTime);
-//     } else {
-//       setCapturingScreenshot(false);
-//     }
-//   }
-// }
+async function captureScreenshot(): Promise<void> {
+  if (_isCapturingScreenshot) {
+    return;
+  }
+
+  const startTime = Date.now();
+  const MIN_DISPLAY_DURATION = 500; // Minimum time to show "Capturing..." indicator (500ms)
+
+  setCapturingScreenshot(true);
+
+  try {
+    // Capture the viewport (what user actually sees) using html-to-image
+    const dataURL = await toPng(document.body, {
+      // Capture the viewport dimensions (what user sees)
+      width: window.innerWidth,
+      height: window.innerHeight,
+      // Use the device's pixel ratio for better quality
+      pixelRatio: window.devicePixelRatio || 1,
+      // Quality and rendering settings
+      backgroundColor: '#ffffff', // Ensure white background
+      quality: 1.0, // Maximum quality
+    });
+
+    // Use the viewport dimensions we specified
+    const width = window.innerWidth * (window.devicePixelRatio || 1);
+    const height = window.innerHeight * (window.devicePixelRatio || 1);
+
+    await analyticsService.uploadScreenshot(dataURL, width, height);
+  } catch (error) {
+    console.error('Failed to capture screenshot:', error);
+  } finally {
+    // Ensure the "Capturing..." indicator is visible for at least MIN_DISPLAY_DURATION
+    const elapsed = Date.now() - startTime;
+    const remainingTime = Math.max(0, MIN_DISPLAY_DURATION - elapsed);
+
+    if (remainingTime > 0) {
+      setTimeout(() => {
+        setCapturingScreenshot(false);
+      }, remainingTime);
+    } else {
+      setCapturingScreenshot(false);
+    }
+  }
+}
 
 // Input typing tracking with debouncing
 export function trackMWPType(): void {
@@ -204,7 +204,7 @@ export function trackDSLScroll(direction: 'up' | 'down'): void {
     analyticsService.recordAction({
       type: `dsl_editor_scroll_${direction}`,
     });
-    // captureScreenshot();
+    //captureScreenshot();
   }, 1500);
 }
 
@@ -283,11 +283,10 @@ export function trackTwoColumnLayoutRender(): void {
     analyticsService.recordAction({
       type: 'two_column_layout_render',
     });
-    // Screenshot capture commented out
-    // // Capture screenshot after a brief delay to ensure layout is fully rendered
-    // setTimeout(() => {
-    //   captureScreenshot();
-    // }, 3000);
+    // Capture screenshot after a brief delay to ensure layout is fully rendered
+    setTimeout(() => {
+      captureScreenshot();
+    }, 3000);
     isFirstRender = false;
   }
 }
