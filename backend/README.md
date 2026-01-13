@@ -171,6 +171,27 @@ DATABASE_ECHO=false  # Set to true for SQL query logging (development only)
 # Inactivity-based expiration for tutor sessions (in hours). Default: 2
 TUTOR_SESSION_EXPIRATION_HOURS=2
 
+# Flask Environment (affects CORS and other behaviors)
+# Options: development, production, testing
+# FLASK_ENV=production
+
+# CORS Configuration (optional - defaults work for most deployments)
+# Explicit list of allowed origins (comma-separated)
+# Examples:
+# CORS_ORIGINS=https://your-frontend-domain.com,https://www.your-frontend-domain.com
+# CORS_ORIGINS=https://app.math2visual.com
+CORS_ORIGINS=
+
+# Frontend URL (automatically determines CORS origin in production)
+# Example: FRONTEND_URL=https://app.math2visual.com
+FRONTEND_URL=
+
+# CORS Security Notes:
+# - In development: Allows localhost origins on common ports (3000, 5173, 8080)
+# - In production: Only allows explicitly configured origins (very restrictive by default)
+# - Always configure CORS_ORIGINS or FRONTEND_URL in production
+# - For multiple subdomains: List them explicitly in CORS_ORIGINS
+
 # JuiceFS Configuration (only if using JuiceFS)
 See [`docs/JUICEFS_SETUP.md`](docs/JUICEFS_SETUP.md)
 

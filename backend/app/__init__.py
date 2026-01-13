@@ -24,6 +24,85 @@ logging.getLogger('IPython.core').setLevel(logging.WARNING)
 logging.getLogger('IPython.display').setLevel(logging.WARNING)
 
 
+def _get_cors_origins():
+    """
+    Determine allowed CORS origins based on environment configuration.
+
+    Supports:
+    - Explicit comma-separated origins
+    - Frontend URL for automatic origin extraction
+    - Environment-specific defaults
+    - Wildcard patterns (for advanced use cases)
+
+    Returns:
+        List of allowed origins
+    """
+    # Check for explicit CORS origins environment variable
+    cors_origins_env = os.getenv('CORS_ORIGINS')
+    if cors_origins_env:
+        # Parse comma-separated list of origins
+        origins = [origin.strip() for origin in cors_origins_env.split(',') if origin.strip()]
+        return origins if origins else _get_default_origins()
+
+    # Check for frontend URL (automatic origin extraction)
+    frontend_url = os.getenv('FRONTEND_URL')
+    if frontend_url:
+        try:
+            from urllib.parse import urlparse
+            parsed = urlparse(frontend_url)
+            if parsed.scheme and parsed.netloc:
+                origin = f"{parsed.scheme}://{parsed.netloc}"
+                # Also allow common variants
+                origins = [origin]
+                # Add www. variant if not present
+                if parsed.netloc.startswith('www.'):
+                    origins.append(f"{parsed.scheme}://{parsed.netloc[4:]}")
+                else:
+                    origins.append(f"{parsed.scheme}://www.{parsed.netloc}")
+                return origins
+        except Exception:
+            # If parsing fails, fall back to defaults
+            pass
+
+    # Fall back to environment-specific defaults
+    return _get_default_origins()
+
+
+def _get_default_origins():
+    """
+    Get default CORS origins based on environment.
+
+    Returns:
+        List of allowed origins
+    """
+    env = os.getenv('FLASK_ENV', 'development')
+
+    if env == 'development':
+        # Allow common development origins
+        return [
+            "http://localhost:3000",    # React default
+            "http://localhost:5173",    # Vite default (Vite)
+            "http://127.0.0.1:3000",   # Alternative localhost
+            "http://127.0.0.1:5173",   # Alternative localhost
+            "http://localhost:8080",   # Alternative dev port
+            "http://localhost:4000",   # Alternative dev port
+        ]
+
+    elif env == 'production':
+        # In production, be very restrictive by default
+        # Require explicit configuration via CORS_ORIGINS or FRONTEND_URL
+        return []
+
+    else:
+        # Test/staging environments - allow some flexibility
+        return [
+            "http://localhost:3000",
+            "http://localhost:5173",
+            "http://127.0.0.1:3000",
+            "http://127.0.0.1:5173",
+        ]
+
+
 def create_app():
     """Create and configure the Flask application."""
     # Determine static folder path (for serving frontend in Docker)
@@ -31,7 +110,30 @@ def create_app():
     static_folder = static_folder if os.path.exists(static_folder) else None
     
     app = Flask(__name__, static_folder=static_folder, static_url_path='')
-    CORS(app)
+
+    # Configure CORS based on environment
+    cors_origins = _get_cors_origins()
+    cors_methods = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+    cors_headers = ["Content-Type", "Authorization", "X-Requested-With", "Accept", "Origin"]
+
+    # Log CORS configuration for debugging
+    env = os.getenv('FLASK_ENV', 'development')
+    print(f"🔒 CORS configured for {env} environment:")
+    print(f"   Origins: {cors_origins if cors_origins else 'None (CORS disabled)'}")
+    print(f"   Methods: {cors_methods}")
+    print(f"   Headers: {cors_headers}")
+
+    # Configure CORS only if origins are specified
+    if cors_origins:
+        CORS(app,
+             origins=cors_origins,
+             methods=cors_methods,
+             headers=cors_headers,
+             supports_credentials=True,
+             max_age=86400)  # Cache preflight for 24 hours
+    else:
+        print("⚠️  No CORS origins configured - CORS disabled for security")
+        print("   Set CORS_ORIGINS or FRONTEND_URL environment variables to enable CORS")
     
     # Configure request size limits for security
     from app.utils.validation_constants import MAX_REQUEST_BODY_SIZE

@@ -58,6 +58,22 @@ DATABASE_ECHO=false  # Set to true for SQL query logging (development only)
 # Tutor Session Configuration
 # Inactivity-based expiration for tutor sessions (in hours). Default: 2
 TUTOR_SESSION_EXPIRATION_HOURS=2
+
+# CORS Configuration
+# Flask environment affects CORS defaults (development=permissive, production=restrictive)
+# FLASK_ENV=production
+FLASK_ENV=
+
+# Allowed origins for CORS (comma-separated list)
+# Examples:
+# CORS_ORIGINS=https://your-frontend-domain.com,https://www.your-frontend-domain.com
+# CORS_ORIGINS=https://app.example.com
+# Leave empty for environment-specific defaults (recommended)
+CORS_ORIGINS=
+
+# Frontend URL (used to automatically determine CORS origins in production)
+# Example: FRONTEND_URL=https://app.math2visual.com
+FRONTEND_URL=
 ```
 
 ## Deployment Options
