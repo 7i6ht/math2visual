@@ -35,6 +35,15 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-math2visual_password}
       - DATABASE_URL=${DATABASE_URL:-postgresql://math2visual_user:math2visual_password@postgres:5432/math2visual_analytics}
       - DATABASE_ECHO=false
+      # Flask environment (affects CORS and other behaviors)
+      - FLASK_ENV=production
+      # CORS configuration (optional - configure explicitly for production)
+      # Examples:
+      # - CORS_ORIGINS=https://your-frontend-domain.com,https://www.your-frontend-domain.com
+      # - FRONTEND_URL=https://your-frontend-domain.com
+      # Default: Uses production defaults (HTTPS localhost for development/testing)
+      - CORS_ORIGINS=${CORS_ORIGINS:-https://localhost:5173,https://127.0.0.1:5173}
+      - FRONTEND_URL=${FRONTEND_URL:-}
     restart: unless-stopped
     depends_on:
       postgres:
