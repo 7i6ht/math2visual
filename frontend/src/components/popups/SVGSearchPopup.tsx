@@ -209,7 +209,7 @@ export const SVGSearchPopup: React.FC<SVGSearchPopupProps> = ({
           }}
           placeholder={t("common.search")}
           spellCheck={false}
-          className="touch-manipulation text-primary-foreground responsive-text-font-size"
+          className="touch-manipulation text-black responsive-text-font-size"
           disabled={!!selectedFile}
         />
         <InputGroupAddon>
