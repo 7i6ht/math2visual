@@ -17,6 +17,7 @@ genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
 MODEL_NAME = os.environ.get("GEMINI_TUTOR_MODEL", "gemini-pro-latest")
 
 from app.services.tutor.session_storage import save_session
+from app.services.validation.text_sanitizer import sanitize_tutor_message
 
 
 SYSTEM_PROMPT = """You are Math2Visual's AI tutor. You guide students through math word problems step by step.
@@ -2703,17 +2704,17 @@ def _build_prompt(visual_language: str, history: List[Dict[str, str]], language:
 def _extract_visual_request(text: str) -> Tuple[str, Optional[Dict]]:
     match = VISUAL_REQUEST_PATTERN.search(text)
     if not match:
-        return text.strip(), None
+        return sanitize_tutor_message(text.strip()), None
 
     raw_json = match.group(1)
     try:
         parsed = json.loads(raw_json)
     except json.JSONDecodeError:
         logger.warning("Failed to parse VISUAL_REQUEST JSON from tutor response.")
-        return VISUAL_REQUEST_PATTERN.sub("", text).strip(), None
+        return sanitize_tutor_message(VISUAL_REQUEST_PATTERN.sub("", text).strip()), None
 
     cleaned_text = VISUAL_REQUEST_PATTERN.sub("", text).strip()
-    return cleaned_text, parsed
+    return sanitize_tutor_message(cleaned_text), parsed
 
 
 def _generate_tutor_reply_stream(visual_language: str, history: List[Dict[str, str]], language: str):

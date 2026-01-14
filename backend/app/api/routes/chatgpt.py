@@ -17,6 +17,7 @@ from app.services.chatgpt.session_storage import (
     get_chatgpt_session,
     save_chatgpt_session,
 )
+from app.services.validation.text_sanitizer import sanitize_tutor_message
 
 logger = logging.getLogger(__name__)
 
@@ -178,7 +179,7 @@ def _create_chatgpt_stream_response(history: List[Dict], session_id: str):
                         if delta and delta.content:
                             text_delta = delta.content
                             accumulated_text += text_delta
-                            # Emit chunk
+                            # Emit chunk (sanitization will be done on final message)
                             payload = {"type": "chunk", "delta": text_delta}
                             yield f"data: {json.dumps(payload)}\n\n"
             else:
@@ -189,14 +190,17 @@ def _create_chatgpt_stream_response(history: List[Dict], session_id: str):
                     payload = {"type": "chunk", "delta": char}
                     yield f"data: {json.dumps(payload)}\n\n"
             
+            # Sanitize the accumulated text for security
+            sanitized_text = sanitize_tutor_message(accumulated_text)
+
             # When done, save session and emit final message
-            history.append({"role": "assistant", "content": accumulated_text})
+            history.append({"role": "assistant", "content": sanitized_text})
             save_chatgpt_session(session_id, history)
-            
+
             payload = {
                 "type": "done",
                 "session_id": session_id,
-                "message": accumulated_text,
+                "message": sanitized_text,
                 "images": images,
             }
             yield f"data: {json.dumps(payload)}\n\n"

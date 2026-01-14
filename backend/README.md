@@ -12,7 +12,7 @@ The backend consists of the following key components:
 - **Tutor Service**: Gemini-powered interactive tutor with DSL-grounded guidance and streaming responses
 - **Analytics**: Session, action, screenshot, and cursor tracking for UX insights
 - **Storage Management**: Configurable storage backend (local/JuiceFS) for SVG datasets
-- **Security**: Input validation, SVG sanitization, and optional ClamAV integration
+- **Security**: Input validation, SVG sanitization, AI tutor message text sanitization, and optional ClamAV integration
 
 ## 📁 Project Structure
 
@@ -60,7 +60,8 @@ backend/
 │   │   ├── validation/                     # Input/output validation
 │   │   │   ├── __init__.py
 │   │   │   ├── security_scanner.py         # ClamAV integration
-│   │   │   └── svg_validator.py
+│   │   │   ├── svg_validator.py
+│   │   │   └── text_sanitizer.py           # HTML sanitization for AI messages
 │   │   ├── visual_generation/              # SVG generation engines
 │   │   │   ├── __init__.py
 │   │   │   ├── container_type_utils.py     # Container type utilities
@@ -122,7 +123,8 @@ backend/
 │   ├── env_analytics_template              # Example env for analytics DB
 │   └── env_juicefs_template                # JuiceFS environment template
 └── tests/                                  # Test suite
-    └── test_svg_validator.py
+    ├── test_svg_validator.py
+    └── test_text_sanitizer.py           # Text sanitization tests
 ```
 
 ## 🚀 Quick Start
@@ -144,7 +146,7 @@ cd backend/
 conda create --name math2visual --file requirements.txt
 
 # Option 2: Using pip (install individual packages)
-pip install flask flask-cors python-dotenv openai torch transformers peft accelerate bitsandbytes safetensors gunicorn
+pip install flask flask-cors python-dotenv openai torch transformers peft accelerate bitsandbytes safetensors gunicorn bleach
 ```
 
 2. **Configure environment variables:**
@@ -884,6 +886,12 @@ JUICEFS_METADATA_URL=postgres://user:pass@host:port/database
 - Removal of potentially malicious elements
 - Size and complexity limits
 
+### AI Tutor Message Sanitization
+- HTML tag stripping from Gemini API responses
+- XSS prevention for tutor chat messages
+- Uses bleach library for secure HTML cleaning
+- Applied before messages reach frontend
+
 ### Optional ClamAV Integration
 ```bash
 # Install ClamAV for virus scanning
@@ -912,6 +920,7 @@ python -m pytest tests/
 
 # Test specific component
 python -m pytest tests/test_svg_validator.py
+python -m pytest tests/test_text_sanitizer.py
 
 # Test with coverage
 python -m pytest --cov=app tests/
