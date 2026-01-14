@@ -233,6 +233,39 @@ Open `http://localhost:5173` and start generating visualizations.
 - **SVG dataset**: 1,549 SVGs in `backend/storage/datasets/svg_dataset`. Use JuiceFS + Postgres via `backend/docs/JUICEFS_SETUP.md`.
 - **Security & analytics**: Optional ClamAV scanning and analytics stack (see backend docs).
 
+## 🧪 Development & Testing
+
+- **Backend tests**: `python -m pytest tests/`
+- **Frontend lint**: `npm run lint`
+- **Frontend build/preview**: `npm run build` then `npm run preview`
+
+## 📖 Documentation
+
+- **[Frontend Documentation](frontend/README.md)**: React application structure, component usage, and development workflows
+- **[Backend Documentation](backend/README.md)**: Comprehensive Flask API reference, storage configuration, and deployment guides
+- **[JuiceFS Setup Guide](backend/docs/JUICEFS_SETUP.md)**: Distributed storage configuration
+- **[Security Setup Guide](backend/docs/CLAMAV_SETUP.md)**: ClamAV antivirus integration
+
+
+## 📄 License
+
+This project builds upon the Math2Visual research framework. Please refer to the [original repository](https://github.com/eth-lre/math2visual) for licensing information and academic use guidelines.
+
+## 🙏 Credits
+
+This code base was developed with the assistance of:
+
+- **[Cursor AI](https://cursor.sh/)**: AI-powered code editor that enhanced development productivity and code quality (using various available models)
+- **[Claude (Anthropic)](https://www.anthropic.com/claude)**: AI assistant that provided intelligent code generation, debugging support, architectural guidance, in addition to generation of documentation
+
+---
+
+*Transform mathematical learning through the power of AI-generated visualizations.* ✨
+
+---
+
+---
+
 ## 🐳 Docker Deployment
 
 The application can be deployed using Docker Compose with the provided `docker-compose.yml` configuration.
@@ -499,31 +532,3 @@ These files are automatically mounted into the Nginx container for HTTPS serving
     ```
     This should return the Math2Visual/Vite HTML (an `<html>` document with `<div id="root"></div>`), **not** the "Welcome to nginx!" text.
 
-## 🧪 Development & Testing
-
-- **Backend tests**: `python -m pytest tests/`
-- **Frontend lint**: `npm run lint`
-- **Frontend build/preview**: `npm run build` then `npm run preview`
-
-## 📖 Documentation
-
-- **[Frontend Documentation](frontend/README.md)**: React application structure, component usage, and development workflows
-- **[Backend Documentation](backend/README.md)**: Comprehensive Flask API reference, storage configuration, and deployment guides
-- **[JuiceFS Setup Guide](backend/docs/JUICEFS_SETUP.md)**: Distributed storage configuration
-- **[Security Setup Guide](backend/docs/CLAMAV_SETUP.md)**: ClamAV antivirus integration
-
-
-## 📄 License
-
-This project builds upon the Math2Visual research framework. Please refer to the [original repository](https://github.com/eth-lre/math2visual) for licensing information and academic use guidelines.
-
-## 🙏 Credits
-
-This code base was developed with the assistance of:
-
-- **[Cursor AI](https://cursor.sh/)**: AI-powered code editor that enhanced development productivity and code quality (using various available models)
-- **[Claude (Anthropic)](https://www.anthropic.com/claude)**: AI assistant that provided intelligent code generation, debugging support, architectural guidance, in addition to generation of documentation
-
----
-
-*Transform mathematical learning through the power of AI-generated visualizations.* ✨
