@@ -17,6 +17,19 @@ The Math2Visual frontend is a React application built with Vite that produces st
 - Math2Visual backend running and accessible
 - Web server (Nginx recommended) or static file server
 
+## Pre-Build Security Configuration
+
+### Vite Proxy Security
+
+**Important**: Before building for production, ensure the development proxy security setting is removed from `vite.config.ts`:
+
+```typescript
+// frontend/vite.config.ts - REMOVE THIS LINE BEFORE PRODUCTION BUILD
+secure: false, // TODO: remove this when the backend is deployed
+```
+
+The `secure: false` setting in Vite's proxy configuration disables SSL certificate validation, which is useful during development but poses a security risk in production. This setting should only be present during local development and must be removed when building for production deployments with proper SSL certificates.
+
 ## Production Build
 
 ### 1. Build the Application

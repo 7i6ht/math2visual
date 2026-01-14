@@ -180,18 +180,20 @@ frontend/
    ```
 
 2. **Configure backend URL** (optional)
-   
+
    The frontend automatically connects to the backend URL configured in `vite.config.ts`:
    ```typescript
    proxy: {
      '/api': {
        target: process.env.BACKEND_URL || 'http://localhost:5000',
        changeOrigin: true,
-       secure: false,
+       secure: false, // TODO: remove this when the backend is deployed
      }
    }
    ```
-   
+
+   **Important**: The `secure: false` setting disables SSL certificate validation for development. This allows the proxy to connect to backends with self-signed certificates or during local development. **Remove this setting when deploying to production** with proper SSL certificates, as it bypasses security validations.
+
    You can override the backend URL by setting the `BACKEND_URL` environment variable:
    ```bash
    BACKEND_URL=http://your-backend-url:port npm run dev

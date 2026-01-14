@@ -465,6 +465,13 @@ Before setting up SSL certificates, ensure:
 
 **Note**: The application requires SSL certificates to function properly. Without certificates, HTTPS requests will fail. The nginx configuration expects certificates to be present at `/etc/letsencrypt/live/your-domain.com/`.
 
+**Important**: Before deploying with SSL certificates, ensure the `secure: false` setting in `frontend/vite.config.ts` is removed. This setting disables SSL certificate validation for the development proxy and should not be used in production:
+
+```typescript
+// frontend/vite.config.ts - REMOVE THIS LINE IN PRODUCTION
+secure: false, // TODO: remove this when the backend is deployed
+```
+
 #### Certificate Setup Steps (AI generated documentation, not checked and tested yet)
 
 The `certbot-init` container provides a Dockerized Certbot environment for obtaining SSL certificates from Let's Encrypt.
