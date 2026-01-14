@@ -167,11 +167,11 @@ flowchart TB
         end
 
         subgraph Database["DB Container"]
-            Postgres[("PostgreSQL :5432<br/>Sessions & Analytics")]
+            Postgres[("PostgreSQL<br/>Sessions & Analytics")]
         end
 
         subgraph Security["Security Container"]
-            ClamAV[("ClamAV :3310<br/>Antivirus")]
+            ClamAV[("ClamAV<br/>Antivirus")]
         end
 
         subgraph Certs["Cert Management"]
@@ -224,7 +224,21 @@ flowchart TB
 
 1. **Set up environment variables**:
 
-   Create a backend `.env` file (for runtime variables):
+   Create a project-level `.env` file (read by Docker Compose):
+   ```bash
+   # Create project .env file (read by docker-compose for build args and defaults)
+   cat > .env << EOF
+   # Frontend build configuration
+   VITE_ENABLE_ANALYTICS=false
+
+   # Docker Compose environment variable defaults
+   POSTGRES_PASSWORD=your_secure_password
+   CORS_ORIGINS=https://your-domain.com,https://www.your-domain.com
+   FRONTEND_URL=https://your-domain.com
+   EOF
+   ```
+
+   Then create a backend `.env` file (for Flask runtime):
    ```bash
    # Create backend .env file (used by Flask backend at runtime)
    cat > backend/.env << EOF
@@ -241,7 +255,6 @@ flowchart TB
    SVG_CACHE_SIZE=100
 
    # Database Configuration (PostgreSQL for tutor sessions and analytics)
-   POSTGRES_PASSWORD=your_secure_password
    DATABASE_URL=postgresql://math2visual_user:\${POSTGRES_PASSWORD}@postgres:5432/math2visual_analytics
    DATABASE_ECHO=false  # Set to true for SQL query logging (development only)
 
@@ -251,15 +264,13 @@ flowchart TB
    # Flask Configuration
    FLASK_ENV=production
 
-   # CORS Configuration
-   CORS_ORIGINS=https://your-domain.com,https://www.your-domain.com
-   FRONTEND_URL=https://your-domain.com
-
    # ClamAV Configuration (antivirus scanning)
    CLAMAV_HOST=clamav
    CLAMAV_PORT=3310
    EOF
    ```
+
+   **Important**: Docker Compose reads the project-level `.env` file automatically. The backend `.env` file is mounted into the container and read by the Flask application at runtime.
 
 2. **Start the application**:
    ```bash
@@ -272,16 +283,16 @@ flowchart TB
    ```
 
 4. **Access the application**:
-   - HTTP: `http://localhost` (redirects to HTTPS)
-   - HTTPS: `https://localhost`
+   - **Before SSL setup**: HTTP only at `http://localhost`
+   - **After SSL setup**: HTTPS at `https://your-domain.com` (HTTP redirects to HTTPS)
 
 ### Docker Compose Commands
 
 ```bash
-# Start all services (with cleanup for temp files)
+# Start with cleanup service (analytics disabled)
 docker compose --profile cleanup up -d
 
-# Start without cleanup (when analytics enabled)
+# Start without cleanup (analytics enabled - preserves tutor sessions)
 docker compose up -d
 
 # View logs
@@ -307,6 +318,7 @@ docker compose down -v
 - **app**: Main application (Flask backend + React frontend via Nginx)
 - **postgres**: Database for tutor sessions and analytics
 - **clamav**: Antivirus scanning for uploaded files
+- **certbot-init**: Manual SSL certificate setup (run on-demand)
 - **certbot-renew**: Automatic SSL certificate renewal (runs every 12 hours)
 - **cleanup**: Periodic cleanup of temporary files (optional profile)
 
@@ -323,7 +335,9 @@ Before setting up SSL certificates, ensure:
 3. **Firewall Rules**: Configure your firewall to allow traffic on ports 80 and 443
 4. **Application Running**: The Docker containers are running and accessible via HTTP
 
-#### Certificate Setup Steps (AI generated documentation, not tested yet)
+**Note**: The application requires SSL certificates to function properly. Without certificates, HTTPS requests will fail. The nginx configuration expects certificates to be present at `/etc/letsencrypt/live/your-domain.com/`.
+
+#### Certificate Setup Steps (AI generated documentation, not checked and tested yet)
 
 The `certbot-init` container provides a Dockerized Certbot environment for obtaining SSL certificates from Let's Encrypt.
 
