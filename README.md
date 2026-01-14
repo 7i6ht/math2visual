@@ -140,6 +140,244 @@ graph TB
 - **SVG Uploading Security & Validation**: SVG content validation, and optional ClamAV integration
 - **Extensive SVG Entity Library**: 1,549 SVG assets for comprehensive visual coverage
 
+## 🐳 Docker Deployment
+
+The application can be deployed using Docker Compose with the provided `docker-compose.yml` configuration.
+
+### Docker Container Architecture
+
+```mermaid
+flowchart TB
+    %% User Layer
+    User[("Students & Teachers")]
+
+    subgraph Storage["Local Storage"]
+        FileStorage[("File Storage<br/>SVG Dataset<br/>Output files")]
+    end
+
+    %% Docker Container Services
+    subgraph Containers["Docker Containers"]
+        direction TB
+
+        subgraph App["App Container"]
+            Nginx["Nginx :443<br/>SSL/TLS<br/>Static files<br/>Reverse proxy"]
+            Gunicorn["Gunicorn :5000<br/>4+ workers<br/>Flask WSGI"]
+            Flask["Flask Backend<br/>DSL generation<br/>SVG processing<br/>AI tutor"]
+            Static["React Frontend<br/>(built assets)"]
+        end
+
+        subgraph Database["DB Container"]
+            Postgres[("PostgreSQL :5432<br/>Sessions & Analytics")]
+        end
+
+        subgraph Security["Security Container"]
+            ClamAV[("ClamAV :3310<br/>Antivirus")]
+        end
+
+        subgraph Certs["Cert Management"]
+            CertbotInit["Certbot Init<br/>Manual setup"]
+            CertbotRenew["Certbot Renew<br/>Auto-renewal"]
+        end
+
+        subgraph Cleanup["Cleanup Container<br/>Service: cleanup"]
+            CleanupSvc["Cleanup Cron<br/>Temp files"]
+        end
+    end
+
+    %% External Services
+    subgraph External["External APIs"]
+        OpenAI["OpenAI GPT-4"]
+        Gemini["Gemini"]
+    end
+
+
+
+    %% Connections
+    User <-->|HTTPS| Nginx
+    Nginx --> Static
+    Nginx --> Gunicorn
+    Gunicorn <--> Flask
+
+    Flask <--> Postgres
+    Flask <--> ClamAV
+    Flask --> OpenAI
+    Flask --> Gemini
+
+    Flask <--> FileStorage
+    CleanupSvc <--> FileStorage
+    CleanupSvc <--> Postgres
+
+    CertbotInit -.-> Nginx
+    CertbotRenew -.-> Nginx
+
+    %% Styling
+    classDef container fill:#E3F2FD,stroke:#1976D2,stroke-width:3px
+    classDef external fill:#FFF3E0,stroke:#F57C00,stroke-width:2px
+    classDef storage fill:#EFEBE9,stroke:#5D4037,stroke-width:2px
+
+    class Containers,App,Database,Security,Certs,Cleanup container
+    class External,OpenAI,Gemini external
+    class Storage,FileStorage storage
+```
+
+### Quick Docker Deployment
+
+1. **Set up environment variables**:
+
+   Create a backend `.env` file (for runtime variables):
+   ```bash
+   # Create backend .env file (used by Flask backend at runtime)
+   cat > backend/.env << EOF
+   # OpenAI Configuration
+   OPENAI_API_KEY=your_openai_api_key
+
+   # Gemini Configuration (SVG generation + tutor)
+   GEMINI_API_KEY=your_gemini_api_key
+   GEMINI_TUTOR_MODEL=gemini-pro-latest  # optional override
+
+   # Storage Configuration
+   SVG_STORAGE_MODE=local  # or 'juicefs'
+   SVG_DATASET_PATH=./storage/datasets/svg_dataset
+   SVG_CACHE_SIZE=100
+
+   # Database Configuration (PostgreSQL for tutor sessions and analytics)
+   POSTGRES_PASSWORD=your_secure_password
+   DATABASE_URL=postgresql://math2visual_user:\${POSTGRES_PASSWORD}@postgres:5432/math2visual_analytics
+   DATABASE_ECHO=false  # Set to true for SQL query logging (development only)
+
+   # Tutor Session Configuration
+   TUTOR_SESSION_EXPIRATION_HOURS=2
+
+   # Flask Configuration
+   FLASK_ENV=production
+
+   # CORS Configuration
+   CORS_ORIGINS=https://your-domain.com,https://www.your-domain.com
+   FRONTEND_URL=https://your-domain.com
+
+   # ClamAV Configuration (antivirus scanning)
+   CLAMAV_HOST=clamav
+   CLAMAV_PORT=3310
+   EOF
+   ```
+
+2. **Start the application**:
+   ```bash
+   docker compose up -d
+   ```
+
+3. **Check logs**:
+   ```bash
+   docker compose logs -f app
+   ```
+
+4. **Access the application**:
+   - HTTP: `http://localhost` (redirects to HTTPS)
+   - HTTPS: `https://localhost`
+
+### Docker Compose Commands
+
+```bash
+# Start all services (with cleanup for temp files)
+docker compose --profile cleanup up -d
+
+# Start without cleanup (when analytics enabled)
+docker compose up -d
+
+# View logs
+docker compose logs -f
+
+# View specific service logs
+docker compose logs -f app
+docker compose logs -f postgres
+docker compose logs -f clamav
+
+# Stop all services
+docker compose down
+
+# Rebuild and restart
+docker compose up -d --build
+
+# Clean up volumes (WARNING: deletes data)
+docker compose down -v
+```
+
+### Services Overview
+
+- **app**: Main application (Flask backend + React frontend via Nginx)
+- **postgres**: Database for tutor sessions and analytics
+- **clamav**: Antivirus scanning for uploaded files
+- **certbot-renew**: Automatic SSL certificate renewal (runs every 12 hours)
+- **cleanup**: Periodic cleanup of temporary files (optional profile)
+
+### SSL Certificate Setup
+
+The application is configured for HTTPS with automatic SSL certificate management using Let's Encrypt.
+
+#### Prerequisites
+
+Before setting up SSL certificates, ensure:
+
+1. **Domain Configuration**: Your domain (e.g., `your-domain.com`) points to your server's IP address via DNS A record
+2. **Port Accessibility**: Ports 80 (HTTP) and 443 (HTTPS) are open and accessible from the internet
+3. **Firewall Rules**: Configure your firewall to allow traffic on ports 80 and 443
+4. **Application Running**: The Docker containers are running and accessible via HTTP
+
+#### Certificate Setup Steps (AI generated documentation, not tested yet)
+
+The `certbot-init` container provides a Dockerized Certbot environment for obtaining SSL certificates from Let's Encrypt.
+
+##### How certbot-init Works
+
+- **Container**: Uses the official `certbot/certbot` Docker image
+- **Volume Mounts**:
+  - `./certbot/conf:/etc/letsencrypt` - stores certificates and configuration
+  - `./certbot/www:/var/www/certbot` - webroot directory for HTTP-01 challenges
+- **Method**: Uses webroot authentication (places challenge files in `/var/www/certbot`)
+- **Execution**: Manual, one-time setup (not automatically started)
+
+##### Certificate Setup Process
+
+1. **Initial Certificate Setup** (run once):
+   ```bash
+   # Basic setup for a single domain
+   docker compose run --rm certbot-init certbot certonly --webroot -w /var/www/certbot -d your-domain.com --email your-email@example.com
+
+   # With additional options
+   docker compose run --rm certbot-init certbot certonly --webroot -w /var/www/certbot -d your-domain.com --email your-email@example.com --agree-tos --no-eff-email
+   ```
+
+2. **What happens during setup**:
+   - Certbot creates challenge files in `./certbot/www/.well-known/acme-challenge/`
+   - Nginx serves these files at `http://your-domain.com/.well-known/acme-challenge/`
+   - Let's Encrypt validates domain ownership
+   - Certificates are saved to `./certbot/conf/live/your-domain.com/`
+
+3. **Update environment variables** for production:
+   ```bash
+   # Add to backend/.env file
+   CORS_ORIGINS=https://your-domain.com,https://www.your-domain.com
+   FRONTEND_URL=https://your-domain.com
+   ```
+
+4. **Certificate renewal** happens automatically every 12 hours via the `certbot-renew` service.
+
+##### Troubleshooting Certificate Setup
+
+- **Port 80 blocked**: Ensure port 80 is accessible from the internet
+- **Domain not pointing to server**: Verify DNS A record points to your server's IP
+- **Challenge files not accessible**: Check that Nginx is running and serving from `./certbot/www`
+- **Certificate files location**: Certificates are stored in `./certbot/conf/live/your-domain.com/`
+
+##### Certificate File Locations
+
+After successful setup, certificates are available at:
+- **Full certificate chain**: `./certbot/conf/live/your-domain.com/fullchain.pem`
+- **Private key**: `./certbot/conf/live/your-domain.com/privkey.pem`
+- **Certificate only**: `./certbot/conf/live/your-domain.com/cert.pem`
+
+These files are automatically mounted into the Nginx container for HTTPS serving.
+
 ## 🚀 Quick Start
 
 ### Prerequisites
