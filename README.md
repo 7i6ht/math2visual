@@ -1,3 +1,5 @@
+---
+
 # <img src="./images/icon.png" width="30" height="30"> Math2Visual Interactive System
 
 An interactive educational platform that transforms math word problems (MWPs) into pedagogically meaningful visual representations for enhanced learning and teaching.
