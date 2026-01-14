@@ -123,8 +123,7 @@ backend/
 │   ├── env_analytics_template              # Example env for analytics DB
 │   └── env_juicefs_template                # JuiceFS environment template
 └── tests/                                  # Test suite
-    ├── test_svg_validator.py
-    └── test_text_sanitizer.py           # Text sanitization tests
+    └── test_svg_validator.py
 ```
 
 ## 🚀 Quick Start
@@ -146,7 +145,7 @@ cd backend/
 conda create --name math2visual --file requirements.txt
 
 # Option 2: Using pip (install individual packages)
-pip install flask flask-cors python-dotenv openai torch transformers peft accelerate bitsandbytes safetensors gunicorn bleach
+pip install flask flask-cors python-dotenv openai torch transformers peft accelerate bitsandbytes safetensors gunicorn nh3
 ```
 
 2. **Configure environment variables:**
@@ -889,7 +888,7 @@ JUICEFS_METADATA_URL=postgres://user:pass@host:port/database
 ### AI Tutor Message Sanitization
 - HTML tag stripping from Gemini API responses
 - XSS prevention for tutor chat messages
-- Uses bleach library for secure HTML cleaning
+- Uses nh3 library for secure HTML cleaning
 - Applied before messages reach frontend
 
 ### Optional ClamAV Integration
@@ -920,7 +919,6 @@ python -m pytest tests/
 
 # Test specific component
 python -m pytest tests/test_svg_validator.py
-python -m pytest tests/test_text_sanitizer.py
 
 # Test with coverage
 python -m pytest --cov=app tests/

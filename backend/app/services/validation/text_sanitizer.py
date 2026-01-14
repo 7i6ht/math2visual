@@ -8,7 +8,7 @@ Uses bleach library to clean HTML while preserving safe formatting.
 import logging
 from typing import Optional
 
-import bleach
+import nh3
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +33,8 @@ def sanitize_tutor_message(text: str) -> str:
     try:
         # For tutor messages, we want to completely strip all HTML tags and their content
         # This is more secure than just stripping tags and keeping inner content
-        return bleach.clean(text, tags=[], strip=True)
+        # nh3.clean with empty tags set strips all HTML (equivalent to bleach with tags=[], strip=True)
+        return nh3.clean(text, tags=set())
     except Exception as e:
         logger.error(f"Error during tutor message sanitization: {str(e)}")
         # Fallback: return original text if sanitization fails
