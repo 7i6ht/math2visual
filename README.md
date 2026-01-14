@@ -140,6 +140,99 @@ graph TB
 - **SVG Uploading Security & Validation**: SVG content validation, and optional ClamAV integration
 - **Extensive SVG Entity Library**: 1,549 SVG assets for comprehensive visual coverage
 
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- **Python 3.12+**
+- **Node.js 18+** with npm
+- **OpenAI API Key** (GPT for DSL generation)
+- **Gemini API Key** (AI SVG generation + tutor)
+- **PostgreSQL 13+** (only when using JuiceFS or analytics)
+- Optional: **ClamAV** for antivirus scanning
+
+### 1) Clone the repository
+
+```bash
+git clone https://github.com/7i6ht/math2visual.git
+cd math2visual
+```
+
+### 2) Backend setup
+
+```bash
+cd backend/
+
+# Recommended: create the environment via conda
+conda create --name math2visual --file requirements.txt
+conda activate math2visual
+
+# Or with pip using the conda export (may need platform-specific wheels)
+pip install -r requirements.txt
+
+# Or with pip installing the core deps explicitly
+pip install flask flask-cors python-dotenv openai torch transformers peft accelerate bitsandbytes safetensors gunicorn
+```
+
+Create `backend/.env` (or export env vars):
+
+```bash
+# OpenAI Configuration
+OPENAI_API_KEY=your_openai_api_key
+
+# Gemini Configuration (SVG generation + tutor)
+GEMINI_API_KEY=your_gemini_api_key
+GEMINI_TUTOR_MODEL=gemini-pro-latest  # optional override
+
+# Storage
+SVG_STORAGE_MODE=local         # or 'juicefs'
+SVG_DATASET_PATH=./storage/datasets/svg_dataset
+SVG_CACHE_SIZE=100
+
+# Database (PostgreSQL) for tutor sessions and analytics
+# Example (matches the default docker-compose configuration):
+DATABASE_URL=postgresql://math2visual_user:math2visual_password@localhost:5432/math2visual_analytics
+DATABASE_ECHO=false  # Set to true for SQL query logging (development only)
+
+# Tutor session configuration
+# Inactivity-based expiration for tutor sessions (in hours). Default: 2
+TUTOR_SESSION_EXPIRATION_HOURS=2
+
+# Optional distributed storage (JuiceFS + Postgres)
+JUICEFS_METADATA_URL=postgres://user:pass@host:port/database
+```
+
+Start the backend:
+
+```bash
+python app.py  # http://localhost:5000
+```
+
+### 3) Frontend setup
+
+```bash
+cd frontend/
+npm install
+
+# Dev server; proxies /api to BACKEND_URL/VITE_BACKEND_URL (default http://localhost:5000)
+export BACKEND_URL=http://localhost:5000
+npm run dev
+```
+
+For production builds, set `VITE_BACKEND_URL` before `npm run build`.
+
+### 4) Access the application
+
+Open `http://localhost:5173` and start generating visualizations.
+
+### Configuration quick reference
+
+- **Backend**: Flask dev server on `http://localhost:5000`.
+- **Frontend**: Vite dev server on `http://localhost:5173`; `/api` proxy targets `VITE_BACKEND_URL` or `BACKEND_URL` (fallback `http://localhost:5000`).
+- **SVG dataset**: 1,549 SVGs in `backend/storage/datasets/svg_dataset`. Use JuiceFS + Postgres via `backend/docs/JUICEFS_SETUP.md`.
+- **Security & analytics**: Optional ClamAV scanning and analytics stack (see backend docs).
+
 ## 🐳 Docker Deployment
 
 The application can be deployed using Docker Compose with the provided `docker-compose.yml` configuration.
@@ -392,99 +485,8 @@ After successful setup, certificates are available at:
 
 These files are automatically mounted into the Nginx container for HTTPS serving.
 
-## 🚀 Quick Start
 
-### Prerequisites
-
-- **Python 3.12+**
-- **Node.js 18+** with npm
-- **OpenAI API Key** (GPT for DSL generation)
-- **Gemini API Key** (AI SVG generation + tutor)
-- **PostgreSQL 13+** (only when using JuiceFS or analytics)
-- Optional: **ClamAV** for antivirus scanning
-
-### 1) Clone the repository
-
-```bash
-git clone https://github.com/7i6ht/math2visual.git
-cd math2visual
-```
-
-### 2) Backend setup
-
-```bash
-cd backend/
-
-# Recommended: create the environment via conda
-conda create --name math2visual --file requirements.txt
-conda activate math2visual
-
-# Or with pip using the conda export (may need platform-specific wheels)
-pip install -r requirements.txt
-
-# Or with pip installing the core deps explicitly
-pip install flask flask-cors python-dotenv openai torch transformers peft accelerate bitsandbytes safetensors gunicorn
-```
-
-Create `backend/.env` (or export env vars):
-
-```bash
-# OpenAI Configuration
-OPENAI_API_KEY=your_openai_api_key
-
-# Gemini Configuration (SVG generation + tutor)
-GEMINI_API_KEY=your_gemini_api_key
-GEMINI_TUTOR_MODEL=gemini-pro-latest  # optional override
-
-# Storage
-SVG_STORAGE_MODE=local         # or 'juicefs'
-SVG_DATASET_PATH=./storage/datasets/svg_dataset
-SVG_CACHE_SIZE=100
-
-# Database (PostgreSQL) for tutor sessions and analytics
-# Example (matches the default docker-compose configuration):
-DATABASE_URL=postgresql://math2visual_user:math2visual_password@localhost:5432/math2visual_analytics
-DATABASE_ECHO=false  # Set to true for SQL query logging (development only)
-
-# Tutor session configuration
-# Inactivity-based expiration for tutor sessions (in hours). Default: 2
-TUTOR_SESSION_EXPIRATION_HOURS=2
-
-# Optional distributed storage (JuiceFS + Postgres)
-JUICEFS_METADATA_URL=postgres://user:pass@host:port/database
-```
-
-Start the backend:
-
-```bash
-python app.py  # http://localhost:5000
-```
-
-### 3) Frontend setup
-
-```bash
-cd frontend/
-npm install
-
-# Dev server; proxies /api to BACKEND_URL/VITE_BACKEND_URL (default http://localhost:5000)
-export BACKEND_URL=http://localhost:5000
-npm run dev
-```
-
-For production builds, set `VITE_BACKEND_URL` before `npm run build`.
-
-### 4) Access the application
-
-Open `http://localhost:5173` and start generating visualizations.
-
-### Configuration quick reference
-
-- **Backend**: Flask dev server on `http://localhost:5000`.
-- **Frontend**: Vite dev server on `http://localhost:5173`; `/api` proxy targets `VITE_BACKEND_URL` or `BACKEND_URL` (fallback `http://localhost:5000`).
-- **SVG dataset**: 1,549 SVGs in `backend/storage/datasets/svg_dataset`. Use JuiceFS + Postgres via `backend/docs/JUICEFS_SETUP.md`.
-- **Security & analytics**: Optional ClamAV scanning and analytics stack (see backend docs).
-
-### Docker / Deployment Notes
+### Deployment troubleshooting
 
 - **Nginx welcome page issue**:
   - Symptom: When accessing the app on EC2 (e.g., `http://<EC2_IP>`), you only see the generic **"Welcome to nginx!"** page instead of the Math2Visual UI.
