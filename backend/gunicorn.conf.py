@@ -7,8 +7,10 @@ bind = "0.0.0.0:5000"
 backlog = 2048
 
 # Worker processes
+# Using gevent async workers for streaming support (Server-Sent Events in tutor/chat endpoints)
+# Must use async workers when proxy_buffering is disabled in nginx
 workers = min(4, multiprocessing.cpu_count() * 2 + 1)
-worker_class = "sync"
+worker_class = "gevent"
 worker_connections = 1000
 timeout = 120  # Increased for ML model loading
 keepalive = 2
