@@ -13,7 +13,7 @@ def cohens_d_paired(data1, data2, hedges_correction=True):
     This is the recommended formula for paired designs as it can be 
     compared directly to Cohen's d from independent samples.
     
-    Formula: d_av = (mean1 - mean2) / sqrt((SD1^2 + SD2^2) / 2)
+    Formula: d_av = (mean1 - mean2) / ((SD1 + SD2) / 2)
     
     If hedges_correction=True, applies Hedges' g correction for small sample bias:
     g = d * J, where J = Γ(df/2) / (√(df/2) * Γ((df-1)/2))
