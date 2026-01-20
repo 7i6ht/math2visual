@@ -30,7 +30,7 @@ def cohens_d_paired(data1, data2, hedges_correction=True):
     mean_diff = np.mean(data1) - np.mean(data2)
     sd1 = np.std(data1, ddof=1)
     sd2 = np.std(data2, ddof=1)
-    pooled_sd = np.sqrt((sd1**2 + sd2**2) / 2)
+    pooled_sd = (sd1 + sd2) / 2
     d = mean_diff / pooled_sd
     
     if hedges_correction:
