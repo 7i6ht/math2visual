@@ -30,8 +30,8 @@ def cohens_d_paired(data1, data2, hedges_correction=True):
     mean_diff = np.mean(data1) - np.mean(data2)
     sd1 = np.std(data1, ddof=1)
     sd2 = np.std(data2, ddof=1)
-    pooled_sd = (sd1 + sd2) / 2
-    d = mean_diff / pooled_sd
+    mean_sd = (sd1 + sd2) / 2
+    d = mean_diff / mean_sd
     
     if hedges_correction:
         # Hedges' correction for small sample bias (exact formula)
@@ -131,7 +131,7 @@ def wilcoxon_effect_size_rb(differences):
     return r
 
 def create_visualizations(df, variables, method_pairs):
-    """Create box plots for all variables across methods"""
+    """Create violin plots for all variables across methods"""
     n_vars = len(variables)
     n_cols = 3
     n_rows = (n_vars + n_cols - 1) // n_cols
@@ -139,21 +139,22 @@ def create_visualizations(df, variables, method_pairs):
     fig, axes = plt.subplots(n_rows, n_cols, figsize=(15, 5*n_rows))
     axes = axes.flatten()
     
+    # Define colors for each method
+    colors = ['lightblue', 'lightgreen', 'lightcoral']
+    palette = dict(zip(['ChatGPT', 'Math2Visual', 'Custom'], colors))
+    
     for idx, var in enumerate(variables):
         ax = axes[idx]
-        data_to_plot = [df[df['method'] == method][var].values 
-                        for method in ['ChatGPT', 'Math2Visual', 'Custom']]
         
-        bp = ax.boxplot(data_to_plot, tick_labels=['ChatGPT', 'Math2Visual', 'Custom'], patch_artist=True)
+        # Create violin plot
+        sns.violinplot(data=df, x='method', y=var, ax=ax, 
+                      order=['ChatGPT', 'Math2Visual', 'Custom'],
+                      palette=palette, alpha=0.7)
+        
+        ax.set_xlabel('')
         ax.set_ylabel('Score' if var != 'completion_time_seconds' else 'Seconds')
         ax.set_title(var.replace('_', ' ').title())
-        ax.grid(True, alpha=0.3)
-        
-        # Color the boxes
-        colors = ['lightblue', 'lightgreen', 'lightcoral']
-        for patch, color in zip(bp['boxes'], colors):
-            patch.set_facecolor(color)
-            patch.set_alpha(0.7)
+        ax.grid(True, alpha=0.3, axis='y')
     
     # Hide extra subplots
     for idx in range(n_vars, len(axes)):
