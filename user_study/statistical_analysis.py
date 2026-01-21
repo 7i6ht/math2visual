@@ -131,7 +131,7 @@ def wilcoxon_effect_size_rb(differences):
     return r
 
 def create_visualizations(df, variables, method_pairs):
-    """Create violin plots for all variables across methods"""
+    """Create box plots for all variables across methods"""
     # Set larger font sizes for all plot elements
     plt.rcParams.update({
         'font.size': 14,           # Base font size
@@ -157,10 +157,10 @@ def create_visualizations(df, variables, method_pairs):
     for idx, var in enumerate(variables):
         ax = axes[idx]
         
-        # Create violin plot
-        sns.violinplot(data=df, x='method', y=var, ax=ax, 
-                      order=['ChatGPT', 'Math2Visual', 'Custom'],
-                      palette=palette, alpha=0.7)
+        # Create box plot
+        sns.boxplot(data=df, x='method', y=var, ax=ax, 
+                   order=['ChatGPT', 'Math2Visual', 'Custom'],
+                   palette=palette)
         
         ax.set_xlabel('')
         ax.set_ylabel('Score' if var != 'task_completion_time' else 'Seconds')
