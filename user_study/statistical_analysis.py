@@ -52,53 +52,81 @@ def cohens_d_z(diff):
     """
     return np.mean(diff) / np.std(diff, ddof=1)
 
-def wilcoxon_effect_size(z_statistic, n):
+def wilcoxon_effect_size_rb(differences):
     """
-    Calculate effect size r for Wilcoxon signed-rank test.
+    Calculate rank-biserial correlation for Wilcoxon signed-rank test.
     
-    This is the standard effect size for the Wilcoxon test.
-    r ranges from -1 to 1, similar to Pearson correlation.
+    The rank-biserial correlation is the direct effect size measure for the
+    Wilcoxon signed-rank test. It represents the dominance of one condition
+    over another based on the ranks of the differences.
     
-    Formula: r = Z / sqrt(N)
-    where Z is the standardized test statistic,
-    and N is the number of non-zero differences.
+    Formula (Tomczak & Tomczak, 2014):
+    r = 4|T - (R₁ + R₂)/2| / (n(n+1))
     
-    Note on N:
-    This implementation uses the NUMBER OF NON-ZERO DIFFERENCES rather than
-    total number of pairs. This is the statistically accurate approach because:
-    - Zero differences don't contribute to the Wilcoxon test statistic
-    - The z-statistic is calculated using only non-zero differences
-    - Using total pairs would underestimate effect size when zeros are present
-    This follows the recommendation in scholarly literature on effect sizes
-    for nonparametric tests (e.g., PMC articles on nonparametric effect sizes).
+    where:
+    - R₁ = sum of ranks with positive signs (sum of ranks of positive values)
+    - R₂ = sum of ranks with negative signs (sum of ranks of negative values)
+    - T = the smaller of the two values (R₁ or R₂), i.e., the Wilcoxon statistic
+    - n = the total sample size (number of non-zero differences)
     
-    Alternative: Some packages (e.g., R's rstatix) use total number of pairs
-    for simplicity, but this is less statistically accurate.
+    Note: This formula calculates the magnitude (absolute value) of the effect size.
+    
+    This effect size is directly derived from the Wilcoxon statistic itself,
+    unlike Rosenthal's r which converts from a z-statistic. The rank-biserial
+    correlation is specifically designed for ranked data and provides a more
+    interpretable measure of effect.
     
     Parameters
     ----------
-    z_statistic : float
-        The z-statistic from the Wilcoxon test
-    n : int
-        The number of non-zero differences (NOT total pairs)
+    differences : array-like
+        The paired differences (data1 - data2)
     
     Returns
     -------
     float
-        Effect size r
+        Rank-biserial correlation (r_rb)
     
-    Interpretation (absolute values):
-    - 0.10-0.30: small effect
-    - 0.30-0.50: medium effect  
-    - ≥ 0.50: large effect
+    Interpretation:
+    - r_rb ranges from 0 to +1 (magnitude only)
+    - 0 indicates no difference between conditions
+    - Larger values indicate stronger effect (regardless of direction)
+    - r_rb = 0.10-0.30: small effect
+    - r_rb = 0.30-0.50: medium effect
+    - r_rb ≥ 0.50: large effect
     
-    Reference: Rosenthal (1991); Fritz, Morris, & Richler (2012)
+    The value represents the proportion of dominance:
+    - r_rb = 0.7 means 70% of pairs favor one direction, 30% the other
+    
+    References:
+    - Tomczak, M., & Tomczak, E. (2014). The need to report effect size 
+      estimates revisited. An overview of some recommended measures of effect 
+      size. Trends in Sport Sciences, 1(21), 19-25.
+    - Kerby, D. S. (2014). The simple difference formula: An approach to 
+      teaching nonparametric correlation. Comprehensive Psychology, 3, 11.IT.3.1
     """
-    if n == 0:
+    # Remove zero differences (they don't contribute to Wilcoxon test)
+    nonzero_diffs = differences[differences != 0]
+    
+    if len(nonzero_diffs) == 0:
         return 0.0
     
-    # Calculate effect size r = Z / sqrt(N)
-    r = z_statistic / np.sqrt(n)
+    # Rank the absolute differences
+    abs_diffs = np.abs(nonzero_diffs)
+    ranks = stats.rankdata(abs_diffs)
+    
+    # Calculate sum of ranks for positive and negative differences
+    R1 = np.sum(ranks[nonzero_diffs > 0])  # Sum of ranks with positive signs
+    R2 = np.sum(ranks[nonzero_diffs < 0])  # Sum of ranks with negative signs
+    
+    # Total number of non-zero differences
+    n = len(nonzero_diffs)
+    
+    # T = the smaller of the two rank sums (Wilcoxon statistic)
+    T = min(R1, R2)
+    
+    # Calculate rank-biserial correlation using Tomczak & Tomczak (2014) formula:
+    # r = 4|T - (R₁ + R₂)/2| / (n(n+1))
+    r = 4 * abs(T - (R1 + R2) / 2) / (n * (n + 1))
     
     return r
 
@@ -251,13 +279,12 @@ for var in all_vars:
             z_stat = (stat_test - mean_w) / std_w
             
             test_used = "Wilcoxon"
-            # Use n_nonzero (not total pairs) for statistically accurate effect size
-            # See wilcoxon_effect_size() docstring for rationale
-            effect_size = wilcoxon_effect_size(z_stat, n_nonzero)
-            effect_size_name = "effect size r"
+            # Calculate rank-biserial correlation (direct effect size for Wilcoxon)
+            effect_size = wilcoxon_effect_size_rb(differences)
+            effect_size_name = "rank-biserial r"
             print(f"  Wilcoxon statistic: {stat_test:.4f}")
             print(f"  p-value: {p_test:.4f}")
-            print(f"  Effect size r: {effect_size:.4f}")
+            print(f"  Rank-biserial correlation: {effect_size:.4f}")
         
         # STEP 3: Apply Bonferroni correction
         print(f"\nSTEP 3: Bonferroni Correction")
