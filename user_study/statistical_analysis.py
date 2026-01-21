@@ -132,6 +132,17 @@ def wilcoxon_effect_size_rb(differences):
 
 def create_visualizations(df, variables, method_pairs):
     """Create violin plots for all variables across methods"""
+    # Set larger font sizes for all plot elements
+    plt.rcParams.update({
+        'font.size': 14,           # Base font size
+        'axes.titlesize': 18,      # Title font size
+        'axes.labelsize': 16,      # X and Y label font size
+        'xtick.labelsize': 14,     # X tick label font size
+        'ytick.labelsize': 14,     # Y tick label font size
+        'legend.fontsize': 14,     # Legend font size
+        'figure.titlesize': 20     # Figure title font size
+    })
+    
     n_vars = len(variables)
     n_cols = 3
     n_rows = (n_vars + n_cols - 1) // n_cols
@@ -152,7 +163,7 @@ def create_visualizations(df, variables, method_pairs):
                       palette=palette, alpha=0.7)
         
         ax.set_xlabel('')
-        ax.set_ylabel('Score' if var != 'completion_time_seconds' else 'Seconds')
+        ax.set_ylabel('Score' if var != 'task_completion_time' else 'Seconds')
         ax.set_title(var.replace('_', ' ').title())
         ax.grid(True, alpha=0.3, axis='y')
     
@@ -163,6 +174,10 @@ def create_visualizations(df, variables, method_pairs):
     plt.tight_layout()
     plt.savefig('analysis_plots.png', dpi=300, bbox_inches='tight')
     plt.close()
+    
+    # Reset to default font sizes
+    plt.rcParams.update(plt.rcParamsDefault)
+    
     print("  Plots saved to 'analysis_plots.png'")
 
 # Load data
@@ -179,15 +194,15 @@ print(f"  Methods: {df['method'].unique()}")
 likert_vars = [
     'easy_to_use', 
     'intuitive', 
-    'time_lots',  # reverse-scored
-    'effort_lots',  # reverse-scored
+    'time_cost',  # reverse-scored
+    'effort',  # reverse-scored
     'iterative_support', 
-    'accuracy_support', 
+    'accuracy', 
     'educational_value', 
     'future_use'
 ]
 
-continuous_vars = ['completion_time_seconds']
+continuous_vars = ['task_completion_time']
 
 all_vars = likert_vars + continuous_vars
 
