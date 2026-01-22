@@ -128,6 +128,11 @@ def wilcoxon_effect_size_rb(differences):
     # r = 4|T - (R₁ + R₂)/2| / (n(n+1))
     r = 4 * abs(T - (R1 + R2) / 2) / (n * (n + 1))
     
+    # Add sign to indicate direction: positive if R1 > R2 (more positive differences)
+    # negative if R1 < R2 (more negative differences)
+    sign = 1 if R1 > R2 else -1
+    r = sign * r
+    
     return r
 
 def create_visualizations(df, variables, method_pairs):
@@ -192,11 +197,11 @@ print(f"  Methods: {df['method'].unique()}")
 
 # Define all variables to analyze
 likert_vars = [
-    'easy_to_use', 
+    'ease_of_use', 
     'intuitive', 
-    'time_cost',  # reverse-scored
+    'time_investment',  # reverse-scored
     'effort',  # reverse-scored
-    'iterative_support', 
+    'iterative_refinement', 
     'accuracy', 
     'educational_value', 
     'future_use'
