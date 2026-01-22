@@ -289,16 +289,6 @@ for var in all_vars:
             stat_test = result.statistic
             p_test = result.pvalue
             
-            # Calculate number of non-zero differences
-            n_nonzero = np.sum(differences != 0)
-            
-            # Calculate z-statistic manually (not provided in SciPy 1.9.0+)
-            # For Wilcoxon signed-rank test: z = (W - μ) / σ
-            # where μ = n(n+1)/4 and σ = sqrt(n(n+1)(2n+1)/24)
-            mean_w = n_nonzero * (n_nonzero + 1) / 4
-            std_w = np.sqrt(n_nonzero * (n_nonzero + 1) * (2 * n_nonzero + 1) / 24)
-            z_stat = (stat_test - mean_w) / std_w
-            
             test_used = "Wilcoxon"
             # Calculate rank-biserial correlation (direct effect size for Wilcoxon)
             effect_size = wilcoxon_effect_size_rb(differences)
