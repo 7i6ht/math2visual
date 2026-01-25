@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback, memo } from "react";
 import { VisualizationSection } from "./VisualizationSection";
 import { MissingSVGSection } from "./MissingSVGSection";
 import { ParseErrorSection } from "./ParseErrorSection";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, TriangleAlert } from "lucide-react";
 import { trackElementClick, isAnalyticsEnabled } from "@/services/analyticsTracker";
 import { useTranslation } from "react-i18next";
 
@@ -57,6 +57,9 @@ export const VisualizationResults = memo(({
   const filteredFormalError = filterMissingSvgError(formalError);
   const filteredIntuitiveError = filterMissingSvgError(intuitiveError);
     
+  // Check if at least one visual variant is available
+  const hasAtLeastOneVariant = !!(svgFormal || svgIntuitive);
+
   // Auto-select appropriate tab when content changes
   const getDefaultTab = useCallback(() => {
     // Check for parse errors first
@@ -147,8 +150,12 @@ export const VisualizationResults = memo(({
                       value: "missing-svg" as const,
                       onClick:
                         analyticsEnabled ? () => trackElementClick("tab_missing_svg_click") : undefined,
-                      className: "data-[state=active]:bg-destructive/10",
-                      icon: (
+                      className: hasAtLeastOneVariant
+                        ? "data-[state=active]:bg-amber-500/10" 
+                        : "data-[state=active]:bg-destructive/10",
+                      icon: hasAtLeastOneVariant ? (
+                        <TriangleAlert className="responsive-smaller-icon-font-size mr-2 text-amber-500" />
+                      ) : (
                         <AlertCircle className="responsive-smaller-icon-font-size mr-2 text-destructive" />
                       ),
                       label: t("visualization.tabs.missingSVG"),
@@ -234,6 +241,7 @@ export const VisualizationResults = memo(({
               missingSVGEntities={missingSVGEntities}
               onRegenerateAfterUpload={onRegenerateAfterUpload}
               onAllFilesUploaded={onAllFilesUploaded}
+              hasAtLeastOneVariant={hasAtLeastOneVariant}
             />
           </TabsContent>
         )}

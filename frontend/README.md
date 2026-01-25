@@ -32,8 +32,6 @@ frontend/
 │   │   ├── common/            # Landing + prompt hero blocks
 │   │   │   ├── HeroShell.tsx
 │   │   │   └── MwpPromptView.tsx
-│   │   ├── errors/
-│   │   │   └── SVGMissingError.tsx
 │   │   ├── forms/
 │   │   │   ├── RegenerateForm.tsx          # Regenerate from DSL/formula
 │   │   │   └── VisualLanguageForm.tsx
