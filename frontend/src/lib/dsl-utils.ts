@@ -230,5 +230,7 @@ export function replaceNameForEntityTypeInDSL(dsl: string, sanitizedOldType: str
   if (nameReplaced !== dsl) {
     return nameReplaced;
   }
+
+  return dsl;
 }
 
